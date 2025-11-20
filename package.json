@@ -1,0 +1,12 @@
+{
+  "name": "polyvis",
+  "private": true,
+  "devDependencies": {
+    "@types/bun": "latest",
+    "prettier": "^3.6.2",
+    "prettier-plugin-tailwindcss": "^0.7.1"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  }
+}

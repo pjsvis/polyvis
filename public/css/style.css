@@ -1,0 +1,298 @@
+/* /css/style.css */
+
+/* --- 1. GLOBAL VARIABLES (The DNA) --- */
+:root {
+  --primary: #000; /* The Ink */
+  --secondary: #fff; /* The Paper */
+  --accent: #f4f4f4; /* The Void */
+  --border-width: 1px;
+  --shadow-offset: 4px; /* Brutalist shadow depth */
+}
+
+/* --- 2. RESET & TYPOGRAPHY --- */
+body {
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial,
+    sans-serif;
+  background-color: var(--accent);
+  color: var(--primary);
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Monospace accents for that "Engineering" feel */
+.mono {
+  font-family: "Menlo", "Monaco", "Courier New", monospace;
+}
+
+/* --- 3. STRUCTURAL COMPONENTS --- */
+
+/* The standard "Box" container */
+.container-box {
+  border: var(--border-width) solid var(--primary);
+  background: var(--secondary);
+  padding: 2rem;
+  box-shadow: 8px 8px 0px rgba(0, 0, 0, 0.1);
+}
+
+/* The Brutalist Button (Used in Visualizer & Nav) */
+.btn-structural {
+  display: inline-block;
+  background-color: var(--secondary);
+  color: var(--primary);
+  border: 1px solid var(--primary);
+  padding: 0.5rem 1rem;
+  font-family: "Menlo", "Monaco", monospace;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  letter-spacing: 1px;
+  cursor: pointer;
+  box-shadow: 4px 4px 0px 0px rgba(0, 0, 0, 1);
+  transition: all 0.1s ease;
+  text-decoration: none; /* For <a> tags acting as buttons */
+}
+
+.btn-structural:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px 0px rgba(0, 0, 0, 1);
+}
+
+.btn-structural:active {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0px 0px rgba(0, 0, 0, 1);
+}
+
+/* --- 4. PAGE SPECIFIC: HOME --- */
+
+/* The invisible wrapper that centers the box */
+.home-layout {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh; /* Takes up full screen height */
+  width: 100%;
+}
+
+/* Adjustments for the box specifically on the home page */
+.home-box {
+  max-width: 600px;
+  width: 90%;
+  text-align: center;
+}
+
+.home-title {
+  font-size: 3rem;
+  letter-spacing: -2px;
+  margin: 0 0 0.5rem 0;
+  text-transform: uppercase;
+}
+
+.home-subtitle {
+  font-family: "Menlo", "Monaco", monospace;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 1.5rem;
+  margin-bottom: 2rem;
+  color: #555;
+}
+
+/* --- 5. PAGE SPECIFIC: GRAPH VISUALIZER --- */
+textarea.structural-input {
+  font-family: "Menlo", "Monaco", monospace;
+  font-size: 0.9rem;
+  border: 1px solid var(--primary) !important;
+  border-radius: 0 !important;
+  box-shadow: inset 4px 4px 0px 0px rgba(0, 0, 0, 0.05);
+}
+
+textarea.structural-input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: inset 4px 4px 0px 0px rgba(0, 0, 0, 0.1);
+}
+
+/* --- 6. PAGE SPECIFIC: DOCS (Prose) --- */
+.prose {
+  max-width: 65ch;
+  margin: 0 auto;
+}
+.prose h1 {
+  font-size: 2.5rem;
+  font-weight: 800;
+  letter-spacing: -1px;
+  margin-bottom: 1.5rem;
+  text-transform: uppercase;
+  border-bottom: 4px solid black;
+  padding-bottom: 0.5rem;
+}
+.prose h2 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid #ccc;
+}
+.prose p {
+  margin-bottom: 1.25rem;
+  line-height: 1.6;
+}
+.prose ul {
+  list-style-type: square;
+  margin-left: 1.5rem;
+  margin-bottom: 1.25rem;
+}
+.prose code {
+  background: #e5e7eb;
+  padding: 0.2rem 0.4rem;
+  font-family: "Menlo", monospace;
+  font-size: 0.9em;
+}
+.prose pre {
+  background: #1f2937;
+  color: white;
+  padding: 1rem;
+  overflow-x: auto;
+  margin-bottom: 1.5rem;
+  border-left: 5px solid black;
+}
+.prose blockquote {
+  border-left: 4px solid black;
+  padding-left: 1rem;
+  font-style: italic;
+  color: #555;
+}
+
+.graph-container {
+  border: 1px solid black;
+  background: white;
+  padding: 1rem;
+  margin: 1.5rem 0;
+  box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.1);
+  overflow-x: auto;
+  display: flex;
+  justify-content: center;
+}
+
+/* --- 7. UTILITIES --- */
+.status-dot {
+  height: 10px;
+  width: 10px;
+  background-color: #2ecc71;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 5px;
+}
+
+.footer-text {
+  font-size: 0.75rem;
+  color: #888;
+  font-family: "Menlo", "Monaco", monospace;
+  margin-top: 2rem;
+  text-align: center;
+}
+
+/* --- 8. NAVIGATION COMPONENT --- */
+.nav-wrapper {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  /* ADD THIS: Pushes the card away from the menu line */
+  margin-bottom: 3rem;
+
+  padding: 2rem 1rem; /* Tuned padding: 2rem top/bottom, 1rem sides */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid var(--primary);
+  box-sizing: border-box;
+  background-color: var(--accent); /* Ensures no content shows behind it */
+}
+
+/* The "PolyVis" Logo in the nav */
+.nav-brand {
+  font-size: 1.25rem; /* text-xl */
+  font-weight: 700;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--primary);
+  letter-spacing: -1px;
+}
+
+/* The container for links */
+.nav-links {
+  display: flex;
+  gap: 1.5rem; /* Space between links */
+}
+
+/* The links themselves */
+.nav-item {
+  font-family: "Menlo", "Monaco", monospace;
+  font-size: 0.75rem; /* text-xs */
+  text-transform: uppercase;
+  text-decoration: none;
+  color: #666;
+}
+
+.nav-item:hover {
+  text-decoration: underline;
+  color: var(--primary);
+}
+
+.nav-item.active {
+  font-weight: bold;
+  text-decoration: underline;
+  color: var(--primary);
+}
+
+.nav-version {
+  font-family: "Menlo", "Monaco", monospace;
+  font-size: 0.75rem;
+  color: #888;
+}
+
+/* --- HOME PAGE OVERRIDE (Pins menu to top) --- */
+.home-layout {
+  position: relative; /* Establishes context for absolute positioning */
+}
+
+.home-layout #polyvis-nav {
+  position: absolute;
+  top: 0;
+  width: 100%;
+  left: 0;
+}
+
+/* Standard Page Layout (For Docs & Viz) */
+.page-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  padding: 0; /* Removes the 'Jump' by stripping default padding */
+  margin: 0;
+}
+
+/* --- 9. PAGE TRANSITIONS --- */
+
+/* The definition of the fade */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Apply it to the body of every page */
+body {
+  /* Run the animation for 0.4 seconds with a smooth 'ease-out' curve */
+  animation: fadeIn 0.8s ease-out;
+
+  /* Ensure the page doesn't flicker white before starting */
+  animation-fill-mode: both;
+}
