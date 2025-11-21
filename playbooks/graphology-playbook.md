@@ -157,3 +157,19 @@ If you are unsure where a library is attached in the window object:
 1.  Open the browser console.
 2.  Inspect the main library object (e.g., `window.graphologyLibrary`).
 3.  Check for properties like `layout`, `layoutForceAtlas2`, etc.
+
+### UMD Library Structure (v0.8.0)
+
+When using `graphology-library` in the browser, the exports are structured as follows:
+
+- **Top-level Layouts**: Some layouts are exported directly on the library object.
+    - `graphologyLibrary.layoutForceAtlas2`
+    - `graphologyLibrary.layoutNoverlap`
+- **Nested Layouts**: Other layouts are grouped under the `layout` property.
+    - `graphologyLibrary.layout.circular`
+    - `graphologyLibrary.layout.random`
+    - `graphologyLibrary.layout.circlepack`
+- **Algorithms**:
+    - `graphologyLibrary.communitiesLouvain`
+    - `graphologyLibrary.shortestPath`
+    - `graphologyLibrary.metrics`
