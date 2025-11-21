@@ -153,8 +153,10 @@
         `Graph Loaded: ${nodeCount} Nodes, ${edgeCount} Edges. Running Physics...`;
 
       // 4. Run Layout (ForceAtlas2)
-      if (graphologyLibrary && graphologyLibrary.layoutForceAtlas2) {
-        graphologyLibrary.layoutForceAtlas2.assign(graph, {
+      // 4. Run Layout (ForceAtlas2)
+      if (window.graphologyLibrary && window.graphologyLibrary.layoutForceAtlas2) {
+        console.log("Running initial ForceAtlas2 layout...");
+        window.graphologyLibrary.layoutForceAtlas2.assign(graph, {
           iterations: 50, // Run 50 ticks of physics
           settings: {
             gravity: 1,
@@ -164,7 +166,8 @@
         });
       } else {
         console.warn(
-          "ForceAtlas2 library not loaded correctly. Using random positions."
+          "ForceAtlas2 library not loaded correctly. Using random positions.",
+          window.graphologyLibrary
         );
       }
 
@@ -200,6 +203,13 @@
             <button id="btn-components" class="zoom-btn">Show Components</button>
 <!-- <button id="btn-find-path" class="zoom-btn">Find Path</button> -->
             <button id="btn-show-stats" class="zoom-btn">Show Stats</button>
+            <div style="width: 100%; height: 0; flex-basis: 100%;"></div> <!-- Line break -->
+            <select id="layout-select" class="zoom-btn" style="cursor: pointer;">
+                <option value="forceatlas2">Layout: ForceAtlas2</option>
+                <option value="circular">Layout: Circular</option>
+                <option value="random">Layout: Random</option>
+                <option value="noverlap">Layout: Noverlap (Refine)</option>
+            </select>
         `;
       container.appendChild(analysisDiv);
 
@@ -504,7 +514,8 @@
         }
       });
 
-      // Find Path Mode
+      // Find Path Mode (Disabled)
+      /*
       let pathMode = false;
       let sourceNode = null;
       let targetNode = null;
@@ -535,6 +546,7 @@
           console.log("Path mode deactivated.");
         }
       });
+      */
 
       // Handle node clicks for path finding
       renderer.on("clickNode", ({ node }) => {
@@ -603,6 +615,55 @@
           pathEdges = [];
           renderer.refresh();
         }
+      });
+
+      // Layout Switcher Logic
+      const layoutSelect = document.getElementById("layout-select");
+
+      layoutSelect.addEventListener("change", (e) => {
+        const layout = e.target.value;
+        console.log("Switching layout to:", layout);
+        const lib = window.graphologyLibrary;
+
+        if (!lib) {
+          console.error("Graphology Library not found!");
+          return;
+        }
+
+        if (layout === "forceatlas2") {
+          if (lib.layoutForceAtlas2) {
+            document.getElementById("status").textContent = "Running ForceAtlas2...";
+            lib.layoutForceAtlas2.assign(graph, {
+              iterations: 50,
+              settings: { gravity: 1 }
+            });
+            document.getElementById("status").textContent = "ForceAtlas2 Complete.";
+          } else { console.error("ForceAtlas2 not found in library"); }
+        } else if (layout === "circular") {
+          if (lib.layout && lib.layout.circular) {
+            document.getElementById("status").textContent = "Applying Circular Layout...";
+            lib.layout.circular.assign(graph);
+            document.getElementById("status").textContent = "Circular Layout Applied.";
+          } else { console.error("Circular layout not found in library"); }
+        } else if (layout === "random") {
+          if (lib.layout && lib.layout.random) {
+            document.getElementById("status").textContent = "Applying Random Layout...";
+            lib.layout.random.assign(graph);
+            document.getElementById("status").textContent = "Random Layout Applied.";
+          } else { console.error("Random layout not found in library"); }
+        } else if (layout === "noverlap") {
+          if (lib.layoutNoverlap) {
+            document.getElementById("status").textContent = "Removing Overlaps...";
+            lib.layoutNoverlap.assign(graph);
+            document.getElementById("status").textContent = "Overlaps Removed.";
+          } else {
+            alert("Noverlap layout not found.");
+          }
+        }
+
+        renderer.refresh();
+        // Reset zoom to fit new layout
+        renderer.getCamera().animatedReset();
       });
 
       document.getElementById("status").textContent =
