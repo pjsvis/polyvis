@@ -183,12 +183,15 @@
       analysisDiv.style.top = "20px";
       analysisDiv.style.left = "20px";
       analysisDiv.style.display = "flex";
+      analysisDiv.style.flexWrap = "wrap"; // Allow wrapping to multiple rows
       analysisDiv.style.gap = "10px";
+      analysisDiv.style.maxWidth = "calc(100% - 200px)"; // Leave space for zoom controls
       analysisDiv.style.zIndex = "10";
       analysisDiv.innerHTML = `
             <button id="btn-louvain" class="zoom-btn">Color by Community</button>
             <button id="btn-pagerank" class="zoom-btn">Size by Importance</button>
             <button id="btn-degree" class="zoom-btn">Size by Connections</button>
+            <button id="btn-betweenness" class="zoom-btn">Highlight Bridges</button>
             <button id="btn-reset-style" class="zoom-btn">Reset Styles</button>
             <button id="btn-show-stats" class="zoom-btn">Show Stats</button>
         `;
@@ -314,6 +317,33 @@
           // Normalize
           const size = 4 + ((score - minScore) / (maxScore - minScore)) * 21;
           graph.setNodeAttribute(node, "size", size);
+        });
+
+        // Bind Betweenness Centrality Event
+        document.getElementById("btn-betweenness").addEventListener("click", () => {
+          if (typeof graphologyLibrary === "undefined" || !graphologyLibrary.metrics) {
+            alert("Metrics library not loaded.");
+            return;
+          }
+
+          // Run Betweenness Centrality
+          const scores = graphologyLibrary.metrics.centrality.betweenness(graph);
+
+          // Map scores to color intensity (darker red = higher betweenness)
+          const minScore = Math.min(...Object.values(scores));
+          const maxScore = Math.max(...Object.values(scores));
+
+          graph.forEachNode((node) => {
+            const score = scores[node];
+            // Normalize to 0-1 range
+            const normalized = (score - minScore) / (maxScore - minScore);
+            // Map to color: light yellow (low) to dark red (high)
+            const r = 255;
+            const g = Math.floor(255 * (1 - normalized * 0.8)); // 255 to ~50
+            const b = Math.floor(255 * (1 - normalized)); // 255 to 0
+            const color = `rgb(${r}, ${g}, ${b})`;
+            graph.setNodeAttribute(node, "color", color);
+          });
         });
       });
 
