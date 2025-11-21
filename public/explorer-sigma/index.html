@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PolyVis | Sigma Explorer</title>
+
+    <link rel="stylesheet" href="/css/style.css">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js"></script>
+
+    <script src="https://unpkg.com/graphology@0.25.4/dist/graphology.umd.js"></script>
+
+    <script
+        src="https://unpkg.com/graphology-layout-forceatlas2@0.10.1/dist/graphology-layout-forceatlas2.umd.js"></script>
+
+    <script src="https://unpkg.com/sigma@2.4.0/build/sigma.min.js"></script>
+
+    <style>
+        #sigma-container {
+            width: 100%;
+            height: 800px;
+            background-color: white;
+            border: 1px solid black;
+            box-shadow: 8px 8px 0px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+
+<body class="page-layout">
+
+
+    <h1>Sigma Explorer</h1>
+    <script src="/components/nav.js"></script>
+    <div id="polyvis-nav"></div>
+
+    <div class="w-full max-w-[95%] mx-auto p-4">
+        <h1 class="text-2xl font-bold uppercase mb-4">Neuro-Map (WebGL)</h1>
+
+        <div id="sigma-container"></div>
+
+        <div id="status" class="mt-2 font-mono text-xs text-gray-500">Initializing WebGL Engine...</div>
+    </div>
+
+    <script>
+        // Initialize SQL.js
+        initSqlJs({
+            locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/${file}`
+        }).then(function (SQL) {
+            const xhr = new XMLHttpRequest();
+            xhr.open('GET', '/data/ctx.db', true); // Re-using your existing DB
+            xhr.responseType = 'arraybuffer';
+
+            xhr.onload = function (e) {
+                const uInt8Array = new Uint8Array(this.response);
+                const db = new SQL.Database(uInt8Array);
+
+                loadGraph(db);
+            };
+            xhr.send();
+        });
+
+        function loadGraph(db) {
+            // 1. Instantiate Graphology
+            const graph = new graphology.Graph();
+
+            document.getElementById('status').textContent = "Extracting Data...";
+
+            // 2. Query Nodes
+            const nodesStmt = db.prepare("SELECT * FROM nodes");
+            while (nodesStmt.step()) {
+                const row = nodesStmt.getAsObject();
+                // Sigma requires X, Y, Size, and Color attributes
+                graph.addNode(row.id, {
+                    label: row.label,
+                    size: row.type === 'Core Concept' ? 15 : 5,
+                    color: row.type === 'Core Concept' ? "black" : "#666",
+                    // Initial random position (needed for the physics simulation to start)
+                    x: Math.random(),
+                    y: Math.random()
+                });
+            }
+
+            // 3. Query Edges
+            const edgesStmt = db.prepare("SELECT * FROM edges");
+            while (edgesStmt.step()) {
+                const row = edgesStmt.getAsObject();
+                // Safety check: ensure both nodes exist before adding edge
+                if (graph.hasNode(row.source) && graph.hasNode(row.target)) {
+                    graph.addEdge(row.source, row.target, {
+                        type: "arrow",
+                        label: row.relation,
+                        size: 2,
+                        color: "#ccc"
+                    });
+                }
+            }
+
+            document.getElementById('status').textContent = `Graph Loaded: ${graph.order} Nodes, ${graph.size} Edges. Running Physics...`;
+
+            // 4. Run Layout (ForceAtlas2)
+            // This calculates the physics to untangle the spaghetti
+            graphologyLibrary.layout.forceatlas2.assign(graph, {
+                iterations: 100,
+                settings: {
+                    gravity: 1,
+                    scalingRatio: 10 // Spread nodes apart
+                }
+            });
+
+            // 5. Render with Sigma
+            const container = document.getElementById("sigma-container");
+            const renderer = new Sigma(graph, container);
+
+            document.getElementById('status').textContent = "Interactive Mode Active. Scroll to Zoom, Drag to Move.";
+        }
+    </script>
+</body>
+
+</html>

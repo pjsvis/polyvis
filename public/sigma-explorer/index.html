@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PolyVis | Sigma Explorer</title>
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js"></script>
+    
+    <script src="https://unpkg.com/graphology@0.25.4/dist/graphology.umd.js"></script>
+    
+    <script src="https://unpkg.com/graphology-layout-forceatlas2@0.10.1/dist/graphology-layout-forceatlas2.umd.js"></script>
+    
+    <script src="https://unpkg.com/sigma@2.4.0/build/sigma.min.js"></script>
+
+    <style>
+        #sigma-container {
+            width: 100%;
+            height: 800px;
+            background-color: white;
+            border: 1px solid black;
+            box-shadow: 8px 8px 0px rgba(0,0,0,0.1);
+            position: relative; /* Context for tooltips if we add them */
+        }
+    </style>
+</head>
+<body class="page-layout">
+
+    <script src="/components/nav.js"></script>
+    <div id="polyvis-nav"></div>
+
+    <div class="container-box w-full max-w-[1100px] mx-auto p-4" style="margin-top: 2rem; margin-bottom: 4rem;">
+        
+        <div class="flex justify-between items-end mb-4">
+            <h1 class="text-2xl font-bold uppercase">Neuro-Map (WebGL)</h1>
+            <div id="status" class="font-mono text-xs text-gray-500 text-right">Initializing...</div>
+        </div>
+        
+        <div id="sigma-container"></div>
+    </div>
+
+    <script>
+        // Initialize SQL.js
+        initSqlJs({ 
+            locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/${file}` 
+        }).then(function(SQL){
+            const xhr = new XMLHttpRequest();
+            xhr.open('GET', '/data/ctx.db', true); 
+            xhr.responseType = 'arraybuffer';
+
+            xhr.onload = function(e) {
+                if (this.status !== 200) {
+                    document.getElementById('status').innerHTML = `<span class="text-red-500">Error: ctx.db not found (Status ${this.status})</span>`;
+                    return;
+                }
+                const uInt8Array = new Uint8Array(this.response);
+                const db = new SQL.Database(uInt8Array);
+                loadGraph(db);
+            };
+            xhr.send();
+        });
+
+        function loadGraph(db) {
+            // 1. Instantiate Graphology
+            // Note: In UMD, it might be just 'graphology.Graph' or 'Graphology.Graph' depending on version.
+            // Usually 'graphology.Graph' works if 'graphology' global is set.
+            const graph = new graphology.Graph();
+
+            document.getElementById('status').textContent = "Extracting Data...";
+
+            // 2. Query Nodes
+            try {
+                const nodesStmt = db.prepare("SELECT * FROM nodes");
+                while(nodesStmt.step()) {
+                    const row = nodesStmt.getAsObject();
+                    // Add Node with randomization to help ForceAtlas start
+                    graph.addNode(row.id, {
+                        label: row.label,
+                        // Visual Hierarchy: Core Concepts are big/black, others small/grey
+                        size: row.type === 'Core Concept' ? 15 : 5,
+                        color: row.type === 'Core Concept' ? "black" : "#999",
+                        x: Math.random() * 100, 
+                        y: Math.random() * 100
+                    });
+                }
+            } catch(e) { console.error("Node Error", e); }
+
+            // 3. Query Edges
+            try {
+                const edgesStmt = db.prepare("SELECT * FROM edges");
+                while(edgesStmt.step()) {
+                    const row = edgesStmt.getAsObject();
+                    if(graph.hasNode(row.source) && graph.hasNode(row.target)) {
+                        // Avoid duplicates if DB has them
+                        if(!graph.hasEdge(row.source, row.target)) {
+                            graph.addEdge(row.source, row.target, {
+                                type: "arrow",
+                                label: row.relation,
+                                size: 2,
+                                color: "#e5e5e5"
+                            });
+                        }
+                    }
+                }
+            } catch(e) { console.error("Edge Error", e); }
+
+            const nodeCount = graph.order;
+            const edgeCount = graph.size;
+            document.getElementById('status').textContent = `Graph Loaded: ${nodeCount} Nodes, ${edgeCount} Edges. Running Physics...`;
+
+            // 4. Run Layout (ForceAtlas2)
+            // FIX: Use the global 'forceAtlas2' object directly
+            if (typeof forceAtlas2 !== 'undefined') {
+                forceAtlas2.assign(graph, {
+                    iterations: 50, // Run 50 ticks of physics
+                    settings: {
+                        gravity: 1,
+                        scalingRatio: 5,
+                        barnesHutOptimize: nodeCount > 2000
+                    }
+                });
+            } else {
+                console.warn("ForceAtlas2 library not loaded correctly. Using random positions.");
+            }
+
+            // 5. Render with Sigma
+            const container = document.getElementById("sigma-container");
+            // FIX: Ensure container is empty before mounting (hot reload safety)
+            container.innerHTML = ''; 
+            
+            const renderer = new Sigma(graph, container, {
+                renderEdgeLabels: true
+            });
+
+            document.getElementById('status').textContent = "Interactive Mode Active. Scroll to Zoom, Drag to Move.";
+        }
+    </script>
+</body>
+</html>

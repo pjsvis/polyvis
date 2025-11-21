@@ -9,6 +9,8 @@ document.addEventListener("DOMContentLoaded", () => {
     { name: "HQ", href: "/" },
     { name: "Visualizer", href: "/graph/" },
     { name: "Docs", href: "/docs/" },
+    { name: "Explorer", href: "/explorer/" },
+    { name: "Sigma Explorer", href: "/sigma-explorer/" },
   ];
 
   // Generate Links HTML
