@@ -12,7 +12,7 @@ Here is the operational logic, rendered live from DOT code:
 
 ```dot
 digraph Logic {
-    rankdir=LR;
+    rankdir=TB;
     node [shape=box, fontname="Courier", margin="0.2,0.1", style=filled, fillcolor="white"];
     edge [fontname="Courier"];
 
