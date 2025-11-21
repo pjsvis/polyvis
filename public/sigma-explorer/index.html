@@ -1,227 +1,284 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>PolyVis | Sigma Explorer</title>
 
-    <link rel="stylesheet" href="/css/style.css" />
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PolyVis | Sigma Explorer</title>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js"></script>
+  <link rel="stylesheet" href="/css/style.css" />
 
-    <script src="https://unpkg.com/graphology@0.25.4/dist/graphology.umd.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js"></script>
 
-    <script src="https://unpkg.com/graphology-layout-forceatlas2@0.10.1/dist/graphology-layout-forceatlas2.umd.js"></script>
+  <script src="https://unpkg.com/graphology@0.25.4/dist/graphology.umd.js"></script>
 
-    <script src="https://unpkg.com/sigma@2.4.0/build/sigma.min.js"></script>
+  <script
+    src="https://unpkg.com/graphology-layout-forceatlas2@0.10.1/dist/graphology-layout-forceatlas2.umd.js"></script>
 
-    <style>
-      #sigma-container {
-        width: 100%;
-        height: 800px;
-        background-color: white;
-        border: 1px solid black;
-        box-shadow: 8px 8px 0px rgba(0, 0, 0, 0.1);
-        position: relative;
-        /* Context for tooltips if we add them */
-      }
-    </style>
-  </head>
+  <script src="https://unpkg.com/sigma@2.4.0/build/sigma.min.js"></script>
 
-  <body class="page-layout">
-    <script src="/components/nav.js"></script>
-    <div id="polyvis-nav"></div>
+  <script src="https://unpkg.com/graphology-library@0.8.0/dist/graphology-library.min.js"></script>
 
-    <div
-      class="container-box mx-auto w-full max-w-[1100px] p-4"
-      style="margin-top: 2rem; margin-bottom: 4rem"
-    >
-      <div class="mb-4 flex items-end justify-between">
-        <h1 class="text-2xl font-bold uppercase">Neuro-Map (WebGL)</h1>
-        <div id="status" class="text-right font-mono text-xs text-gray-500">
-          Initializing...
-        </div>
+  <style>
+    #sigma-container {
+      width: 100%;
+      height: 800px;
+      background-color: white;
+      border: 1px solid black;
+      box-shadow: 8px 8px 0px rgba(0, 0, 0, 0.1);
+      position: relative;
+      /* Context for tooltips if we add them */
+    }
+  </style>
+</head>
+
+<body class="page-layout">
+  <script src="/components/nav.js"></script>
+  <div id="polyvis-nav"></div>
+
+  <div class="container-box mx-auto w-full max-w-[1100px] p-4" style="margin-top: 2rem; margin-bottom: 4rem">
+    <div class="mb-4 flex items-end justify-between">
+      <h1 class="text-2xl font-bold uppercase">Neuro-Map (WebGL)</h1>
+      <div id="status" class="text-right font-mono text-xs text-gray-500">
+        Initializing...
       </div>
-
-      <div id="sigma-container"></div>
     </div>
 
-    <style>
-      .zoom-controls {
-        position: absolute;
-        top: 20px;
-        right: 20px;
-        display: flex;
-        gap: 10px;
-        z-index: 10;
-      }
+    <div id="sigma-container"></div>
+  </div>
 
-      .zoom-btn {
-        background: white;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-        padding: 5px 10px;
-        cursor: pointer;
-        font-weight: bold;
-        box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
-      }
+  <style>
+    .zoom-controls {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      display: flex;
+      gap: 10px;
+      z-index: 10;
+    }
 
-      .zoom-btn:hover {
-        background: #f0f0f0;
-      }
-    </style>
-    <script>
-      // Initialize SQL.js
-      initSqlJs({
-        locateFile: (file) =>
-          `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/${file}`,
-      }).then(function (SQL) {
-        const xhr = new XMLHttpRequest();
-        xhr.open("GET", "/data/ctx.db", true);
-        xhr.responseType = "arraybuffer";
+    .zoom-btn {
+      background: white;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      padding: 5px 10px;
+      cursor: pointer;
+      font-weight: bold;
+      box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+    }
 
-        xhr.onload = function (e) {
-          if (this.status !== 200) {
-            document.getElementById("status").innerHTML =
-              `<span class="text-red-500">Error: ctx.db not found (Status ${this.status})</span>`;
-            return;
-          }
-          const uInt8Array = new Uint8Array(this.response);
-          const db = new SQL.Database(uInt8Array);
-          loadGraph(db);
-        };
-        xhr.send();
-      });
+    .zoom-btn:hover {
+      background: #f0f0f0;
+    }
+  </style>
+  <script>
+    // Initialize SQL.js
+    initSqlJs({
+      locateFile: (file) =>
+        `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/${file}`,
+    }).then(function (SQL) {
+      const xhr = new XMLHttpRequest();
+      xhr.open("GET", "/data/ctx.db", true);
+      xhr.responseType = "arraybuffer";
 
-      function loadGraph(db) {
-        // 1. Instantiate Graphology
-        // Note: In UMD, it might be just 'graphology.Graph' or 'Graphology.Graph' depending on version.
-        // Usually 'graphology.Graph' works if 'graphology' global is set.
-        const graph = new graphology.Graph();
-
-        document.getElementById("status").textContent = "Extracting Data...";
-
-        // 2. Query Nodes
-        try {
-          const nodesStmt = db.prepare("SELECT * FROM nodes");
-          while (nodesStmt.step()) {
-            const row = nodesStmt.getAsObject();
-            // Add Node with randomization to help ForceAtlas start
-            graph.addNode(row.id, {
-              label: row.label,
-              // Visual Hierarchy: Core Concepts are big/black, others small/grey
-              size: row.type === "Core Concept" ? 15 : 5,
-              color: row.type === "Core Concept" ? "black" : "#999",
-              x: Math.random() * 100,
-              y: Math.random() * 100,
-            });
-          }
-        } catch (e) {
-          console.error("Node Error", e);
+      xhr.onload = function (e) {
+        if (this.status !== 200) {
+          document.getElementById("status").innerHTML =
+            `<span class="text-red-500">Error: ctx.db not found (Status ${this.status})</span>`;
+          return;
         }
+        const uInt8Array = new Uint8Array(this.response);
+        const db = new SQL.Database(uInt8Array);
+        loadGraph(db);
+      };
+      xhr.send();
+    });
 
-        // 3. Query Edges
-        try {
-          const edgesStmt = db.prepare("SELECT * FROM edges");
-          while (edgesStmt.step()) {
-            const row = edgesStmt.getAsObject();
-            if (graph.hasNode(row.source) && graph.hasNode(row.target)) {
-              // Avoid duplicates if DB has them
-              if (!graph.hasEdge(row.source, row.target)) {
-                graph.addEdge(row.source, row.target, {
-                  type: "arrow",
-                  label: row.relation,
-                  size: 2,
-                  color: "#e5e5e5",
-                });
-              }
+    function loadGraph(db) {
+      // 1. Instantiate Graphology
+      const graph = new graphology.Graph();
+
+      document.getElementById("status").textContent = "Extracting Data...";
+
+      // 2. Query Nodes
+      try {
+        const nodesStmt = db.prepare("SELECT * FROM nodes");
+        while (nodesStmt.step()) {
+          const row = nodesStmt.getAsObject();
+          // Add Node with randomization to help ForceAtlas start
+          graph.addNode(row.id, {
+            label: row.label,
+            // Visual Hierarchy: Core Concepts are big/black, others small/grey
+            size: row.type === "Core Concept" ? 15 : 5,
+            color: row.type === "Core Concept" ? "black" : "#999",
+            originalSize: row.type === "Core Concept" ? 15 : 5,
+            originalColor: row.type === "Core Concept" ? "black" : "#999",
+            x: Math.random() * 100,
+            y: Math.random() * 100,
+          });
+        }
+      } catch (e) {
+        console.error("Node Error", e);
+      }
+
+      // 3. Query Edges
+      try {
+        const edgesStmt = db.prepare("SELECT * FROM edges");
+        while (edgesStmt.step()) {
+          const row = edgesStmt.getAsObject();
+          if (graph.hasNode(row.source) && graph.hasNode(row.target)) {
+            // Avoid duplicates if DB has them
+            if (!graph.hasEdge(row.source, row.target)) {
+              graph.addEdge(row.source, row.target, {
+                type: "arrow",
+                label: row.relation,
+                size: 2,
+                color: "#e5e5e5",
+              });
             }
           }
-        } catch (e) {
-          console.error("Edge Error", e);
         }
+      } catch (e) {
+        console.error("Edge Error", e);
+      }
 
-        const nodeCount = graph.order;
-        const edgeCount = graph.size;
-        document.getElementById("status").textContent =
-          `Graph Loaded: ${nodeCount} Nodes, ${edgeCount} Edges. Running Physics...`;
+      const nodeCount = graph.order;
+      const edgeCount = graph.size;
+      document.getElementById("status").textContent =
+        `Graph Loaded: ${nodeCount} Nodes, ${edgeCount} Edges. Running Physics...`;
 
-        // 4. Run Layout (ForceAtlas2)
-        // FIX: Use the global 'forceAtlas2' object directly
-        if (typeof forceAtlas2 !== "undefined") {
-          forceAtlas2.assign(graph, {
-            iterations: 50, // Run 50 ticks of physics
-            settings: {
-              gravity: 1,
-              scalingRatio: 5,
-              barnesHutOptimize: nodeCount > 2000,
-            },
-          });
-        } else {
-          console.warn(
-            "ForceAtlas2 library not loaded correctly. Using random positions."
-          );
-        }
+      // 4. Run Layout (ForceAtlas2)
+      if (typeof forceAtlas2 !== "undefined") {
+        forceAtlas2.assign(graph, {
+          iterations: 50, // Run 50 ticks of physics
+          settings: {
+            gravity: 1,
+            scalingRatio: 5,
+            barnesHutOptimize: nodeCount > 2000,
+          },
+        });
+      } else {
+        console.warn(
+          "ForceAtlas2 library not loaded correctly. Using random positions."
+        );
+      }
 
-        // 5. Render with Sigma
-        const container = document.getElementById("sigma-container");
-        // FIX: Ensure container is empty before mounting (hot reload safety)
-        container.innerHTML = "";
+      // 5. Render with Sigma
+      const container = document.getElementById("sigma-container");
+      container.innerHTML = "";
 
-        // Add zoom controls
-        const controlsDiv = document.createElement("div");
-        controlsDiv.className = "zoom-controls";
-        controlsDiv.innerHTML = `
+      // Add zoom controls
+      const controlsDiv = document.createElement("div");
+      controlsDiv.className = "zoom-controls";
+      controlsDiv.innerHTML = `
                 <button id="zoom-in" class="zoom-btn" title="Zoom In">+</button>
                 <button id="zoom-reset" class="zoom-btn" title="Reset Zoom">⟲</button>
                 <button id="zoom-out" class="zoom-btn" title="Zoom Out">-</button>
             `;
-        container.appendChild(controlsDiv);
+      container.appendChild(controlsDiv);
 
-        const renderer = new Sigma(graph, container, {
-          renderEdgeLabels: true,
+      // Add Analysis Controls
+      const analysisDiv = document.createElement("div");
+      analysisDiv.style.position = "absolute";
+      analysisDiv.style.top = "20px";
+      analysisDiv.style.left = "20px";
+      analysisDiv.style.display = "flex";
+      analysisDiv.style.gap = "10px";
+      analysisDiv.style.zIndex = "10";
+      analysisDiv.innerHTML = `
+            <button id="btn-louvain" class="zoom-btn">Color by Community</button>
+            <button id="btn-pagerank" class="zoom-btn">Size by Importance</button>
+            <button id="btn-reset-style" class="zoom-btn">Reset Styles</button>
+        `;
+      container.appendChild(analysisDiv);
+
+      const renderer = new Sigma(graph, container, {
+        renderEdgeLabels: true,
+      });
+
+      // Disable mouse wheel zoom
+      container.addEventListener(
+        "wheel",
+        (e) => {
+          e.stopPropagation();
+        },
+        true
+      );
+
+      try {
+        if (renderer.getMouseCaptor()) {
+          renderer.getMouseCaptor().isMouseWheelEnabled = false;
+        }
+      } catch (e) { }
+
+      // Bind zoom events
+      document.getElementById("zoom-in").addEventListener("click", () => {
+        const camera = renderer.getCamera();
+        camera.animate({ ratio: camera.ratio / 1.5 });
+      });
+
+      document.getElementById("zoom-out").addEventListener("click", () => {
+        const camera = renderer.getCamera();
+        camera.animate({ ratio: camera.ratio * 1.5 });
+      });
+
+      document.getElementById("zoom-reset").addEventListener("click", () => {
+        renderer.getCamera().animatedReset();
+      });
+
+      // Bind Analysis Events
+      document.getElementById("btn-louvain").addEventListener("click", () => {
+        if (typeof graphologyLibrary === "undefined" || !graphologyLibrary.communitiesLouvain) {
+          alert("Louvain library not loaded.");
+          return;
+        }
+
+        // Run Louvain - the module itself is the function
+        const communities = graphologyLibrary.communitiesLouvain(graph);
+
+        // Assign colors based on community
+        // Simple palette generator
+        const colors = ["#e6194b", "#3cb44b", "#ffe119", "#4363d8", "#f58231", "#911eb4", "#46f0f0", "#f032e6", "#bcf60c", "#fabebe", "#008080", "#e6beff", "#9a6324", "#fffac8", "#800000", "#aaffc3", "#808000", "#ffd8b1", "#000075", "#808080", "#ffffff", "#000000"];
+
+        graph.forEachNode((node, attributes) => {
+          const communityId = communities[node];
+          const color = colors[communityId % colors.length];
+          graph.setNodeAttribute(node, "color", color);
         });
+      });
 
-        // Disable mouse wheel zoom by stopping propagation to Sigma
-        // This allows the default browser scroll to happen instead
-        container.addEventListener(
-          "wheel",
-          (e) => {
-            e.stopPropagation();
-          },
-          true
-        );
+      document.getElementById("btn-pagerank").addEventListener("click", () => {
+        if (typeof graphologyLibrary === "undefined" || !graphologyLibrary.metrics) {
+          alert("Metrics library not loaded.");
+          return;
+        }
 
-        try {
-          if (renderer.getMouseCaptor()) {
-            // Attempt to disable via internal API as well
-            renderer.getMouseCaptor().isMouseWheelEnabled = false;
-          }
-        } catch (e) {}
+        // Run PageRank
+        const scores = graphologyLibrary.metrics.centrality.pagerank(graph);
 
-        // Bind zoom events
-        // Using camera.animate() with explicit ratio calculation for deterministic behavior
-        // Sigma v2: Ratio is usually "view size" (inverse of zoom).
-        // Larger Ratio = Zoomed Out (seeing more)
-        // Smaller Ratio = Zoomed In (seeing less)
+        // Map scores to sizes (min 3, max 30)
+        const minScore = Math.min(...Object.values(scores));
+        const maxScore = Math.max(...Object.values(scores));
 
-        document.getElementById("zoom-in").addEventListener("click", () => {
-          const camera = renderer.getCamera();
-          camera.animate({ ratio: camera.ratio / 1.5 });
+        graph.forEachNode((node) => {
+          const score = scores[node];
+          // Normalize
+          const size = 3 + ((score - minScore) / (maxScore - minScore)) * 27;
+          graph.setNodeAttribute(node, "size", size);
         });
+      });
 
-        document.getElementById("zoom-out").addEventListener("click", () => {
-          const camera = renderer.getCamera();
-          camera.animate({ ratio: camera.ratio * 1.5 });
+      document.getElementById("btn-reset-style").addEventListener("click", () => {
+        graph.forEachNode((node, attributes) => {
+          if (attributes.originalColor) graph.setNodeAttribute(node, "color", attributes.originalColor);
+          if (attributes.originalSize) graph.setNodeAttribute(node, "size", attributes.originalSize);
         });
+      });
 
-        document.getElementById("zoom-reset").addEventListener("click", () => {
-          renderer.getCamera().animatedReset();
-        });
+      document.getElementById("status").textContent =
+        "Interactive Mode Active. Buttons to Zoom, Drag to Move.";
+    }
+  </script>
+</body>
 
-        document.getElementById("status").textContent =
-          "Interactive Mode Active. Buttons to Zoom, Drag to Move.";
-      }
-    </script>
-  </body>
 </html>

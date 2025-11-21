@@ -1,7 +1,10 @@
 # Task: [Task Name]
 
-**Objective:** [Brief description of the goal]
+**Objective:** Add additional graph controls to sigma-explorer
 
 ## Key Actions Checklist:
 
-- [ ] [Action Item 1]
+- [x] Research Graphology capabilities
+- [x] Implement Louvain Community Detection
+- [x] Implement PageRank Centrality
+- [x] Verify changes in browser
