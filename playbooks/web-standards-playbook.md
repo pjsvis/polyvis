@@ -29,11 +29,11 @@ With the following `frontend.js`:
 
 ```js
 // import .css files directly and it works
-import './index.css';
+import "./index.css";
 
-const app = document.getElementById('app');
+const app = document.getElementById("app");
 if (app) {
-  app.textContent = 'Hello from Vanilla JS!';
+  app.textContent = "Hello from Vanilla JS!";
 }
 ```
 

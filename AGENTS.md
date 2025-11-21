@@ -34,3 +34,12 @@ This document outlines the core operational protocols governing the actions of a
   1.  If a user states that an implementation is incorrect, incomplete, or does not meet their needs, the agent must immediately halt its current path.
   2.  The agent must treat the user's feedback as the new ground truth.
   3.  The agent must re-evaluate the problem based on the user's corrective feedback and propose a new plan that directly addresses the user's critique.
+
+## 5. TTP: Task Tracking Protocol
+
+- **Principle:** All active development tasks must be tracked using `_CURRENT_TASK.md` to ensure context preservation and progress visibility.
+- **Workflow:**
+  1.  **Initialization:** At the start of a new task, `_CURRENT_TASK.md` must be initialized with the objective and a checklist of key actions.
+  2.  **Tracking:** As work progresses, the checklist in `_CURRENT_TASK.md` must be updated to reflect the current state.
+  3.  **Completion:** Upon task completion, a debrief document must be created in the `debriefs/` directory summarizing the work, and `_CURRENT_TASK.md` should be reset for the next task.
+  4.  **Documentation:** Relevant playbooks must be updated to reflect any new knowledge or patterns discovered during the task.
