@@ -12,8 +12,7 @@
 
   <script src="https://unpkg.com/graphology@0.25.4/dist/graphology.umd.js"></script>
 
-  <script
-    src="https://unpkg.com/graphology-layout-forceatlas2@0.10.1/dist/graphology-layout-forceatlas2.umd.js"></script>
+
 
   <script src="https://unpkg.com/sigma@2.4.0/build/sigma.min.js"></script>
 
@@ -154,8 +153,8 @@
         `Graph Loaded: ${nodeCount} Nodes, ${edgeCount} Edges. Running Physics...`;
 
       // 4. Run Layout (ForceAtlas2)
-      if (typeof forceAtlas2 !== "undefined") {
-        forceAtlas2.assign(graph, {
+      if (graphologyLibrary && graphologyLibrary.layoutForceAtlas2) {
+        graphologyLibrary.layoutForceAtlas2.assign(graph, {
           iterations: 50, // Run 50 ticks of physics
           settings: {
             gravity: 1,
@@ -199,7 +198,7 @@
             <button id="btn-degree" class="zoom-btn">Size by Connections</button>
             <button id="btn-betweenness" class="zoom-btn">Highlight Bridges</button>
             <button id="btn-components" class="zoom-btn">Show Components</button>
-            <button id="btn-find-path" class="zoom-btn">Find Path</button>
+<!-- <button id="btn-find-path" class="zoom-btn">Find Path</button> -->
             <button id="btn-show-stats" class="zoom-btn">Show Stats</button>
         `;
       container.appendChild(analysisDiv);
