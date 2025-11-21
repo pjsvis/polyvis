@@ -1,18 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PolyVis | Sigma Explorer</title>
-    
+
     <link rel="stylesheet" href="/css/style.css">
-    
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js"></script>
-    
+
     <script src="https://unpkg.com/graphology@0.25.4/dist/graphology.umd.js"></script>
-    
-    <script src="https://unpkg.com/graphology-layout-forceatlas2@0.10.1/dist/graphology-layout-forceatlas2.umd.js"></script>
-    
+
+    <script
+        src="https://unpkg.com/graphology-layout-forceatlas2@0.10.1/dist/graphology-layout-forceatlas2.umd.js"></script>
+
     <script src="https://unpkg.com/sigma@2.4.0/build/sigma.min.js"></script>
 
     <style>
@@ -21,36 +23,62 @@
             height: 800px;
             background-color: white;
             border: 1px solid black;
-            box-shadow: 8px 8px 0px rgba(0,0,0,0.1);
-            position: relative; /* Context for tooltips if we add them */
+            box-shadow: 8px 8px 0px rgba(0, 0, 0, 0.1);
+            position: relative;
+            /* Context for tooltips if we add them */
         }
     </style>
 </head>
+
 <body class="page-layout">
 
     <script src="/components/nav.js"></script>
     <div id="polyvis-nav"></div>
 
     <div class="container-box w-full max-w-[1100px] mx-auto p-4" style="margin-top: 2rem; margin-bottom: 4rem;">
-        
+
         <div class="flex justify-between items-end mb-4">
             <h1 class="text-2xl font-bold uppercase">Neuro-Map (WebGL)</h1>
             <div id="status" class="font-mono text-xs text-gray-500 text-right">Initializing...</div>
         </div>
-        
+
         <div id="sigma-container"></div>
     </div>
 
+    <style>
+        .zoom-controls {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+            z-index: 10;
+        }
+
+        .zoom-btn {
+            background: white;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            padding: 5px 10px;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .zoom-btn:hover {
+            background: #f0f0f0;
+        }
+    </style>
     <script>
         // Initialize SQL.js
-        initSqlJs({ 
-            locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/${file}` 
-        }).then(function(SQL){
+        initSqlJs({
+            locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/${file}`
+        }).then(function (SQL) {
             const xhr = new XMLHttpRequest();
-            xhr.open('GET', '/data/ctx.db', true); 
+            xhr.open('GET', '/data/ctx.db', true);
             xhr.responseType = 'arraybuffer';
 
-            xhr.onload = function(e) {
+            xhr.onload = function (e) {
                 if (this.status !== 200) {
                     document.getElementById('status').innerHTML = `<span class="text-red-500">Error: ctx.db not found (Status ${this.status})</span>`;
                     return;
@@ -73,7 +101,7 @@
             // 2. Query Nodes
             try {
                 const nodesStmt = db.prepare("SELECT * FROM nodes");
-                while(nodesStmt.step()) {
+                while (nodesStmt.step()) {
                     const row = nodesStmt.getAsObject();
                     // Add Node with randomization to help ForceAtlas start
                     graph.addNode(row.id, {
@@ -81,20 +109,20 @@
                         // Visual Hierarchy: Core Concepts are big/black, others small/grey
                         size: row.type === 'Core Concept' ? 15 : 5,
                         color: row.type === 'Core Concept' ? "black" : "#999",
-                        x: Math.random() * 100, 
+                        x: Math.random() * 100,
                         y: Math.random() * 100
                     });
                 }
-            } catch(e) { console.error("Node Error", e); }
+            } catch (e) { console.error("Node Error", e); }
 
             // 3. Query Edges
             try {
                 const edgesStmt = db.prepare("SELECT * FROM edges");
-                while(edgesStmt.step()) {
+                while (edgesStmt.step()) {
                     const row = edgesStmt.getAsObject();
-                    if(graph.hasNode(row.source) && graph.hasNode(row.target)) {
+                    if (graph.hasNode(row.source) && graph.hasNode(row.target)) {
                         // Avoid duplicates if DB has them
-                        if(!graph.hasEdge(row.source, row.target)) {
+                        if (!graph.hasEdge(row.source, row.target)) {
                             graph.addEdge(row.source, row.target, {
                                 type: "arrow",
                                 label: row.relation,
@@ -104,7 +132,7 @@
                         }
                     }
                 }
-            } catch(e) { console.error("Edge Error", e); }
+            } catch (e) { console.error("Edge Error", e); }
 
             const nodeCount = graph.order;
             const edgeCount = graph.size;
@@ -128,14 +156,58 @@
             // 5. Render with Sigma
             const container = document.getElementById("sigma-container");
             // FIX: Ensure container is empty before mounting (hot reload safety)
-            container.innerHTML = ''; 
-            
+            container.innerHTML = '';
+
+            // Add zoom controls
+            const controlsDiv = document.createElement('div');
+            controlsDiv.className = 'zoom-controls';
+            controlsDiv.innerHTML = `
+                <button id="zoom-in" class="zoom-btn" title="Zoom In">+</button>
+                <button id="zoom-reset" class="zoom-btn" title="Reset Zoom">⟲</button>
+                <button id="zoom-out" class="zoom-btn" title="Zoom Out">-</button>
+            `;
+            container.appendChild(controlsDiv);
+
             const renderer = new Sigma(graph, container, {
                 renderEdgeLabels: true
+            });
+
+            // Disable mouse wheel zoom by stopping propagation to Sigma
+            // This allows the default browser scroll to happen instead
+            container.addEventListener('wheel', (e) => {
+                e.stopPropagation();
+            }, true);
+
+            try {
+                if (renderer.getMouseCaptor()) {
+                    // Attempt to disable via internal API as well
+                    renderer.getMouseCaptor().isMouseWheelEnabled = false;
+                }
+            } catch (e) { }
+
+            // Bind zoom events
+            // Using camera.animate() with explicit ratio calculation for deterministic behavior
+            // Sigma v2: Ratio is usually "view size" (inverse of zoom).
+            // Larger Ratio = Zoomed Out (seeing more)
+            // Smaller Ratio = Zoomed In (seeing less)
+
+            document.getElementById('zoom-in').addEventListener('click', () => {
+                const camera = renderer.getCamera();
+                camera.animate({ ratio: camera.ratio / 1.5 });
+            });
+
+            document.getElementById('zoom-out').addEventListener('click', () => {
+                const camera = renderer.getCamera();
+                camera.animate({ ratio: camera.ratio * 1.5 });
+            });
+
+            document.getElementById('zoom-reset').addEventListener('click', () => {
+                renderer.getCamera().animatedReset();
             });
 
             document.getElementById('status').textContent = "Interactive Mode Active. Scroll to Zoom, Drag to Move.";
         }
     </script>
 </body>
+
 </html>
