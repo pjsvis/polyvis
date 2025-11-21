@@ -200,9 +200,9 @@ textarea.structural-input:focus {
   max-width: 1100px;
   margin: 0 auto;
   /* ADD THIS: Pushes the card away from the menu line */
-  margin-bottom: 3rem;
+  margin-bottom: 0rem;
 
-  padding: 2rem 1rem; /* Tuned padding: 2rem top/bottom, 1rem sides */
+  padding: 0.5rem 0.5rem; /* Tuned padding: 2rem top/bottom, 1rem sides */
   display: flex;
   justify-content: space-between;
   align-items: center;

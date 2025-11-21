@@ -11,6 +11,8 @@
 - [x] Feature #1: Graph Statistics Panel
 - [x] Feature #2: Degree Centrality
 - [x] Feature #3: Betweenness Centrality
+- [x] Feature #4: Connected Components
+- [x] Refactor buttons to toggles
 
 ## Known Issues to Circle Back To:
 - [ ] ForceAtlas2 layout library not loading correctly (graph uses random positions instead)

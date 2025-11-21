@@ -70,6 +70,12 @@
     .zoom-btn:hover {
       background: #f0f0f0;
     }
+
+    .zoom-btn.active {
+      background: #4CAF50;
+      color: white;
+      border-color: #45a049;
+    }
   </style>
   <script>
     // Initialize SQL.js
@@ -192,7 +198,7 @@
             <button id="btn-pagerank" class="zoom-btn">Size by Importance</button>
             <button id="btn-degree" class="zoom-btn">Size by Connections</button>
             <button id="btn-betweenness" class="zoom-btn">Highlight Bridges</button>
-            <button id="btn-reset-style" class="zoom-btn">Reset Styles</button>
+            <button id="btn-components" class="zoom-btn">Show Components</button>
             <button id="btn-show-stats" class="zoom-btn">Show Stats</button>
         `;
       container.appendChild(analysisDiv);
@@ -249,18 +255,68 @@
         renderer.getCamera().animatedReset();
       });
 
+      // State management for toggles
+      // Track color and size visualizations separately (they can coexist)
+      let activeColorViz = null; // louvain, betweenness, components
+      let activeSizeViz = null;  // pagerank, degree
+
+      // Helper function to reset to original state
+      const resetToOriginal = () => {
+        graph.forEachNode((node, attributes) => {
+          if (attributes.originalColor) graph.setNodeAttribute(node, "color", attributes.originalColor);
+          if (attributes.originalSize) graph.setNodeAttribute(node, "size", attributes.originalSize);
+        });
+        renderer.refresh(); // Ensure changes are rendered
+      };
+
+      // Helper to reset only colors
+      const resetColors = () => {
+        graph.forEachNode((node, attributes) => {
+          if (attributes.originalColor) graph.setNodeAttribute(node, "color", attributes.originalColor);
+        });
+      };
+
+      // Helper to reset only sizes
+      const resetSizes = () => {
+        graph.forEachNode((node, attributes) => {
+          if (attributes.originalSize) graph.setNodeAttribute(node, "size", attributes.originalSize);
+        });
+      };
+
+      // Helper to clear active button styling
+      const clearActiveButtons = () => {
+        document.querySelectorAll(".zoom-btn").forEach(btn => {
+          // Only remove 'active' from analysis buttons, not zoom buttons
+          if (btn.id.startsWith("btn-")) {
+            btn.classList.remove("active");
+          }
+        });
+      };
+
       // Bind Analysis Events
-      document.getElementById("btn-louvain").addEventListener("click", () => {
+      // Louvain (Color visualization)
+      document.getElementById("btn-louvain").addEventListener("click", (e) => {
+        if (activeColorViz === "louvain") {
+          // Toggle off
+          resetColors();
+          activeColorViz = null;
+          e.target.classList.remove("active");
+          renderer.refresh();
+          return;
+        }
+
+        // Apply new color visualization
+        resetColors();
+        document.querySelectorAll("#btn-louvain, #btn-betweenness, #btn-components").forEach(btn => btn.classList.remove("active"));
+        e.target.classList.add("active");
+        activeColorViz = "louvain";
+
         if (typeof graphologyLibrary === "undefined" || !graphologyLibrary.communitiesLouvain) {
           alert("Louvain library not loaded.");
           return;
         }
 
-        // Run Louvain - the module itself is the function
         const communities = graphologyLibrary.communitiesLouvain(graph);
-
-        // Assign colors based on community
-        // Simple palette generator
         const colors = ["#e6194b", "#3cb44b", "#ffe119", "#4363d8", "#f58231", "#911eb4", "#46f0f0", "#f032e6", "#bcf60c", "#fabebe", "#008080", "#e6beff", "#9a6324", "#fffac8", "#800000", "#aaffc3", "#808000", "#ffd8b1", "#000075", "#808080", "#ffffff", "#000000"];
 
         graph.forEachNode((node, attributes) => {
@@ -270,81 +326,154 @@
         });
       });
 
-      document.getElementById("btn-pagerank").addEventListener("click", () => {
+      // PageRank (Size visualization)
+      document.getElementById("btn-pagerank").addEventListener("click", (e) => {
+        if (activeSizeViz === "pagerank") {
+          resetSizes();
+          activeSizeViz = null;
+          e.target.classList.remove("active");
+          renderer.refresh();
+          return;
+        }
+
+        resetSizes();
+        document.querySelectorAll("#btn-pagerank, #btn-degree").forEach(btn => btn.classList.remove("active"));
+        e.target.classList.add("active");
+        activeSizeViz = "pagerank";
+
         if (typeof graphologyLibrary === "undefined" || !graphologyLibrary.metrics) {
           alert("Metrics library not loaded.");
           return;
         }
 
-        // Run PageRank
         const scores = graphologyLibrary.metrics.centrality.pagerank(graph);
-
-        // Map scores to sizes (min 3, max 30)
         const minScore = Math.min(...Object.values(scores));
         const maxScore = Math.max(...Object.values(scores));
 
         graph.forEachNode((node) => {
           const score = scores[node];
-          // Normalize
           const size = 3 + ((score - minScore) / (maxScore - minScore)) * 27;
           graph.setNodeAttribute(node, "size", size);
         });
       });
 
-      document.getElementById("btn-reset-style").addEventListener("click", () => {
-        graph.forEachNode((node, attributes) => {
-          if (attributes.originalColor) graph.setNodeAttribute(node, "color", attributes.originalColor);
-          if (attributes.originalSize) graph.setNodeAttribute(node, "size", attributes.originalSize);
-        });
-      });
+      // Degree Centrality (Size visualization)
+      document.getElementById("btn-degree").addEventListener("click", (e) => {
+        if (activeSizeViz === "degree") {
+          resetSizes();
+          activeSizeViz = null;
+          e.target.classList.remove("active");
+          renderer.refresh();
+          return;
+        }
 
-      // Bind Degree Centrality Event
-      document.getElementById("btn-degree").addEventListener("click", () => {
+        resetSizes();
+        document.querySelectorAll("#btn-pagerank, #btn-degree").forEach(btn => btn.classList.remove("active"));
+        e.target.classList.add("active");
+        activeSizeViz = "degree";
+
         if (typeof graphologyLibrary === "undefined" || !graphologyLibrary.metrics) {
           alert("Metrics library not loaded.");
           return;
         }
 
-        // Run Degree Centrality
         const scores = graphologyLibrary.metrics.centrality.degree(graph);
-
-        // Map scores to sizes (min 4, max 25)
         const minScore = Math.min(...Object.values(scores));
         const maxScore = Math.max(...Object.values(scores));
 
         graph.forEachNode((node) => {
           const score = scores[node];
-          // Normalize
           const size = 4 + ((score - minScore) / (maxScore - minScore)) * 21;
           graph.setNodeAttribute(node, "size", size);
         });
+      });
 
-        // Bind Betweenness Centrality Event
-        document.getElementById("btn-betweenness").addEventListener("click", () => {
-          if (typeof graphologyLibrary === "undefined" || !graphologyLibrary.metrics) {
-            alert("Metrics library not loaded.");
-            return;
-          }
+      // Betweenness Centrality (Color visualization)
+      document.getElementById("btn-betweenness").addEventListener("click", (e) => {
+        if (activeColorViz === "betweenness") {
+          resetColors();
+          activeColorViz = null;
+          e.target.classList.remove("active");
+          renderer.refresh();
+          return;
+        }
 
-          // Run Betweenness Centrality
-          const scores = graphologyLibrary.metrics.centrality.betweenness(graph);
+        resetColors();
+        document.querySelectorAll("#btn-louvain, #btn-betweenness, #btn-components").forEach(btn => btn.classList.remove("active"));
+        e.target.classList.add("active");
+        activeColorViz = "betweenness";
 
-          // Map scores to color intensity (darker red = higher betweenness)
-          const minScore = Math.min(...Object.values(scores));
-          const maxScore = Math.max(...Object.values(scores));
+        if (typeof graphologyLibrary === "undefined" || !graphologyLibrary.metrics) {
+          alert("Metrics library not loaded.");
+          return;
+        }
 
-          graph.forEachNode((node) => {
-            const score = scores[node];
-            // Normalize to 0-1 range
-            const normalized = (score - minScore) / (maxScore - minScore);
-            // Map to color: light yellow (low) to dark red (high)
-            const r = 255;
-            const g = Math.floor(255 * (1 - normalized * 0.8)); // 255 to ~50
-            const b = Math.floor(255 * (1 - normalized)); // 255 to 0
-            const color = `rgb(${r}, ${g}, ${b})`;
-            graph.setNodeAttribute(node, "color", color);
-          });
+        const scores = graphologyLibrary.metrics.centrality.betweenness(graph);
+        const minScore = Math.min(...Object.values(scores));
+        const maxScore = Math.max(...Object.values(scores));
+
+        graph.forEachNode((node) => {
+          const score = scores[node];
+          const normalized = (score - minScore) / (maxScore - minScore);
+          const r = 255;
+          const g = Math.floor(255 * (1 - normalized * 0.8));
+          const b = Math.floor(255 * (1 - normalized));
+          const color = `rgb(${r}, ${g}, ${b})`;
+          graph.setNodeAttribute(node, "color", color);
         });
+      });
+
+      // Connected Components (Color visualization)
+      document.getElementById("btn-components").addEventListener("click", (e) => {
+        if (activeColorViz === "components") {
+          resetColors();
+          activeColorViz = null;
+          e.target.classList.remove("active");
+          renderer.refresh();
+          return;
+        }
+
+        resetColors();
+        document.querySelectorAll("#btn-louvain, #btn-betweenness, #btn-components").forEach(btn => btn.classList.remove("active"));
+        e.target.classList.add("active");
+        activeColorViz = "components";
+
+        if (typeof graphologyLibrary === "undefined" || !graphologyLibrary.components) {
+          alert("Components library not loaded.");
+          return;
+        }
+
+        const componentArrays = graphologyLibrary.components.connectedComponents(graph);
+        console.log(`Found ${componentArrays.length} connected component(s)`);
+
+        let largestComponent = [];
+        componentArrays.forEach(comp => {
+          if (comp.length > largestComponent.length) {
+            largestComponent = comp;
+          }
+        });
+
+        console.log(`Largest component has ${largestComponent.length} nodes`);
+        console.log(`${componentArrays.length - 1} other components`);
+
+        const largestComponentSet = new Set(largestComponent);
+        const mainColor = "#3cb44b";
+        const isolatedColor = "#cccccc";
+
+        let coloredCount = 0;
+        let mainCount = 0;
+        graph.forEachNode((node) => {
+          if (largestComponentSet.has(node)) {
+            graph.setNodeAttribute(node, "color", mainColor);
+            mainCount++;
+          } else {
+            graph.setNodeAttribute(node, "color", isolatedColor);
+          }
+          coloredCount++;
+        });
+
+        console.log(`Colored ${coloredCount} nodes - ${mainCount} in main component (green), ${coloredCount - mainCount} isolated/small (gray)`);
+        renderer.refresh();
       });
 
       // Bind Show Stats Event
