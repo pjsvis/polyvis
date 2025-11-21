@@ -188,6 +188,7 @@
       analysisDiv.innerHTML = `
             <button id="btn-louvain" class="zoom-btn">Color by Community</button>
             <button id="btn-pagerank" class="zoom-btn">Size by Importance</button>
+            <button id="btn-degree" class="zoom-btn">Size by Connections</button>
             <button id="btn-reset-style" class="zoom-btn">Reset Styles</button>
             <button id="btn-show-stats" class="zoom-btn">Show Stats</button>
         `;
@@ -291,6 +292,28 @@
         graph.forEachNode((node, attributes) => {
           if (attributes.originalColor) graph.setNodeAttribute(node, "color", attributes.originalColor);
           if (attributes.originalSize) graph.setNodeAttribute(node, "size", attributes.originalSize);
+        });
+      });
+
+      // Bind Degree Centrality Event
+      document.getElementById("btn-degree").addEventListener("click", () => {
+        if (typeof graphologyLibrary === "undefined" || !graphologyLibrary.metrics) {
+          alert("Metrics library not loaded.");
+          return;
+        }
+
+        // Run Degree Centrality
+        const scores = graphologyLibrary.metrics.centrality.degree(graph);
+
+        // Map scores to sizes (min 4, max 25)
+        const minScore = Math.min(...Object.values(scores));
+        const maxScore = Math.max(...Object.values(scores));
+
+        graph.forEachNode((node) => {
+          const score = scores[node];
+          // Normalize
+          const size = 4 + ((score - minScore) / (maxScore - minScore)) * 21;
+          graph.setNodeAttribute(node, "size", size);
         });
       });
 
