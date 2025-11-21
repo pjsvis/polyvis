@@ -199,6 +199,7 @@
             <button id="btn-degree" class="zoom-btn">Size by Connections</button>
             <button id="btn-betweenness" class="zoom-btn">Highlight Bridges</button>
             <button id="btn-components" class="zoom-btn">Show Components</button>
+            <button id="btn-find-path" class="zoom-btn">Find Path</button>
             <button id="btn-show-stats" class="zoom-btn">Show Stats</button>
         `;
       container.appendChild(analysisDiv);
@@ -501,6 +502,107 @@
         } else {
           panel.style.display = "none";
           document.getElementById("btn-show-stats").textContent = "Show Stats";
+        }
+      });
+
+      // Find Path Mode
+      let pathMode = false;
+      let sourceNode = null;
+      let targetNode = null;
+      let pathNodes = [];
+      let pathEdges = [];
+
+      document.getElementById("btn-find-path").addEventListener("click", (e) => {
+        pathMode = !pathMode;
+
+        if (pathMode) {
+          e.target.classList.add("active");
+          sourceNode = null;
+          targetNode = null;
+          pathNodes = [];
+          pathEdges = [];
+          console.log("Path mode activated. Click two nodes to find the shortest path.");
+        } else {
+          e.target.classList.remove("active");
+          // Clear path visualization
+          if (pathNodes.length > 0) {
+            resetColors();
+            renderer.refresh();
+          }
+          sourceNode = null;
+          targetNode = null;
+          pathNodes = [];
+          pathEdges = [];
+          console.log("Path mode deactivated.");
+        }
+      });
+
+      // Handle node clicks for path finding
+      renderer.on("clickNode", ({ node }) => {
+        if (!pathMode) return;
+
+        if (!sourceNode) {
+          // First click: select source
+          sourceNode = node;
+          graph.setNodeAttribute(node, "color", "#0066ff"); // Blue
+          renderer.refresh();
+          console.log(`Source node selected: ${node}`);
+        } else if (!targetNode && node !== sourceNode) {
+          // Second click: select target and find path
+          targetNode = node;
+          graph.setNodeAttribute(node, "color", "#00cc00"); // Green
+          renderer.refresh();
+          console.log(`Target node selected: ${node}`);
+
+          // Find shortest path
+          if (typeof graphologyLibrary === "undefined" || !graphologyLibrary.shortestPath) {
+            alert("Shortest path library not loaded.");
+            return;
+          }
+
+          const path = graphologyLibrary.shortestPath.bidirectional(graph, sourceNode, targetNode);
+
+          if (path === null) {
+            console.log(`No path found between ${sourceNode} and ${targetNode}`);
+            alert(`No path exists between the selected nodes (they are in different components).`);
+            // Reset for new selection
+            resetColors();
+            sourceNode = null;
+            targetNode = null;
+            renderer.refresh();
+          } else {
+            pathNodes = path;
+            console.log(`Path found (length ${path.length - 1}):`, path);
+
+            // Highlight path nodes (except source and target which are already colored)
+            path.forEach((pathNode, index) => {
+              if (index > 0 && index < path.length - 1) {
+                graph.setNodeAttribute(pathNode, "color", "#ff6600"); // Orange
+              }
+            });
+
+            // Highlight path edges
+            for (let i = 0; i < path.length - 1; i++) {
+              const edge = graph.edge(path[i], path[i + 1]);
+              if (edge) {
+                pathEdges.push(edge);
+                // Note: Sigma.js doesn't easily support edge highlighting without custom rendering
+                // For now, we'll just log it
+              }
+            }
+
+            renderer.refresh();
+            console.log(`Path visualization complete. Click "Find Path" again to clear and select new nodes.`);
+          }
+        } else {
+          // Third click: reset and start over
+          console.log("Resetting path selection...");
+          resetColors();
+          sourceNode = null;
+          targetNode = null;
+          pathNodes = [];
+          pathEdges = [];
+          renderer.refresh();
         }
       });
 
