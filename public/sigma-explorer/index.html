@@ -189,8 +189,27 @@
             <button id="btn-louvain" class="zoom-btn">Color by Community</button>
             <button id="btn-pagerank" class="zoom-btn">Size by Importance</button>
             <button id="btn-reset-style" class="zoom-btn">Reset Styles</button>
+            <button id="btn-show-stats" class="zoom-btn">Show Stats</button>
         `;
       container.appendChild(analysisDiv);
+
+      // Add Statistics Panel
+      const statsPanel = document.createElement("div");
+      statsPanel.id = "stats-panel";
+      statsPanel.style.position = "absolute";
+      statsPanel.style.bottom = "20px";
+      statsPanel.style.left = "20px";
+      statsPanel.style.background = "white";
+      statsPanel.style.border = "1px solid #ccc";
+      statsPanel.style.borderRadius = "4px";
+      statsPanel.style.padding = "15px";
+      statsPanel.style.boxShadow = "2px 2px 5px rgba(0, 0, 0, 0.1)";
+      statsPanel.style.fontFamily = "monospace";
+      statsPanel.style.fontSize = "12px";
+      statsPanel.style.zIndex = "10";
+      statsPanel.style.display = "none"; // Hidden by default
+      statsPanel.style.minWidth = "200px";
+      container.appendChild(statsPanel);
 
       const renderer = new Sigma(graph, container, {
         renderEdgeLabels: true,
@@ -273,6 +292,34 @@
           if (attributes.originalColor) graph.setNodeAttribute(node, "color", attributes.originalColor);
           if (attributes.originalSize) graph.setNodeAttribute(node, "size", attributes.originalSize);
         });
+      });
+
+      // Bind Show Stats Event
+      document.getElementById("btn-show-stats").addEventListener("click", () => {
+        const panel = document.getElementById("stats-panel");
+
+        if (panel.style.display === "none") {
+          // Calculate statistics
+          const nodes = graph.order;
+          const edges = graph.size;
+          const density = graphologyLibrary.metrics.graph.density(graph);
+          const avgDegree = (2 * edges) / nodes; // Manual calculation for undirected graph
+
+          // Update panel content
+          panel.innerHTML = `
+            <div style="font-weight: bold; margin-bottom: 10px; border-bottom: 1px solid #ccc; padding-bottom: 5px;">Graph Statistics</div>
+            <div><strong>Nodes:</strong> ${nodes}</div>
+            <div><strong>Edges:</strong> ${edges}</div>
+            <div><strong>Density:</strong> ${density.toFixed(4)}</div>
+            <div><strong>Avg Degree:</strong> ${avgDegree.toFixed(2)}</div>
+          `;
+
+          panel.style.display = "block";
+          document.getElementById("btn-show-stats").textContent = "Hide Stats";
+        } else {
+          panel.style.display = "none";
+          document.getElementById("btn-show-stats").textContent = "Show Stats";
+        }
       });
 
       document.getElementById("status").textContent =

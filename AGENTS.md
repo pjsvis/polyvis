@@ -43,3 +43,12 @@ This document outlines the core operational protocols governing the actions of a
   2.  **Tracking:** As work progresses, the checklist in `_CURRENT_TASK.md` must be updated to reflect the current state.
   3.  **Completion:** Upon task completion, a debrief document must be created in the `debriefs/` directory summarizing the work, and `_CURRENT_TASK.md` should be reset for the next task.
   4.  **Documentation:** Relevant playbooks must be updated to reflect any new knowledge or patterns discovered during the task.
+
+## 6. CMP: Console Monitoring Protocol
+
+- **Principle:** Browser console logs must be monitored during web application development to quickly identify errors and verify functionality.
+- **Workflow:**
+  1.  When testing web application features, the agent must check browser console logs for errors.
+  2.  Console monitoring is the fastest way to determine if implementations are working correctly.
+  3.  Any console errors must be addressed before marking a feature as complete.
+  4.  Browser testing should always include a console log capture step.
