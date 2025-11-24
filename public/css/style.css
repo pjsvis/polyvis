@@ -202,11 +202,11 @@ textarea.structural-input:focus {
   /* ADD THIS: Pushes the card away from the menu line */
   margin-bottom: 0rem;
 
-  padding: 0.5rem 0.5rem; /* Tuned padding: 2rem top/bottom, 1rem sides */
+  padding: 0.5rem 0.5rem; /* Tuned padding: top/bottom, sides */
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 2px solid var(--primary);
+  /*border-bottom: 2px solid var(--primary);*/
   box-sizing: border-box;
   background-color: var(--accent); /* Ensures no content shows behind it */
 }

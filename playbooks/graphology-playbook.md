@@ -1,4 +1,4 @@
-# Graphology Cheatsheet
+# Graphology Playbook
 
 ## Installation
 

@@ -12,6 +12,8 @@
 # The source JSON files are the source of truth.
 /scripts/ctx.db
 /public/data/ctx.db
+/ctx.db
+/ctx.db.zz
 /scripts/cda-ref-v63.json
 /scripts/conceptual-lexicon-ref-v1.79.json
 
