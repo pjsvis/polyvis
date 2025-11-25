@@ -1,119 +1,104 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>PolyVis | Graph Visualizer</title>
 
-    <script src="https://cdn.tailwindcss.com"></script>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PolyVis | Graph Visualizer</title>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/viz.js/2.1.2/viz.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/viz.js/2.1.2/full.render.js"></script>
-    <script src="/components/nav.js"></script>
-    <link rel="stylesheet" href="/css/style.css" />
-  </head>
-  <body class="page-layout">
-    <div id="polyvis-nav"></div>
+  <script src="https://cdn.tailwindcss.com"></script>
 
-    <div class="container-box mx-auto w-full max-w-6xl p-6 sm:p-10">
-      <header
-        class="mb-8 flex flex-col items-start justify-between border-b border-gray-200 pb-6 md:flex-row md:items-end"
-      >
-        <div>
-          <h1 class="mb-2 text-3xl font-bold tracking-tight uppercase">
-            Graph Visualizer
-          </h1>
-          <p class="font-mono text-sm text-gray-600">
-            Render DOT language into structural vector graphics.
-          </p>
-        </div>
-        <div class="mt-4 flex flex-wrap gap-2 md:mt-0">
-          <span class="mr-2 py-2 font-mono text-xs font-bold uppercase"
-            >Load Pattern:</span
-          >
-          <button
-            class="btn-structural px-3 py-1 text-xs"
-            onclick="loadTemplate('process')"
-          >
-            Process
-          </button>
-          <button
-            class="btn-structural px-3 py-1 text-xs"
-            onclick="loadTemplate('stack')"
-          >
-            The Stack
-          </button>
-          <button
-            class="btn-structural px-3 py-1 text-xs"
-            onclick="loadTemplate('network')"
-          >
-            Network
-          </button>
-        </div>
-      </header>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/viz.js/2.1.2/viz.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/viz.js/2.1.2/full.render.js"></script>
+  <script src="/components/nav.js"></script>
+  <link rel="stylesheet" href="/css/style.css" />
+  <!-- Alpine.js -->
+  <script src="//unpkg.com/alpinejs" defer></script>
+</head>
 
-      <div class="grid grid-cols-1 gap-8 lg:grid-cols-2">
-        <div class="flex h-full flex-col">
-          <div class="mb-2 flex items-end justify-between">
-            <label for="dotInput" class="font-mono text-xs font-bold uppercase"
-              >Input (DOT)</label
-            >
-            <div class="space-x-2">
-              <button id="renderBtn" class="btn-structural px-4 py-2">
-                Render
-              </button>
-            </div>
+<body class="page-layout" x-data="graphApp()">
+  <div id="polyvis-nav"></div>
+
+  <div class="container-box mx-auto w-full max-w-6xl p-6 sm:p-10">
+    <header
+      class="mb-8 flex flex-col items-start justify-between border-b border-gray-200 pb-6 md:flex-row md:items-end">
+      <div>
+        <h1 class="mb-2 text-3xl font-bold tracking-tight uppercase">
+          Graph Visualizer
+        </h1>
+        <p class="font-mono text-sm text-gray-600">
+          Render DOT language into structural vector graphics.
+        </p>
+      </div>
+      <div class="mt-4 flex flex-wrap gap-2 md:mt-0">
+        <span class="mr-2 py-2 font-mono text-xs font-bold uppercase">Load Pattern:</span>
+        <button class="btn-structural px-3 py-1 text-xs" @click="loadTemplate('process')">
+          Process
+        </button>
+        <button class="btn-structural px-3 py-1 text-xs" @click="loadTemplate('stack')">
+          The Stack
+        </button>
+        <button class="btn-structural px-3 py-1 text-xs" @click="loadTemplate('network')">
+          Network
+        </button>
+      </div>
+    </header>
+
+    <div class="grid grid-cols-1 gap-8 lg:grid-cols-2">
+      <div class="flex h-full flex-col">
+        <div class="mb-2 flex items-end justify-between">
+          <label for="dotInput" class="font-mono text-xs font-bold uppercase">Input (DOT)</label>
+          <div class="space-x-2">
+            <button id="renderBtn" class="btn-structural px-4 py-2" @click="render()">
+              Render
+            </button>
           </div>
-          <textarea
-            id="dotInput"
-            class="h-[500px] w-full resize-none bg-gray-50 p-4"
-            spellcheck="false"
-          ></textarea>
         </div>
+        <textarea id="dotInput" class="h-[500px] w-full resize-none bg-gray-50 p-4" spellcheck="false"
+          x-model="dotInput"></textarea>
+      </div>
 
-        <div class="flex h-full flex-col">
-          <div class="mb-2 flex items-end justify-between">
-            <label class="font-mono text-xs font-bold uppercase"
-              >Output (SVG)</label
-            >
-            <div class="hidden space-x-2" id="saveButtons">
-              <button id="saveSVGBtn" class="btn-structural px-3 py-2 text-xs">
-                SVG
-              </button>
-              <button id="savePNGBtn" class="btn-structural px-3 py-2 text-xs">
-                PNG
-              </button>
-            </div>
+      <div class="flex h-full flex-col">
+        <div class="mb-2 flex items-end justify-between">
+          <label class="font-mono text-xs font-bold uppercase">Output (SVG)</label>
+          <div class="hidden space-x-2" :class="{ 'hidden': !hasOutput, 'flex': hasOutput }" id="saveButtons">
+            <button id="saveSVGBtn" class="btn-structural px-3 py-2 text-xs" @click="saveSVG()">
+              SVG
+            </button>
+            <button id="savePNGBtn" class="btn-structural px-3 py-2 text-xs" @click="savePNG()">
+              PNG
+            </button>
           </div>
-          <div
-            id="graphOutputContainer"
-            class="flex h-[500px] w-full items-center justify-center overflow-auto border border-black bg-white p-4"
-          >
-            <div
-              id="graphOutput"
-              class="flex h-full w-full items-center justify-center"
-            >
-              <p class="font-mono text-xs text-gray-400">
-                Initializing System...
-              </p>
-            </div>
+        </div>
+        <div id="graphOutputContainer"
+          class="flex h-[500px] w-full items-center justify-center overflow-auto border border-black bg-white p-4">
+          <div id="graphOutput" class="flex h-full w-full items-center justify-center" x-ref="graphOutput">
+            <p class="font-mono text-xs text-gray-400" x-html="status">
+              Initializing System...
+            </p>
           </div>
-          <div
-            id="errorDisplay"
-            class="mt-4 hidden border border-red-500 bg-red-50 p-3 font-mono text-xs text-red-700"
-          ></div>
+        </div>
+        <div id="errorDisplay" class="mt-4 border border-red-500 bg-red-50 p-3 font-mono text-xs text-red-700"
+          x-show="error" x-text="error" style="display: none;" :style="error ? 'display: block' : 'display: none'">
         </div>
       </div>
     </div>
+  </div>
 
-    <footer class="mt-12 text-center font-mono text-xs text-gray-400">
-      &copy; 2025 PolyVis | Virtual Information Systems
-    </footer>
+  <footer class="mt-12 text-center font-mono text-xs text-gray-400">
+    &copy; 2025 PolyVis | Virtual Information Systems
+  </footer>
 
-    <script>
-      // --- Template Library ---
-      const templates = {
-        process: `digraph PolyVis {
+  <script>
+    document.addEventListener('alpine:init', () => {
+      Alpine.data('graphApp', () => ({
+        viz: null,
+        dotInput: '',
+        status: 'Initializing System...',
+        error: '',
+        hasOutput: false,
+        templates: {
+          process: `digraph PolyVis {
       rankdir=TB;
       node [shape=box, style="filled", fillcolor="white", fontname="Courier", margin="0.2,0.1", penwidth=1];
       edge [fontname="Courier", fontsize=10];
@@ -137,7 +122,7 @@
       Structure -> Fold;
       Fold -> Output;
   }`,
-        stack: `digraph PersonaStack {
+          stack: `digraph PersonaStack {
       rankdir=TB;
       node [shape=record, fontname="Courier", margin="0.2,0.1", style=filled, fillcolor="white"];
       edge [fontname="Courier", fontsize=10];
@@ -159,7 +144,7 @@
       Sleeve -> Persona;
       Persona -> Substrate;
   }`,
-        network: `graph Network {
+          network: `graph Network {
       layout=neato;
       overlap=false;
       node [shape=circle, style=filled, fillcolor="black", fontcolor="white", fontname="Courier", fixedsize=true, width=0.8];
@@ -179,100 +164,77 @@
       Node2 -- Node5;
       Node3 -- Node4;
   }`,
-      };
+        },
 
-      // --- Global Function for Buttons ---
-      window.loadTemplate = function (name) {
-        const ta = document.getElementById("dotInput");
-        if (templates[name]) {
-          ta.value = templates[name];
-          document.getElementById("renderBtn").click();
-        }
-      };
+        init() {
+          try {
+            if (typeof Viz === "undefined") throw new Error("Viz library not loaded.");
+            this.viz = new Viz();
+            this.status = "Ready.";
+            this.loadTemplate('process');
+          } catch (e) {
+            console.error("Viz init failed:", e);
+            this.status = `<span class="text-red-500">System Error: ${e.message}</span>`;
+          }
+        },
 
-      document.addEventListener("DOMContentLoaded", () => {
-        const dotInput = document.getElementById("dotInput");
-        const renderBtn = document.getElementById("renderBtn");
-        const saveSVGBtn = document.getElementById("saveSVGBtn");
-        const savePNGBtn = document.getElementById("savePNGBtn");
-        const saveButtons = document.getElementById("saveButtons");
-        const graphOutput = document.getElementById("graphOutput");
-        const errorDisplay = document.getElementById("errorDisplay");
+        loadTemplate(name) {
+          if (this.templates[name]) {
+            this.dotInput = this.templates[name];
+            this.render();
+          }
+        },
 
-        let viz;
-
-        try {
-          if (typeof Viz === "undefined")
-            throw new Error("Viz library not loaded.");
-          viz = new Viz();
-          graphOutput.innerHTML =
-            '<p class="font-mono text-xs text-gray-400">Ready.</p>';
-        } catch (e) {
-          console.error("Viz init failed:", e);
-          graphOutput.innerHTML = `<p class="text-red-500 font-mono text-xs">System Error: ${e.message}</p>`;
-        }
-
-        function toggleSaveButtons(show) {
-          if (show) saveButtons.classList.remove("hidden");
-          else saveButtons.classList.add("hidden");
-        }
-
-        renderBtn.addEventListener("click", () => {
-          const dotString = dotInput.value.trim();
-          graphOutput.innerHTML =
-            '<p class="font-mono text-xs text-gray-400">Processing...</p>';
-          errorDisplay.classList.add("hidden");
-          toggleSaveButtons(false);
+        render() {
+          const dotString = this.dotInput.trim();
+          this.status = "Processing...";
+          this.error = "";
+          this.hasOutput = false;
+          this.$refs.graphOutput.innerHTML = '<p class="font-mono text-xs text-gray-400">Processing...</p>';
 
           if (!dotString) {
-            graphOutput.innerHTML =
-              '<p class="font-mono text-xs text-gray-400">Input Empty.</p>';
+            this.status = "Input Empty.";
+            this.$refs.graphOutput.innerHTML = '<p class="font-mono text-xs text-gray-400">Input Empty.</p>';
             return;
           }
 
-          if (!viz) {
-            graphOutput.innerHTML =
-              '<p class="text-red-500 font-mono text-xs">Error: Engine not initialized.</p>';
+          if (!this.viz) {
+            this.error = "Error: Engine not initialized.";
             return;
           }
 
-          viz
-            .renderSVGElement(dotString)
+          this.viz.renderSVGElement(dotString)
             .then((element) => {
-              graphOutput.innerHTML = "";
+              this.$refs.graphOutput.innerHTML = "";
               element.setAttribute("width", "100%");
               element.setAttribute("height", "100%");
-              graphOutput.appendChild(element);
-              toggleSaveButtons(true);
+              this.$refs.graphOutput.appendChild(element);
+              this.hasOutput = true;
+              this.status = "";
             })
             .catch((error) => {
               console.error(error);
-              graphOutput.innerHTML = "";
-              errorDisplay.textContent = `SYNTAX ERROR: ${error.message}`;
-              errorDisplay.classList.remove("hidden");
+              this.$refs.graphOutput.innerHTML = "";
+              this.error = `SYNTAX ERROR: ${error.message}`;
             });
-        });
+        },
 
-        // Save Handlers (SVG/PNG)
-        saveSVGBtn.addEventListener("click", () => {
-          const svg = graphOutput.querySelector("svg");
+        saveSVG() {
+          const svg = this.$refs.graphOutput.querySelector("svg");
           if (!svg) return;
-          if (!svg.getAttribute("xmlns"))
-            svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+          if (!svg.getAttribute("xmlns")) svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
           const data = new XMLSerializer().serializeToString(svg);
-          const blob = new Blob([data], {
-            type: "image/svg+xml;charset=utf-8",
-          });
+          const blob = new Blob([data], { type: "image/svg+xml;charset=utf-8" });
           const url = URL.createObjectURL(blob);
           const a = document.createElement("a");
           a.href = url;
           a.download = "polyvis_graph.svg";
           a.click();
           URL.revokeObjectURL(url);
-        });
+        },
 
-        savePNGBtn.addEventListener("click", () => {
-          const svg = graphOutput.querySelector("svg");
+        savePNG() {
+          const svg = this.$refs.graphOutput.querySelector("svg");
           if (!svg) return;
           const canvas = document.createElement("canvas");
           const ctx = canvas.getContext("2d");
@@ -284,10 +246,7 @@
           canvas.height = (bbox.height + padding) * scale;
           tempSvg.setAttribute("width", canvas.width);
           tempSvg.setAttribute("height", canvas.height);
-          tempSvg.setAttribute(
-            "viewBox",
-            `${bbox.x - padding / 2} ${bbox.y - padding / 2} ${bbox.width + padding} ${bbox.height + padding}`
-          );
+          tempSvg.setAttribute("viewBox", `${bbox.x - padding / 2} ${bbox.y - padding / 2} ${bbox.width + padding} ${bbox.height + padding}`);
           const data = new XMLSerializer().serializeToString(tempSvg);
           const img = new Image();
           img.onload = () => {
@@ -299,14 +258,11 @@
             a.download = "polyvis_graph.png";
             a.click();
           };
-          img.src =
-            "data:image/svg+xml;base64," +
-            btoa(unescape(encodeURIComponent(data)));
-        });
+          img.src = "data:image/svg+xml;base64," + btoa(unescape(encodeURIComponent(data)));
+        }
+      }));
+    });
+  </script>
+</body>
 
-        // Load Default Template
-        loadTemplate("process");
-      });
-    </script>
-  </body>
 </html>
