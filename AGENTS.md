@@ -52,3 +52,12 @@ This document outlines the core operational protocols governing the actions of a
   2.  Console monitoring is the fastest way to determine if implementations are working correctly.
   3.  Any console errors must be addressed before marking a feature as complete.
   4.  Browser testing should always include a console log capture step.
+
+## 7. AFP: Alpine.js First Protocol
+
+- **Principle:** All UI interactivity and state management must be implemented using Alpine.js. Imperative DOM manipulation (e.g., `document.getElementById`, `addEventListener`) is strictly prohibited for UI logic.
+- **Workflow:**
+  1.  **State Management:** Use `x-data` for component state.
+  2.  **Event Handling:** Use `@click`, `@change`, etc., instead of `addEventListener`.
+  3.  **DOM Access:** Use `$refs` if direct DOM access is absolutely necessary (e.g., for third-party libs like Sigma or Viz).
+  4.  **Shared Logic:** Use `Alpine.data` for reusable logic or shared components.

@@ -2,14 +2,15 @@
 
 Polyvis is a lightweight, frontend-only web application for exploring and visualizing neuro-symbolic knowledge graphs. It renders conceptual relationships from a pre-built SQLite database, allowing users to navigate a "Neuro-Map" of interconnected ideas, principles, and directives.
 
-The application is built with plain HTML, CSS, and TypeScript, and uses [Bun](https://bun.sh/) as its JavaScript runtime and toolkit. The graph visualization is powered by [viz.js](https://github.com/mdaines/viz.js), and the in-browser database is handled by [sql.js](https://sql.js.org/).
+The application is built with HTML, CSS, and [Alpine.js](https://alpinejs.dev/), and uses [Bun](https://bun.sh/) as its JavaScript runtime and toolkit. The graph visualization is powered by [viz.js](https://github.com/mdaines/viz.js) and [Sigma.js](https://www.sigmajs.org/), and the in-browser database is handled by [sql.js](https://sql.js.org/).
 
 ## Features
 
 - **Interactive Graph Visualization:** Explore the knowledge graph by searching for terms.
 - **Data-Driven Suggestions:** The search box provides a curated list of high-value terms guaranteed to produce rich, interesting graphs.
 - **In-Browser Database:** The entire graph dataset is loaded into the browser via sql.js, requiring no active backend server for querying.
-- **Zero-Framework Frontend:** Built with vanilla web technologies for maximum simplicity and performance.
+- **Alpine.js Reactivity:** Uses [Alpine.js](https://alpinejs.dev/) for a lightweight, reactive UI without a complex build step.
+- **Zero-Build Frontend:** Built with vanilla web technologies and Alpine.js for maximum simplicity and performance.
 
 ## Prerequisites
 
