@@ -39,3 +39,7 @@ tags: [tag1, tag2, tag3]
 - **Be honest:** Documenting failures is as important as documenting successes.
 - **Be specific:** Avoid vague statements. Reference specific files or code patterns.
 - **Update Playbooks:** If a lesson learned implies a change in process, update the relevant playbook immediately.
+
+## Post-Debrief Checklist
+- [ ] **Archive Brief:** Move the completed brief from `briefs/` to `briefs/archive/`.
+- [ ] **Update Current Task:** Update `_CURRENT_TASK.md` to reflect the completion of the current objective and readiness for the next.
