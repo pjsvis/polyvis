@@ -13,7 +13,7 @@
 
 <body class="home-layout" x-data="{ loaded: false }" x-init="setTimeout(() => loaded = true, 50)"
   :class="{ 'loaded': loaded }">
-  <div id="polyvis-nav"></div>
+  <div x-data="navigation" x-html="view"></div>
 
   <div class="container-box home-box">
     <h1 class="home-title">PolyVis</h1>

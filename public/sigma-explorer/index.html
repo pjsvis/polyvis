@@ -26,7 +26,7 @@
 
 <body class="page-layout" x-data="sigmaApp()" :class="{ 'loaded': loaded }">
   <script src="/components/nav.js"></script>
-  <div id="polyvis-nav"></div>
+  <div x-data="navigation" x-html="view"></div>
 
   <div class="container-box mx-auto w-full max-w-[1100px] p-4" style="margin-top: 2rem; margin-bottom: 4rem">
     <div class="mb-4 flex items-end justify-between">
