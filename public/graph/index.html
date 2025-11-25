@@ -16,7 +16,7 @@
   <script src="//unpkg.com/alpinejs" defer></script>
 </head>
 
-<body class="page-layout" x-data="graphApp()">
+<body class="page-layout" x-data="graphApp()" :class="{ 'loaded': loaded }">
   <div id="polyvis-nav"></div>
 
   <div class="container-box mx-auto w-full max-w-6xl p-6 sm:p-10">
@@ -97,6 +97,7 @@
         status: 'Initializing System...',
         error: '',
         hasOutput: false,
+        loaded: false,
         templates: {
           process: `digraph PolyVis {
       rankdir=TB;
@@ -167,6 +168,7 @@
         },
 
         init() {
+          setTimeout(() => this.loaded = true, 50);
           try {
             if (typeof Viz === "undefined") throw new Error("Viz library not loaded.");
             this.viz = new Viz();

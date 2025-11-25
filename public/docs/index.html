@@ -1,52 +1,61 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>PolyVis | Documentation</title>
 
-    <script src="https://cdn.tailwindcss.com"></script>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PolyVis | Documentation</title>
 
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/viz.js/2.1.2/viz.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/viz.js/2.1.2/full.render.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
 
-    <link rel="stylesheet" href="/css/style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/viz.js/2.1.2/viz.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/viz.js/2.1.2/full.render.js"></script>
 
-    <style>
-      /* Sidebar Link Styling */
-      .doc-link {
-        display: block;
-        padding: 0.75rem 1rem;
-        border-bottom: 1px solid #eee;
-        font-family: "Menlo", "Monaco", monospace;
-        font-size: 0.8rem;
-        text-decoration: none;
-        color: #666;
-        transition: all 0.2s;
-      }
-      .doc-link:hover {
-        background-color: #f9f9f9;
-        color: black;
-        padding-left: 1.25rem; /* Slight nudge effect */
-      }
-      .doc-link.active {
-        background-color: black;
-        color: white;
-        font-weight: bold;
-      }
-      .doc-link:last-child {
-        border-bottom: none;
-      }
-    </style>
+  <link rel="stylesheet" href="/css/style.css" />
+  <!-- Alpine.js -->
+  <script src="//unpkg.com/alpinejs" defer></script>
+</head>
+
+<body class="page-layout" x-data="{ loaded: false }" x-init="setTimeout(() => loaded = true, 50)"
+  :class="{ 'loaded': loaded }">
+  <style>
+    /* Sidebar Link Styling */
+    .doc-link {
+      display: block;
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid #eee;
+      font-family: "Menlo", "Monaco", monospace;
+      font-size: 0.8rem;
+      text-decoration: none;
+      color: #666;
+      transition: all 0.2s;
+    }
+
+    .doc-link:hover {
+      background-color: #f9f9f9;
+      color: black;
+      padding-left: 1.25rem;
+      /* Slight nudge effect */
+    }
+
+    .doc-link.active {
+      background-color: black;
+      color: white;
+      font-weight: bold;
+    }
+
+    .doc-link:last-child {
+      border-bottom: none;
+    }
+  </style>
   </head>
+
   <body class="page-layout">
     <script src="/components/nav.js"></script>
     <div id="polyvis-nav"></div>
 
-    <div
-      class="mx-auto flex w-full max-w-7xl flex-col gap-8 p-4 sm:p-8 md:flex-row"
-    >
+    <div class="mx-auto flex w-full max-w-7xl flex-col gap-8 p-4 sm:p-8 md:flex-row">
       <aside class="w-full flex-shrink-0 md:w-64">
         <div class="container-box" style="padding: 0">
           <div class="border-b border-black bg-gray-50 p-4">
@@ -175,4 +184,5 @@
       }
     </script>
   </body>
+
 </html>

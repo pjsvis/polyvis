@@ -6,6 +6,9 @@
 npm install graphology
 ```
 
+> [!NOTE]
+> **Alpine.js Integration**: This playbook is designed to be used with Alpine.js. While Graphology is framework-agnostic, ensure graph state is managed within Alpine components.
+
 ## Instantiation
 
 ### Basic Graph

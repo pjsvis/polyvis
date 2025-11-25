@@ -7,6 +7,9 @@ We are using **Sigma.js v2.4.0**.
 > [!IMPORTANT]
 > **Version Critical**: We are strictly using **v2.4.0**. Do not use v1 (uses `sigma.instances`) or v3 (uses different settings) documentation.
 
+> [!NOTE]
+> **Alpine.js Integration**: This playbook is designed to be used with Alpine.js. Avoid direct DOM manipulation (e.g., `document.getElementById`) and prefer Alpine directives (`x-on`, `x-ref`) and component state.
+
 ## Core Concepts
 
 - **Graphology**: Used for graph data structure and manipulation.
@@ -17,10 +20,12 @@ We are using **Sigma.js v2.4.0**.
 
 ### Renderer Settings
 
-Settings are passed to the `Sigma` constructor.
+Settings are passed to the `Sigma` constructor. Use `x-ref` to reference the container.
 
 ```js
-const renderer = new Sigma(graph, container, {
+// Inside Alpine component init()
+const container = this.$refs.sigmaContainer;
+this.renderer = new Sigma(this.graph, container, {
   renderEdgeLabels: true,
   // Add other settings here
 });
@@ -36,29 +41,33 @@ const renderer = new Sigma(graph, container, {
 > - **Ratio < 1**: Zoomed In (Seeing a smaller area)
 > - **Ratio > 1**: Zoomed Out (Seeing a larger area)
 
-To control zoom programmatically, calculate the target ratio explicitly:
+To control zoom programmatically, use Alpine methods bound to `@click`:
+
+```html
+<button @click="zoomIn()">+</button>
+<button @click="zoomOut()">-</button>
+```
 
 ```js
-const camera = renderer.getCamera();
-
-// Zoom In (Divide ratio)
-camera.animate({ ratio: camera.ratio / 1.5 });
-
-// Zoom Out (Multiply ratio)
-camera.animate({ ratio: camera.ratio * 1.5 });
+// Alpine component methods
+zoomIn() {
+  const camera = this.renderer.getCamera();
+  camera.animate({ ratio: camera.ratio / 1.5 });
+},
+zoomOut() {
+  const camera = this.renderer.getCamera();
+  camera.animate({ ratio: camera.ratio * 1.5 });
+}
 ```
 
 ### Disabling Scroll Zoom
 
-In v2.4.0, the most reliable way to disable scroll zoom without disabling other interactions is to stop the `wheel` event from reaching Sigma.
+In v2.4.0, prevent the `wheel` event from reaching Sigma using Alpine's `.stop` modifier on the container.
 
-```js
-// Add this to the container element
-container.addEventListener(
-  "wheel",
-  (e) => {
-    e.stopPropagation();
-  },
-  true
-); // Use capture phase
+```html
+<div 
+  x-ref="sigmaContainer" 
+  class="absolute inset-0" 
+  @wheel.stop
+></div>
 ```

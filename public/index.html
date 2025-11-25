@@ -11,7 +11,8 @@
   <script src="//unpkg.com/alpinejs" defer></script>
 </head>
 
-<body class="home-layout">
+<body class="home-layout" x-data="{ loaded: false }" x-init="setTimeout(() => loaded = true, 50)"
+  :class="{ 'loaded': loaded }">
   <div id="polyvis-nav"></div>
 
   <div class="container-box home-box">

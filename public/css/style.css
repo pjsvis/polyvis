@@ -277,22 +277,12 @@ textarea.structural-input:focus {
 /* --- 9. PAGE TRANSITIONS --- */
 
 /* The definition of the fade */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(-0px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
 /* Apply it to the body of every page */
 body {
-  /* Run the animation for 0.8 seconds with a smooth 'ease-out' curve */
-  animation: fadeIn 0.8s ease-out;
+  opacity: 0;
+  transition: opacity 0.6s ease-out;
+}
 
-  /* Ensure the page doesn't flicker white before starting */
-  animation-fill-mode: both;
+body.loaded {
+  opacity: 1;
 }

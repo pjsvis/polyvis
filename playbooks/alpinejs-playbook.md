@@ -1,3 +1,8 @@
+# Alpine.js Playbook
+
+> [!NOTE]
+> **Alpine.js Integration**: This playbook is the primary reference for our reactive UI implementation. All other playbooks should be used in the context of Alpine.js.
+
 ### Alpine.js x-init for Initialization Code
 
 Source: https://alpinejs.dev/docs/index
@@ -128,6 +133,8 @@ The `$store` magic property allows access to globally registered reactive data s
 ```html
 <h1 x-text="$store.site.title"></h1>
 ```
+
+--------------------------------
 
 --------------------------------
 

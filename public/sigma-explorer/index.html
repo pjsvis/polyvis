@@ -24,7 +24,7 @@
   <link rel="stylesheet" href="css/style.css" />
 </head>
 
-<body class="page-layout" x-data="sigmaApp()">
+<body class="page-layout" x-data="sigmaApp()" :class="{ 'loaded': loaded }">
   <script src="/components/nav.js"></script>
   <div id="polyvis-nav"></div>
 
@@ -38,7 +38,7 @@
     <div class="relative h-[600px] w-full border border-gray-300 bg-white">
 
       <!-- Graph Container (Sigma renders here) -->
-      <div id="sigma-container" class="absolute inset-0 z-0"></div>
+      <div id="sigma-container" class="absolute inset-0 z-0" x-ref="sigmaContainer"></div>
 
       <!-- Analysis Controls -->
       <div
@@ -100,8 +100,10 @@
         layout: 'forceatlas2',
         showStats: false,
         stats: { nodes: 0, edges: 0, density: 0, avgDegree: 0 },
+        loaded: false,
 
         init() {
+          setTimeout(() => this.loaded = true, 50);
           this.initSqlJs();
         },
 
@@ -178,7 +180,7 @@
           this.runLayout('forceatlas2');
 
           // 5. Render with Sigma
-          const container = document.getElementById("sigma-container");
+          const container = this.$refs.sigmaContainer;
           container.innerHTML = ""; // Clear previous
 
           this.renderer = new Sigma(this.graph, container, {

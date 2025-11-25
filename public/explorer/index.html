@@ -37,7 +37,7 @@
   </style>
 </head>
 
-<body class="page-layout" x-data="explorerApp()">
+<body class="page-layout" x-data="explorerApp()" :class="{ 'loaded': loaded }">
   <script src="/components/nav.js"></script>
   <div id="polyvis-nav"></div>
 
@@ -69,7 +69,7 @@
     </div>
 
     <div id="graph-container" class="container-box flex h-[600px] items-center justify-center overflow-hidden">
-      <div id="graphOutput" class="h-full w-full"></div>
+      <div id="graphOutput" class="h-full w-full" x-ref="graphOutput"></div>
     </div>
 
     <div id="graph-key" class="mt-8 rounded-md border p-4">
@@ -105,8 +105,10 @@
         searchTerm: '',
         status: 'Connecting to Neural Substrate...',
         loading: true,
+        loaded: false,
 
         init() {
+          setTimeout(() => this.loaded = true, 50);
           this.viz = new Viz();
           this.loadTerms();
           this.initSqlJs();
@@ -180,7 +182,7 @@
             nodes.add(JSON.stringify(row));
           } else {
             this.status = "Term not found.";
-            document.getElementById("graphOutput").innerHTML = "";
+            this.$refs.graphOutput.innerHTML = "";
             return;
           }
 
@@ -241,7 +243,7 @@
         },
 
         renderGraph(dotString) {
-          const container = document.getElementById("graphOutput");
+          const container = this.$refs.graphOutput;
           this.viz.renderSVGElement(dotString)
             .then((element) => {
               container.innerHTML = "";
