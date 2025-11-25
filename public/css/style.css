@@ -55,6 +55,10 @@ body {
   transition: all 0.1s ease;
   text-decoration: none;
   /* For <a> tags acting as buttons */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
 }
 
 .btn-structural:hover {
@@ -62,9 +66,12 @@ body {
   box-shadow: 6px 6px 0px 0px rgba(0, 0, 0, 1);
 }
 
-.btn-structural:active {
+.btn-structural:active,
+.btn-structural.active {
   transform: translate(2px, 2px);
   box-shadow: 2px 2px 0px 0px rgba(0, 0, 0, 1);
+  background-color: var(--primary);
+  color: var(--secondary);
 }
 
 /* --- 4. PAGE SPECIFIC: HOME --- */

@@ -36,7 +36,6 @@ document.addEventListener('alpine:init', () => {
                     ${linksHTML}
                 </div>
             </div>
-            <div class="nav-version">VIRTUAL_INFO_SYS</div>
         </nav>
         `;
     }
