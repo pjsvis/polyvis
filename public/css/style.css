@@ -2,11 +2,15 @@
 
 /* --- 1. GLOBAL VARIABLES (The DNA) --- */
 :root {
-  --primary: #000; /* The Ink */
-  --secondary: #fff; /* The Paper */
-  --accent: #f4f4f4; /* The Void */
+  --primary: #000;
+  /* The Ink */
+  --secondary: #fff;
+  /* The Paper */
+  --accent: #f4f4f4;
+  /* The Void */
   --border-width: 1px;
-  --shadow-offset: 4px; /* Brutalist shadow depth */
+  --shadow-offset: 4px;
+  /* Brutalist shadow depth */
 }
 
 /* --- 2. RESET & TYPOGRAPHY --- */
@@ -49,7 +53,8 @@ body {
   cursor: pointer;
   box-shadow: 4px 4px 0px 0px rgba(0, 0, 0, 1);
   transition: all 0.1s ease;
-  text-decoration: none; /* For <a> tags acting as buttons */
+  text-decoration: none;
+  /* For <a> tags acting as buttons */
 }
 
 .btn-structural:hover {
@@ -70,7 +75,8 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 100vh; /* Takes up full screen height */
+  min-height: 100vh;
+  /* Takes up full screen height */
   width: 100%;
 }
 
@@ -119,6 +125,7 @@ textarea.structural-input:focus {
   max-width: 65ch;
   margin: 0 auto;
 }
+
 .prose h1 {
   font-size: 2.5rem;
   font-weight: 800;
@@ -128,6 +135,7 @@ textarea.structural-input:focus {
   border-bottom: 4px solid black;
   padding-bottom: 0.5rem;
 }
+
 .prose h2 {
   font-size: 1.8rem;
   font-weight: 700;
@@ -135,21 +143,25 @@ textarea.structural-input:focus {
   margin-bottom: 1rem;
   border-bottom: 1px solid #ccc;
 }
+
 .prose p {
   margin-bottom: 1.25rem;
   line-height: 1.6;
 }
+
 .prose ul {
   list-style-type: square;
   margin-left: 1.5rem;
   margin-bottom: 1.25rem;
 }
+
 .prose code {
   background: #e5e7eb;
   padding: 0.2rem 0.4rem;
   font-family: "Menlo", monospace;
   font-size: 0.9em;
 }
+
 .prose pre {
   background: #1f2937;
   color: white;
@@ -158,6 +170,7 @@ textarea.structural-input:focus {
   margin-bottom: 1.5rem;
   border-left: 5px solid black;
 }
+
 .prose blockquote {
   border-left: 4px solid black;
   padding-left: 1rem;
@@ -202,18 +215,21 @@ textarea.structural-input:focus {
   /* ADD THIS: Pushes the card away from the menu line */
   margin-bottom: 0rem;
 
-  padding: 0.5rem 0.5rem; /* Tuned padding: top/bottom, sides */
+  padding: 0.5rem 0.5rem;
+  /* Tuned padding: top/bottom, sides */
   display: flex;
   justify-content: space-between;
   align-items: center;
   /*border-bottom: 2px solid var(--primary);*/
   box-sizing: border-box;
-  background-color: var(--accent); /* Ensures no content shows behind it */
+  background-color: var(--accent);
+  /* Ensures no content shows behind it */
 }
 
 /* The "PolyVis" Logo in the nav */
 .nav-brand {
-  font-size: 1.25rem; /* text-xl */
+  font-size: 1.25rem;
+  /* text-xl */
   font-weight: 700;
   text-transform: uppercase;
   text-decoration: none;
@@ -224,16 +240,21 @@ textarea.structural-input:focus {
 /* The container for links */
 .nav-links {
   display: flex;
-  gap: 1.5rem; /* Space between links */
+  gap: 1.5rem;
+  /* Space between links */
 }
 
 /* The links themselves */
 .nav-item {
   font-family: "Menlo", "Monaco", monospace;
-  font-size: 0.75rem; /* text-xs */
+  font-size: 0.75rem;
+  /* text-xs */
   text-transform: uppercase;
   text-decoration: none;
   color: #666;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .nav-item:hover {
@@ -255,7 +276,8 @@ textarea.structural-input:focus {
 
 /* --- HOME PAGE OVERRIDE (Pins menu to top) --- */
 .home-layout {
-  position: relative; /* Establishes context for absolute positioning */
+  position: relative;
+  /* Establishes context for absolute positioning */
 }
 
 .home-layout #polyvis-nav {
@@ -270,7 +292,8 @@ textarea.structural-input:focus {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  padding: 0; /* Removes the 'Jump' by stripping default padding */
+  padding: 0;
+  /* Removes the 'Jump' by stripping default padding */
   margin: 0;
 }
 

@@ -13,6 +13,8 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/viz.js/2.1.2/full.render.js"></script>
 
   <link rel="stylesheet" href="/css/style.css" />
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
   <!-- Alpine.js -->
   <script src="//unpkg.com/alpinejs" defer></script>
   <style>
@@ -55,12 +57,16 @@
             </template>
           </select>
         </div>
-        <div>
-          <label for="searchBox" class="block text-sm font-medium text-gray-700">Or search for any term</label>
-          <input type="search" id="searchBox"
-            class="focus:ring-opacity-50 mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200"
-            placeholder="e.g., Mentation..." x-model="searchTerm" @keyup.enter="visualize(searchTerm)"
-            :disabled="loading" />
+        <div class="flex items-end gap-2">
+          <div class="flex-grow">
+            <label for="searchBox" class="mb-1 block font-mono text-xs font-bold uppercase">Or Search Term</label>
+            <input type="text" id="searchBox" class="structural-input w-full p-2" placeholder="e.g. 'Persona'"
+              x-model="searchTerm" @keyup.enter="visualize(searchTerm)" :disabled="loading" />
+          </div>
+          <button id="visualizeBtn" class="btn-structural px-4 py-2 flex items-center gap-2"
+            @click="visualize(searchTerm)" :disabled="loading">
+            <i data-lucide="search" class="w-4 h-4"></i> Visualize
+          </button>
         </div>
       </div>
       <div id="status" class="mt-2 font-mono text-xs text-gray-500" x-text="status">
@@ -109,6 +115,7 @@
 
         init() {
           setTimeout(() => this.loaded = true, 50);
+          this.$nextTick(() => { if (window.lucide) window.lucide.createIcons(); });
           this.viz = new Viz();
           this.loadTerms();
           this.initSqlJs();

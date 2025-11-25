@@ -18,6 +18,8 @@
 
   <script src="https://unpkg.com/graphology-library@0.8.0/dist/graphology-library.min.js"></script>
 
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
   <!-- Alpine.js -->
   <script src="//unpkg.com/alpinejs" defer></script>
 
@@ -43,16 +45,40 @@
       <!-- Analysis Controls -->
       <div
         style="position: absolute; top: 20px; left: 20px; display: flex; flex-wrap: wrap; gap: 10px; max-width: calc(100% - 200px); z-index: 10;">
-        <button @click="toggleColorViz('louvain')" :class="{ 'active': activeColorViz === 'louvain' }"
-          class="zoom-btn">Color by Community</button>
-        <button @click="toggleSizeViz('pagerank')" :class="{ 'active': activeSizeViz === 'pagerank' }"
-          class="zoom-btn">Size by Importance</button>
-        <button @click="toggleSizeViz('degree')" :class="{ 'active': activeSizeViz === 'degree' }" class="zoom-btn">Size
-          by Connections</button>
-        <button @click="toggleColorViz('betweenness')" :class="{ 'active': activeColorViz === 'betweenness' }"
-          class="zoom-btn">Highlight Bridges</button>
-        <button @click="toggleColorViz('components')" :class="{ 'active': activeColorViz === 'components' }"
-          class="zoom-btn">Show Components</button>
+        <div class="flex flex-wrap gap-2">
+          <button class="btn-structural text-xs" :class="{ 'active': activeColorViz === 'louvain' }"
+            @click="toggleColor('louvain')">
+            <i data-lucide="users" style="width: 12px; height: 12px; vertical-align: middle; margin-right: 4px;"></i>
+            Louvain
+          </button>
+          <button class="btn-structural text-xs" :class="{ 'active': activeSizeViz === 'pagerank' }"
+            @click="toggleSize('pagerank')">
+            <i data-lucide="bar-chart-2"
+              style="width: 12px; height: 12px; vertical-align: middle; margin-right: 4px;"></i>
+            PageRank
+          </button>
+          <button class="btn-structural text-xs" :class="{ 'active': activeSizeViz === 'degree' }"
+            @click="toggleSize('degree')">
+            <i data-lucide="circle" style="width: 12px; height: 12px; vertical-align: middle; margin-right: 4px;"></i>
+            Degree
+          </button>
+          <button class="btn-structural text-xs" :class="{ 'active': activeColorViz === 'betweenness' }"
+            @click="toggleColor('betweenness')">
+            <i data-lucide="git-commit"
+              style="width: 12px; height: 12px; vertical-align: middle; margin-right: 4px;"></i>
+            Betweenness
+          </button>
+          <button class="btn-structural text-xs" :class="{ 'active': activeColorViz === 'components' }"
+            @click="toggleColor('components')">
+            <i data-lucide="share-2" style="width: 12px; height: 12px; vertical-align: middle; margin-right: 4px;"></i>
+            Components
+          </button>
+          <button class="btn-structural text-xs text-red-600" @click="resetStyles()">
+            <i data-lucide="rotate-ccw"
+              style="width: 12px; height: 12px; vertical-align: middle; margin-right: 4px;"></i>
+            Reset Styles
+          </button>
+        </div>
         <button @click="toggleStats()" x-text="showStats ? 'Hide Stats' : 'Show Stats'" class="zoom-btn">Show
           Stats</button>
 
@@ -67,10 +93,17 @@
       </div>
 
       <!-- Zoom Controls -->
-      <div class="zoom-controls">
-        <button @click="zoomIn()" class="zoom-btn" title="Zoom In">+</button>
-        <button @click="zoomReset()" class="zoom-btn" title="Reset Zoom">⟲</button>
-        <button @click="zoomOut()" class="zoom-btn" title="Zoom Out">-</button>
+      <div
+        class="absolute bottom-4 right-4 flex flex-col gap-2 rounded-md border border-gray-300 bg-white/90 p-2 shadow-sm">
+        <button class="btn-structural" @click="zoomIn()" title="Zoom In">
+          <i data-lucide="zoom-in" style="width: 16px; height: 16px;"></i>
+        </button>
+        <button class="btn-structural" @click="zoomOut()" title="Zoom Out">
+          <i data-lucide="zoom-out" style="width: 16px; height: 16px;"></i>
+        </button>
+        <button class="btn-structural" @click="resetZoom()" title="Reset Camera">
+          <i data-lucide="maximize" style="width: 16px; height: 16px;"></i>
+        </button>
       </div>
 
       <!-- Stats Panel -->
@@ -105,6 +138,7 @@
         init() {
           setTimeout(() => this.loaded = true, 50);
           this.initSqlJs();
+          this.$nextTick(() => { if (window.lucide) window.lucide.createIcons(); });
         },
 
         initSqlJs() {

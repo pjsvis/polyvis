@@ -13,6 +13,8 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/viz.js/2.1.2/full.render.js"></script>
 
   <link rel="stylesheet" href="/css/style.css" />
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
   <!-- Alpine.js -->
   <script src="//unpkg.com/alpinejs" defer></script>
 </head>
@@ -107,12 +109,15 @@
         listContainer.innerHTML = documents
           .map(
             (doc) => `
-                <a href="?file=${doc.file}" class="doc-link ${doc.file === currentFile ? "active" : ""}">
+                <a href="?file=${doc.file}" class="doc-link ${doc.file === currentFile ? "active" : ""} flex items-center">
+                    <i data-lucide="file-text" class="w-4 h-4 mr-2"></i>
                     ${doc.title}
                 </a>
             `
           )
           .join("");
+
+        if (window.lucide) window.lucide.createIcons();
       }
 
       // 2. Load and Render the Markdown

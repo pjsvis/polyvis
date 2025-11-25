@@ -1,12 +1,17 @@
 document.addEventListener('alpine:init', () => {
   Alpine.data('navigation', () => ({
     links: [
-      { name: "HQ", href: "/" },
-      { name: "Visualizer", href: "/graph/" },
-      { name: "Docs", href: "/docs/" },
-      { name: "Explorer", href: "/explorer/" },
-      { name: "Sigma Explorer", href: "/sigma-explorer/" },
+      { name: "HQ", href: "/", icon: "home" },
+      { name: "Visualizer", href: "/graph/", icon: "activity" },
+      { name: "Docs", href: "/docs/", icon: "book-open" },
+      { name: "Explorer", href: "/explorer/", icon: "compass" },
+      { name: "Sigma Explorer", href: "/sigma-explorer/", icon: "layout-dashboard" },
     ],
+    init() {
+      this.$nextTick(() => {
+        if (window.lucide) window.lucide.createIcons();
+      });
+    },
     get view() {
       const currentPath = window.location.pathname;
       const linksHTML = this.links
@@ -15,7 +20,11 @@ document.addEventListener('alpine:init', () => {
             (link.href === "/" && currentPath === "/") ||
             (link.href !== "/" && currentPath.startsWith(link.href));
 
-          return `<a href="${link.href}" class="nav-item ${isActive ? "active" : ""}">${link.name}</a>`;
+          return `
+            <a href="${link.href}" class="nav-item ${isActive ? "active" : ""}">
+              <i data-lucide="${link.icon}" style="width: 14px; height: 14px;"></i>
+              ${link.name}
+            </a>`;
         })
         .join("");
 
