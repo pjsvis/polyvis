@@ -2,10 +2,10 @@
 
 /* --- 1. GLOBAL VARIABLES (The DNA) --- */
 :root {
-  --primary: #000;
-  /* The Ink */
-  --secondary: #fff;
-  /* The Paper */
+  --primary: #1a1a1a;
+  /* The Ink (Off-Black) */
+  --secondary: #fafafa;
+  /* The Paper (Off-White) */
   --accent: #f4f4f4;
   /* The Void */
   --border-width: 1px;
