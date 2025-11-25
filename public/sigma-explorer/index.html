@@ -80,64 +80,54 @@
                             <div class="group relative">
                                 <button class="btn-structural w-full justify-start gap-1 text-xs"
                                     :class="{ 'active': activeColorViz === 'louvain' }"
-                                    @click="toggleColorViz('louvain')">
+                                    @click="toggleColorViz('louvain')"
+                                    @mouseenter="showTooltip($event, 'Detects communities (clusters) and colors nodes to show group membership.')"
+                                    @mouseleave="hideTooltip()">
                                     <i data-lucide="users" class="h-3 w-3"></i> Louvain
                                 </button>
-                                <div
-                                    class="hidden group-hover:block absolute left-full top-0 ml-2 w-48 p-2 bg-black text-white text-xs font-bold rounded shadow-lg z-50 pointer-events-none">
-                                    Detects communities (clusters) and colors nodes to show group membership.
-                                </div>
                             </div>
 
                             <!-- PageRank -->
                             <div class="group relative">
                                 <button class="btn-structural w-full justify-start gap-1 text-xs"
                                     :class="{ 'active': activeSizeViz === 'pagerank' }"
-                                    @click="toggleSizeViz('pagerank')">
+                                    @click="toggleSizeViz('pagerank')"
+                                    @mouseenter="showTooltip($event, 'Sizes nodes based on their influence. Larger nodes are more \'important\'.')"
+                                    @mouseleave="hideTooltip()">
                                     <i data-lucide="bar-chart-2" class="h-3 w-3"></i> PageRank
                                 </button>
-                                <div
-                                    class="hidden group-hover:block absolute left-full top-0 ml-2 w-48 p-2 bg-black text-white text-xs font-bold rounded shadow-lg z-50 pointer-events-none">
-                                    Sizes nodes based on their influence. Larger nodes are more "important".
-                                </div>
                             </div>
 
                             <!-- Degree -->
                             <div class="group relative">
                                 <button class="btn-structural w-full justify-start gap-1 text-xs"
-                                    :class="{ 'active': activeSizeViz === 'degree' }" @click="toggleSizeViz('degree')">
+                                    :class="{ 'active': activeSizeViz === 'degree' }" @click="toggleSizeViz('degree')"
+                                    @mouseenter="showTooltip($event, 'Sizes nodes by connection count. Larger nodes have more direct connections.')"
+                                    @mouseleave="hideTooltip()">
                                     <i data-lucide="circle" class="h-3 w-3"></i> Degree
                                 </button>
-                                <div
-                                    class="hidden group-hover:block absolute left-full top-0 ml-2 w-48 p-2 bg-black text-white text-xs font-bold rounded shadow-lg z-50 pointer-events-none">
-                                    Sizes nodes by connection count. Larger nodes have more direct connections.
-                                </div>
                             </div>
 
                             <!-- Betweenness -->
                             <div class="group relative">
                                 <button class="btn-structural w-full justify-start gap-1 text-xs"
                                     :class="{ 'active': activeColorViz === 'betweenness' }"
-                                    @click="toggleColorViz('betweenness')">
+                                    @click="toggleColorViz('betweenness')"
+                                    @mouseenter="showTooltip($event, 'Colors nodes based on \'bridging\' score. Redder nodes lie on more shortest paths.')"
+                                    @mouseleave="hideTooltip()">
                                     <i data-lucide="git-commit" class="h-3 w-3"></i> Betweenness
                                 </button>
-                                <div
-                                    class="hidden group-hover:block absolute left-full top-0 ml-2 w-48 p-2 bg-black text-white text-xs font-bold rounded shadow-lg z-50 pointer-events-none">
-                                    Colors nodes based on "bridging" score. Redder nodes lie on more shortest paths.
-                                </div>
                             </div>
 
                             <!-- Components -->
                             <div class="group relative">
                                 <button class="btn-structural w-full justify-start gap-1 text-xs"
                                     :class="{ 'active': activeColorViz === 'components' }"
-                                    @click="toggleColorViz('components')">
+                                    @click="toggleColorViz('components')"
+                                    @mouseenter="showTooltip($event, 'Highlights the largest connected group of nodes in Green.')"
+                                    @mouseleave="hideTooltip()">
                                     <i data-lucide="share-2" class="h-3 w-3"></i> Components
                                 </button>
-                                <div
-                                    class="hidden group-hover:block absolute left-full top-0 ml-2 w-48 p-2 bg-black text-white text-xs font-bold rounded shadow-lg z-50 pointer-events-none">
-                                    Highlights the largest connected group of nodes in Green.
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -147,16 +137,14 @@
                         <div class="mb-2 font-mono text-[10px] font-bold uppercase text-gray-400">Layout</div>
                         <div class="group relative">
                             <select x-model="layout" @change="runLayout($event.target.value)"
-                                class="btn-structural w-full text-xs" style="cursor: pointer;">
+                                class="btn-structural w-full text-xs" style="cursor: pointer;"
+                                @mouseenter="showTooltip($event, 'Select an algorithm to automatically arrange the nodes.')"
+                                @mouseleave="hideTooltip()">
                                 <option value="forceatlas2">ForceAtlas2</option>
                                 <option value="circular">Circular</option>
                                 <option value="random">Random</option>
                                 <option value="noverlap">Noverlap</option>
                             </select>
-                            <div
-                                class="hidden group-hover:block absolute left-full top-0 ml-2 w-48 p-2 bg-black text-white text-xs font-bold rounded shadow-lg z-50 pointer-events-none">
-                                Select an algorithm to automatically arrange the nodes.
-                            </div>
                         </div>
                     </div>
 
@@ -346,7 +334,21 @@
                 rightOpen: true,
                 rightOpen: true,
                 selectedNode: null,
+                selectedNode: null,
                 loaded: false,
+                tooltip: { visible: false, text: '', x: 0, y: 0 },
+
+                showTooltip(event, text) {
+                    const rect = event.currentTarget.getBoundingClientRect();
+                    this.tooltip.text = text;
+                    this.tooltip.x = rect.right + 10;
+                    this.tooltip.y = rect.top;
+                    this.tooltip.visible = true;
+                },
+
+                hideTooltip() {
+                    this.tooltip.visible = false;
+                },
 
                 init() {
                     setTimeout(() => this.loaded = true, 50);
@@ -610,6 +612,10 @@
             }));
         });
     </script>
+    <div x-show="tooltip.visible" x-transition.opacity
+        class="fixed z-50 p-2 bg-black text-white text-xs font-bold rounded shadow-lg pointer-events-none max-w-xs"
+        :style="`top: ${tooltip.y}px; left: ${tooltip.x}px`" x-text="tooltip.text">
+    </div>
 </body>
 
 </html>
