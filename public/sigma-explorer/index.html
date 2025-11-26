@@ -159,6 +159,36 @@
 
                     <!-- Help Group -->
                     <div class="pt-4 border-t border-gray-100">
+                        <!-- Search Bar (Moved here) -->
+                        <div class="mb-4 relative">
+                            <div class="relative">
+                                <i data-lucide="search" class="absolute left-2 top-2.5 h-3 w-3 text-gray-400"></i>
+                                <input type="text" x-model="searchQuery" @input="handleSearch()"
+                                    @focus="isSearchFocused = true; handleSearch()"
+                                    @blur="setTimeout(() => isSearchFocused = false, 200)" placeholder="Search nodes..."
+                                    class="w-full pl-7 pr-2 py-1.5 text-xs border border-gray-300 rounded focus:outline-none focus:border-black focus:ring-1 focus:ring-black transition-colors">
+                            </div>
+
+                            <!-- Search Results Dropdown (Downwards) -->
+                            <div x-show="isSearchFocused && searchResults.length > 0"
+                                class="absolute left-0 right-0 top-full mt-1 bg-white border border-gray-200 rounded shadow-lg max-h-60 overflow-y-auto z-50"
+                                x-transition.opacity>
+
+                                <div x-show="!searchQuery"
+                                    class="px-2 py-1 text-[10px] uppercase text-gray-400 font-bold bg-gray-50 border-b border-gray-100">
+                                    Suggested Concepts
+                                </div>
+
+                                <template x-for="node in searchResults" :key="node.id">
+                                    <button @click="selectSearchResult(node.id)"
+                                        class="w-full text-left px-3 py-2 text-xs hover:bg-gray-100 border-b border-gray-50 last:border-0 flex flex-col gap-0.5">
+                                        <span class="font-bold text-gray-800" x-text="node.label"></span>
+                                        <span class="font-mono text-[10px] text-gray-400" x-text="node.id"></span>
+                                    </button>
+                                </template>
+                            </div>
+                        </div>
+
                         <div class="mb-2 font-mono text-[10px] font-bold uppercase text-gray-400">Help</div>
                         <div class="text-[10px] text-gray-500 space-y-2 leading-relaxed font-mono">
                             <p>Push buttons to show graph features and click nodes to see details.</p>
@@ -359,9 +389,15 @@
                 leftOpen: true,
                 rightOpen: true,
                 selectedNode: null,
+                hoveredNode: null, // Track hovered node for robust clicking
                 loaded: false,
                 clickBlock: false, // Event blocker
                 tooltip: { visible: false, text: '', x: 0, y: 0 },
+
+                // Search State
+                searchQuery: '',
+                searchResults: [],
+                isSearchFocused: false,
 
                 showTooltip(event, text) {
                     const rect = event.currentTarget.getBoundingClientRect();
@@ -373,6 +409,39 @@
 
                 hideTooltip() {
                     this.tooltip.visible = false;
+                },
+
+                // --- Search Logic ---
+
+                handleSearch() {
+                    if (!this.graph) return;
+
+                    if (!this.searchQuery) {
+                        // Smart Autocomplete: Show top Core Concepts
+                        const nodes = this.graph.mapNodes((id, attrs) => ({ id, ...attrs }))
+                            .filter(n => n.nodeType === "Core Concept")
+                            .sort((a, b) => b.size - a.size) // Sort by size (importance)
+                            .slice(0, 5);
+                        this.searchResults = nodes;
+                        return;
+                    }
+
+                    const query = this.searchQuery.toLowerCase();
+                    const results = this.graph.mapNodes((id, attrs) => ({ id, ...attrs }))
+                        .filter(n =>
+                            n.id.toLowerCase().includes(query) ||
+                            n.label.toLowerCase().includes(query)
+                        )
+                        .slice(0, 10); // Limit to 10 results
+
+                    this.searchResults = results;
+                },
+
+                selectSearchResult(nodeId) {
+                    this.selectNode(nodeId);
+                    // this.searchQuery = ''; // Retain query as requested
+                    this.searchResults = [];
+                    this.isSearchFocused = false;
                 },
 
                 // --- Internal Navigation ---
@@ -456,9 +525,9 @@
                                 label: row.label,
                                 nodeType: row.type || 'Unknown',
                                 definition: row.definition || '',
-                                size: row.type === "Core Concept" ? 30 : 10,
+                                size: row.type === "Core Concept" ? 20 : 6,
                                 color: row.type === "Core Concept" ? "black" : "#475569",
-                                originalSize: row.type === "Core Concept" ? 30 : 10,
+                                originalSize: row.type === "Core Concept" ? 20 : 6,
                                 originalColor: row.type === "Core Concept" ? "black" : "#475569",
                                 x: Math.random() * 100,
                                 y: Math.random() * 100,
@@ -513,6 +582,10 @@
                             }
                             return data;
                         },
+                        // User Request: Reduce label clutter.
+                        // Only show labels if node is > 8px (Core Concepts are 20px, Standard are 6px).
+                        // Labels will appear when zooming in.
+                        labelRenderedSizeThreshold: 8,
                         zIndex: true,
                     });
 
@@ -529,25 +602,54 @@
 
                     // Event Listeners
                     this.renderer.on("clickNode", ({ node }) => {
+                        console.log(`[SigmaDebug] clickNode: ${node}`);
                         // Prevent stage click from firing immediately after
                         this.clickBlock = true;
-                        setTimeout(() => this.clickBlock = false, 200); // 200ms debounce
+                        console.log(`[SigmaDebug] clickBlock SET to true`);
+                        setTimeout(() => {
+                            this.clickBlock = false;
+                            console.log(`[SigmaDebug] clickBlock RESET to false`);
+                        }, 200); // 200ms debounce
 
+                        const attrs = this.graph.getNodeAttributes(node);
                         this.selectNode(node);
                     });
 
                     this.renderer.on("clickStage", () => {
-                        if (this.clickBlock) return; // Ignore if blocked
+                        console.log(`[SigmaDebug] clickStage. Blocked? ${this.clickBlock}. Hovered? ${this.hoveredNode}`);
+                        if (this.clickBlock) {
+                            console.log(`[SigmaDebug] clickStage BLOCKED`);
+                            return; // Ignore if blocked
+                        }
+
+                        // Fallback: If we are hovering a node, select it!
+                        if (this.hoveredNode) {
+                            console.log(`[SigmaDebug] clickStage FALLBACK to hoveredNode: ${this.hoveredNode}`);
+                            this.selectNode(this.hoveredNode);
+                            return;
+                        }
+
+                        console.log(`[SigmaDebug] clickStage DESELECTING`);
                         this.selectedNode = null;
-                        this.renderer.refresh();
+                        this.rightOpen = false;
+                        this.graph.forEachNode((n) => {
+                            this.graph.setNodeAttribute(n, "highlighted", false);
+                            this.graph.setNodeAttribute(n, "size", this.graph.getNodeAttribute(n, "originalSize"));
+                            this.graph.setNodeAttribute(n, "zIndex", 1);
+                        });
+                        if (this.renderer) this.renderer.refresh();
                     });
 
-                    this.renderer.on("enterNode", () => {
+                    this.renderer.on("enterNode", ({ node }) => {
+                        console.log(`[SigmaDebug] enterNode: ${node}`);
                         container.style.cursor = "pointer";
+                        this.hoveredNode = node;
                     });
 
                     this.renderer.on("leaveNode", () => {
+                        console.log(`[SigmaDebug] leaveNode`);
                         container.style.cursor = "";
+                        this.hoveredNode = null;
                     });
                 },
 
@@ -644,14 +746,16 @@
                         const minScore = Math.min(...Object.values(scores));
                         const maxScore = Math.max(...Object.values(scores));
                         this.graph.forEachNode((node) => {
-                            this.graph.setNodeAttribute(node, "size", 3 + ((scores[node] - minScore) / (maxScore - minScore)) * 27);
+                            // User Request: Ensure min size is 6px (reduced again)
+                            this.graph.setNodeAttribute(node, "size", 6 + ((scores[node] - minScore) / (maxScore - minScore)) * 14);
                         });
                     } else if (type === 'degree') {
                         const scores = graphologyLibrary.metrics.centrality.degree(this.graph);
                         const minScore = Math.min(...Object.values(scores));
                         const maxScore = Math.max(...Object.values(scores));
                         this.graph.forEachNode((node) => {
-                            this.graph.setNodeAttribute(node, "size", 4 + ((scores[node] - minScore) / (maxScore - minScore)) * 21);
+                            // User Request: Ensure min size is 6px (reduced again)
+                            this.graph.setNodeAttribute(node, "size", 6 + ((scores[node] - minScore) / (maxScore - minScore)) * 14);
                         });
                     }
                     if (this.renderer) this.renderer.refresh();

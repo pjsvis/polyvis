@@ -14,21 +14,22 @@ Implement a search functionality in the Sigma Explorer to allow users to quickly
 
 **File:** `public/sigma-explorer/index.html`
 
-*   **Search Input:** A text input field at the top of the Left Sidebar (above "Analysis").
-*   **Results Dropdown:** A list of matching nodes that appears as the user types.
+*   **Search Input:** A text input field at the top of the Left Sidebar.
+*   **Results Dropdown:**
+    *   **Default State (Focus):** Shows top "Core Concepts" (e.g., `OH-106`, `COG-5`) to guide the user.
+    *   **Active State (Typing):** Shows matching nodes (ID + Label).
 
 ## 2. Logic
 
 **File:** `public/sigma-explorer/index.html` (Alpine Component)
 
-*   **State:** `searchQuery` (string), `searchResults` (array).
+*   **State:** `searchQuery` (string), `searchResults` (array), `isSearchFocused` (bool).
 *   **Filtering:**
-    *   Triggered on input.
-    *   Matches against `node.id` and `node.label`.
-    *   Case-insensitive.
+    *   **Empty Query:** Returns top 5-10 nodes by `size` (Core Concepts).
+    *   **Typed Query:** Filters all nodes by `id` or `label` (case-insensitive).
 *   **Selection:**
     *   Clicking a result calls `selectNode(id)`.
-    *   Clears `searchQuery` and `searchResults` after selection.
+    *   Clears `searchQuery`.
 
 ## 3. Definition of Done
 1.  **Input:** User can type "OH-104" or "Humility".

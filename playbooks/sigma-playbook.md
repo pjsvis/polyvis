@@ -110,3 +110,60 @@ this.renderer.on("clickStage", () => {
   this.selectedNode = null;
 });
 ```
+
+### The "Hover-Click Fallback" (Fixing Sticky Clicks)
+
+Sigma's hit detection can sometimes miss, or a `clickStage` event might fire when you think you are clicking a node. To make clicking robust:
+
+1.  Track the `hoveredNode` using `enterNode` and `leaveNode`.
+2.  In your `clickStage` handler, check if a node is currently hovered.
+3.  If yes, select that node instead of clearing the selection.
+
+```js
+// 1. Track Hover
+this.renderer.on("enterNode", ({ node }) => this.hoveredNode = node);
+this.renderer.on("leaveNode", () => this.hoveredNode = null);
+
+// 2. Fallback in Stage Click
+this.renderer.on("clickStage", () => {
+  if (this.clickBlock) return;
+
+  // FALLBACK: If hovering, select the node!
+  if (this.hoveredNode) {
+    this.selectNode(this.hoveredNode);
+    return;
+  }
+
+  this.selectedNode = null; // Actual background click
+});
+```
+
+## Visual Noise Control
+
+### Label Threshold
+
+To prevent label clutter, use `labelRenderedSizeThreshold`. This hides labels for nodes smaller than the threshold until the user zooms in.
+
+```js
+this.renderer = new Sigma(this.graph, container, {
+  // Hide labels for nodes < 8px until zoomed
+  labelRenderedSizeThreshold: 8, 
+  // ...
+});
+```
+
+### Pre-Render Visualization
+
+To avoid a "flash of unstyled content" (e.g., gray nodes turning colored), apply your visualization logic (colors, sizes) **before** creating the `Sigma` instance.
+
+```js
+// 1. Load Graph
+this.graph = ...;
+
+// 2. Apply Visuals (Louvain, PageRank)
+applyLouvainColors(this.graph);
+applyPageRankSizes(this.graph);
+
+// 3. Render (Graph is already styled)
+this.renderer = new Sigma(this.graph, container, ...);
+```
