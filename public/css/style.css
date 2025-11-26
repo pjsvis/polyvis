@@ -143,6 +143,22 @@ textarea.structural-input:focus {
   padding-bottom: 0.5rem;
 }
 
+/* Structural Metadata: Targets the first paragraph after the H1 */
+.prose h1+p {
+  font-family: "Menlo", "Monaco", monospace;
+  /* The Engineering Font */
+  font-size: 0.8rem;
+  color: #666;
+  /* De-emphasized */
+  margin-top: -0.5rem;
+  /* Tuck it closer to the H1's bottom border */
+  margin-bottom: 2rem;
+  /* Push the main content away */
+  padding-left: 0.2rem;
+  /* Slight optical alignment */
+  letter-spacing: 0.5px;
+}
+
 .prose h2 {
   font-size: 1.8rem;
   font-weight: 700;
@@ -170,19 +186,37 @@ textarea.structural-input:focus {
 }
 
 .prose pre {
-  background: #1f2937;
-  color: white;
+  background: #000;
+  color: #33ff00;
+  /* Green Phosphor */
   padding: 1rem;
   overflow-x: auto;
   margin-bottom: 1.5rem;
-  border-left: 5px solid black;
+  border-left: 5px solid #33ff00;
+  text-shadow: 0 0 2px #33ff00;
+  /* Subtle Glow */
+}
+
+.prose pre code {
+  background-color: transparent;
+  padding: 0;
+  color: inherit;
+  border: none;
 }
 
 .prose blockquote {
   border-left: 4px solid black;
   padding-left: 1rem;
-  font-style: italic;
+  /* Fixed: Use a size unit here */
+  padding-right: 1rem;
   color: #555;
+  background-color: #f9f9f9;
+  font-style: normal;
+  /* Optional: Explicitly turn off italics if you want the "Structural" look */
+  padding-top: 0.5rem;
+  /* Optional: Breathing room top */
+  padding-bottom: 0.5rem;
+  /* Optional: Breathing room bottom */
 }
 
 .graph-container {
@@ -315,4 +349,47 @@ body {
 
 body.loaded {
   opacity: 1;
+}
+
+/* --- 10. SIDENOTES --- */
+/* --- 10. SIDENOTES (Inline Style) --- */
+.sidenote {
+  display: block;
+  margin: 1.5rem 0;
+  padding: 1rem;
+  background-color: #f8f9fa;
+  border-left: 3px solid var(--primary);
+  color: #555;
+  font-family: "Menlo", "Monaco", monospace;
+  font-size: 0.8rem;
+  line-height: 1.4;
+}
+
+/* Optional: Add a label */
+.sidenote::before {
+  content: "NOTE:";
+  display: block;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+  color: var(--primary);
+  font-size: 0.7rem;
+  letter-spacing: 1px;
+}
+
+/* --- 11. SCROLLBARS --- */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #cbd5e1;
+  border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: #94a3b8;
 }

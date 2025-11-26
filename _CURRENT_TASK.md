@@ -1,5 +1,4 @@
 # current task
 
-- [x] Update `playbooks/debriefs-playbook.md` to include archiving instructions
-- [x] Update `_CURRENT_TASK.md` to reflect current status
-- [ ] Await next objective
+- [ ] Create a checklisted implementation plan to implemnent the @briefs/brief-doc-layout-upgrade.md
+- [ ] Update the @_CURRENT_TASK.md to reflect current status

@@ -53,12 +53,12 @@
   </style>
   </head>
 
-  <body class="page-layout">
+  <body class="page-layout overflow-hidden h-screen">
     <script src="/components/nav.js"></script>
     <div x-data="navigation" x-html="view"></div>
 
-    <div class="mx-auto flex w-full max-w-7xl flex-col gap-8 p-4 sm:p-8 md:flex-row">
-      <aside class="w-full flex-shrink-0 md:w-64">
+    <div class="grid grid-cols-1 md:grid-cols-[250px_1fr] gap-8 max-w-7xl mx-auto p-4 sm:p-8 h-[calc(100vh-60px)]">
+      <aside class="overflow-y-auto h-full custom-scrollbar w-full hidden md:block">
         <div class="container-box" style="padding: 0">
           <div class="border-b border-black bg-gray-50 p-4">
             <h3 class="text-sm font-bold tracking-wider uppercase">
@@ -69,12 +69,14 @@
         </div>
       </aside>
 
-      <main class="flex-grow">
-        <div id="content" class="container-box min-h-[600px]">
-          <div class="flex h-full flex-col items-center justify-center pt-20">
-            <p class="animate-pulse font-mono text-gray-400">
-              Initializing Reader...
-            </p>
+      <main class="overflow-y-auto h-full custom-scrollbar px-2 md:px-6">
+        <div class="prose max-w-[65ch] mx-auto">
+          <div id="content" class="min-h-[600px]">
+            <div class="flex h-full flex-col items-center justify-center pt-20">
+              <p class="animate-pulse font-mono text-gray-400">
+                Initializing Reader...
+              </p>
+            </div>
           </div>
         </div>
       </main>
@@ -91,6 +93,9 @@
         { title: "01. Conceptual Lexicon", file: "lexicon.md" },
         { title: "02. System Architecture", file: "architecture.md" },
         { title: "03. Persona Engineering", file: "persona-engineering.md" },
+        { title: "04. The Tailwind Paradox", file: "the-tailwind-paradox.md" },
+        { title: "05. The Hejlsberg Inversion", file: "the-hejlsberg-inversion.md" },
+        { title: "06. Layout Test", file: "layout-test.md" },
         // Add new files here as you create them
       ];
 
@@ -141,7 +146,7 @@
           .then((text) => {
             const rawHtml = marked.parse(text);
             const contentDiv = document.getElementById("content");
-            contentDiv.innerHTML = `<div class="prose">${rawHtml}</div>`;
+            contentDiv.innerHTML = rawHtml;
             renderGraphs(viz);
           })
           .catch((err) => {
