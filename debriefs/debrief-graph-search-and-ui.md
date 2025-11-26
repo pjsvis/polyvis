@@ -35,3 +35,8 @@ We initially had a "jarring" flash where the graph loaded in gray, then switched
 -   **Sigma Hit Detection:** Can be finicky. The "Hover-Click Fallback" pattern is a robust workaround.
 -   **Visual Hierarchy:** Hiding labels for small nodes is essential for clean graphs.
 -   **User Guidance:** Empty states (like search) should provide immediate value/suggestions.
+
+### 5. Layout Overflow (The Tailwind Paradox)
+The documentation page had a footer that pushed the page height beyond 100vh, causing a double scrollbar.
+-   **Solution:** Moved the footer *inside* the scrollable `<main>` container.
+-   **Result:** The page body is strictly 100vh, and the footer scrolls naturally with the content.

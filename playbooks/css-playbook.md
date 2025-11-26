@@ -44,4 +44,18 @@ Located in `public/css/style.css`.
 
 ### Layouts
 - **Viewport:** `100vh` / `100vw` with `overflow: hidden` on `body` for app-like feel.
-- **Flexbox:** Use `flex-col` for the main page structure (Navbar -> Main -> Footer).
+-   **Flexbox:** Use `flex-col` for the main page structure (Navbar -> Main -> Footer).
+
+### 3. Footer Layout
+**Problem:** A footer placed outside a scrollable main area can push the body height beyond `100vh`, causing global scrollbars (The "Tailwind Paradox").
+
+**Solution:** Place the footer **inside** the scrollable container (e.g., `<main>`).
+```html
+<div class="h-screen flex flex-col">
+  <nav>...</nav>
+  <main class="flex-grow overflow-y-auto">
+    <!-- Content -->
+    <footer>...</footer>
+  </main>
+</div>
+```
