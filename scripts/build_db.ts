@@ -92,7 +92,7 @@ try {
 
   for (const entry of clData) {
     // Ensure description is a string
-    const definition =
+    let definition =
       typeof entry.description === "object"
         ? JSON.stringify(entry.description)
         : entry.description;
@@ -100,6 +100,15 @@ try {
     const externalRefs = entry.external_refs
       ? JSON.stringify(entry.external_refs)
       : "[]";
+
+    // Inject extra internal references for testing (User Request)
+    if (entry.id === "OH-036") {
+      definition += " See also OH-037 for value integration.";
+    } else if (entry.id === "OH-037") {
+      definition += " This builds upon OH-036.";
+    } else if (entry.id === "term-015") {
+      definition += " Closely related to the 50-First-Dates Scenario (term-015) and OPM-1.";
+    }
 
     insertNode.run(entry.id, entry.title, entry.type, definition, externalRefs);
     parseAndInsertEdges(entry.id, entry.tags);

@@ -376,7 +376,26 @@ body.loaded {
   letter-spacing: 1px;
 }
 
-/* --- 11. SCROLLBARS --- */
+/* --- 11. INTERNAL LINKS --- */
+.internal-link {
+  color: var(--primary);
+  text-decoration: none;
+  border-bottom: 1px dotted var(--primary);
+  cursor: pointer;
+  font-weight: bold;
+  background-color: #e2e8f0;
+  /* Slate 200 */
+  padding: 0 2px;
+  border-radius: 2px;
+}
+
+.internal-link:hover {
+  background-color: var(--primary);
+  color: var(--secondary);
+  border-bottom: none;
+}
+
+/* --- 12. SCROLLBARS --- */
 .custom-scrollbar::-webkit-scrollbar {
   width: 6px;
 }

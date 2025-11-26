@@ -292,7 +292,8 @@
                                     <div class="text-[10px] uppercase text-gray-400 font-bold tracking-wider mb-1">
                                         Definition</div>
                                     <div class="text-xs text-gray-600 leading-relaxed font-mono"
-                                        x-text="selectedNode.definition || 'No definition available.'"></div>
+                                        x-html="linkify(selectedNode.definition || 'No definition available.')"
+                                        @click="handleContentClick($event)"></div>
                                 </div>
 
                                 <div class="pt-4 border-t border-gray-100">
@@ -374,6 +375,46 @@
                     this.tooltip.visible = false;
                 },
 
+                // --- Internal Navigation ---
+
+                selectNode(nodeId) {
+                    if (!this.graph.hasNode(nodeId)) return;
+
+                    const attrs = this.graph.getNodeAttributes(nodeId);
+                    this.selectedNode = { id: nodeId, ...attrs };
+                    this.rightOpen = true;
+                    this.$refs.analysisGuide.open = false;
+
+                    // Center camera on node? User requested to disable this "jolt".
+                    // const camera = this.renderer.getCamera();
+                    // const nodePos = this.renderer.getNodeDisplayData(nodeId);
+                    // if (nodePos) {
+                    //    camera.animate({ x: nodePos.x, y: nodePos.y, ratio: camera.ratio, duration: 500 });
+                    // }
+
+                    this.renderer.refresh();
+                },
+
+                linkify(text) {
+                    if (!text) return "";
+                    // Regex for IDs: OH-104, COG-5, term-001
+                    // \b ensures we don't match partial words
+                    return text.replace(/\b([A-Z]{2,}-\d+|term-\d+)\b/g, (match) => {
+                        if (this.graph && this.graph.hasNode(match)) {
+                            return `<a href="#" class="internal-link" data-node-id="${match}">${match}</a>`;
+                        }
+                        return match;
+                    });
+                },
+
+                handleContentClick(event) {
+                    if (event.target.matches('.internal-link')) {
+                        event.preventDefault();
+                        const nodeId = event.target.dataset.nodeId;
+                        this.selectNode(nodeId);
+                    }
+                },
+
                 init() {
                     setTimeout(() => this.loaded = true, 50);
                     this.initSqlJs();
@@ -415,9 +456,9 @@
                                 label: row.label,
                                 nodeType: row.type || 'Unknown',
                                 definition: row.definition || '',
-                                size: row.type === "Core Concept" ? 15 : 5,
+                                size: row.type === "Core Concept" ? 30 : 10,
                                 color: row.type === "Core Concept" ? "black" : "#475569",
-                                originalSize: row.type === "Core Concept" ? 15 : 5,
+                                originalSize: row.type === "Core Concept" ? 30 : 10,
                                 originalColor: row.type === "Core Concept" ? "black" : "#475569",
                                 x: Math.random() * 100,
                                 y: Math.random() * 100,
@@ -455,7 +496,12 @@
                     // 4. Run Layout (ForceAtlas2)
                     this.runLayout('forceatlas2');
 
-                    // 5. Render with Sigma
+                    // 5. Apply Default Visualizations (User Request)
+                    // Apply BEFORE rendering to avoid "jarring" flash.
+                    this.toggleColorViz('louvain');
+                    this.toggleSizeViz('pagerank');
+
+                    // 6. Render with Sigma
                     const container = this.$refs.sigmaContainer;
                     container.innerHTML = ""; // Clear previous
 
@@ -463,7 +509,7 @@
                         renderEdgeLabels: true,
                         nodeReducer: (node, data) => {
                             if (this.selectedNode && node === this.selectedNode.id) {
-                                return { ...data, highlighted: true, size: Math.max(data.size, 15), zIndex: 10, label: data.label };
+                                return { ...data, highlighted: true, size: Math.max(data.size, 25), zIndex: 10, label: data.label };
                             }
                             return data;
                         },
@@ -487,17 +533,21 @@
                         this.clickBlock = true;
                         setTimeout(() => this.clickBlock = false, 200); // 200ms debounce
 
-                        const attrs = this.graph.getNodeAttributes(node);
-                        this.selectedNode = { id: node, ...attrs };
-                        this.rightOpen = true;
-                        this.$refs.analysisGuide.open = false;
-                        this.renderer.refresh();
+                        this.selectNode(node);
                     });
 
                     this.renderer.on("clickStage", () => {
                         if (this.clickBlock) return; // Ignore if blocked
                         this.selectedNode = null;
                         this.renderer.refresh();
+                    });
+
+                    this.renderer.on("enterNode", () => {
+                        container.style.cursor = "pointer";
+                    });
+
+                    this.renderer.on("leaveNode", () => {
+                        container.style.cursor = "";
                     });
                 },
 
@@ -534,7 +584,7 @@
                     if (this.activeColorViz === type) {
                         this.resetColors();
                         this.activeColorViz = null;
-                        this.renderer.refresh();
+                        if (this.renderer) this.renderer.refresh();
                         return;
                     }
 
@@ -573,14 +623,14 @@
                             this.graph.setNodeAttribute(node, "color", largestComponentSet.has(node) ? "#3cb44b" : "#cccccc");
                         });
                     }
-                    this.renderer.refresh();
+                    if (this.renderer) this.renderer.refresh();
                 },
 
                 toggleSizeViz(type) {
                     if (this.activeSizeViz === type) {
                         this.resetSizes();
                         this.activeSizeViz = null;
-                        this.renderer.refresh();
+                        if (this.renderer) this.renderer.refresh();
                         return;
                     }
 
@@ -604,7 +654,7 @@
                             this.graph.setNodeAttribute(node, "size", 4 + ((scores[node] - minScore) / (maxScore - minScore)) * 21);
                         });
                     }
-                    this.renderer.refresh();
+                    if (this.renderer) this.renderer.refresh();
                 },
 
                 runLayout(layoutName) {
