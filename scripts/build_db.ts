@@ -10,6 +10,7 @@ interface LexiconEntry {
   description: string | object; // Description can be a string or a structured object
   type: string;
   tags?: string[];
+  external_refs?: { label: string; url: string; type: string }[];
 }
 
 interface Directive {
@@ -49,7 +50,8 @@ db.exec(`
     id TEXT PRIMARY KEY,
     label TEXT,
     type TEXT,
-    definition TEXT
+    definition TEXT,
+    external_refs TEXT
   );
   CREATE TABLE IF NOT EXISTS edges (
     source TEXT,
@@ -64,7 +66,7 @@ db.exec(`
 
 // Use prepared statements for performance and security.
 const insertNode = db.prepare(
-  "INSERT OR REPLACE INTO nodes (id, label, type, definition) VALUES (?, ?, ?, ?)"
+  "INSERT OR REPLACE INTO nodes (id, label, type, definition, external_refs) VALUES (?, ?, ?, ?, ?)"
 );
 const insertEdge = db.prepare(
   "INSERT OR IGNORE INTO edges (source, target, relation) VALUES (?, ?, ?)"
@@ -74,7 +76,7 @@ const insertEdge = db.prepare(
 function parseAndInsertEdges(nodeId: string, tags: string[] = []): void {
   for (const tag of tags) {
     const match = tag.match(/\[(.*?):(.*?)\]/);
-    if (match) {
+    if (match && match[1] && match[2]) {
       const relation = match[1].trim();
       const target = match[2].trim();
       insertEdge.run(nodeId, target, relation);
@@ -95,7 +97,11 @@ try {
         ? JSON.stringify(entry.description)
         : entry.description;
 
-    insertNode.run(entry.id, entry.title, entry.type, definition);
+    const externalRefs = entry.external_refs
+      ? JSON.stringify(entry.external_refs)
+      : "[]";
+
+    insertNode.run(entry.id, entry.title, entry.type, definition, externalRefs);
     parseAndInsertEdges(entry.id, entry.tags);
   }
 } catch (error) {
@@ -118,7 +124,7 @@ try {
             ? JSON.stringify(entry.definition)
             : entry.definition || "";
 
-        insertNode.run(entry.id, term, "Directive", defn);
+        insertNode.run(entry.id, term, "Directive", defn, "[]");
         parseAndInsertEdges(entry.id, entry.tags);
         directiveCount++;
       }

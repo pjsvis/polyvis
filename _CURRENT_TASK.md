@@ -1,6 +1,6 @@
 # current task
 
-- [ ] Create a checklisted implementation plan to implemnent the @briefs/brief-doc-layout-upgrade.md
-- [ ] Update the @_CURRENT_TASK.md to reflect current status
-- [ ] Implement the layout upgrade plan
+- [x] Create a checklisted implementation plan to implemnent the @briefs/brief-external-grounding.md
+- [x] Update the @_CURRENT_TASK.md to reflect current status
+- [x] Implement the external grounding plan
 
