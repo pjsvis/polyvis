@@ -1,0 +1,77 @@
+@theme {
+    /* 
+   * RATIONALIZATION: SPACING
+   * Replacing the linear 0.25rem scale with Open Props relative sizing.
+   */
+    --spacing-0: var(--size-00);
+    --spacing-1: var(--size-1);
+    --spacing-2: var(--size-2);
+    --spacing-3: var(--size-3);
+    --spacing-4: var(--size-4);
+    --spacing-5: var(--size-5);
+    --spacing-6: var(--size-6);
+    --spacing-7: var(--size-7);
+    --spacing-8: var(--size-8);
+    --spacing-9: var(--size-9);
+    --spacing-10: var(--size-10);
+    --spacing-11: var(--size-11);
+    --spacing-12: var(--size-12);
+
+    /* FLUID SPACING */
+    --spacing-fluid-1: var(--size-fluid-1);
+    --spacing-fluid-2: var(--size-fluid-2);
+    --spacing-fluid-3: var(--size-fluid-3);
+
+    /* 
+   * RATIONALIZATION: COLORS
+   * Explicitly mapping semantic names to Open Props OKLCH values.
+   */
+    --color-brand: var(--indigo-6);
+    --color-brand-hover: var(--indigo-7);
+    --color-surface-1: var(--surface-1);
+    --color-surface-2: var(--surface-2);
+    --color-text-1: var(--text-1);
+    --color-text-2: var(--text-2);
+
+    /* 
+   * RATIONALIZATION: TYPOGRAPHY
+   */
+    --font-size-xs: var(--font-size-00);
+    --font-size-sm: var(--font-size-0);
+    --font-size-base: var(--font-size-1);
+    --font-size-lg: var(--font-size-2);
+    --font-size-xl: var(--font-size-3);
+    --font-size-2xl: var(--font-size-4);
+    --font-size-fluid-1: var(--font-size-fluid-1);
+    --font-size-fluid-2: var(--font-size-fluid-2);
+    --font-size-fluid-3: var(--font-size-fluid-3);
+}
+
+:root {
+    /* 
+     * APP VARIABLES
+     * Consolidating all tweakable variables here.
+     */
+
+    /* Colors */
+    --primary: var(--gray-9);
+    --secondary: var(--gray-0);
+    /* Open Props doesn't have --white, using literal or --gray-0 */
+    --accent: var(--gray-1);
+
+    /* Dimensions */
+    --border-width: var(--border-size-1);
+    --shadow-offset: var(--size-1);
+
+    /* Layout Dimensions */
+    --sidebar-width-left: var(--size-content-2);
+    /* Adjusted for better content fit */
+    --sidebar-width-right: var(--size-content-2);
+    --header-height: auto;
+    --footer-height: var(--size-10);
+    /* Explicit control */
+
+    /* Spacing */
+    --app-padding: var(--size-4);
+    --gap-standard: var(--size-4);
+}

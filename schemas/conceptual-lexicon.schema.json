@@ -23,7 +23,10 @@
         },
         "description": {
           "description": "The full definition of the entry. Can be a simple string or a structured object for complex definitions.",
-          "type": ["string", "object"]
+          "type": [
+            "string",
+            "object"
+          ]
         },
         "type": {
           "description": "The type of the entry, e.g., 'term', 'operational-heuristic'.",
@@ -43,9 +46,47 @@
         "source": {
           "description": "The origin of the entry, typically 'cl'.",
           "type": "string"
+        },
+        "external_refs": {
+          "description": "A list of external grounding resources (URLs, Citations, Code).",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "label": {
+                "description": "Human-readable link text (e.g., 'Wikipedia', 'Source Code').",
+                "type": "string"
+              },
+              "url": {
+                "description": "The fully qualified URI.",
+                "type": "string",
+                "format": "uri"
+              },
+              "type": {
+                "description": "The nature of the reference.",
+                "type": "string",
+                "enum": [
+                  "source",
+                  "citation",
+                  "implementation",
+                  "example"
+                ]
+              }
+            },
+            "required": [
+              "label",
+              "url",
+              "type"
+            ]
+          }
         }
       },
-      "required": ["id", "title", "description", "type"]
+      "required": [
+        "id",
+        "title",
+        "description",
+        "type"
+      ]
     }
   }
 }

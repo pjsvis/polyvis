@@ -1,3 +1,8 @@
+# Alpine.js Playbook
+
+> [!NOTE]
+> **Alpine.js Integration**: This playbook is the primary reference for our reactive UI implementation. All other playbooks should be used in the context of Alpine.js.
+
 ### Alpine.js x-init for Initialization Code
 
 Source: https://alpinejs.dev/docs/index
@@ -128,6 +133,8 @@ The `$store` magic property allows access to globally registered reactive data s
 ```html
 <h1 x-text="$store.site.title"></h1>
 ```
+
+--------------------------------
 
 --------------------------------
 
@@ -314,3 +321,58 @@ The `$el` magic property provides a reference to the current DOM element the Alp
 ```
 
 === COMPLETE CONTENT === This response contains all available snippets from this library. No additional content exists. Do not make further requests.
+
+--------------------------------
+
+### Alpine.js for Page Transitions
+
+**Pattern**: Use a `loaded` state to trigger CSS transitions after component initialization. This prevents FOUC and ensures smooth entry.
+
+**CSS**:
+```css
+body {
+  opacity: 0;
+  transition: opacity 0.6s ease-out;
+}
+body.loaded {
+  opacity: 1;
+}
+```
+
+**HTML**:
+```html
+<body 
+  x-data="{ loaded: false }" 
+  x-init="setTimeout(() => loaded = true, 50)" 
+  :class="{ 'loaded': loaded }"
+>
+  ...
+</body>
+```
+
+--------------------------------
+
+### Alpine.data for Shared Components
+
+**Pattern**: Use `Alpine.data` to create reusable, self-rendering components (like navigation bars) without a build step.
+
+**JavaScript**:
+```js
+document.addEventListener('alpine:init', () => {
+  Alpine.data('navigation', () => ({
+    get view() {
+      return `
+        <nav>
+          <a href="/">Home</a>
+          <a href="/about">About</a>
+        </nav>
+      `;
+    }
+  }));
+});
+```
+
+**HTML**:
+```html
+<div x-data="navigation" x-html="view"></div>
+```

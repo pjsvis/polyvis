@@ -1,0 +1,106 @@
+/* 
+ * LAYOUT UTILITIES 
+ */
+
+/* RAM Grid Pattern */
+.card-grid {
+    display: grid;
+    gap: var(--size-4);
+    grid-template-columns: repeat(auto-fit, minmax(min(var(--size-content-1), 100%), 1fr));
+}
+
+/* Structural Components */
+.container-box {
+    border: var(--border-width) solid var(--primary);
+    background: var(--secondary);
+    padding: var(--size-fluid-2);
+    box-shadow: var(--size-2) var(--size-2) 0px rgba(0, 0, 0, 0.1);
+}
+
+
+/* 
+   App Shell Layout (Holy Grail Grid)
+   - Fixed viewport height
+   - Header and Footer auto-sized
+   - Main content takes remaining space and scrolls internally
+*/
+.app-shell {
+    display: grid;
+    grid-template-areas:
+        "header header header"
+        "left   main   right"
+        "footer footer footer";
+    grid-template-rows: var(--header-height) minmax(0, 1fr) var(--footer-height);
+    /* Header, Main (expands), Footer */
+    /* Use semantic variables for sidebar widths */
+    grid-template-columns: var(--sidebar-width-left) minmax(0, 1fr) var(--sidebar-width-right);
+    height: 100vh;
+    /* Fill the screen */
+    width: 100vw;
+    background-color: var(--accent);
+    overflow: hidden;
+    /* Ensure shell itself doesn't scroll */
+}
+
+/* Zone Mapping */
+.app-header {
+    grid-area: header;
+    height: var(--header-height);
+}
+
+.app-sidebar-left {
+    grid-area: left;
+    border-right: var(--border-size-1) solid var(--gray-3);
+    background-color: var(--surface-2);
+    overflow: hidden;
+    /* Sidebar itself doesn't scroll, children do */
+    min-height: 0;
+    /* Critical for grid row constraint */
+    display: flex;
+    flex-direction: column;
+}
+
+.app-main {
+    grid-area: main;
+    padding: var(--size-4);
+    overflow: hidden;
+    /* Strict container for internal grid */
+    min-height: 0;
+    /* Critical for grid row constraint */
+    display: flex;
+    flex-direction: column;
+}
+
+.app-sidebar-right {
+    grid-area: right;
+    border-left: var(--border-size-1) solid var(--gray-3);
+    background-color: var(--surface-2);
+    overflow: hidden;
+    /* Sidebar itself doesn't scroll, children do */
+    min-height: 0;
+    /* Critical for grid row constraint */
+    display: flex;
+    flex-direction: column;
+}
+
+.app-footer {
+    grid-area: footer;
+    display: flex;
+    justify-content: center;
+    padding: var(--size-4);
+    height: var(--footer-height);
+    align-items: center;
+}
+
+/* Stack Layout Primitive */
+[class^='stack']>* {
+    margin-block: 0;
+}
+
+.stack-large>*+* {
+    margin-block-start: var(--size-4);
+}
+
+.stack-small>*+* {
+    margin-block-start: var(--size-1);
+}

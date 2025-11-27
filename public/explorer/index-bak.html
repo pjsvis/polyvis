@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PolyVis | Knowledge Explorer</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/viz.js/2.1.2/viz.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/viz.js/2.1.2/full.render.js"></script>
+
+  <link rel="stylesheet" href="/css/style.css" />
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Alpine.js -->
+  <script src="//unpkg.com/alpinejs" defer></script>
+  <style>
+    /* Minimalist Search Input */
+    .search-input {
+      width: 100%;
+      font-family: "Menlo", monospace;
+      font-size: 1.5rem;
+      border: none;
+      border-bottom: 2px solid black;
+      padding: 1rem;
+      background: transparent;
+    }
+
+    .search-input:focus {
+      outline: none;
+      border-bottom: 4px solid black;
+    }
+
+    /* Node Type Colors (Structural Palette) */
+    /* These are used in the DOT generation logic */
+  </style>
+</head>
+
+<body class="page-layout" x-data="explorerApp()" :class="{ 'loaded': loaded }">
+  <script src="/components/nav.js"></script>
+  <div x-data="navigation" x-html="view"></div>
+
+  <div class="mx-auto w-full max-w-6xl p-4 sm:p-8">
+    <div class="mb-8">
+      <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <div>
+          <label for="term-select" class="block text-sm font-medium text-gray-700">Start with a high-value term</label>
+          <select id="term-select"
+            class="focus:ring-opacity-50 mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200"
+            x-model="selectedTerm" @change="visualize($event.target.value)" :disabled="loading">
+            <option value="" disabled>Select a term...</option>
+            <template x-for="term in terms" :key="term">
+              <option :value="term" x-text="term"></option>
+            </template>
+          </select>
+        </div>
+        <div class="flex items-end gap-2">
+          <div class="flex-grow">
+            <label for="searchBox" class="mb-1 block font-mono text-xs font-bold uppercase">Or Search Term</label>
+            <input type="text" id="searchBox" class="structural-input w-full p-2" placeholder="e.g. 'Persona'"
+              x-model="searchTerm" @keyup.enter="visualize(searchTerm)" :disabled="loading" />
+          </div>
+          <button id="visualizeBtn" class="btn-structural px-4 py-2 flex items-center gap-2"
+            @click="visualize(searchTerm)" :disabled="loading">
+            <i data-lucide="search" class="w-4 h-4"></i> Visualize
+          </button>
+        </div>
+      </div>
+      <div id="status" class="mt-2 font-mono text-xs text-gray-500" x-text="status">
+        Connecting to Neural Substrate...
+      </div>
+    </div>
+
+    <div id="graph-container" class="container-box flex h-[600px] items-center justify-center overflow-hidden">
+      <div id="graphOutput" class="h-full w-full" x-ref="graphOutput"></div>
+    </div>
+
+    <div id="graph-key" class="mt-8 rounded-md border p-4">
+      <h3 class="mb-4 text-lg font-bold">Node Key</h3>
+      <div class="grid grid-cols-2 gap-4 text-sm md:grid-cols-4">
+        <div class="flex items-center">
+          <span class="mr-2 h-5 w-5 border" style="background-color: black"></span>
+          <span>Root Node</span>
+        </div>
+        <div class="flex items-center">
+          <span class="mr-2 h-5 w-5 border" style="background-color: #f4f4f4"></span>
+          <span>Related Term</span>
+        </div>
+        <div class="flex items-center">
+          <span class="mr-2 h-5 w-5 border" style="background-color: #e0e0e0"></span>
+          <span>Related Directive</span>
+        </div>
+        <div class="flex items-center">
+          <span class="mr-2 h-5 w-5 border" style="background-color: white"></span>
+          <span>Other Node</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('alpine:init', () => {
+      Alpine.data('explorerApp', () => ({
+        db: null,
+        viz: null,
+        terms: [],
+        selectedTerm: '',
+        searchTerm: '',
+        status: 'Connecting to Neural Substrate...',
+        loading: true,
+        loaded: false,
+
+        init() {
+          setTimeout(() => this.loaded = true, 50);
+          this.$nextTick(() => { if (window.lucide) window.lucide.createIcons(); });
+          this.viz = new Viz();
+          this.loadTerms();
+          this.initSqlJs();
+        },
+
+        async loadTerms() {
+          try {
+            const response = await fetch("../terms.json");
+            if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+            this.terms = await response.json();
+            if (this.terms.length > 0) {
+              this.selectedTerm = "Pre-Mortem Heuristic";
+            }
+          } catch (error) {
+            console.error("Could not load suggested terms:", error);
+            this.status = "Error loading terms.";
+          }
+        },
+
+        initSqlJs() {
+          initSqlJs({
+            locateFile: (file) => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/${file}`,
+          }).then((SQL) => {
+            const xhr = new XMLHttpRequest();
+            xhr.open("GET", "/data/ctx.db", true);
+            xhr.responseType = "arraybuffer";
+
+            xhr.onload = (e) => {
+              const uInt8Array = new Uint8Array(xhr.response);
+              this.db = new SQL.Database(uInt8Array);
+              this.status = "Database Loaded. Ready.";
+              this.loading = false;
+
+              // Load default view if terms loaded
+              if (this.selectedTerm) {
+                this.visualize(this.selectedTerm);
+              }
+            };
+            xhr.send();
+          });
+        },
+
+        visualize(term) {
+          if (!this.db || !term) return;
+
+          // Sync models
+          this.selectedTerm = term;
+          this.searchTerm = term;
+
+          // A. Find the Core Node
+          let stmt = this.db.prepare("SELECT * FROM nodes WHERE id = ? OR label = ? LIMIT 1");
+          stmt.bind([term, term]);
+
+          let rootId = null;
+          let nodes = new Set();
+          let edges = [];
+          let row = null;
+
+          if (stmt.step()) row = stmt.getAsObject();
+          stmt.free();
+
+          if (!row) {
+            stmt = this.db.prepare("SELECT * FROM nodes WHERE id LIKE ? OR label LIKE ? LIMIT 1");
+            stmt.bind([`%${term}%`, `%${term}%`]);
+            if (stmt.step()) row = stmt.getAsObject();
+            stmt.free();
+          }
+
+          if (row) {
+            rootId = row.id;
+            nodes.add(JSON.stringify(row));
+          } else {
+            this.status = "Term not found.";
+            this.$refs.graphOutput.innerHTML = "";
+            return;
+          }
+
+          // B. Find Neighbors
+          const outStmt = this.db.prepare("SELECT n.*, e.relation FROM edges e JOIN nodes n ON e.target = n.id WHERE e.source = ?");
+          outStmt.bind([rootId]);
+          while (outStmt.step()) {
+            const r = outStmt.getAsObject();
+            nodes.add(JSON.stringify({ id: r.id, label: r.label, type: r.type }));
+            edges.push({ from: rootId, to: r.id, label: r.relation });
+          }
+          outStmt.free();
+
+          const inStmt = this.db.prepare("SELECT n.*, e.relation FROM edges e JOIN nodes n ON e.source = n.id WHERE e.target = ?");
+          inStmt.bind([rootId]);
+          while (inStmt.step()) {
+            const r = inStmt.getAsObject();
+            nodes.add(JSON.stringify({ id: r.id, label: r.label, type: r.type }));
+            edges.push({ from: r.id, to: rootId, label: r.relation });
+          }
+          inStmt.free();
+
+          // C. Generate DOT
+          let dot = `digraph NeuroMap {
+                    rankdir=LR;
+                    node [shape=box, fontname="Courier", margin="0.2,0.1", style=filled, fillcolor="white"];
+                    edge [fontname="Courier", fontsize=8, color="#555"];
+                `;
+
+          nodes.forEach((n) => {
+            const node = JSON.parse(n);
+            let color = "white";
+            let shape = "box";
+            let fontColor = "black";
+
+            if (node.id === rootId) {
+              color = "black";
+              fontColor = "white";
+            } else if (node.type === "Term") {
+              color = "#f4f4f4";
+            } else if (node.type === "Directive") {
+              color = "#e0e0e0";
+              shape = "component";
+            }
+
+            dot += `"${node.id}" [label="${node.label}", fillcolor="${color}", fontcolor="${fontColor}", shape="${shape}"];\n`;
+          });
+
+          edges.forEach((e) => {
+            dot += `"${e.from}" -> "${e.to}" [label="${e.label}"];\n`;
+          });
+
+          dot += "}";
+
+          // D. Render
+          this.renderGraph(dot);
+          this.status = `Visualizing: ${nodes.size} Nodes, ${edges.length} Connections.`;
+        },
+
+        renderGraph(dotString) {
+          const container = this.$refs.graphOutput;
+          this.viz.renderSVGElement(dotString)
+            .then((element) => {
+              container.innerHTML = "";
+              element.setAttribute("width", "100%");
+              element.setAttribute("height", "100%");
+              container.appendChild(element);
+            })
+            .catch((error) => {
+              console.error(error);
+              this.status = "Error rendering graph.";
+            });
+        }
+      }));
+    });
+  </script>
+</body>
+
+</html>

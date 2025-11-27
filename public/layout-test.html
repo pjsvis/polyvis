@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Test</title>
+    <link rel="stylesheet" href="/css/app.css" />
+    <style>
+        /* Force high contrast for test page */
+        body {
+            background-color: #ffffff !important;
+            color: #000000 !important;
+            opacity: 1 !important;
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden;
+            font-size: 48px;
+            font-family: sans-serif;
+        }
+
+        /* Global Box Sizing Reset */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+        }
+
+        /* Explicit Grid Layout for Test Page */
+        .app-shell {
+            display: grid !important;
+            grid-template-rows: var(--header-height) minmax(0, 1fr) var(--footer-height) !important;
+            height: 100vh !important;
+            width: 100vw !important;
+            overflow: hidden !important;
+            /* Use variables for columns */
+            grid-template-columns: var(--sidebar-width-left) minmax(0, 1fr) var(--sidebar-width-right) !important;
+
+            /* Test Variables */
+            /* --header-height: 0px; */
+            /* TEST: Should hide header */
+            /* --footer-height: 60px; */
+        }
+
+        /* Region colors */
+        .app-header {
+            background-color: #fca5a5 !important;
+            color: black !important;
+        }
+
+        .app-sidebar-left {
+            background-color: #fdba74 !important;
+            color: black !important;
+            overflow: hidden !important;
+            /* Sidebar itself doesn't scroll */
+            min-height: 0 !important;
+            display: flex !important;
+            flex-direction: column !important;
+        }
+
+        .scroll-container {
+            overflow-y: auto !important;
+            flex-grow: 1 !important;
+            min-height: 0 !important;
+            border: 2px dashed black;
+            /* Visual aid for the container */
+        }
+
+        .app-main {
+            background-color: #86efac !important;
+            color: black !important;
+            overflow: hidden !important;
+            /* Main itself doesn't scroll */
+            min-height: 0 !important;
+            display: flex !important;
+            flex-direction: column !important;
+        }
+
+        .app-sidebar-right {
+            background-color: #93c5fd !important;
+            color: black !important;
+            overflow: hidden !important;
+            /* Sidebar itself doesn't scroll */
+            min-height: 0 !important;
+            display: flex !important;
+            flex-direction: column !important;
+        }
+
+        .app-footer {
+            background-color: #d8b4fe !important;
+            color: black !important;
+            height: var(--footer-height) !important;
+            /* Use variable */
+            display: flex;
+            align-items: center;
+        }
+    </style>
+    <script src="//unpkg.com/alpinejs" defer></script>
+</head>
+
+<body x-data="{ debug: false }" :class="{ 'layout-debug-mode': debug }" @keydown.window.shift.d="debug = !debug">
+    <div class="app-shell">
+        <header class="app-header p-4">
+            HEADER
+        </header>
+
+        <aside class="app-sidebar-left p-4">
+            <div class="scroll-container">
+                <h2 class="font-bold mb-2">LEFT SIDEBAR (Scrolled Header)</h2>
+                <ul class="list-disc pl-4">
+                    <script>
+                        for (let i = 1; i <= 50; i++) document.write(`<li>Left Item ${i}</li>`);
+                    </script>
+                </ul>
+            </div>
+        </aside>
+
+        <main class="app-main p-4">
+            <div class="scroll-container">
+                <h2 class="font-bold mb-2">MAIN CONTENT (Scrolled Header)</h2>
+                <p class="mb-4">This content should scroll internally.</p>
+                <ul class="list-disc pl-4">
+                    <script>
+                        for (let i = 1; i <= 100; i++) document.write(`<li>Main Item ${i}</li>`);
+                    </script>
+                </ul>
+            </div>
+        </main>
+
+        <aside class="app-sidebar-right p-4">
+            <div class="scroll-container">
+                <h2 class="font-bold mb-2">RIGHT SIDEBAR (Scrolled Header)</h2>
+                <ul class="list-disc pl-4">
+                    <script>
+                        for (let i = 1; i <= 50; i++) document.write(`<li>Right Item ${i}</li>`);
+                    </script>
+                </ul>
+            </div>
+        </aside>
+
+        <footer class="app-footer p-4">
+            &copy; FOOTER
+        </footer>
+    </div>
+</body>
+
+</html>

@@ -1,345 +1,253 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>PolyVis | Knowledge Explorer</title>
-    <script src="https://cdn.tailwindcss.com"></script>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js"></script>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PolyVis | Knowledge Explorer</title>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/viz.js/2.1.2/viz.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/viz.js/2.1.2/full.render.js"></script>
 
-    <link rel="stylesheet" href="/css/style.css" />
-    <style>
-      /* Minimalist Search Input */
-      .search-input {
-        width: 100%;
-        font-family: "Menlo", monospace;
-        font-size: 1.5rem;
-        border: none;
-        border-bottom: 2px solid black;
-        padding: 1rem;
-        background: transparent;
-      }
-      .search-input:focus {
-        outline: none;
-        border-bottom: 4px solid black;
-      }
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js"></script>
 
-      /* Node Type Colors (Structural Palette) */
-      /* These are used in the DOT generation logic */
-    </style>
-  </head>
-  <body class="page-layout">
-    <script src="/components/nav.js"></script>
-    <div id="polyvis-nav"></div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/viz.js/2.1.2/viz.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/viz.js/2.1.2/full.render.js"></script>
 
-    <div class="mx-auto w-full max-w-6xl p-4 sm:p-8">
-      <div class="mb-8">
-        <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <div>
-            <label
-              for="term-select"
-              class="block text-sm font-medium text-gray-700"
-              >Start with a high-value term</label
-            >
-            <select
-              id="term-select"
-              class="focus:ring-opacity-50 mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200"
-              disabled
-            ></select>
+  <link rel="stylesheet" href="/css/app.css" />
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Alpine.js -->
+  <!-- Alpine.js -->
+  <script src="/components/nav.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+
+<body class="page-layout" x-data="explorerApp()" :class="{ 'loaded': loaded, 'layout-debug-mode': debug }"
+  @keydown.window.shift.d="debug = !debug">
+
+  <div class="app-shell">
+    <header class="app-header">
+      <div x-data="navigation" x-html="view"></div>
+    </header>
+
+    <aside class="app-sidebar-left"></aside>
+
+    <main class="app-main w-full !overflow-hidden flex flex-col">
+      <div class="mx-auto w-full max-w-6xl p-4 sm:p-8 flex flex-col h-full">
+        <div class="mb-4 flex-none">
+          <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div>
+              <label for="term-select" class="block text-sm font-medium text-gray-700">Start with a high-value
+                term</label>
+              <select id="term-select"
+                class="focus:ring-opacity-50 mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 !bg-white !text-black"
+                x-model="selectedTerm" @change="visualize($event.target.value)" :disabled="loading">
+                <option value="" disabled>Select a term...</option>
+                <template x-for="term in terms" :key="term">
+                  <option :value="term" x-text="term"></option>
+                </template>
+              </select>
+            </div>
+            <div class="flex items-end gap-2">
+              <div class="flex-grow">
+                <label for="searchBox" class="mb-1 block font-mono text-xs font-bold uppercase">Or Search Term</label>
+                <input type="text" id="searchBox"
+                  class="structural-input w-full p-2 !bg-white !text-black border border-gray-300"
+                  placeholder="e.g. 'Persona'" x-model="searchTerm" @keyup.enter="visualize(searchTerm)"
+                  :disabled="loading" />
+              </div>
+              <button id="visualizeBtn" class="btn-structural px-4 py-2 flex items-center gap-2"
+                @click="visualize(searchTerm)" :disabled="loading">
+                <i data-lucide="search" class="w-4 h-4"></i> Visualize
+              </button>
+            </div>
           </div>
-          <div>
-            <label
-              for="searchBox"
-              class="block text-sm font-medium text-gray-700"
-              >Or search for any term</label
-            >
-            <input
-              type="search"
-              id="searchBox"
-              class="focus:ring-opacity-50 mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200"
-              placeholder="e.g., Mentation..."
-              disabled
-            />
-          </div>
-        </div>
-        <div id="status" class="mt-2 font-mono text-xs text-gray-500">
-          Connecting to Neural Substrate...
-        </div>
-      </div>
-
-      <div
-        id="graph-container"
-        class="container-box flex h-[600px] items-center justify-center overflow-hidden"
-      >
-        <div id="graphOutput" class="h-full w-full"></div>
-      </div>
-
-      <div id="graph-key" class="mt-8 rounded-md border p-4">
-        <h3 class="mb-4 text-lg font-bold">Node Key</h3>
-        <div class="grid grid-cols-2 gap-4 text-sm md:grid-cols-4">
-          <div class="flex items-center">
-            <span
-              class="mr-2 h-5 w-5 border"
-              style="background-color: black"
-            ></span>
-            <span>Root Node</span>
-          </div>
-          <div class="flex items-center">
-            <span
-              class="mr-2 h-5 w-5 border"
-              style="background-color: #f4f4f4"
-            ></span>
-            <span>Related Term</span>
-          </div>
-          <div class="flex items-center">
-            <span
-              class="mr-2 h-5 w-5 border"
-              style="background-color: #e0e0e0"
-            ></span>
-            <span>Related Directive</span>
-          </div>
-          <div class="flex items-center">
-            <span
-              class="mr-2 h-5 w-5 border"
-              style="background-color: white"
-            ></span>
-            <span>Other Node</span>
+          <div id="status" class="mt-2 font-mono text-xs text-gray-500" x-text="status">
+            Connecting to Neural Substrate...
           </div>
         </div>
+
+        <div id="graph-container"
+          class="container-box flex flex-grow items-center justify-center overflow-hidden min-h-0">
+          <div id="graphOutput" class="h-full w-full" x-ref="graphOutput"></div>
+        </div>
+
+
       </div>
-    </div>
+    </main>
 
-    <script>
-      let db = null;
-      let viz = new Viz();
+    <aside class="app-sidebar-right"></aside>
 
-      // Function to populate the select dropdown
-      function populateDropdown(terms) {
-        const termSelect = document.getElementById("term-select");
-        if (!termSelect) {
-          console.error("Select dropdown not found!");
-          return;
-        }
-        termSelect.innerHTML = ""; // Clear previous options
-        terms.forEach((term) => {
-          const option = document.createElement("option");
-          option.value = term;
-          option.textContent = term;
-          termSelect.appendChild(option);
-        });
-      }
+    <footer class="app-footer text-center font-mono text-xs text-gray-400">
+      &copy; 2025 PolyVis | Knowledge Explorer
+    </footer>
+  </div>
 
-      // Fetch curated terms and populate the dropdown
-      fetch("../terms.json")
-        .then((response) => {
-          if (!response.ok)
-            throw new Error(`HTTP error! Status: ${response.status}`);
-          return response.json();
-        })
-        .then((terms) => {
-          if (terms && terms.length > 0) {
-            populateDropdown(terms);
-            // Set the initial dropdown selection to match the default graph
-            document.getElementById("term-select").value =
-              "Pre-Mortem Heuristic";
-          } else {
-            throw new Error("Fetched terms list is empty or invalid.");
+  <script>
+    document.addEventListener('alpine:init', () => {
+      Alpine.data('explorerApp', () => ({
+        db: null,
+        viz: null,
+        terms: [],
+        selectedTerm: '',
+        searchTerm: '',
+        status: 'Connecting to Neural Substrate...',
+        loading: true,
+        loaded: false,
+        debug: false, // Added for layout debug mode
+
+        init() {
+          setTimeout(() => this.loaded = true, 50);
+          this.$nextTick(() => { if (window.lucide) window.lucide.createIcons(); });
+          this.viz = new Viz();
+          this.loadTerms();
+          this.initSqlJs();
+        },
+
+        async loadTerms() {
+          try {
+            const response = await fetch("../terms.json");
+            if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+            this.terms = await response.json();
+            if (this.terms.length > 0) {
+              this.selectedTerm = "Pre-Mortem Heuristic";
+            }
+          } catch (error) {
+            console.error("Could not load suggested terms:", error);
+            this.status = "Error loading terms.";
           }
-        })
-        .catch((error) => {
-          console.error("Could not load suggested terms from file.", error);
-        });
+        },
 
-      // 1. Initialize SQL.js and Load DB
-      initSqlJs({
-        locateFile: (file) =>
-          `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/${file}`,
-      }).then(function (SQL) {
-        const xhr = new XMLHttpRequest();
-        xhr.open("GET", "/data/ctx.db", true);
-        xhr.responseType = "arraybuffer";
+        initSqlJs() {
+          initSqlJs({
+            locateFile: (file) => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/${file}`,
+          }).then((SQL) => {
+            const xhr = new XMLHttpRequest();
+            xhr.open("GET", "/data/ctx.db", true);
+            xhr.responseType = "arraybuffer";
 
-        xhr.onload = function (e) {
-          const uInt8Array = new Uint8Array(this.response);
-          db = new SQL.Database(uInt8Array);
+            xhr.onload = (e) => {
+              const uInt8Array = new Uint8Array(xhr.response);
+              this.db = new SQL.Database(uInt8Array);
+              this.status = "Database Loaded. Ready.";
+              this.loading = false;
 
-          document.getElementById("status").textContent =
-            "Database Loaded. Ready.";
-          // Enable both new controls
-          document.getElementById("term-select").disabled = false;
-          document.getElementById("searchBox").disabled = false;
+              // Load default view if terms loaded
+              if (this.selectedTerm) {
+                this.visualize(this.selectedTerm);
+              }
+            };
+            xhr.send();
+          });
+        },
 
-          // Load default view
-          visualize("Pre-Mortem Heuristic");
-        };
-        xhr.send();
-      });
+        visualize(term) {
+          if (!this.db || !term) return;
 
-      // 2. Handle Input
-      const termSelect = document.getElementById("term-select");
-      termSelect.addEventListener("change", (e) => {
-        visualize(e.target.value);
-      });
+          // Sync models
+          this.selectedTerm = term;
+          this.searchTerm = term;
 
-      const searchBox = document.getElementById("searchBox");
-      searchBox.addEventListener("keyup", (e) => {
-        if (e.key === "Enter") visualize(e.target.value);
-      });
+          // A. Find the Core Node
+          let stmt = this.db.prepare("SELECT * FROM nodes WHERE id = ? OR label = ? LIMIT 1");
+          stmt.bind([term, term]);
 
-      // 3. The "Fingerspitzengefühl" Logic (SQL -> DOT)
-      function visualize(term) {
-        if (!db) return;
+          let rootId = null;
+          let nodes = new Set();
+          let edges = [];
+          let row = null;
 
-        // Sync the dropdown with the current visualization if the term exists in the list
-        const termSelect = document.getElementById("term-select");
-        const termExistsInSelect = [...termSelect.options].some(
-          (o) => o.value === term
-        );
-        if (termExistsInSelect) {
-          termSelect.value = term;
-        }
-
-        // A. Find the Core Node
-        // First, try for an exact match on label or ID. This is the most reliable.
-        let stmt = db.prepare(
-          "SELECT * FROM nodes WHERE id = ? OR label = ? LIMIT 1"
-        );
-        stmt.bind([term, term]);
-
-        let rootId = null;
-        let nodes = new Set();
-        let edges = [];
-        let row = null;
-
-        if (stmt.step()) {
-          row = stmt.getAsObject();
-        }
-        stmt.free();
-
-        // If no exact match, fall back to a broader LIKE search.
-        if (!row) {
-          stmt = db.prepare(
-            "SELECT * FROM nodes WHERE id LIKE ? OR label LIKE ? LIMIT 1"
-          );
-          stmt.bind([`%${term}%`, `%${term}%`]);
-          if (stmt.step()) {
-            row = stmt.getAsObject();
-          }
+          if (stmt.step()) row = stmt.getAsObject();
           stmt.free();
-        }
 
-        if (row) {
-          rootId = row.id;
-          nodes.add(JSON.stringify(row)); // Store full object
-        } else {
-          document.getElementById("status").textContent = "Term not found.";
-          document.getElementById("graphOutput").innerHTML = ""; // Clear the graph
-          return;
-        }
-
-        // B. Find Neighbors (Incoming and Outgoing)
-        // Outgoing: Root -> Target
-        const outStmt = db.prepare(
-          "SELECT n.*, e.relation FROM edges e JOIN nodes n ON e.target = n.id WHERE e.source = ?"
-        );
-        outStmt.bind([rootId]);
-        while (outStmt.step()) {
-          const row = outStmt.getAsObject();
-          nodes.add(
-            JSON.stringify({
-              id: row.id,
-              label: row.label,
-              type: row.type,
-            })
-          );
-          edges.push({
-            from: rootId,
-            to: row.id,
-            label: row.relation,
-          });
-        }
-
-        // Incoming: Source -> Root
-        const inStmt = db.prepare(
-          "SELECT n.*, e.relation FROM edges e JOIN nodes n ON e.source = n.id WHERE e.target = ?"
-        );
-        inStmt.bind([rootId]);
-        while (inStmt.step()) {
-          const row = inStmt.getAsObject();
-          nodes.add(
-            JSON.stringify({
-              id: row.id,
-              label: row.label,
-              type: row.type,
-            })
-          );
-          edges.push({
-            from: row.id,
-            to: rootId,
-            label: row.relation,
-          });
-        }
-
-        // C. Generate DOT
-        let dot = `digraph NeuroMap {
-                rankdir=LR;
-                node [shape=box, fontname="Courier", margin="0.2,0.1", style=filled, fillcolor="white"];
-                edge [fontname="Courier", fontsize=8, color="#555"];
-            `;
-
-        // Render Nodes
-        nodes.forEach((n) => {
-          const node = JSON.parse(n);
-          let color = "white";
-          let shape = "box";
-
-          if (node.id === rootId) {
-            color = "black";
-            font = "white";
-          } else if (node.type === "Term") {
-            color = "#f4f4f4";
-          } else if (node.type === "Directive") {
-            color = "#e0e0e0";
-            shape = "component";
+          if (!row) {
+            stmt = this.db.prepare("SELECT * FROM nodes WHERE id LIKE ? OR label LIKE ? LIMIT 1");
+            stmt.bind([`%${term}%`, `%${term}%`]);
+            if (stmt.step()) row = stmt.getAsObject();
+            stmt.free();
           }
 
-          // Invert colors for root
-          const fontColor = node.id === rootId ? "white" : "black";
+          if (row) {
+            rootId = row.id;
+            nodes.add(JSON.stringify(row));
+          } else {
+            this.status = "Term not found.";
+            this.$refs.graphOutput.innerHTML = "";
+            return;
+          }
 
-          dot += `"${node.id}" [label="${node.label}", fillcolor="${color}", fontcolor="${fontColor}", shape="${shape}"];\n`;
-        });
+          // B. Find Neighbors
+          const outStmt = this.db.prepare("SELECT n.*, e.relation FROM edges e JOIN nodes n ON e.target = n.id WHERE e.source = ?");
+          outStmt.bind([rootId]);
+          while (outStmt.step()) {
+            const r = outStmt.getAsObject();
+            nodes.add(JSON.stringify({ id: r.id, label: r.label, type: r.type }));
+            edges.push({ from: rootId, to: r.id, label: r.relation });
+          }
+          outStmt.free();
 
-        // Render Edges
-        edges.forEach((e) => {
-          dot += `"${e.from}" -> "${e.to}" [label="${e.label}"];\n`;
-        });
+          const inStmt = this.db.prepare("SELECT n.*, e.relation FROM edges e JOIN nodes n ON e.source = n.id WHERE e.target = ?");
+          inStmt.bind([rootId]);
+          while (inStmt.step()) {
+            const r = inStmt.getAsObject();
+            nodes.add(JSON.stringify({ id: r.id, label: r.label, type: r.type }));
+            edges.push({ from: r.id, to: rootId, label: r.relation });
+          }
+          inStmt.free();
 
-        dot += "}";
+          // C. Generate DOT
+          let dot = `digraph NeuroMap {
+                    rankdir=LR;
+                    node [shape=box, fontname="Courier", margin="0.2,0.1", style=filled, fillcolor="white"];
+                    edge [fontname="Courier", fontsize=8, color="#555"];
+                `;
 
-        // D. Render
-        renderGraph(dot);
-        document.getElementById("status").textContent =
-          `Visualizing: ${nodes.size} Nodes, ${edges.length} Connections.`;
-      }
+          nodes.forEach((n) => {
+            const node = JSON.parse(n);
+            let color = "white";
+            let shape = "box";
+            let fontColor = "black";
 
-      function renderGraph(dotString) {
-        const container = document.getElementById("graphOutput");
-        viz
-          .renderSVGElement(dotString)
-          .then((element) => {
-            container.innerHTML = "";
-            element.setAttribute("width", "100%");
-            element.setAttribute("height", "100%");
-            container.appendChild(element);
-          })
-          .catch((error) => {
-            console.error(error);
+            if (node.id === rootId) {
+              color = "black";
+              fontColor = "white";
+            } else if (node.type === "Term") {
+              color = "#f4f4f4";
+            } else if (node.type === "Directive") {
+              color = "#e0e0e0";
+              shape = "component";
+            }
+
+            dot += `"${node.id}" [label="${node.label}", fillcolor="${color}", fontcolor="${fontColor}", shape="${shape}"];\n`;
           });
-      }
-    </script>
-  </body>
+
+          edges.forEach((e) => {
+            dot += `"${e.from}" -> "${e.to}" [label="${e.label}"];\n`;
+          });
+
+          dot += "}";
+
+          // D. Render
+          this.renderGraph(dot);
+          this.status = `Visualizing: ${nodes.size} Nodes, ${edges.length} Connections.`;
+        },
+
+        renderGraph(dotString) {
+          const container = this.$refs.graphOutput;
+          this.viz.renderSVGElement(dotString)
+            .then((element) => {
+              container.innerHTML = "";
+              element.setAttribute("width", "100%");
+              element.setAttribute("height", "100%");
+              container.appendChild(element);
+            })
+            .catch((error) => {
+              console.error(error);
+              this.status = "Error rendering graph.";
+            });
+        }
+      }));
+    });
+  </script>
+</body>
+
 </html>
