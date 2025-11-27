@@ -56,7 +56,10 @@
  */
 
 html {
-    scrollbar-gutter: stable both-edges;
+    /* scrollbar-gutter: stable both-edges; */
+    height: 100%;
+    overflow: hidden;
+    /* Strict app-shell behavior */
 }
 
 h1,
@@ -117,6 +120,9 @@ body {
     color: var(--primary);
     margin: 0;
     line-height: 1.5;
+    height: 100%;
+    overflow: hidden;
+    /* Strict app-shell behavior */
 }
 
 /* Monospace accents */
@@ -303,11 +309,12 @@ body.loaded {
 
 :root {
     /* Layout Dimensions */
-    --sidebar-width-left: 12rem;
-    /* Matches w-48 */
+    --sidebar-width-left: 18rem;
+    /* Adjusted for better content fit */
     --sidebar-width-right: 20rem;
-    /* Matches w-80 */
     --header-height: auto;
+    --footer-height: 60px;
+    /* Explicit control */
 
     /* Spacing */
     --app-padding: var(--size-4);
@@ -326,7 +333,7 @@ body.loaded {
         "header header header"
         "left   main   right"
         "footer footer footer";
-    grid-template-rows: auto minmax(0, 1fr) auto;
+    grid-template-rows: var(--header-height) minmax(0, 1fr) var(--footer-height);
     /* Header, Main (expands), Footer */
     /* Use semantic variables for sidebar widths */
     grid-template-columns: var(--sidebar-width-left) minmax(0, 1fr) var(--sidebar-width-right);
@@ -334,47 +341,49 @@ body.loaded {
     /* Fill the screen */
     width: 100vw;
     background-color: var(--accent);
+    overflow: hidden;
+    /* Ensure shell itself doesn't scroll */
 }
 
 /* Zone Mapping */
 .app-header {
     grid-area: header;
-    width: 100%;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    background-color: rgb(255 255 255 / 0.8);
-    backdrop-filter: blur(12px);
-    border-bottom: 1px solid var(--gray-3);
+    height: var(--header-height);
 }
 
 .app-sidebar-left {
     grid-area: left;
-    display: none;
-    /* Hidden by default on mobile */
-    overflow-y: auto;
-    /* Allow independent scrolling */
-    /* Width is handled by grid, but ensure it fills */
-    width: 100%;
+    border-right: var(--border-size-1) solid var(--gray-3);
+    background-color: var(--surface-2);
+    overflow: hidden;
+    /* Sidebar itself doesn't scroll, children do */
+    min-height: 0;
+    /* Critical for grid row constraint */
+    display: flex;
+    flex-direction: column;
 }
 
 .app-main {
     grid-area: main;
     padding: var(--size-4);
-    overflow-y: auto;
-    /* Internal scrolling for main content */
+    overflow: hidden;
+    /* Strict container for internal grid */
+    min-height: 0;
+    /* Critical for grid row constraint */
     display: flex;
     flex-direction: column;
 }
 
 .app-sidebar-right {
     grid-area: right;
-    display: none;
-    /* Hidden by default on mobile */
-    overflow-y: auto;
-    /* Allow independent scrolling */
-    /* Width is handled by grid, but ensure it fills */
-    width: 100%;
+    border-left: var(--border-size-1) solid var(--gray-3);
+    background-color: var(--surface-2);
+    overflow: hidden;
+    /* Sidebar itself doesn't scroll, children do */
+    min-height: 0;
+    /* Critical for grid row constraint */
+    display: flex;
+    flex-direction: column;
 }
 
 .app-footer {
@@ -382,6 +391,8 @@ body.loaded {
     display: flex;
     justify-content: center;
     padding: var(--size-4);
+    height: var(--footer-height);
+    align-items: center;
 }
 
 .home-box {

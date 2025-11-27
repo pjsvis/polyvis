@@ -70,3 +70,11 @@ This document outlines the core operational protocols governing the actions of a
   2.  **Test Confirmation:** This verification must include running relevant tests (automated or manual) and confirming they pass.
   3.  **Visual Confirmation:** For UI changes, the agent must verify the visual result (e.g., via screenshot or user confirmation) before closing the task.
   4.  **Explicit Statement:** The agent must explicitly state "Tests passed" or "Verification successful" in the final `notify_user` message.
+
+## 9. SWP: Session Wrap-up Protocol
+
+- **Principle:** Every significant session or task completion must be formally concluded to ensure knowledge transfer and context preservation.
+- **Workflow:**
+  1.  **Debrief Creation:** A debrief document must be created in the `debriefs/` directory (e.g., `debriefs/YYYY-MM-DD-topic.md`), strictly following the instructions in `playbooks/debriefs-playbook.md`.
+  2.  **Task Update:** `_CURRENT_TASK.md` must be updated to reflect the latest status. This should be done as often as practicable during the session, but is mandatory at wrap-up.
+  3.  **Context Reset:** Ensure any temporary test files (like `layout-test.html`) are reset or cleaned up to avoid confusing future agents.
