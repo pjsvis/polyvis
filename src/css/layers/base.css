@@ -37,7 +37,7 @@ img {
  */
 
 body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-family: var(--font-sans);
     background-color: var(--accent);
     color: var(--primary);
     margin: 0;
@@ -45,6 +45,18 @@ body {
     height: 100%;
     overflow: hidden;
     /* Strict app-shell behavior */
+}
+
+/* Brutalist Link Reset */
+a,
+a:visited {
+    color: var(--primary) !important;
+    text-decoration: underline;
+    text-decoration-skip-ink: auto;
+}
+
+a:hover {
+    text-decoration: none;
 }
 
 /* Monospace accents */

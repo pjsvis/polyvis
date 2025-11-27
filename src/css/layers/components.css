@@ -15,11 +15,24 @@
     font-family: var(--font-mono);
     text-transform: uppercase;
     font-size: var(--font-size-sm);
-    letter-spacing: 1px;
+    /* letter-spacing removed */
     cursor: pointer;
     box-shadow: var(--size-1) var(--size-1) 0px 0px rgba(0, 0, 0, 1);
     transition: all 0.1s ease;
     text-decoration: none;
+}
+
+/* ... existing hover/active styles ... */
+
+.nav-brand {
+    font-size: var(--font-size-xl);
+    font-weight: 700;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: var(--primary);
+    font-family: var(--font-mono);
+    /* Unified font */
+    /* letter-spacing removed */
 }
 
 .btn-structural:hover {
@@ -74,16 +87,9 @@
     justify-content: space-between;
     align-items: center;
     background-color: transparent;
+    /* Instruction #4 */
 }
 
-.nav-brand {
-    font-size: var(--font-size-xl);
-    font-weight: 700;
-    text-transform: uppercase;
-    text-decoration: none;
-    color: var(--primary);
-    letter-spacing: -1px;
-}
 
 .nav-links {
     display: flex;
@@ -131,7 +137,7 @@
     margin-bottom: 0.5rem;
     color: var(--primary);
     font-size: 0.7rem;
-    letter-spacing: 1px;
+    /* letter-spacing removed */
 }
 
 /* Internal Links */
@@ -154,31 +160,28 @@
 
 .home-box {
     text-align: center;
-    max-width: 600px;
-    width: fit-content;
-    height: fit-content;
+    max-width: 700px;
+    /* Wider than navbar (625px) */
+    width: 100%;
+    aspect-ratio: 1.7;
+    /* Matching reference image proportions */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
     position: relative;
     /* Inner border spacing */
     padding: 2rem;
 }
 
-.home-box::after {
-    content: "";
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    right: 10px;
-    bottom: 10px;
-    border: 1px solid var(--primary);
-    pointer-events: none;
-}
+/* .home-box::after removed for cleaner look */
 
 .home-title {
     font-family: var(--font-mono);
     font-size: var(--font-size-6);
     font-weight: 900;
     text-transform: uppercase;
-    letter-spacing: -2px;
+    /* letter-spacing removed */
     margin: 0;
     line-height: 1;
 }
@@ -188,8 +191,9 @@
     font-size: var(--font-size-2);
     color: var(--gray-6);
     text-transform: uppercase;
-    letter-spacing: 2px;
-    border-bottom: 2px solid var(--primary);
+    /* letter-spacing removed */
+    border-bottom: 1px solid var(--primary) !important;
+    /* Instruction #3 */
     padding-bottom: var(--size-4);
     display: inline-block;
     font-weight: 700;
@@ -213,5 +217,5 @@
     color: var(--primary);
     opacity: 0.7;
     text-transform: uppercase;
-    letter-spacing: 1px;
+    /* letter-spacing removed */
 }

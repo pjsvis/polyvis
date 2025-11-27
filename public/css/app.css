@@ -2542,13 +2542,21 @@
     background-color: var(--surface-2);
   }
   body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-family: var(--font-sans);
     background-color: var(--accent);
     color: var(--primary);
     margin: 0;
     line-height: 1.5;
     height: 100%;
     overflow: hidden;
+  }
+  a, a:visited {
+    color: var(--primary) !important;
+    text-decoration: underline;
+    text-decoration-skip-ink: auto;
+  }
+  a:hover {
+    text-decoration: none;
   }
   .mono {
     font-family: var(--font-mono);
@@ -2586,6 +2594,11 @@
   .app-header {
     grid-area: header;
     height: var(--header-height);
+    background-color: var(--secondary);
+    border-bottom: var(--border-width) solid var(--primary);
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
   .app-sidebar-left {
     grid-area: left;
@@ -2603,6 +2616,37 @@
     min-height: 0;
     display: flex;
     flex-direction: column;
+  }
+  .home-layout .app-shell {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+  }
+  .home-layout .app-header {
+    margin-bottom: var(--size-1);
+    width: fit-content;
+    border-bottom: none;
+    background-color: transparent;
+    position: relative;
+    z-index: 100;
+  }
+  .home-layout .app-main {
+    flex-grow: 0;
+    width: 100%;
+    display: grid;
+    place-items: center;
+    padding: 0;
+  }
+  .home-layout .app-sidebar-left, .home-layout .app-sidebar-right, .home-layout .app-footer {
+    display: none;
+  }
+  .home-layout {
+    --sidebar-width-left: 0px;
+    --sidebar-width-right: 0px;
+    --footer-height: 0px;
+    background-color: var(--gray-4);
   }
   .app-sidebar-right {
     grid-area: right;
@@ -2648,11 +2692,18 @@
     font-family: var(--font-mono);
     text-transform: uppercase;
     font-size: var(--font-size-sm);
-    letter-spacing: 1px;
     cursor: pointer;
     box-shadow: var(--size-1) var(--size-1) 0px 0px rgba(0, 0, 0, 1);
     transition: all 0.1s ease;
     text-decoration: none;
+  }
+  .nav-brand {
+    font-size: var(--font-size-xl);
+    font-weight: 700;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: var(--primary);
+    font-family: var(--font-mono);
   }
   .btn-structural:hover {
     transform: translate(-2px, -2px);
@@ -2699,14 +2750,6 @@
     align-items: center;
     background-color: transparent;
   }
-  .nav-brand {
-    font-size: var(--font-size-xl);
-    font-weight: 700;
-    text-transform: uppercase;
-    text-decoration: none;
-    color: var(--primary);
-    letter-spacing: -1px;
-  }
   .nav-links {
     display: flex;
     gap: 1.5rem;
@@ -2746,7 +2789,6 @@
     margin-bottom: 0.5rem;
     color: var(--primary);
     font-size: 0.7rem;
-    letter-spacing: 1px;
   }
   .internal-link {
     color: var(--primary);
@@ -2765,28 +2807,21 @@
   }
   .home-box {
     text-align: center;
-    max-width: 600px;
-    width: fit-content;
-    height: fit-content;
+    max-width: 700px;
+    width: 100%;
+    aspect-ratio: 1.7;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
     position: relative;
     padding: 2rem;
-  }
-  .home-box::after {
-    content: "";
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    right: 10px;
-    bottom: 10px;
-    border: 1px solid var(--primary);
-    pointer-events: none;
   }
   .home-title {
     font-family: var(--font-mono);
     font-size: var(--font-size-6);
     font-weight: 900;
     text-transform: uppercase;
-    letter-spacing: -2px;
     margin: 0;
     line-height: 1;
   }
@@ -2795,8 +2830,7 @@
     font-size: var(--font-size-2);
     color: var(--gray-6);
     text-transform: uppercase;
-    letter-spacing: 2px;
-    border-bottom: 2px solid var(--primary);
+    border-bottom: 1px solid var(--primary) !important;
     padding-bottom: var(--size-4);
     display: inline-block;
     font-weight: 700;
@@ -2817,10 +2851,12 @@
     color: var(--primary);
     opacity: 0.7;
     text-transform: uppercase;
-    letter-spacing: 1px;
   }
 }
 @layer utilities {
+  .stack-large>*+* {
+    margin-top: var(--size-6) !important;
+  }
   .status-dot {
     height: 10px;
     width: 10px;

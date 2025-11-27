@@ -90,5 +90,17 @@ This document outlines the core operational protocols governing the actions of a
 
 ## 11. PMP: Port Management Protocol
     - **Directive:** If Port 3000 is in use when starting the dev server, KILL the process occupying it.
-    - **Command:** `lsof -ti:3000 | xargs kill -9` (or equivalent).
-    - **Reasoning:** We standardized on Port 3000. Agents must ensure the environment is clear before starting `bun run dev`.
+12. EVP: Empirical Verification Protocol
+    - **Directive:** Do not guess. Verify.
+    - **Action:** When diagnosing UI issues, you MUST use the browser tools to inspect computed styles. Theoretical CSS debugging is prohibited when a live environment is available.
+    - **Reasoning:** The "truth" is what the browser renders, not what the code theoretically says.
+
+13. GEP: Granular Execution Protocol
+    - **Directive:** When fixing regressions or performing complex refactors, proceed one isolated step at a time.
+    - **Workflow:**
+        1.  Diagnose one specific issue.
+        2.  Propose the fix.
+        3.  Apply the fix.
+        4.  Verify the fix.
+        5.  Only then move to the next issue.
+    - **Reasoning:** Prevents compounding errors and "bounding ahead" without validation.

@@ -41,6 +41,19 @@ bun run scripts/extract_terms.ts
 ```
 
 ### C. Copy Database to Public Folder
+## 5. Debugging & QA Strategy
+### The "Browser Truth" Rule
+When diagnosing visual issues, **always** inspect the computed styles in the browser. Do not rely on reading the CSS code alone.
+-   **Wrong Color?** Inspect the element. Is a variable missing? Is a browser default overriding it?
+-   **Wrong Alignment?** Inspect the parent. Is it `flex`? Is it `block`? What is the computed width?
+
+### Step-by-Step Fixes
+When fixing multiple regressions:
+1.  Isolate **one** specific visual bug.
+2.  Fix it.
+3.  Verify it in the browser.
+4.  Move to the next.
+**Do not apply batch fixes for visual regressions.**
 The application loads the database from the `/public/data` directory. You must copy the generated file there.
 ```bash
 cp scripts/ctx.db public/data/ctx.db

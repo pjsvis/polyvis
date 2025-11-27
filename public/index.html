@@ -5,7 +5,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>PolyVis | Structural Information Engineering</title>
-  <script src="/components/nav.js"></script>
   <link rel="stylesheet" href="/css/app.css" />
   <script src="/js/app.js" defer></script>
   <!-- Lucide Icons -->
@@ -16,7 +15,33 @@
   :class="{ 'loaded': loaded, 'layout-debug-mode': debug }" @keydown.window.shift.d="debug = !debug">
   <div class="app-shell">
     <header class="app-header">
-      <div x-data="navigation" x-html="view"></div>
+      <nav class="nav-wrapper">
+        <div style="display: flex; align-items: center; gap: 2rem;">
+          <a href="/" class="nav-brand">PolyVis</a>
+          <div class="nav-links">
+            <a href="/" class="nav-item">
+              <i data-lucide="home" style="width: var(--font-size-sm); height: var(--font-size-sm);"></i>
+              HQ
+            </a>
+            <a href="/graph/" class="nav-item">
+              <i data-lucide="activity" style="width: var(--font-size-sm); height: var(--font-size-sm);"></i>
+              Visualizer
+            </a>
+            <a href="/docs/" class="nav-item">
+              <i data-lucide="book-open" style="width: var(--font-size-sm); height: var(--font-size-sm);"></i>
+              Docs
+            </a>
+            <a href="/explorer/" class="nav-item">
+              <i data-lucide="compass" style="width: var(--font-size-sm); height: var(--font-size-sm);"></i>
+              Explorer
+            </a>
+            <a href="/sigma-explorer/" class="nav-item">
+              <i data-lucide="layout-dashboard" style="width: var(--font-size-sm); height: var(--font-size-sm);"></i>
+              Sigma Explorer
+            </a>
+          </div>
+        </div>
+      </nav>
     </header>
 
     <aside class="app-sidebar-left"></aside>
@@ -46,7 +71,14 @@
     <footer class="app-footer"></footer>
   </div>
 
-  <script src="/components/nav.js"></script>
+  <script>
+    // Initialize icons when DOM is ready
+    document.addEventListener('DOMContentLoaded', () => {
+      if (window.lucide) {
+        window.lucide.createIcons();
+      }
+    });
+  </script>
 </body>
 
 </html>

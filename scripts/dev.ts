@@ -6,6 +6,21 @@ const PUBLIC_DIR = "public";
 
 console.log("🚀 Starting Polyvis Development Environment...");
 
+// 0. Free up port
+try {
+    const portProc = Bun.spawn(["lsof", "-t", "-i:" + PORT], { stderr: "ignore" });
+    const text = await new Response(portProc.stdout).text();
+    const pids = text.trim().split("\n").filter(p => p);
+
+    if (pids.length > 0) {
+        console.log(`🧹 Freeing port ${PORT} (killing PIDs: ${pids.join(", ")})...`);
+        const killProc = Bun.spawn(["kill", "-9", ...pids]);
+        await killProc.exited;
+    }
+} catch (e) {
+    // Ignore errors if lsof fails or no process found
+}
+
 // 1. Start CSS Watcher
 console.log("🎨 Starting CSS Watcher...");
 const cssWatcher = Bun.spawn(["bun", "run", "watch:css"], {
@@ -27,19 +42,30 @@ const server = Bun.serve({
             path = "/index.html";
         }
 
-        const filePath = join(PUBLIC_DIR, path);
-        const file = Bun.file(filePath);
+        let filePath = join(PUBLIC_DIR, path);
+        let file = Bun.file(filePath);
 
-        return file.exists().then(exists => {
+        return file.exists().then(async exists => {
             if (exists) {
                 return new Response(file);
             } else {
-                // Try adding .html if missing (clean URLs)
-                const htmlFile = Bun.file(filePath + ".html");
-                return htmlFile.exists().then(htmlExists => {
-                    if (htmlExists) return new Response(htmlFile);
-                    return new Response("404 Not Found", { status: 404 });
-                });
+                // 1. Try adding .html (clean URLs)
+                const htmlPath = filePath + ".html";
+                const htmlFile = Bun.file(htmlPath);
+                if (await htmlFile.exists()) {
+                    return new Response(htmlFile);
+                }
+
+                // 2. Try serving index.html for directories (e.g. /graph/ -> /graph/index.html)
+                if (!extname(path)) {
+                    const indexPath = join(filePath, "index.html");
+                    const indexFile = Bun.file(indexPath);
+                    if (await indexFile.exists()) {
+                        return new Response(indexFile);
+                    }
+                }
+
+                return new Response("404 Not Found", { status: 404 });
             }
         });
     },

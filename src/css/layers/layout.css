@@ -46,6 +46,11 @@
 .app-header {
     grid-area: header;
     height: var(--header-height);
+    background-color: var(--secondary);
+    border-bottom: var(--border-width) solid var(--primary);
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .app-sidebar-left {
@@ -69,6 +74,54 @@
     /* Critical for grid row constraint */
     display: flex;
     flex-direction: column;
+}
+
+.home-layout .app-shell {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.home-layout .app-header {
+    margin-bottom: var(--size-1);
+    /* Reduced gap (Open Props) */
+    width: fit-content;
+    /* Ensure it doesn't stretch full width if centered */
+    border-bottom: none;
+    /* Remove border if floating */
+    background-color: transparent;
+    /* Match panel background */
+    position: relative;
+    /* Ensure z-index works */
+    z-index: 100;
+    /* Force above card content */
+}
+
+.home-layout .app-main {
+    flex-grow: 0;
+    /* Don't expand, let parent center us */
+    width: 100%;
+    /* Ensure full width for grid centering */
+    display: grid;
+    place-items: center;
+    padding: 0;
+    /* Remove padding to allow tighter gap */
+}
+
+.home-layout .app-sidebar-left,
+.home-layout .app-sidebar-right,
+.home-layout .app-footer {
+    display: none;
+}
+
+.home-layout {
+    --sidebar-width-left: 0px;
+    --sidebar-width-right: 0px;
+    --footer-height: 0px;
+    background-color: var(--gray-4);
+    /* Darker background to make card pop */
 }
 
 .app-sidebar-right {

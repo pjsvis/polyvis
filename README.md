@@ -56,5 +56,8 @@ For detailed instructions on CSS development, database building, and running the
 ```
 
 ## Contributing
-
-Contributions are welcome. This project is licensed under the MIT License. Please feel free to open issues or submit pull requests.
+## Contribution Guidelines
+Please review `AGENTS.md` for our operational protocols, specifically:
+-   **EVP (Empirical Verification Protocol):** Use the browser to verify, don't guess.
+-   **GEP (Granular Execution Protocol):** One step at a time.
+ Please feel free to open issues or submit pull requests.
