@@ -2510,14 +2510,14 @@
 }
 :root {
   --primary: var(--gray-9);
-  --secondary: white;
+  --secondary: var(--gray-0);
   --accent: var(--gray-1);
-  --border-width: 1px;
+  --border-width: var(--border-size-1);
   --shadow-offset: var(--size-1);
-  --sidebar-width-left: 18rem;
-  --sidebar-width-right: 20rem;
+  --sidebar-width-left: var(--size-content-2);
+  --sidebar-width-right: var(--size-content-2);
   --header-height: auto;
-  --footer-height: 60px;
+  --footer-height: var(--size-10);
   --app-padding: var(--size-4);
   --gap-standard: var(--size-4);
 }

@@ -87,3 +87,8 @@ This document outlines the core operational protocols governing the actions of a
   2.  **Extraction:** Define a semantic variable in `src/css/layers/theme.css` (e.g., `--sidebar-width`).
   3.  **Usage:** Use the `var(--variable-name)` in the component's CSS layer.
   4.  **Centralization:** `theme.css` is the single source of truth for the application's visual configuration.
+
+## 11. PMP: Port Management Protocol
+    - **Directive:** If Port 3000 is in use when starting the dev server, KILL the process occupying it.
+    - **Command:** `lsof -ti:3000 | xargs kill -9` (or equivalent).
+    - **Reasoning:** We standardized on Port 3000. Agents must ensure the environment is clear before starting `bun run dev`.

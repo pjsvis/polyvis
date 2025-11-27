@@ -55,20 +55,20 @@
 
     /* Colors */
     --primary: var(--gray-9);
-    --secondary: white;
+    --secondary: var(--gray-0);
     /* Open Props doesn't have --white, using literal or --gray-0 */
     --accent: var(--gray-1);
 
     /* Dimensions */
-    --border-width: 1px;
+    --border-width: var(--border-size-1);
     --shadow-offset: var(--size-1);
 
     /* Layout Dimensions */
-    --sidebar-width-left: 18rem;
+    --sidebar-width-left: var(--size-content-2);
     /* Adjusted for better content fit */
-    --sidebar-width-right: 20rem;
+    --sidebar-width-right: var(--size-content-2);
     --header-height: auto;
-    --footer-height: 60px;
+    --footer-height: var(--size-10);
     /* Explicit control */
 
     /* Spacing */

@@ -1,6 +1,15 @@
-# current task
+## Current Task: Visual QA & Component Refinement
 
-= [ ] Fix CSS issues raised by the recent refactor
+**Objective:** Verify the visual integrity of the application following the CSS refactor and continue refining components.
+
+**Context:**
+-   Theme variables are now standardized to Open Props.
+-   Development workflow is unified under `bun run dev`.
+-   Sidebars are using `size-content-2` (45ch).
+
+**Next Steps:**
+1.  Perform a visual walkthrough of the app.
+2.  Refactor `src/css/layers/components.css` to use the new `theme.css` variables where applicable.
 
 ## Front Page @public/index.html
 - [x] Front page should show a business-card-like layout with a menu on top
