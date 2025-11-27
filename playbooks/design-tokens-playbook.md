@@ -1,0 +1,64 @@
+# Design Tokens Playbook
+
+## Purpose
+To document the integration of Open Props and Tailwind CSS, ensuring a "Maximum Signal-to-Noise" environment where all values are rationalized tokens, not magic numbers.
+
+## 1. Tailwind v4 Integration (`@theme`)
+**Strategy**: Use the CSS-first configuration to map Tailwind utilities to Open Props variables.
+
+```css
+@import "tailwindcss";
+@import "open-props/style";
+@import "open-props/normalize";
+
+@theme {
+  /* SPACING: Harmonic Scale */
+  --spacing-0: var(--size-00);
+  --spacing-1: var(--size-1);
+  --spacing-4: var(--size-4); /* p-4 = var(--size-4) */
+  
+  /* COLORS: OKLCH Semantic Mapping */
+  --color-brand: var(--indigo-6);
+  --color-surface-1: var(--surface-1);
+  
+  /* TYPOGRAPHY: Fluid Scale */
+  --font-size-base: var(--font-size-1);
+  --font-size-xl: var(--font-size-3);
+}
+```
+
+## 2. Color Theory & Contrast
+**Standard**: Use **OKLCH** for all color definitions to ensure perceptual uniformity.
+
+### Pattern: Automated Contrast
+Use `contrast-color()` to automatically select accessible text colors.
+
+```css
+.btn-dynamic {
+  background-color: var(--brand);
+  color: contrast-color(var(--brand)); /* Browser picks black or white */
+}
+```
+
+### Pattern: Algorithmic Palettes
+Use `color-mix()` to derive states (hover, active) from a single base color.
+
+```css
+.btn-primary:hover {
+  /* Mix 10% black for a consistent darken effect */
+  background-color: color-mix(in oklch, var(--brand), black 10%);
+}
+```
+
+## 3. Fluid Typography
+**Problem**: Adjusting font sizes manually at every breakpoint.
+
+### Pattern: Fluid Variables
+Bind Tailwind classes to Open Props fluid variables, which use `clamp()`.
+
+```css
+@theme {
+  --text-fluid-1: var(--font-size-fluid-1);
+}
+```
+Usage: `class="text-fluid-1"` scales smoothly from mobile to desktop.

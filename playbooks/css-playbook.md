@@ -64,3 +64,11 @@ Located in `public/css/style.css`.
   </main>
 </div>
 ```
+
+## Specialized Playbooks
+For advanced integrations and modern techniques, consult the following specialized guides:
+
+1.  **[Modern Layout Playbook](modern-layout-playbook.md)**: For "Holy Grail" grids, "RAM" responsive cards, and container queries.
+2.  **[Design Tokens Playbook](design-tokens-playbook.md)**: For Tailwind v4 configuration, Open Props mapping, and color theory.
+3.  **[Defensive CSS Playbook](defensive-css-playbook.md)**: For robust styles (scrollbar stability, image hardening).
+4.  **[Reactive Styling Playbook](reactive-styling-playbook.md)**: For integrating Alpine.js with CSS variables.
