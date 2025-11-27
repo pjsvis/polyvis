@@ -124,6 +124,12 @@
     /* Darker background to make card pop */
 }
 
+/* Page Layout (Docs, etc) - Enable Scrolling */
+.page-layout .app-sidebar-left,
+.page-layout .app-main {
+    overflow-y: auto;
+}
+
 .app-sidebar-right {
     grid-area: right;
     border-left: var(--border-size-1) solid var(--gray-3);
