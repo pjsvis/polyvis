@@ -62,3 +62,27 @@ Bind Tailwind classes to Open Props fluid variables, which use `clamp()`.
 }
 ```
 Usage: `class="text-fluid-1"` scales smoothly from mobile to desktop.
+
+## 4. The "Theme API" Directive
+**Rule**: All tweakable UI values must be defined in `src/css/layers/theme.css`.
+
+-   **Why**: To provide a single "control panel" for the application's design.
+-   **What**:
+    -   Layout dimensions (e.g., `--header-height`, `--sidebar-width`).
+    -   Semantic colors (e.g., `--primary`, `--accent`).
+    -   Global spacing (e.g., `--app-padding`).
+-   **How**:
+    1.  Open `src/css/layers/theme.css`.
+    2.  Add/Edit the variable in the `:root` block.
+    3.  The change propagates instantly to all layers.
+
+## 5. CSS Layers Architecture
+We use modern CSS `@layer` to manage specificity and organization.
+
+-   **`theme.css`**: Configuration and Variables (The API).
+-   **`base.css`** (`@layer base`): Resets and element defaults.
+-   **`layout.css`** (`@layer layout`): Macro layout structures (App Shell, Grid).
+-   **`components.css`** (`@layer components`): BEM-style components (Buttons, Nav).
+-   **`utilities.css`** (`@layer utilities`): High-specificity overrides and helpers.
+
+**Gotcha**: `!important` priority is **inverted** in layers. `!important` in `base` overrides `!important` in `components`. Use sparingly!

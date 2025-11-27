@@ -75,6 +75,15 @@ This document outlines the core operational protocols governing the actions of a
 
 - **Principle:** Every significant session or task completion must be formally concluded to ensure knowledge transfer and context preservation.
 - **Workflow:**
-  1.  **Debrief Creation:** A debrief document must be created in the `debriefs/` directory (e.g., `debriefs/YYYY-MM-DD-topic.md`), strictly following the instructions in `playbooks/debriefs-playbook.md`.
+  1.  **Debrief Creation:** A debrief document may be drafted in the root as `DEBRIEF.md` for visibility during the session. However, it **must** be moved to the `debriefs/` directory (e.g., `debriefs/YYYY-MM-DD-topic.md`) before the session concludes.
   2.  **Task Update:** `_CURRENT_TASK.md` must be updated to reflect the latest status. This should be done as often as practicable during the session, but is mandatory at wrap-up.
-  3.  **Context Reset:** Ensure any temporary test files (like `layout-test.html`) are reset or cleaned up to avoid confusing future agents.
+  3.  **Workbench Cleanup:** The root directory is a temporary workbench. Any "SHOUTY" working files (e.g., `DEBRIEF.md`, `TODO.md`) or temporary test files (e.g., `layout-test.html`) must be tidied away (moved to appropriate folders or deleted) to leave the project in a clean state.
+
+## 10. CVP: CSS Variable Protocol
+
+- **Principle:** All tweakable UI values (dimensions, colors, spacing) must be defined as variables in `src/css/layers/theme.css`. Hardcoded "magic numbers" in component or layout files are prohibited.
+- **Workflow:**
+  1.  **Identification:** When styling a component, identify values that might need tuning (e.g., sidebar width, header height, specific colors).
+  2.  **Extraction:** Define a semantic variable in `src/css/layers/theme.css` (e.g., `--sidebar-width`).
+  3.  **Usage:** Use the `var(--variable-name)` in the component's CSS layer.
+  4.  **Centralization:** `theme.css` is the single source of truth for the application's visual configuration.

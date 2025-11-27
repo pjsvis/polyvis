@@ -4,9 +4,10 @@
 A debrief is a retrospective document created after the completion of a significant task or milestone. It captures what was done, what went wrong, and what was learned to improve future work.
 
 ## File Naming
-- **Format:** `YYYY-MM-DD-[slug].md`
-- **Location:** `debriefs/` directory
-- **Example:** `debriefs/2025-11-25-sidebar-refinements.md`
+- **Drafting:** You may create `DEBRIEF.md` in the project root for visibility during the session.
+- **Final Location:** `debriefs/` directory
+- **Final Name:** `YYYY-MM-DD-[slug].md` (e.g., `debriefs/2025-11-25-sidebar-refinements.md`)
+- **Requirement:** You **must** move the draft to the final location before finishing the session.
 
 ## Template
 

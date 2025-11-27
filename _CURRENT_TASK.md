@@ -1,6 +1,6 @@
 # current task
 
-= [ ] Deal with the following tasks one page at a time
+= [ ] Fix CSS issues raised by the recent refactor
 
 ## Front Page @public/index.html
 - [x] Front page should show a business-card-like layout with a menu on top
@@ -15,5 +15,6 @@
     - [x] Ensure no main window scrollbar
     - [x] Implement internal scrolling for containers
     - [x] Standardize layout with CSS variables (`--header-height`, `--footer-height`)
-
-
+- [x] Refactor CSS to Layers
+    - [x] Split `main.css` into `theme`, `base`, `layout`, `components`, `utilities`
+    - [x] Consolidate design tokens in `theme.css`

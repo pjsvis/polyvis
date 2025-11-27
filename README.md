@@ -10,7 +10,9 @@ The application is built with HTML, CSS, and [Alpine.js](https://alpinejs.dev/),
 - **Data-Driven Suggestions:** The search box provides a curated list of high-value terms guaranteed to produce rich, interesting graphs.
 - **In-Browser Database:** The entire graph dataset is loaded into the browser via sql.js, requiring no active backend server for querying.
 - **Alpine.js Reactivity:** Uses [Alpine.js](https://alpinejs.dev/) for a lightweight, reactive UI without a complex build step.
+- **Alpine.js Reactivity:** Uses [Alpine.js](https://alpinejs.dev/) for a lightweight, reactive UI without a complex build step.
 - **Zero-Build Frontend:** Built with vanilla web technologies and Alpine.js for maximum simplicity and performance.
+- **Themable UI:** All design tokens (colors, dimensions) are centralized in `src/css/layers/theme.css` for easy customization.
 
 ## Prerequisites
 
