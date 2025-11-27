@@ -7,15 +7,20 @@ To document the styling standards, architectural patterns, and common "gotchas" 
 1.  **Vanilla First:** We use standard CSS variables and layout primitives (Flexbox/Grid) before reaching for frameworks.
 2.  **Utility Classes:** We use Tailwind CSS for utility classes but maintain semantic class names (e.g., `.btn-structural`) for recurring components.
 3.  **Theming:** All colors must be defined in `:root` variables in `style.css`. Hardcoded hex values are forbidden in component CSS.
+4.  **Open Props:** We use [Open Props](https://open-props.style/) for standardized variables (colors, shadows, spacing, fonts). Do not invent new magic numbers.
 
 ## Global Variables (The DNA)
 Located in `public/css/style.css`.
 
 ```css
 :root {
-  --primary: #070709;  /* The Ink (Tolinski Black) */
-  --secondary: #fff;   /* The Paper (Pure White) */
-  --accent: #f4f4f4;   /* The Void */
+  /* Colors mapped to Open Props */
+  --primary: var(--gray-9);    /* The Ink */
+  --secondary: var(--white);   /* The Paper */
+  --accent: var(--gray-1);     /* The Void */
+  
+  /* Spacing & Shadows */
+  --shadow-offset: var(--size-1);
 }
 ```
 

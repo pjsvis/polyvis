@@ -2,14 +2,14 @@
 
 /* --- 1. GLOBAL VARIABLES (The DNA) --- */
 :root {
-  --primary: #070709;
+  --primary: var(--gray-9);
   /* The Ink (Tolinski Black) */
-  --secondary: #fff;
+  --secondary: var(--white);
   /* The Paper (Pure White) */
-  --accent: #f4f4f4;
+  --accent: var(--gray-1);
   /* The Void */
   --border-width: 1px;
-  --shadow-offset: 4px;
+  --shadow-offset: var(--size-1);
   /* Brutalist shadow depth */
 }
 
@@ -35,8 +35,8 @@ body {
 .container-box {
   border: var(--border-width) solid var(--primary);
   background: var(--secondary);
-  padding: 2rem;
-  box-shadow: 8px 8px 0px rgba(0, 0, 0, 0.1);
+  padding: var(--size-fluid-2);
+  box-shadow: var(--size-2) var(--size-2) 0px rgba(0, 0, 0, 0.1);
 }
 
 /* The Brutalist Button (Used in Visualizer & Nav) */
@@ -51,7 +51,7 @@ body {
   font-size: 0.8rem;
   letter-spacing: 1px;
   cursor: pointer;
-  box-shadow: 4px 4px 0px 0px rgba(0, 0, 0, 1);
+  box-shadow: var(--size-1) var(--size-1) 0px 0px rgba(0, 0, 0, 1);
   transition: all 0.1s ease;
   text-decoration: none;
   /* For <a> tags acting as buttons */
@@ -63,7 +63,7 @@ body {
 
 .btn-structural:hover {
   transform: translate(-2px, -2px);
-  box-shadow: 6px 6px 0px 0px rgba(0, 0, 0, 1);
+  box-shadow: var(--size-2) var(--size-2) 0px 0px rgba(0, 0, 0, 1);
 }
 
 .btn-structural:active,
@@ -71,7 +71,8 @@ body {
   transform: translate(2px, 2px);
   box-shadow: 2px 2px 0px 0px rgba(0, 0, 0, 1);
   background-color: var(--primary);
-  color: var(--secondary);
+  color: white !important;
+  /* Force high contrast */
 }
 
 /* --- 4. PAGE SPECIFIC: HOME --- */
@@ -128,96 +129,7 @@ textarea.structural-input:focus {
 }
 
 /* --- 6. PAGE SPECIFIC: DOCS (Prose) --- */
-.prose {
-  max-width: 65ch;
-  margin: 0 auto;
-}
-
-.prose h1 {
-  font-size: 2.5rem;
-  font-weight: 800;
-  letter-spacing: -1px;
-  margin-bottom: 1.5rem;
-  text-transform: uppercase;
-  border-bottom: 4px solid black;
-  padding-bottom: 0.5rem;
-}
-
-/* Structural Metadata: Targets the first paragraph after the H1 */
-.prose h1+p {
-  font-family: "Menlo", "Monaco", monospace;
-  /* The Engineering Font */
-  font-size: 0.8rem;
-  color: #666;
-  /* De-emphasized */
-  margin-top: -0.5rem;
-  /* Tuck it closer to the H1's bottom border */
-  margin-bottom: 2rem;
-  /* Push the main content away */
-  padding-left: 0.2rem;
-  /* Slight optical alignment */
-  letter-spacing: 0.5px;
-}
-
-.prose h2 {
-  font-size: 1.8rem;
-  font-weight: 700;
-  margin-top: 2rem;
-  margin-bottom: 1rem;
-  border-bottom: 1px solid #ccc;
-}
-
-.prose p {
-  margin-bottom: 1.25rem;
-  line-height: 1.6;
-}
-
-.prose ul {
-  list-style-type: square;
-  margin-left: 1.5rem;
-  margin-bottom: 1.25rem;
-}
-
-.prose code {
-  background: #e5e7eb;
-  padding: 0.2rem 0.4rem;
-  font-family: "Menlo", monospace;
-  font-size: 0.9em;
-}
-
-.prose pre {
-  background: #000;
-  color: #33ff00;
-  /* Green Phosphor */
-  padding: 1rem;
-  overflow-x: auto;
-  margin-bottom: 1.5rem;
-  border-left: 5px solid #33ff00;
-  text-shadow: 0 0 2px #33ff00;
-  /* Subtle Glow */
-}
-
-.prose pre code {
-  background-color: transparent;
-  padding: 0;
-  color: inherit;
-  border: none;
-}
-
-.prose blockquote {
-  border-left: 4px solid black;
-  padding-left: 1rem;
-  /* Fixed: Use a size unit here */
-  padding-right: 1rem;
-  color: #555;
-  background-color: #f9f9f9;
-  font-style: normal;
-  /* Optional: Explicitly turn off italics if you want the "Structural" look */
-  padding-top: 0.5rem;
-  /* Optional: Breathing room top */
-  padding-bottom: 0.5rem;
-  /* Optional: Breathing room bottom */
-}
+/* Moved to /css/markdown.css */
 
 .graph-container {
   border: 1px solid black;

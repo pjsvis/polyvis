@@ -61,3 +61,12 @@ This document outlines the core operational protocols governing the actions of a
   2.  **Event Handling:** Use `@click`, `@change`, etc., instead of `addEventListener`.
   3.  **DOM Access:** Use `$refs` if direct DOM access is absolutely necessary (e.g., for third-party libs like Sigma or Viz).
   4.  **Shared Logic:** Use `Alpine.data` for reusable logic or shared components.
+
+## 8. NCVP: No Completion Without Verification Protocol
+
+- **Principle:** No task shall be marked as complete until its success has been explicitly verified.
+- **Workflow:**
+  1.  **Verification First:** Before marking a task as `[x]` in `task.md` or `_CURRENT_TASK.md`, the agent must perform a verification step.
+  2.  **Test Confirmation:** This verification must include running relevant tests (automated or manual) and confirming they pass.
+  3.  **Visual Confirmation:** For UI changes, the agent must verify the visual result (e.g., via screenshot or user confirmation) before closing the task.
+  4.  **Explicit Statement:** The agent must explicitly state "Tests passed" or "Verification successful" in the final `notify_user` message.

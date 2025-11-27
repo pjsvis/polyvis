@@ -12,6 +12,7 @@
     <script src="https://unpkg.com/graphology@0.25.4/dist/graphology.umd.js"></script>
     <script src="https://unpkg.com/sigma@2.4.0/build/sigma.min.js"></script>
     <script src="https://unpkg.com/graphology-library@0.8.0/dist/graphology-library.min.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/open-props" />
     <link rel="stylesheet" href="/css/style.css" />
     <style>
         /* Custom Scrollbar for Sidebars */
@@ -59,11 +60,11 @@
 
             <!-- 2a. Left Sidebar (Fixed Width, Collapsible) -->
             <div x-show="leftOpen"
-                class="flex-none w-48 flex flex-col border-r border-gray-300 bg-white shadow-sm transition-all z-20"
+                class="flex-none w-48 flex flex-col border-r border-gray-300 bg-gray-50 shadow-sm transition-all z-20"
                 x-transition:enter="transition ease-out duration-200" x-transition:enter-start="-translate-x-full"
                 x-transition:enter-end="translate-x-0" x-transition:leave="transition ease-in duration-200"
                 x-transition:leave-start="translate-x-0" x-transition:leave-end="-translate-x-full">
-                <div class="flex items-center justify-between p-2 border-b border-gray-200 bg-gray-50">
+                <div class="flex items-center justify-between p-2 border-b border-gray-200 bg-gray-200">
                     <span class="font-mono text-xs font-bold uppercase text-gray-600">Controls</span>
                     <button @click="leftOpen = false" class="text-gray-500 hover:text-black">
                         <i data-lucide="chevron-left" class="w-4 h-4"></i>
@@ -189,8 +190,8 @@
                             </div>
                         </div>
 
-                        <div class="mb-2 font-mono text-[10px] font-bold uppercase text-gray-400">Help</div>
-                        <div class="text-[10px] text-gray-500 space-y-2 leading-relaxed font-mono">
+                        <div class="mb-2 font-mono text-[10px] font-bold uppercase text-gray-600">Help</div>
+                        <div class="text-[10px] text-gray-800 space-y-2 leading-relaxed font-mono">
                             <p>Push buttons to show graph features and click nodes to see details.</p>
                             <p>Use zoom controls to zoom and click & drag to move the graph.</p>
                         </div>
@@ -199,7 +200,7 @@
             </div>
 
             <!-- 2b. Graph Panel (Fills remaining width) -->
-            <div class="flex-grow bg-gray-100 relative overflow-hidden">
+            <div class="flex-grow bg-gray-200 relative overflow-hidden">
 
                 <!-- Open Left Sidebar Button -->
                 <button x-show="!leftOpen" @click="leftOpen = true"
@@ -248,11 +249,11 @@
 
             <!-- 2c. Right Sidebar (Fixed Width, Collapsible) -->
             <div x-show="rightOpen"
-                class="flex-none w-80 flex flex-col border-l border-gray-300 bg-white shadow-sm transition-all z-20"
+                class="flex-none w-80 flex flex-col border-l border-gray-300 bg-gray-50 shadow-sm transition-all z-20"
                 x-transition:enter="transition ease-out duration-200" x-transition:enter-start="translate-x-full"
                 x-transition:enter-end="translate-x-0" x-transition:leave="transition ease-in duration-200"
                 x-transition:leave-start="translate-x-0" x-transition:leave-end="translate-x-full">
-                <div class="flex items-center justify-between p-2 border-b border-gray-200 bg-gray-50">
+                <div class="flex items-center justify-between p-2 border-b border-gray-200 bg-gray-200">
                     <button @click="rightOpen = false" class="text-gray-500 hover:text-black">
                         <i data-lucide="chevron-right" class="w-4 h-4"></i>
                     </button>
@@ -273,7 +274,7 @@
                                 </span>
                             </summary>
 
-                            <div class="text-xs text-gray-500 space-y-2 leading-relaxed font-mono mt-2">
+                            <div class="text-xs text-gray-800 space-y-2 leading-relaxed font-mono mt-2">
                                 <p><strong>Welcome to the Knowledge Graph.</strong></p>
                                 <p>This interactive map visualizes the relationships between key concepts.</p>
                                 <ul class="list-disc pl-4 space-y-1">
@@ -589,6 +590,25 @@
                         zIndex: true,
                     });
 
+                    // Fix: Hand Pointer for Background Dragging
+                    // 1. Default cursor is "grab"
+                    container.style.cursor = "grab";
+
+                    this.renderer.on("downStage", () => {
+                        container.style.cursor = "grabbing";
+                    });
+
+                    // Re-enable on mouseup anywhere
+                    document.addEventListener("mouseup", () => {
+                        if (this.renderer && this.renderer.getMouseCaptor()) {
+                            this.renderer.getMouseCaptor().isMouseEnabled = true;
+                        }
+                        // Reset cursor to grab (unless hovering a node)
+                        if (!this.hoveredNode) {
+                            container.style.cursor = "grab";
+                        }
+                    });
+
                     // Disable mouse wheel zoom
                     try {
                         if (this.renderer.getMouseCaptor()) {
@@ -639,6 +659,18 @@
                         });
                         if (this.renderer) this.renderer.refresh();
                     });
+
+                    // Fix: Aggressive Drag Prevention
+                    // We intercept the native 'mousedown' on the container.
+                    // If the mouse is over a node, we STOP propagation immediately.
+                    // This prevents the camera from ever receiving the event to start a drag.
+                    container.addEventListener("mousedown", (e) => {
+                        if (this.hoveredNode) {
+                            console.log(`[SigmaDebug] Mousedown on Node ${this.hoveredNode} -> STOPPING PROPAGATION`);
+                            e.stopPropagation();
+                            // e.preventDefault(); // Optional: might prevent focus, use with caution
+                        }
+                    }, true); // Use CAPTURE phase to catch it before Sigma does
 
                     this.renderer.on("enterNode", ({ node }) => {
                         console.log(`[SigmaDebug] enterNode: ${node}`);
@@ -696,7 +728,10 @@
                     if (type === 'louvain') {
                         if (!graphologyLibrary.communitiesLouvain) return alert("Louvain library not loaded.");
                         const communities = graphologyLibrary.communitiesLouvain(this.graph);
-                        const colors = ["#e6194b", "#3cb44b", "#ffe119", "#4363d8", "#f58231", "#911eb4", "#46f0f0", "#f032e6", "#bcf60c", "#fabebe", "#008080", "#e6beff", "#9a6324", "#fffac8", "#800000", "#aaffc3", "#808000", "#ffd8b1", "#000075", "#808080", "#000000"];
+                        // Open Props Colors (Red 6, Green 6, Yellow 6, Blue 6, Orange 6, Purple 6, Cyan 6, Pink 6, Lime 6, Teal 6, Indigo 6, Violet 6, Grape 6, Choc 6)
+                        const colors = [
+                            "#e5484d", "#46a758", "#f5d90a", "#0090ff", "#f76b15", "#8e4ec6", "#00a2c7", "#d6409f", "#99d52a", "#12a594", "#3e63dd", "#6e56cf", "#ae3ec9", "#a15c13"
+                        ];
                         this.graph.forEachNode((node) => {
                             this.graph.setNodeAttribute(node, "color", colors[communities[node] % colors.length]);
                         });
