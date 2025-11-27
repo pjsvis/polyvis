@@ -46,9 +46,49 @@ This document outlines the core operational protocols governing the actions of a
 
 ## 6. CMP: Console Monitoring Protocol
 
-- **Principle:** Browser console logs must be monitored during web application development to quickly identify errors and verify functionality.
+- **Principle:** Browser console logs must be monitored during web application development to quickly identify errors and verify functionality. "No-errors" is a strict requirement prior to proceeding.
 - **Workflow:**
-  1.  When testing web application features, the agent must check browser console logs for errors.
-  2.  Console monitoring is the fastest way to determine if implementations are working correctly.
-  3.  Any console errors must be addressed before marking a feature as complete.
-  4.  Browser testing should always include a console log capture step.
+  1.  **Capability Check:** If the agent has the capability to capture console logs (e.g., via browser tools), it **must** do so.
+  2.  **Initial Pass:** To avoid data overload, the agent should first perform a high-level check for the presence of errors vs. a clean log.
+  3.  **Error Investigation:** If errors are present, the agent must investigate and resolve them immediately.
+  4.  **Gatekeeper:** A "no-errors" state in the console is a mandatory requirement before marking any frontend task as complete or proceeding to the next step.sting should always include a console log capture step.
+
+## 7. AFP: Alpine.js First Protocol
+
+- **Principle:** All UI interactivity and state management must be implemented using Alpine.js. Imperative DOM manipulation (e.g., `document.getElementById`, `addEventListener`) is strictly prohibited for UI logic.
+- **Workflow:**
+  1.  **State Management:** Use `x-data` for component state.
+  2.  **Event Handling:** Use `@click`, `@change`, etc., instead of `addEventListener`.
+  3.  **DOM Access:** Use `$refs` if direct DOM access is absolutely necessary (e.g., for third-party libs like Sigma or Viz).
+  4.  **Shared Logic:** Use `Alpine.data` for reusable logic or shared components.
+
+## 8. NCVP: No Completion Without Verification Protocol
+
+- **Principle:** No task shall be marked as complete until its success has been explicitly verified.
+- **Workflow:**
+  1.  **Verification First:** Before marking a task as `[x]` in `task.md` or `_CURRENT_TASK.md`, the agent must perform a verification step.
+  2.  **Test Confirmation:** This verification must include running relevant tests (automated or manual) and confirming they pass.
+  3.  **Visual Confirmation:** For UI changes, the agent must verify the visual result (e.g., via screenshot or user confirmation) before closing the task.
+  4.  **Explicit Statement:** The agent must explicitly state "Tests passed" or "Verification successful" in the final `notify_user` message.
+
+## 9. SWP: Session Wrap-up Protocol
+
+- **Principle:** Every significant session or task completion must be formally concluded to ensure knowledge transfer and context preservation.
+- **Workflow:**
+  1.  **Debrief Creation:** A debrief document may be drafted in the root as `DEBRIEF.md` for visibility during the session. However, it **must** be moved to the `debriefs/` directory (e.g., `debriefs/YYYY-MM-DD-topic.md`) before the session concludes.
+  2.  **Task Update:** `_CURRENT_TASK.md` must be updated to reflect the latest status. This should be done as often as practicable during the session, but is mandatory at wrap-up.
+  3.  **Workbench Cleanup:** The root directory is a temporary workbench. Any "SHOUTY" working files (e.g., `DEBRIEF.md`, `TODO.md`) or temporary test files (e.g., `layout-test.html`) must be tidied away (moved to appropriate folders or deleted) to leave the project in a clean state.
+
+## 10. CVP: CSS Variable Protocol
+
+- **Principle:** All tweakable UI values (dimensions, colors, spacing) must be defined as variables in `src/css/layers/theme.css`. Hardcoded "magic numbers" in component or layout files are prohibited.
+- **Workflow:**
+  1.  **Identification:** When styling a component, identify values that might need tuning (e.g., sidebar width, header height, specific colors).
+  2.  **Extraction:** Define a semantic variable in `src/css/layers/theme.css` (e.g., `--sidebar-width`).
+  3.  **Usage:** Use the `var(--variable-name)` in the component's CSS layer.
+  4.  **Centralization:** `theme.css` is the single source of truth for the application's visual configuration.
+
+## 11. PMP: Port Management Protocol
+    - **Directive:** If Port 3000 is in use when starting the dev server, KILL the process occupying it.
+    - **Command:** `lsof -ti:3000 | xargs kill -9` (or equivalent).
+    - **Reasoning:** We standardized on Port 3000. Agents must ensure the environment is clear before starting `bun run dev`.

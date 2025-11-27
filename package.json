@@ -2,9 +2,21 @@
   "name": "polyvis",
   "private": true,
   "devDependencies": {
+    "@tailwindcss/cli": "^4.1.17",
+    "@tailwindcss/postcss": "^4.1.17",
     "@types/bun": "latest",
+    "alpinejs": "^3.15.2",
+    "open-props": "^1.7.16",
     "prettier": "^3.6.2",
-    "prettier-plugin-tailwindcss": "^0.7.1"
+    "prettier-plugin-tailwindcss": "^0.7.1",
+    "tailwindcss": "^4.1.17"
+  },
+  "scripts": {
+    "dev": "bun run scripts/dev.ts",
+    "build:css": "tailwindcss -i ./src/css/main.css -o ./public/css/app.css",
+    "watch:css": "tailwindcss -i ./src/css/main.css -o ./public/css/app.css --watch",
+    "build:js": "bun build ./src/js/app.js --outdir ./public/js",
+    "watch:js": "bun build ./src/js/app.js --outdir ./public/js --watch"
   },
   "peerDependencies": {
     "typescript": "^5"

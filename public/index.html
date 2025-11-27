@@ -1,43 +1,52 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>PolyVis | Structural Information Engineering</title>
-    <script src="/components/nav.js"></script>
-    <link rel="stylesheet" href="/css/style.css" />
-  </head>
-  <body class="home-layout">
-    <div id="polyvis-nav"></div>
 
-    <div class="container-box home-box">
-      <h1 class="home-title">PolyVis</h1>
-      <div class="home-subtitle">Structural Information Engineering</div>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PolyVis | Structural Information Engineering</title>
+  <script src="/components/nav.js"></script>
+  <link rel="stylesheet" href="/css/app.css" />
+  <script src="/js/app.js" defer></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
 
-      <div
-        class="tagline"
-        style="
-          font-size: 1.5rem;
-          font-weight: 300;
-          margin-bottom: 3rem;
-          font-style: italic;
-        "
-      >
-        Complexity, Unfolded.
+<body class="home-layout" x-data="{ loaded: false, debug: false }" x-init="setTimeout(() => loaded = true, 50)"
+  :class="{ 'loaded': loaded, 'layout-debug-mode': debug }" @keydown.window.shift.d="debug = !debug">
+  <div class="app-shell">
+    <header class="app-header">
+      <div x-data="navigation" x-html="view"></div>
+    </header>
+
+    <aside class="app-sidebar-left"></aside>
+
+    <main class="app-main">
+      <div class="container-box home-box stack-large">
+        <h1 class="home-title">PolyVis</h1>
+        <div class="home-subtitle">Structural Information Engineering</div>
+
+        <div class="tagline">
+          Complexity, Unfolded.
+        </div>
+
+        <div>
+          <a href="/graph/" class="btn-structural">Launch Graph Visualizer</a>
+        </div>
+
+        <div class="footer-text">
+          &copy; 2025 Virtual Information Systems<br /><br />
+          <span class="status-dot"></span> System Status: Online
+        </div>
       </div>
+    </main>
 
-      <div>
-        <a href="/graph/" class="btn-structural" style="text-decoration: none"
-          >Launch Graph Visualizer</a
-        >
-      </div>
+    <aside class="app-sidebar-right"></aside>
 
-      <div class="footer-text">
-        &copy; 2025 Virtual Information Systems<br /><br />
-        <span class="status-dot"></span> System Status: Online
-      </div>
-    </div>
+    <footer class="app-footer"></footer>
+  </div>
 
-    <script src="/components/nav.js"></script>
-  </body>
+  <script src="/components/nav.js"></script>
+</body>
+
 </html>

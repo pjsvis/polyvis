@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PolyVis | Graph Visualizer</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/viz.js/2.1.2/viz.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/viz.js/2.1.2/full.render.js"></script>
+  <script src="/components/nav.js"></script>
+  <link rel="stylesheet" href="/css/style.css" />
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Alpine.js -->
+  <script src="//unpkg.com/alpinejs" defer></script>
+</head>
+
+<body class="page-layout" x-data="graphApp()" :class="{ 'loaded': loaded }">
+  <div x-data="navigation" x-html="view"></div>
+
+  <div class="container-box mx-auto w-full max-w-6xl p-6 sm:p-10">
+    <header
+      class="mb-8 flex flex-col items-start justify-between border-b border-gray-200 pb-6 md:flex-row md:items-end">
+      <div>
+        <h1 class="mb-2 text-3xl font-bold tracking-tight uppercase">
+          Graph Visualizer
+        </h1>
+        <p class="font-mono text-sm text-gray-600">
+          Render DOT language into structural vector graphics.
+        </p>
+      </div>
+      <div class="mt-4 flex flex-wrap gap-2 md:mt-0">
+        <span class="mr-2 py-2 font-mono text-xs font-bold uppercase">Load Pattern:</span>
+        <button class="btn-structural px-3 py-1 text-xs flex items-center gap-2" @click="loadTemplate('process')">
+          <i data-lucide="git-merge" class="w-3 h-3"></i> Process
+        </button>
+        <button class="btn-structural px-3 py-1 text-xs flex items-center gap-2" @click="loadTemplate('stack')">
+          <i data-lucide="layers" class="w-3 h-3"></i> The Stack
+        </button>
+        <button class="btn-structural px-3 py-1 text-xs flex items-center gap-2" @click="loadTemplate('network')">
+          <i data-lucide="share-2" class="w-3 h-3"></i> Network
+        </button>
+      </div>
+    </header>
+
+    <div class="grid grid-cols-1 gap-8 lg:grid-cols-2">
+      <div class="flex h-full flex-col">
+        <div class="mb-2 flex items-end justify-between">
+          <label for="dotInput" class="font-mono text-xs font-bold uppercase">Input (DOT)</label>
+          <div class="space-x-2">
+            <button id="renderBtn" class="btn-structural px-4 py-2 flex items-center gap-2" @click="render()">
+              <i data-lucide="play" class="w-4 h-4"></i> Render
+            </button>
+          </div>
+        </div>
+        <textarea id="dotInput" class="h-[500px] w-full resize-none bg-gray-50 p-4" spellcheck="false"
+          x-model="dotInput"></textarea>
+      </div>
+
+      <div class="flex h-full flex-col">
+        <div class="mb-2 flex items-end justify-between">
+          <label class="font-mono text-xs font-bold uppercase">Output (SVG)</label>
+          <div class="hidden space-x-2" :class="{ 'hidden': !hasOutput, 'flex': hasOutput }" id="saveButtons">
+            <button id="saveSVGBtn" class="btn-structural px-3 py-2 text-xs flex items-center gap-2" @click="saveSVG()">
+              <i data-lucide="download" class="w-3 h-3"></i> SVG
+            </button>
+            <button id="savePNGBtn" class="btn-structural px-3 py-2 text-xs flex items-center gap-2" @click="savePNG()">
+              <i data-lucide="image" class="w-3 h-3"></i> PNG
+            </button>
+          </div>
+        </div>
+        <div id="graphOutputContainer"
+          class="flex h-[500px] w-full items-center justify-center overflow-auto border border-black bg-white p-4">
+          <div id="graphOutput" class="flex h-full w-full items-center justify-center" x-ref="graphOutput">
+            <p class="font-mono text-xs text-gray-400" x-html="status">
+              Initializing System...
+            </p>
+          </div>
+        </div>
+        <div id="errorDisplay" class="mt-4 border border-red-500 bg-red-50 p-3 font-mono text-xs text-red-700"
+          x-show="error" x-text="error" style="display: none;" :style="error ? 'display: block' : 'display: none'">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="mt-12 text-center font-mono text-xs text-gray-400">
+    &copy; 2025 PolyVis | Virtual Information Systems
+  </footer>
+
+  <script>
+    document.addEventListener('alpine:init', () => {
+      Alpine.data('graphApp', () => ({
+        viz: null,
+        dotInput: '',
+        status: 'Initializing System...',
+        error: '',
+        hasOutput: false,
+        loaded: false,
+        templates: {
+          process: `digraph PolyVis {
+      rankdir=TB;
+      node [shape=box, style="filled", fillcolor="white", fontname="Courier", margin="0.2,0.1", penwidth=1];
+      edge [fontname="Courier", fontsize=10];
+
+      Input [label="Stuff (Input)", shape=plaintext];
+      Output [label="Things (Output)", shape=plaintext];
+
+      subgraph cluster_process {
+          label = "PolyVis Process";
+          style=dashed;
+          color=grey;
+          fontname="Courier";
+
+          Analyze [label="Analyze\\n(Deconstruct)"];
+          Structure [label="Structure\\n(Reassemble)"];
+          Fold [label="Fold\\n(Refine)"];
+      }
+
+      Input -> Analyze;
+      Analyze -> Structure;
+      Structure -> Fold;
+      Fold -> Output;
+  }`,
+          stack: `digraph PersonaStack {
+      rankdir=TB;
+      node [shape=record, fontname="Courier", margin="0.2,0.1", style=filled, fillcolor="white"];
+      edge [fontname="Courier", fontsize=10];
+
+      User [label="User (pjsvis)", shape=ellipse, fillcolor="#eee"];
+
+      subgraph cluster_stack {
+          label="The Persona Stack";
+          style=solid;
+
+          Persona [label="{Persona Layer|{CDA|CL}|Identity & Heuristics}"];
+          Skin [label="{Skin Layer|{UI|Visuals}|Interface}"];
+          Sleeve [label="{Sleeve Layer|{System Prompt|Tools}|Orchestration}"];
+          Substrate [label="{Substrate Layer|{LLM|Compute}|Raw Intelligence}"];
+      }
+
+      User -> Skin [label="Interacts"];
+      Skin -> Sleeve;
+      Sleeve -> Persona;
+      Persona -> Substrate;
+  }`,
+          network: `graph Network {
+      layout=neato;
+      overlap=false;
+      node [shape=circle, style=filled, fillcolor="black", fontcolor="white", fontname="Courier", fixedsize=true, width=0.8];
+      edge [color="#555"];
+
+      Node1 [label="Poly"];
+      Node2 [label="Vis"];
+      Node3 [label="Data"];
+      Node4 [label="Logic"];
+      Node5 [label="Code"];
+
+      Node1 -- Node2 [penwidth=3];
+      Node1 -- Node3;
+      Node2 -- Node4;
+      Node3 -- Node5;
+      Node4 -- Node5;
+      Node2 -- Node5;
+      Node3 -- Node4;
+  }`,
+        },
+
+        init() {
+          setTimeout(() => this.loaded = true, 50);
+          this.$nextTick(() => { if (window.lucide) window.lucide.createIcons(); });
+          try {
+            if (typeof Viz === "undefined") throw new Error("Viz library not loaded.");
+            this.viz = new Viz();
+            this.status = "Ready.";
+            this.loadTemplate('process');
+          } catch (e) {
+            console.error("Viz init failed:", e);
+            this.status = `<span class="text-red-500">System Error: ${e.message}</span>`;
+          }
+        },
+
+        loadTemplate(name) {
+          if (this.templates[name]) {
+            this.dotInput = this.templates[name];
+            this.render();
+          }
+        },
+
+        render() {
+          const dotString = this.dotInput.trim();
+          this.status = "Processing...";
+          this.error = "";
+          this.hasOutput = false;
+          this.$refs.graphOutput.innerHTML = '<p class="font-mono text-xs text-gray-400">Processing...</p>';
+
+          if (!dotString) {
+            this.status = "Input Empty.";
+            this.$refs.graphOutput.innerHTML = '<p class="font-mono text-xs text-gray-400">Input Empty.</p>';
+            return;
+          }
+
+          if (!this.viz) {
+            this.error = "Error: Engine not initialized.";
+            return;
+          }
+
+          this.viz.renderSVGElement(dotString)
+            .then((element) => {
+              this.$refs.graphOutput.innerHTML = "";
+              element.setAttribute("width", "100%");
+              element.setAttribute("height", "100%");
+              this.$refs.graphOutput.appendChild(element);
+              this.hasOutput = true;
+              this.status = "";
+            })
+            .catch((error) => {
+              console.error(error);
+              this.$refs.graphOutput.innerHTML = "";
+              this.error = `SYNTAX ERROR: ${error.message}`;
+            });
+        },
+
+        saveSVG() {
+          const svg = this.$refs.graphOutput.querySelector("svg");
+          if (!svg) return;
+          if (!svg.getAttribute("xmlns")) svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+          const data = new XMLSerializer().serializeToString(svg);
+          const blob = new Blob([data], { type: "image/svg+xml;charset=utf-8" });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = "polyvis_graph.svg";
+          a.click();
+          URL.revokeObjectURL(url);
+        },
+
+        savePNG() {
+          const svg = this.$refs.graphOutput.querySelector("svg");
+          if (!svg) return;
+          const canvas = document.createElement("canvas");
+          const ctx = canvas.getContext("2d");
+          const tempSvg = svg.cloneNode(true);
+          const bbox = svg.getBBox();
+          const scale = 2;
+          const padding = 40;
+          canvas.width = (bbox.width + padding) * scale;
+          canvas.height = (bbox.height + padding) * scale;
+          tempSvg.setAttribute("width", canvas.width);
+          tempSvg.setAttribute("height", canvas.height);
+          tempSvg.setAttribute("viewBox", `${bbox.x - padding / 2} ${bbox.y - padding / 2} ${bbox.width + padding} ${bbox.height + padding}`);
+          const data = new XMLSerializer().serializeToString(tempSvg);
+          const img = new Image();
+          img.onload = () => {
+            ctx.fillStyle = "white";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(img, 0, 0);
+            const a = document.createElement("a");
+            a.href = canvas.toDataURL("image/png");
+            a.download = "polyvis_graph.png";
+            a.click();
+          };
+          img.src = "data:image/svg+xml;base64," + btoa(unescape(encodeURIComponent(data)));
+        }
+      }));
+    });
+  </script>
+</body>
+
+</html>

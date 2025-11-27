@@ -1,53 +1,68 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>PolyVis | Documentation</title>
 
-    <script src="https://cdn.tailwindcss.com"></script>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PolyVis | Documentation</title>
 
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/viz.js/2.1.2/viz.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/viz.js/2.1.2/full.render.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/viz.js/2.1.2/viz.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/viz.js/2.1.2/full.render.js"></script>
 
-    <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/app.css" />
+  <link rel="stylesheet" href="/css/markdown.css" />
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Alpine.js -->
+  <script src="/js/app.js" defer></script>
+</head>
 
-    <style>
-      /* Sidebar Link Styling */
-      .doc-link {
-        display: block;
-        padding: 0.75rem 1rem;
-        border-bottom: 1px solid #eee;
-        font-family: "Menlo", "Monaco", monospace;
-        font-size: 0.8rem;
-        text-decoration: none;
-        color: #666;
-        transition: all 0.2s;
-      }
-      .doc-link:hover {
-        background-color: #f9f9f9;
-        color: black;
-        padding-left: 1.25rem; /* Slight nudge effect */
-      }
-      .doc-link.active {
-        background-color: black;
-        color: white;
-        font-weight: bold;
-      }
-      .doc-link:last-child {
-        border-bottom: none;
-      }
-    </style>
+<body class="page-layout" x-data="{ loaded: false }" x-init="setTimeout(() => loaded = true, 50)"
+  :class="{ 'loaded': loaded }">
+  <style>
+    /* Sidebar Link Styling */
+    .doc-link {
+      display: block;
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid #eee;
+      font-family: "Menlo", "Monaco", monospace;
+      font-size: 0.8rem;
+      text-decoration: none;
+      color: #666;
+      transition: all 0.2s;
+    }
+
+    .doc-link:hover {
+      background-color: #f9f9f9;
+      color: black;
+      padding-left: 1.25rem;
+      /* Slight nudge effect */
+    }
+
+    .doc-link.active {
+      background-color: black;
+      color: white;
+      font-weight: bold;
+    }
+
+    .doc-link:last-child {
+      border-bottom: none;
+    }
+  </style>
   </head>
-  <body class="page-layout">
-    <script src="/components/nav.js"></script>
-    <div id="polyvis-nav"></div>
 
-    <div
-      class="mx-auto flex w-full max-w-7xl flex-col gap-8 p-4 sm:p-8 md:flex-row"
-    >
-      <aside class="w-full flex-shrink-0 md:w-64">
+  <body class="page-layout overflow-hidden h-screen" x-data="{ loaded: false, debug: false }"
+    x-init="setTimeout(() => loaded = true, 50)" :class="{ 'loaded': loaded, 'layout-debug-mode': debug }"
+    @keydown.window.shift.d="debug = !debug">
+
+    <div class="app-shell">
+      <header class="app-header">
+        <script src="/components/nav.js"></script>
+        <div x-data="navigation" x-html="view"></div>
+      </header>
+
+      <aside class="app-sidebar-left overflow-y-auto custom-scrollbar hidden md:block p-4">
         <div class="container-box" style="padding: 0">
           <div class="border-b border-black bg-gray-50 p-4">
             <h3 class="text-sm font-bold tracking-wider uppercase">
@@ -58,20 +73,24 @@
         </div>
       </aside>
 
-      <main class="flex-grow">
-        <div id="content" class="container-box min-h-[600px]">
-          <div class="flex h-full flex-col items-center justify-center pt-20">
-            <p class="animate-pulse font-mono text-gray-400">
-              Initializing Reader...
-            </p>
+      <main class="app-main overflow-y-auto custom-scrollbar px-2 md:px-6 items-start place-items-start block">
+        <div class="prose max-w-[65ch] mx-auto py-8">
+          <div id="content" class="min-h-[600px]">
+            <div class="flex h-full flex-col items-center justify-center pt-20">
+              <p class="animate-pulse font-mono text-gray-400">
+                Initializing Reader...
+              </p>
+            </div>
           </div>
         </div>
       </main>
-    </div>
 
-    <footer class="mt-12 pb-8 text-center font-mono text-xs text-gray-400">
-      &copy; 2025 PolyVis | Structural Information Engineering
-    </footer>
+      <aside class="app-sidebar-right"></aside>
+
+      <footer class="app-footer text-center font-mono text-xs text-gray-400">
+        &copy; 2025 PolyVis | Structural Information Engineering
+      </footer>
+    </div>
 
     <script>
       // --- CONFIGURATION: REGISTER YOUR FILES HERE ---
@@ -80,6 +99,11 @@
         { title: "01. Conceptual Lexicon", file: "lexicon.md" },
         { title: "02. System Architecture", file: "architecture.md" },
         { title: "03. Persona Engineering", file: "persona-engineering.md" },
+        { title: "04. The Tailwind Paradox", file: "the-tailwind-paradox.md" },
+        { title: "05. The Hejlsberg Inversion", file: "the-hejlsberg-inversion.md" },
+        { title: "06. Layout Test", file: "layout-test.md" },
+        { title: "07. Hi Fi CSS", file: "hi-fi-css.md" },
+        { title: "08 Zero Magic Contexting", file: "zero-magic-contexting.md" },
         // Add new files here as you create them
       ];
 
@@ -98,12 +122,15 @@
         listContainer.innerHTML = documents
           .map(
             (doc) => `
-                <a href="?file=${doc.file}" class="doc-link ${doc.file === currentFile ? "active" : ""}">
+                <a href="?file=${doc.file}" class="doc-link ${doc.file === currentFile ? "active" : ""} flex items-center">
+                    <i data-lucide="file-text" class="w-4 h-4 mr-2"></i>
                     ${doc.title}
                 </a>
             `
           )
           .join("");
+
+        if (window.lucide) window.lucide.createIcons();
       }
 
       // 2. Load and Render the Markdown
@@ -127,7 +154,7 @@
           .then((text) => {
             const rawHtml = marked.parse(text);
             const contentDiv = document.getElementById("content");
-            contentDiv.innerHTML = `<div class="prose">${rawHtml}</div>`;
+            contentDiv.innerHTML = rawHtml;
             renderGraphs(viz);
           })
           .catch((err) => {
@@ -175,4 +202,5 @@
       }
     </script>
   </body>
+
 </html>
