@@ -1,12 +1,10 @@
 # current task
 
-- [x] Create checklisted implementation plan for @briefs/brief-internal-navigation.md
-- [x] Update the @_CURRENT_TASK.md to reflect current status
-- [x] Implement the graph search plan
-- [x] Refactor with Open Props
+= [ ] Deal with the following tasks one page at a time
 
-- [x] Debug Click-Drag Interference
-- [x] Cursor UX Refinements (Hand Pointer)
-- [x] Restore Node Hover Effects
-- [x] Session Debrief
+## Front Page @public/index.html
+- [x] Front page should show a business-card-like layout with a menu on top
+- [x] Refer to previous front page for details
+- [ ] Ensure Nav Bar is rock solid across pages
+
 

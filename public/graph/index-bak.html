@@ -6,14 +6,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>PolyVis | Graph Visualizer</title>
 
+  <script src="https://cdn.tailwindcss.com"></script>
+
   <script src="https://cdnjs.cloudflare.com/ajax/libs/viz.js/2.1.2/viz.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/viz.js/2.1.2/full.render.js"></script>
   <script src="/components/nav.js"></script>
-  <link rel="stylesheet" href="/css/app.css" />
+  <link rel="stylesheet" href="/css/style.css" />
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
   <!-- Alpine.js -->
-  <script src="/js/app.js" defer></script>
+  <script src="//unpkg.com/alpinejs" defer></script>
 </head>
 
 <body class="page-layout" x-data="graphApp()" :class="{ 'loaded': loaded }">
@@ -54,8 +56,8 @@
             </button>
           </div>
         </div>
-        <textarea id="dotInput" class="h-[500px] w-full resize-none !bg-white !text-black p-4 border border-gray-300"
-          spellcheck="false" x-model="dotInput"></textarea>
+        <textarea id="dotInput" class="h-[500px] w-full resize-none bg-gray-50 p-4" spellcheck="false"
+          x-model="dotInput"></textarea>
       </div>
 
       <div class="flex h-full flex-col">

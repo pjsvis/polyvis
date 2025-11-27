@@ -90,3 +90,26 @@ Uses the content's intrinsic size to determine the layout.
   </article>
 </div>
 ```
+## 5. Layout Debug Mode
+**Problem**: Visualizing grid tracks and container extents during development.
+
+### Pattern: `.layout-debug-mode`
+A utility class toggled via keyboard shortcut (e.g., `Shift+D`) to outline elements and visualize grid columns.
+
+```css
+.layout-debug-mode * {
+  outline: 1px dashed rgba(255, 0, 0, 0.3) !important;
+  background: rgba(255, 0, 0, 0.02) !important;
+}
+
+.layout-debug-mode .app-shell {
+  /* Visualize Grid Columns */
+  background: linear-gradient(90deg,
+    rgba(0, 0, 255, 0.05) 0,
+    rgba(0, 0, 255, 0.05) var(--size-15),
+    transparent var(--size-15),
+    transparent calc(100% - var(--size-15)),
+    rgba(0, 0, 255, 0.05) calc(100% - var(--size-15))
+  ) !important;
+}
+```

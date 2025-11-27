@@ -22,7 +22,7 @@ document.addEventListener('alpine:init', () => {
 
           return `
             <a href="${link.href}" class="nav-item ${isActive ? "active" : ""}">
-              <i data-lucide="${link.icon}" style="width: var(--font-size-sm); height: var(--font-size-sm);"></i>
+              <i data-lucide="${link.icon}" style="width: 14px; height: 14px;"></i>
               ${link.name}
             </a>`;
         })

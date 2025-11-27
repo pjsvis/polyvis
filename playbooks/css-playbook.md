@@ -72,3 +72,29 @@ For advanced integrations and modern techniques, consult the following specializ
 2.  **[Design Tokens Playbook](design-tokens-playbook.md)**: For Tailwind v4 configuration, Open Props mapping, and color theory.
 3.  **[Defensive CSS Playbook](defensive-css-playbook.md)**: For robust styles (scrollbar stability, image hardening).
 4.  **[Reactive Styling Playbook](reactive-styling-playbook.md)**: For integrating Alpine.js with CSS variables.
+## 4. The Stack Primitive
+**Problem**: Managing vertical spacing between elements without fragile `margin-bottom` on every item.
+
+### Pattern: The Owl Selector (`* + *`)
+Apply top margin only to elements that follow another element.
+
+```css
+.stack-large > * + * {
+  margin-block-start: var(--size-4);
+}
+
+.stack-small > * + * {
+  margin-block-start: var(--size-1);
+}
+```
+
+## 5. Centered Navigation
+**Problem**: Centering a navigation bar within a full-width header.
+
+### Pattern: Fit-Content + Auto Margins
+```css
+.app-header {
+  width: fit-content;
+  margin-inline: auto;
+}
+```

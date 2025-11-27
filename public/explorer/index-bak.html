@@ -5,18 +5,18 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>PolyVis | Knowledge Explorer</title>
-  <title>PolyVis | Knowledge Explorer</title>
+  <script src="https://cdn.tailwindcss.com"></script>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js"></script>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/viz.js/2.1.2/viz.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/viz.js/2.1.2/full.render.js"></script>
 
-  <link rel="stylesheet" href="/css/app.css" />
+  <link rel="stylesheet" href="/css/style.css" />
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
   <!-- Alpine.js -->
-  <script src="/js/app.js" defer></script>
+  <script src="//unpkg.com/alpinejs" defer></script>
   <style>
     /* Minimalist Search Input */
     .search-input {
@@ -49,7 +49,7 @@
         <div>
           <label for="term-select" class="block text-sm font-medium text-gray-700">Start with a high-value term</label>
           <select id="term-select"
-            class="focus:ring-opacity-50 mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 !bg-white !text-black"
+            class="focus:ring-opacity-50 mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200"
             x-model="selectedTerm" @change="visualize($event.target.value)" :disabled="loading">
             <option value="" disabled>Select a term...</option>
             <template x-for="term in terms" :key="term">
@@ -60,10 +60,8 @@
         <div class="flex items-end gap-2">
           <div class="flex-grow">
             <label for="searchBox" class="mb-1 block font-mono text-xs font-bold uppercase">Or Search Term</label>
-            <input type="text" id="searchBox"
-              class="structural-input w-full p-2 !bg-white !text-black border border-gray-300"
-              placeholder="e.g. 'Persona'" x-model="searchTerm" @keyup.enter="visualize(searchTerm)"
-              :disabled="loading" />
+            <input type="text" id="searchBox" class="structural-input w-full p-2" placeholder="e.g. 'Persona'"
+              x-model="searchTerm" @keyup.enter="visualize(searchTerm)" :disabled="loading" />
           </div>
           <button id="visualizeBtn" class="btn-structural px-4 py-2 flex items-center gap-2"
             @click="visualize(searchTerm)" :disabled="loading">
