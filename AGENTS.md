@@ -46,12 +46,12 @@ This document outlines the core operational protocols governing the actions of a
 
 ## 6. CMP: Console Monitoring Protocol
 
-- **Principle:** Browser console logs must be monitored during web application development to quickly identify errors and verify functionality.
+- **Principle:** Browser console logs must be monitored during web application development to quickly identify errors and verify functionality. "No-errors" is a strict requirement prior to proceeding.
 - **Workflow:**
-  1.  When testing web application features, the agent must check browser console logs for errors.
-  2.  Console monitoring is the fastest way to determine if implementations are working correctly.
-  3.  Any console errors must be addressed before marking a feature as complete.
-  4.  Browser testing should always include a console log capture step.
+  1.  **Capability Check:** If the agent has the capability to capture console logs (e.g., via browser tools), it **must** do so.
+  2.  **Initial Pass:** To avoid data overload, the agent should first perform a high-level check for the presence of errors vs. a clean log.
+  3.  **Error Investigation:** If errors are present, the agent must investigate and resolve them immediately.
+  4.  **Gatekeeper:** A "no-errors" state in the console is a mandatory requirement before marking any frontend task as complete or proceeding to the next step.sting should always include a console log capture step.
 
 ## 7. AFP: Alpine.js First Protocol
 

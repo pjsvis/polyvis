@@ -188,16 +188,31 @@ body {
     box-shadow: inset 4px 4px 0px 0px rgba(0, 0, 0, 0.1);
 }
 
+.search-input {
+    width: 100%;
+    font-family: var(--font-mono);
+    font-size: var(--font-size-xl);
+    border: none;
+    border-bottom: 2px solid var(--primary);
+    padding: var(--size-4);
+    background: transparent;
+}
+
+.search-input:focus {
+    outline: none;
+    border-bottom: 4px solid var(--primary);
+}
+
 /* Navigation */
 .nav-wrapper {
     width: 100%;
     max-width: 1100px;
     margin: 0 auto;
-    padding: 0.5rem;
+    padding: 0.5rem var(--size-4);
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: var(--accent);
+    background-color: transparent;
 }
 
 .nav-brand {
@@ -286,42 +301,80 @@ body.loaded {
     opacity: 1;
 }
 
-/* App Shell (Holy Grail Layout) */
+:root {
+    /* Layout Dimensions */
+    --sidebar-width-left: 12rem;
+    /* Matches w-48 */
+    --sidebar-width-right: 20rem;
+    /* Matches w-80 */
+    --header-height: auto;
+
+    /* Spacing */
+    --app-padding: var(--size-4);
+    --gap-standard: var(--size-4);
+}
+
+/* 
+   App Shell Layout (Holy Grail Grid)
+   - Fixed viewport height
+   - Header and Footer auto-sized
+   - Main content takes remaining space and scrolls internally
+*/
 .app-shell {
     display: grid;
-    min-height: 100vh;
-    background-color: var(--accent);
-    /* Grid Topology */
-    grid-template-columns: var(--size-15) 1fr var(--size-15);
-    grid-template-rows: auto 1fr auto;
     grid-template-areas:
         "header header header"
-        "left main right"
+        "left   main   right"
         "footer footer footer";
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    /* Header, Main (expands), Footer */
+    /* Use semantic variables for sidebar widths */
+    grid-template-columns: var(--sidebar-width-left) minmax(0, 1fr) var(--sidebar-width-right);
+    height: 100vh;
+    /* Fill the screen */
+    width: 100vw;
+    background-color: var(--accent);
 }
 
 /* Zone Mapping */
 .app-header {
     grid-area: header;
-    width: fit-content;
-    margin-inline: auto;
-    padding-block: var(--size-4);
+    width: 100%;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background-color: rgb(255 255 255 / 0.8);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--gray-3);
 }
 
 .app-sidebar-left {
     grid-area: left;
+    display: none;
+    /* Hidden by default on mobile */
+    overflow-y: auto;
+    /* Allow independent scrolling */
+    /* Width is handled by grid, but ensure it fills */
+    width: 100%;
 }
 
 .app-main {
     grid-area: main;
-    display: grid;
-    place-items: center;
-    width: 100%;
-    padding: var(--size-fluid-2);
+    padding: var(--size-4);
+    overflow-y: auto;
+    /* Internal scrolling for main content */
+    display: flex;
+    flex-direction: column;
 }
 
 .app-sidebar-right {
     grid-area: right;
+    display: none;
+    /* Hidden by default on mobile */
+    overflow-y: auto;
+    /* Allow independent scrolling */
+    /* Width is handled by grid, but ensure it fills */
+    width: 100%;
 }
 
 .app-footer {

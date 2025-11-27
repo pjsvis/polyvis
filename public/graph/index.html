@@ -16,78 +16,94 @@
   <script src="/js/app.js" defer></script>
 </head>
 
-<body class="page-layout" x-data="graphApp()" :class="{ 'loaded': loaded }">
-  <div x-data="navigation" x-html="view"></div>
+<body class="page-layout" x-data="graphApp()" :class="{ 'loaded': loaded, 'layout-debug-mode': debug }"
+  x-init="setTimeout(() => loaded = true, 50)" @keydown.window.shift.d="debug = !debug">
 
-  <div class="container-box mx-auto w-full max-w-6xl p-6 sm:p-10">
-    <header
-      class="mb-8 flex flex-col items-start justify-between border-b border-gray-200 pb-6 md:flex-row md:items-end">
-      <div>
-        <h1 class="mb-2 text-3xl font-bold tracking-tight uppercase">
-          Graph Visualizer
-        </h1>
-        <p class="font-mono text-sm text-gray-600">
-          Render DOT language into structural vector graphics.
-        </p>
-      </div>
-      <div class="mt-4 flex flex-wrap gap-2 md:mt-0">
-        <span class="mr-2 py-2 font-mono text-xs font-bold uppercase">Load Pattern:</span>
-        <button class="btn-structural px-3 py-1 text-xs flex items-center gap-2" @click="loadTemplate('process')">
-          <i data-lucide="git-merge" class="w-3 h-3"></i> Process
-        </button>
-        <button class="btn-structural px-3 py-1 text-xs flex items-center gap-2" @click="loadTemplate('stack')">
-          <i data-lucide="layers" class="w-3 h-3"></i> The Stack
-        </button>
-        <button class="btn-structural px-3 py-1 text-xs flex items-center gap-2" @click="loadTemplate('network')">
-          <i data-lucide="share-2" class="w-3 h-3"></i> Network
-        </button>
-      </div>
+  <div class="app-shell">
+    <header class="app-header">
+      <div x-data="navigation" x-html="view"></div>
     </header>
 
-    <div class="grid grid-cols-1 gap-8 lg:grid-cols-2">
-      <div class="flex h-full flex-col">
-        <div class="mb-2 flex items-end justify-between">
-          <label for="dotInput" class="font-mono text-xs font-bold uppercase">Input (DOT)</label>
-          <div class="space-x-2">
-            <button id="renderBtn" class="btn-structural px-4 py-2 flex items-center gap-2" @click="render()">
-              <i data-lucide="play" class="w-4 h-4"></i> Render
-            </button>
-          </div>
-        </div>
-        <textarea id="dotInput" class="h-[500px] w-full resize-none !bg-white !text-black p-4 border border-gray-300"
-          spellcheck="false" x-model="dotInput"></textarea>
-      </div>
+    <aside class="app-sidebar-left"></aside>
 
-      <div class="flex h-full flex-col">
-        <div class="mb-2 flex items-end justify-between">
-          <label class="font-mono text-xs font-bold uppercase">Output (SVG)</label>
-          <div class="hidden space-x-2" :class="{ 'hidden': !hasOutput, 'flex': hasOutput }" id="saveButtons">
-            <button id="saveSVGBtn" class="btn-structural px-3 py-2 text-xs flex items-center gap-2" @click="saveSVG()">
-              <i data-lucide="download" class="w-3 h-3"></i> SVG
-            </button>
-            <button id="savePNGBtn" class="btn-structural px-3 py-2 text-xs flex items-center gap-2" @click="savePNG()">
-              <i data-lucide="image" class="w-3 h-3"></i> PNG
-            </button>
-          </div>
-        </div>
-        <div id="graphOutputContainer"
-          class="flex h-[500px] w-full items-center justify-center overflow-auto border border-black bg-white p-4">
-          <div id="graphOutput" class="flex h-full w-full items-center justify-center" x-ref="graphOutput">
-            <p class="font-mono text-xs text-gray-400" x-html="status">
-              Initializing System...
+    <main class="app-main w-full !overflow-hidden flex flex-col">
+      <div class="container-box w-full max-w-6xl p-6 sm:p-10 flex flex-col h-full">
+        <header
+          class="mb-4 flex-none flex flex-col items-start justify-between border-b border-gray-200 pb-4 md:flex-row md:items-end">
+          <div>
+            <h1 class="mb-2 text-3xl font-bold tracking-tight uppercase">
+              Graph Visualizer
+            </h1>
+            <p class="font-mono text-sm text-gray-600">
+              Render DOT language into structural vector graphics.
             </p>
           </div>
-        </div>
-        <div id="errorDisplay" class="mt-4 border border-red-500 bg-red-50 p-3 font-mono text-xs text-red-700"
-          x-show="error" x-text="error" style="display: none;" :style="error ? 'display: block' : 'display: none'">
+          <div class="mt-4 flex flex-wrap gap-2 md:mt-0">
+            <span class="mr-2 py-2 font-mono text-xs font-bold uppercase">Load Pattern:</span>
+            <button class="btn-structural px-3 py-1 text-xs flex items-center gap-2" @click="loadTemplate('process')">
+              <i data-lucide="git-merge" class="w-3 h-3"></i> Process
+            </button>
+            <button class="btn-structural px-3 py-1 text-xs flex items-center gap-2" @click="loadTemplate('stack')">
+              <i data-lucide="layers" class="w-3 h-3"></i> The Stack
+            </button>
+            <button class="btn-structural px-3 py-1 text-xs flex items-center gap-2" @click="loadTemplate('network')">
+              <i data-lucide="share-2" class="w-3 h-3"></i> Network
+            </button>
+          </div>
+        </header>
+
+        <div class="grid grid-cols-1 gap-8 lg:grid-cols-2 flex-grow overflow-hidden min-h-0">
+          <div class="flex h-full flex-col min-h-0">
+            <div class="mb-2 flex-none flex items-end justify-between">
+              <label for="dotInput" class="font-mono text-xs font-bold uppercase">Input (DOT)</label>
+              <div class="space-x-2">
+                <button id="renderBtn" class="btn-structural px-4 py-2 flex items-center gap-2" @click="render()">
+                  <i data-lucide="play" class="w-4 h-4"></i> Render
+                </button>
+              </div>
+            </div>
+            <textarea id="dotInput"
+              class="flex-grow w-full resize-none !bg-white !text-black p-4 border border-gray-300 font-mono text-sm"
+              spellcheck="false" x-model="dotInput"></textarea>
+          </div>
+
+          <div class="flex h-full flex-col min-h-0">
+            <div class="mb-2 flex-none flex items-end justify-between">
+              <label class="font-mono text-xs font-bold uppercase">Output (SVG)</label>
+              <div class="hidden space-x-2" :class="{ 'hidden': !hasOutput, 'flex': hasOutput }" id="saveButtons">
+                <button id="saveSVGBtn" class="btn-structural px-3 py-2 text-xs flex items-center gap-2"
+                  @click="saveSVG()">
+                  <i data-lucide="download" class="w-3 h-3"></i> SVG
+                </button>
+                <button id="savePNGBtn" class="btn-structural px-3 py-2 text-xs flex items-center gap-2"
+                  @click="savePNG()">
+                  <i data-lucide="image" class="w-3 h-3"></i> PNG
+                </button>
+              </div>
+            </div>
+            <div id="graphOutputContainer"
+              class="flex-grow w-full flex items-center justify-center overflow-auto border border-black bg-white p-4">
+              <div id="graphOutput" class="flex h-full w-full items-center justify-center" x-ref="graphOutput">
+                <p class="font-mono text-xs text-gray-400" x-html="status">
+                  Initializing System...
+                </p>
+              </div>
+            </div>
+            <div id="errorDisplay"
+              class="mt-4 border border-red-500 bg-red-50 p-3 font-mono text-xs text-red-700 flex-none" x-show="error"
+              x-text="error" style="display: none;" :style="error ? 'display: block' : 'display: none'">
+            </div>
+          </div>
         </div>
       </div>
-    </div>
-  </div>
+    </main>
 
-  <footer class="mt-12 text-center font-mono text-xs text-gray-400">
-    &copy; 2025 PolyVis | Virtual Information Systems
-  </footer>
+    <aside class="app-sidebar-right"></aside>
+
+    <footer class="app-footer text-center font-mono text-xs text-gray-400">
+      &copy; 2025 PolyVis | Virtual Information Systems
+    </footer>
+  </div>
 
   <script>
     document.addEventListener('alpine:init', () => {
@@ -174,12 +190,16 @@
             if (typeof Viz === "undefined") throw new Error("Viz library not loaded.");
             this.viz = new Viz();
             this.status = "Ready.";
-            this.loadTemplate('process');
+            this.$nextTick(() => {
+              this.loadTemplate('process');
+            });
           } catch (e) {
             console.error("Viz init failed:", e);
             this.status = `<span class="text-red-500">System Error: ${e.message}</span>`;
           }
         },
+
+        debug: false, // Added for layout debug mode
 
         loadTemplate(name) {
           if (this.templates[name]) {

@@ -5,7 +5,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>PolyVis | Knowledge Explorer</title>
-  <title>PolyVis | Knowledge Explorer</title>
+
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js"></script>
 
@@ -16,91 +16,70 @@
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
   <!-- Alpine.js -->
+  <!-- Alpine.js -->
+  <script src="/components/nav.js"></script>
   <script src="/js/app.js" defer></script>
-  <style>
-    /* Minimalist Search Input */
-    .search-input {
-      width: 100%;
-      font-family: "Menlo", monospace;
-      font-size: 1.5rem;
-      border: none;
-      border-bottom: 2px solid black;
-      padding: 1rem;
-      background: transparent;
-    }
-
-    .search-input:focus {
-      outline: none;
-      border-bottom: 4px solid black;
-    }
-
-    /* Node Type Colors (Structural Palette) */
-    /* These are used in the DOT generation logic */
-  </style>
 </head>
 
-<body class="page-layout" x-data="explorerApp()" :class="{ 'loaded': loaded }">
-  <script src="/components/nav.js"></script>
-  <div x-data="navigation" x-html="view"></div>
+<body class="page-layout" x-data="explorerApp()" :class="{ 'loaded': loaded, 'layout-debug-mode': debug }"
+  @keydown.window.shift.d="debug = !debug">
 
-  <div class="mx-auto w-full max-w-6xl p-4 sm:p-8">
-    <div class="mb-8">
-      <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-        <div>
-          <label for="term-select" class="block text-sm font-medium text-gray-700">Start with a high-value term</label>
-          <select id="term-select"
-            class="focus:ring-opacity-50 mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 !bg-white !text-black"
-            x-model="selectedTerm" @change="visualize($event.target.value)" :disabled="loading">
-            <option value="" disabled>Select a term...</option>
-            <template x-for="term in terms" :key="term">
-              <option :value="term" x-text="term"></option>
-            </template>
-          </select>
-        </div>
-        <div class="flex items-end gap-2">
-          <div class="flex-grow">
-            <label for="searchBox" class="mb-1 block font-mono text-xs font-bold uppercase">Or Search Term</label>
-            <input type="text" id="searchBox"
-              class="structural-input w-full p-2 !bg-white !text-black border border-gray-300"
-              placeholder="e.g. 'Persona'" x-model="searchTerm" @keyup.enter="visualize(searchTerm)"
-              :disabled="loading" />
+  <div class="app-shell">
+    <header class="app-header">
+      <div x-data="navigation" x-html="view"></div>
+    </header>
+
+    <aside class="app-sidebar-left"></aside>
+
+    <main class="app-main w-full !overflow-hidden flex flex-col">
+      <div class="mx-auto w-full max-w-6xl p-4 sm:p-8 flex flex-col h-full">
+        <div class="mb-4 flex-none">
+          <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div>
+              <label for="term-select" class="block text-sm font-medium text-gray-700">Start with a high-value
+                term</label>
+              <select id="term-select"
+                class="focus:ring-opacity-50 mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 !bg-white !text-black"
+                x-model="selectedTerm" @change="visualize($event.target.value)" :disabled="loading">
+                <option value="" disabled>Select a term...</option>
+                <template x-for="term in terms" :key="term">
+                  <option :value="term" x-text="term"></option>
+                </template>
+              </select>
+            </div>
+            <div class="flex items-end gap-2">
+              <div class="flex-grow">
+                <label for="searchBox" class="mb-1 block font-mono text-xs font-bold uppercase">Or Search Term</label>
+                <input type="text" id="searchBox"
+                  class="structural-input w-full p-2 !bg-white !text-black border border-gray-300"
+                  placeholder="e.g. 'Persona'" x-model="searchTerm" @keyup.enter="visualize(searchTerm)"
+                  :disabled="loading" />
+              </div>
+              <button id="visualizeBtn" class="btn-structural px-4 py-2 flex items-center gap-2"
+                @click="visualize(searchTerm)" :disabled="loading">
+                <i data-lucide="search" class="w-4 h-4"></i> Visualize
+              </button>
+            </div>
           </div>
-          <button id="visualizeBtn" class="btn-structural px-4 py-2 flex items-center gap-2"
-            @click="visualize(searchTerm)" :disabled="loading">
-            <i data-lucide="search" class="w-4 h-4"></i> Visualize
-          </button>
+          <div id="status" class="mt-2 font-mono text-xs text-gray-500" x-text="status">
+            Connecting to Neural Substrate...
+          </div>
         </div>
-      </div>
-      <div id="status" class="mt-2 font-mono text-xs text-gray-500" x-text="status">
-        Connecting to Neural Substrate...
-      </div>
-    </div>
 
-    <div id="graph-container" class="container-box flex h-[600px] items-center justify-center overflow-hidden">
-      <div id="graphOutput" class="h-full w-full" x-ref="graphOutput"></div>
-    </div>
+        <div id="graph-container"
+          class="container-box flex flex-grow items-center justify-center overflow-hidden min-h-0">
+          <div id="graphOutput" class="h-full w-full" x-ref="graphOutput"></div>
+        </div>
 
-    <div id="graph-key" class="mt-8 rounded-md border p-4">
-      <h3 class="mb-4 text-lg font-bold">Node Key</h3>
-      <div class="grid grid-cols-2 gap-4 text-sm md:grid-cols-4">
-        <div class="flex items-center">
-          <span class="mr-2 h-5 w-5 border" style="background-color: black"></span>
-          <span>Root Node</span>
-        </div>
-        <div class="flex items-center">
-          <span class="mr-2 h-5 w-5 border" style="background-color: #f4f4f4"></span>
-          <span>Related Term</span>
-        </div>
-        <div class="flex items-center">
-          <span class="mr-2 h-5 w-5 border" style="background-color: #e0e0e0"></span>
-          <span>Related Directive</span>
-        </div>
-        <div class="flex items-center">
-          <span class="mr-2 h-5 w-5 border" style="background-color: white"></span>
-          <span>Other Node</span>
-        </div>
+
       </div>
-    </div>
+    </main>
+
+    <aside class="app-sidebar-right"></aside>
+
+    <footer class="app-footer text-center font-mono text-xs text-gray-400">
+      &copy; 2025 PolyVis | Knowledge Explorer
+    </footer>
   </div>
 
   <script>
@@ -114,6 +93,7 @@
         status: 'Connecting to Neural Substrate...',
         loading: true,
         loaded: false,
+        debug: false, // Added for layout debug mode
 
         init() {
           setTimeout(() => this.loaded = true, 50);

@@ -69,7 +69,8 @@
 -->
 
 <body class="h-screen w-screen overflow-hidden text-sm antialiased" style="background-color: var(--accent);"
-    x-data="sigmaApp()" :class="{ 'loaded': loaded }">
+    x-data="sigmaApp()" :class="{ 'loaded': loaded, 'layout-debug-mode': debug }"
+    @keydown.window.shift.d="debug = !debug">
 
     <script src="/components/nav.js"></script>
 
@@ -77,16 +78,16 @@
     <div class="flex h-full w-full flex-col">
 
         <!-- 1. Navbar (Fixed Height) -->
-        <div class="flex-none">
+        <header class="app-header">
             <div x-data="navigation" x-html="view"></div>
-        </div>
+        </header>
 
         <!-- 2. Main Content (Fills remaining height) -->
         <div class="flex flex-row flex-nowrap flex-grow overflow-hidden relative">
 
             <!-- 2a. Left Sidebar (Fixed Width, Collapsible) -->
-            <div x-show="leftOpen"
-                class="flex-none w-48 flex flex-col border-r border-gray-300 bg-gray-50 shadow-sm transition-all z-20"
+            <div x-show="leftOpen" style="width: var(--sidebar-width-left)"
+                class="flex-shrink-0 flex flex-col border-r border-gray-300 bg-gray-50 shadow-sm transition-all z-20"
                 x-transition:enter="transition ease-out duration-200" x-transition:enter-start="-translate-x-full"
                 x-transition:enter-end="translate-x-0" x-transition:leave="transition ease-in duration-200"
                 x-transition:leave-start="translate-x-0" x-transition:leave-end="-translate-x-full">
@@ -274,8 +275,8 @@
             </div>
 
             <!-- 2c. Right Sidebar (Fixed Width, Collapsible) -->
-            <div x-show="rightOpen" id="right-sidebar-override"
-                class="flex-none w-80 flex flex-col border-l border-gray-300 !bg-white !text-black shadow-sm transition-all z-20"
+            <div x-show="rightOpen" id="right-sidebar-override" style="width: var(--sidebar-width-right)"
+                class="flex-shrink-0 flex flex-col border-l border-gray-300 !bg-white !text-black shadow-sm transition-all z-20"
                 x-transition:enter="transition ease-out duration-200" x-transition:enter-start="translate-x-full"
                 x-transition:enter-end="translate-x-0" x-transition:leave="transition ease-in duration-200"
                 x-transition:leave-start="translate-x-0" x-transition:leave-end="translate-x-full">
@@ -424,6 +425,7 @@
                 selectedNode: null,
                 hoveredNode: null, // Track hovered node for robust clicking
                 loaded: false,
+                debug: false, // Added for layout debug mode
                 clickBlock: false, // Event blocker
                 tooltip: { visible: false, text: '', x: 0, y: 0 },
 
