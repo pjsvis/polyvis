@@ -79,13 +79,27 @@ Usage: `class="text-fluid-1"` scales smoothly from mobile to desktop.
 ## 5. CSS Layers Architecture
 We use modern CSS `@layer` to manage specificity and organization.
 
--   **`theme.css`**: Configuration and Variables (The API).
--   **`base.css`** (`@layer base`): Resets and element defaults.
--   **`layout.css`** (`@layer layout`): Macro layout structures (App Shell, Grid).
--   **`components.css`** (`@layer components`): BEM-style components (Buttons, Nav).
--   **`utilities.css`** (`@layer utilities`): High-specificity overrides and helpers.
+### The Stack (Order of Precedence)
+Defined in `src/css/main.css`:
+1.  **`theme`** (Implicit): Variables (No layer, global scope).
+2.  **`base`**: Resets and element defaults (Normalize).
+3.  **`layout`**: Macro layout structures (App Shell, Grid).
+4.  **`components`**: BEM-style components (Buttons, Nav).
+5.  **`utilities`**: High-specificity overrides and helpers.
 
-**Gotcha**: `!important` priority is **inverted** in layers. `!important` in `base` overrides `!important` in `components`. Use sparingly!
+### The "Back Door" (Isolation Strategy)
+If a specific part of the app needs to break free from the design system (e.g., a legacy widget, a third-party integration, or a "sandbox" experiment), use a dedicated layer.
+
+**Pattern:**
+1.  Add the layer to the stack definition in `main.css`:
+    ```css
+    @layer base, layout, components, utilities, sandbox;
+    ```
+2.  Import the isolated CSS into that layer:
+    ```css
+    @import "./layers/sandbox.css" layer(sandbox);
+    ```
+**Result:** Styles in `sandbox` will override `utilities` and `components` regardless of specificity, giving you a safe, isolated playground without fighting the global cascade.
 
 ## 6. Theming Strategy
 **Problem**: Implementing a JS-based theme switcher (Light/Dark/System).
@@ -116,3 +130,25 @@ If a specific component needs a unique background, define a new semantic variabl
 html[data-theme="dark"] { --code-bg: var(--surface-3); }
 ```
 Then use `var(--code-bg)` in your component.
+## 7. Essential Open Props Tokens
+**Reference**: Common values used in this project.
+
+### Content Sizes (`--size-content-*`)
+Used for container widths and sidebars.
+-   `--size-content-1`: `20ch` (approx 160px) - Narrow
+-   `--size-content-2`: `45ch` (approx 360px) - Standard Sidebar
+-   `--size-content-3`: `60ch` (approx 480px) - Wide Sidebar / Reading
+-   `--size-content-4`: `75ch` (approx 600px) - Wide Reading
+
+### Spacing (`--size-*`)
+Used for margins, padding, and gaps.
+-   `--size-1`: `0.25rem` (4px)
+-   `--size-2`: `0.5rem` (8px)
+-   `--size-3`: `1rem` (16px)
+-   `--size-4`: `1.25rem` (20px)
+-   `--size-fluid-1`: `clamp(1rem, 2vw, 1.5rem)`
+
+### Colors (`--gray-*`, `--blue-*`)
+-   `--gray-0`: White-ish
+-   --gray-9`: Black-ish
+-   `--blue-4`: Standard Link Blue

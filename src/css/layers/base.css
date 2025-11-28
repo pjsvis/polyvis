@@ -3,7 +3,7 @@
  */
 
 html {
-    /* scrollbar-gutter: stable both-edges; */
+    scrollbar-gutter: stable both-edges;
     height: 100%;
     overflow: hidden;
     /* Strict app-shell behavior */
@@ -16,6 +16,7 @@ h2,
 h3,
 h4 {
     text-wrap: balance;
+    scroll-margin-top: var(--scroll-offset);
 }
 
 p {
@@ -52,9 +53,8 @@ body {
 /* Brutalist Link Reset */
 a,
 a:visited {
-    color: var(--primary) !important;
-    text-decoration: underline;
-    text-decoration-skip-ink: auto;
+    color: var(--link);
+    text-decoration: none;
 }
 
 a:hover {

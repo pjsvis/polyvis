@@ -5321,6 +5321,7 @@ var doc_viewer_default = () => ({
   navTab: "index",
   leftOpen: false,
   rightOpen: false,
+  showTocNumbers: false,
   contentMain: "",
   contentRef: "",
   activeDoc: null,
@@ -5380,19 +5381,39 @@ var doc_viewer_default = () => ({
     if (!container)
       return;
     const headers = container.querySelectorAll("h2, h3, h4");
-    this.toc = Array.from(headers).map((h, index) => {
+    const groups = [];
+    let currentGroup = null;
+    Array.from(headers).forEach((h, index) => {
       let id = h.id;
       if (!id) {
         id = `header-${index}`;
         h.id = id;
       }
-      return {
-        text: h.innerText,
+      const fullText = h.innerText;
+      const match = fullText.match(/^(\d+(\.\d+)*\.?)\s+(.*)/);
+      const number = match ? match[1] : "";
+      const text = match ? match[3] : fullText;
+      if (!text.trim())
+        return;
+      const item = {
+        text,
+        number,
         id,
         level: parseInt(h.tagName.substring(1))
       };
-    }).filter((item) => item.text.trim().length > 0);
-    console.log("Generated TOC:", this.toc);
+      if (item.level === 2) {
+        currentGroup = { header: item, children: [] };
+        groups.push(currentGroup);
+      } else {
+        if (!currentGroup) {
+          currentGroup = { header: null, children: [] };
+          groups.push(currentGroup);
+        }
+        currentGroup.children.push(item);
+      }
+    });
+    this.toc = groups;
+    console.log("Generated TOC Groups:", this.toc);
   },
   handleContentClick(e) {
     const link = e.target.closest("a");

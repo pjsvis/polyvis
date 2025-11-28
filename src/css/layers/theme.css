@@ -1,5 +1,11 @@
 @theme {
     /* 
+   * CONTROL CENTER
+   * This file is the single source of truth for the application's design.
+   * PROCEDURE: Check here first. Tweak here first. Propose new variables here.
+   */
+
+    /* 
    * RATIONALIZATION: SPACING
    * Replacing the linear 0.25rem scale with Open Props relative sizing.
    */
@@ -94,6 +100,14 @@
     --app-padding: var(--size-4);
     --gap-standard: var(--size-4);
 
+    /* TOC Specifics */
+    --toc-gap-section: var(--size-4);
+    --toc-gap-item: var(--size-2);
+    /* Increased spacing for sub-items */
+    --toc-indent: 1rem;
+    --scroll-offset: var(--size-5);
+    /* Reduced breathing room */
+
     /* Scrollbar */
     --scrollthumb-color: #dadce0;
     --scrollthumb-hover-color: #bdc1c6;
@@ -102,34 +116,44 @@
 /* System Dark Mode Support */
 @media (prefers-color-scheme: dark) {
     :root {
-        /* App Variable Overrides */
-        --primary: #e8eaed;
-        /* Google Light Gray Text */
-        --secondary: #202124;
-        /* Google Dark Background */
-        --accent: #292a2d;
-        /* Slightly lighter sidebar */
+        /* App Variable Overrides (AntiGravity / Google Dark) */
+        --primary: var(--gray-0);
+        /* Text: High Contrast (#f8f9fa) */
+        --secondary: var(--gray-9);
+        /* Background: Deep (#202124) */
+        --accent: var(--gray-8);
+        /* Sidebar: Slightly lighter (#3c4043) */
 
         /* Open Props Dark Mode Overrides */
-        --link: #8ab4f8;
-        /* Google Blue Light */
-        --link-visited: #c58af9;
-        --text-1: #e8eaed;
-        --text-2: #9aa0a6;
-        --surface-1: #202124;
-        --surface-2: #292a2d;
-        --surface-3: #3c4043;
-        --surface-4: #4a4d51;
-        --scrollthumb-color: #3c4043;
-        --scrollthumb-hover-color: #5f6368;
+        --link: var(--blue-4);
+        /* Google Blue (#8ab4f8) */
+        --link-visited: var(--violet-4);
+
+        --text-1: var(--gray-0);
+        /* Primary Text */
+        --text-2: var(--gray-3);
+        /* Secondary Text */
+
+        --surface-1: var(--gray-9);
+        /* Main BG */
+        --surface-2: var(--gray-8);
+        /* Panels */
+        --surface-3: var(--gray-7);
+        /* Hover */
+        --surface-4: var(--gray-6);
+        /* Active */
+
+        --scrollthumb-color: var(--gray-7);
+        --scrollthumb-hover-color: var(--gray-6);
+
         --shadow-strength: 10%;
         --shadow-color: 220 40% 2%;
 
         /* Component Variables */
-        --code-bg: #292a2d;
-        --surface-panel: #292a2d;
-        --surface-hover: #3c4043;
-        --border-base: #5f6368;
+        --code-bg: var(--gray-8);
+        --surface-panel: var(--gray-8);
+        --surface-hover: var(--gray-7);
+        --border-base: var(--gray-7);
     }
 }
 
@@ -157,27 +181,31 @@ html[data-theme="dark"] {
     color-scheme: dark;
 
     /* App Variable Overrides */
-    --primary: #e8eaed;
-    --secondary: #202124;
-    --accent: #292a2d;
+    --primary: var(--gray-0);
+    --secondary: var(--gray-9);
+    --accent: var(--gray-8);
 
     /* Open Props Dark Mode Overrides */
-    --link: #8ab4f8;
-    --link-visited: #c58af9;
-    --text-1: #e8eaed;
-    --text-2: #9aa0a6;
-    --surface-1: #202124;
-    --surface-2: #292a2d;
-    --surface-3: #3c4043;
-    --surface-4: #4a4d51;
-    --scrollthumb-color: #3c4043;
-    --scrollthumb-hover-color: #5f6368;
+    --link: var(--blue-4);
+    --link-visited: var(--violet-4);
+
+    --text-1: var(--gray-0);
+    --text-2: var(--gray-3);
+
+    --surface-1: var(--gray-9);
+    --surface-2: var(--gray-8);
+    --surface-3: var(--gray-7);
+    --surface-4: var(--gray-6);
+
+    --scrollthumb-color: var(--gray-7);
+    --scrollthumb-hover-color: var(--gray-6);
+
     --shadow-strength: 10%;
     --shadow-color: 220 40% 2%;
 
     /* Component Variables */
-    --code-bg: #292a2d;
-    --surface-panel: #292a2d;
-    --surface-hover: #3c4043;
-    --border-base: #5f6368;
+    --code-bg: var(--gray-8);
+    --surface-panel: var(--gray-8);
+    --surface-hover: var(--gray-7);
+    --border-base: var(--gray-7);
 }

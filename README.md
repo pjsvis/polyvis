@@ -12,8 +12,16 @@ The application is built with HTML, CSS, and [Alpine.js](https://alpinejs.dev/),
 - **Alpine.js Reactivity:** Uses [Alpine.js](https://alpinejs.dev/) for a lightweight, reactive UI without a complex build step.
 - **Alpine.js Reactivity:** Uses [Alpine.js](https://alpinejs.dev/) for a lightweight, reactive UI without a complex build step.
 - **Zero-Build Frontend:** Built with vanilla web technologies and Alpine.js for maximum simplicity and performance.
-- **Themable UI:** All design tokens (colors, dimensions) are centralized in `src/css/layers/theme.css` ("The Control Panel") for easy customization.
-- **Semantic Styling:** No magic numbers. All styles use semantic variables (e.g., `--surface-panel`, `--border-base`) for consistent theming.
+-   **Themable UI:** All design tokens (colors, dimensions) are centralized in `src/css/layers/theme.css` ("The Control Panel") for easy customization.
+-   **Semantic Styling:** No magic numbers. All styles use semantic variables (e.g., `--surface-panel`, `--border-base`) for consistent theming.
+
+## Design System (The Control Center)
+The application's visual design is strictly controlled by **`src/css/layers/theme.css`**. This file acts as a configuration panel for:
+-   **Dimensions:** Sidebar widths, header heights.
+-   **Colors:** Semantic mappings (e.g., `--surface-1`, `--brand`).
+-   **Spacing:** Global padding and gaps.
+
+**Protocol:** Always check and tweak `theme.css` before modifying component styles.
 
 ## Prerequisites
 

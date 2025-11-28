@@ -15,6 +15,7 @@
     text-transform: uppercase;
     border-bottom: var(--size-1) solid var(--primary);
     padding-bottom: var(--size-2);
+    text-wrap: balance;
 }
 
 /* ... */
@@ -30,6 +31,7 @@
 .prose p {
     margin-bottom: var(--size-5);
     line-height: 1.6;
+    text-wrap: pretty;
 }
 
 .prose ul {

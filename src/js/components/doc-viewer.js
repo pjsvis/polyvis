@@ -9,6 +9,7 @@ export default () => ({
     navTab: 'index',    // 'index' | 'outline'
     leftOpen: false,    // Mobile sidebar state
     rightOpen: false,   // Mobile sidebar state
+    showTocNumbers: false, // Hide section numbers by default
 
     // Content
     contentMain: '',
@@ -86,19 +87,47 @@ export default () => ({
         if (!container) return;
 
         const headers = container.querySelectorAll('h2, h3, h4');
-        this.toc = Array.from(headers).map((h, index) => {
+        const groups = [];
+        let currentGroup = null;
+
+        Array.from(headers).forEach((h, index) => {
             let id = h.id;
             if (!id) {
                 id = `header-${index}`;
                 h.id = id;
             }
-            return {
-                text: h.innerText,
+
+            // Extract number and text
+            const fullText = h.innerText;
+            const match = fullText.match(/^(\d+(\.\d+)*\.?)\s+(.*)/);
+            const number = match ? match[1] : '';
+            const text = match ? match[3] : fullText;
+
+            if (!text.trim()) return;
+
+            const item = {
+                text: text,
+                number: number,
                 id: id,
                 level: parseInt(h.tagName.substring(1))
             };
-        }).filter(item => item.text.trim().length > 0);
-        console.log("Generated TOC:", this.toc);
+
+            if (item.level === 2) {
+                // Start new group
+                currentGroup = { header: item, children: [] };
+                groups.push(currentGroup);
+            } else {
+                // Add to current group or create intro group
+                if (!currentGroup) {
+                    currentGroup = { header: null, children: [] };
+                    groups.push(currentGroup);
+                }
+                currentGroup.children.push(item);
+            }
+        });
+
+        this.toc = groups;
+        console.log("Generated TOC Groups:", this.toc);
     },
 
     // Handle internal link clicks in the main content

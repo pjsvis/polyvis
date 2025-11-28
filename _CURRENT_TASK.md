@@ -8,16 +8,30 @@
 ## Objective
 The CSS refactor (Magic Numbers, Control Panel, Container Queries) and Front Page Theme Fix are complete.
 
-# Current Task: YOLO Debugging Sidebar Scroll
+# Current Task: Emulate AntiGravity Design (Typography & Colors)
 
-**Objective**: Fix the sidebar scrolling in `v3.html` by any means necessary.
-**Mode**: YOLO / Experimental.
-**Scratchpad**: `playbooks/scratchpad-scrolling.md`.
+**Objective**: Adopt the visual language (fonts, colors) of Google's AntiGravity agent to improve clarity and aesthetics.
+**Mode**: Design / Implementation.
+**Scratchpad**: `playbooks/scratchpad-design.md` (To be created).
 
 ## Status
--   [x] Verify "Lock Parent, Scroll Child" hypothesis via Browser.
--   [x] Apply fix to `v3.html`.
--   [ ] Verify Dark Mode persists.
+- [ ] Research & Plan Design System
+- [ ] Apply Visual Styles (Dark Mode, Typography)
+
+## Checklist
+- [ ] Define Color Palette (High Contrast Dark Mode)
+- [ ] Define Typography (Google Sans/Inter, Fluid Sizes)
+- [ ] Update `theme.css` / CSS Variables
+- [ ] Verify clarity at small sizes
+
+# Completed Task: YOLO Debugging Sidebar Scroll
+**Status**: Complete
+- [x] Verify "Lock Parent, Scroll Child" hypothesis via Browser.
+- [x] Apply fix to `v3.html`.
+- [x] Verify Dark Mode persists.
+- [x] Fix Alpine.js TOC errors (Unique IDs).
+- [x] Filter empty TOC items.
+- [x] Simplify TOC styling (Strip-it-back).
 
 ## Checklist
 - [x] Refactor Magic Numbers
@@ -54,11 +68,5 @@ The CSS refactor (Magic Numbers, Control Panel, Container Queries) and Front Pag
     - [x] Ensure `build:css` works correctly
 - [x] Verify Build Process
 
-
-## additional tasks
-
-- [ ] the fonts used in Google AntiGravity are very clear at small sizes. 
-- [ ] this is due to the fonts and the colours used in the theme. (dark in my case)
-- [ ] we should research the fonts and colours used by AntiGravity and try and emulate their clarity
-- similarly the three column AntiGravity layout is pretty neat, espescially the ability to resize
-- lets research and see what we can emulate/plunder  
+# Future Ideas (Backlog)
+- [ ] **Publish Playbooks**: Create a `playbooks.md` index that lists all playbooks and scratchpads, allowing them to be browsed via the main `v3.html` viewer. The TOC will naturally handle the listing.  

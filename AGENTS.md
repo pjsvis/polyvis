@@ -104,3 +104,22 @@ This document outlines the core operational protocols governing the actions of a
         4.  Verify the fix.
         5.  Only then move to the next issue.
     - **Reasoning:** Prevents compounding errors and "bounding ahead" without validation.
+
+## 14. TFP: Theme First Protocol
+
+- **Principle:** `src/css/layers/theme.css` is the **Control Center** for the application's design. It is the single source of truth for all tweakable values.
+- **Workflow:**
+  1.  **Check:** Before styling, check `theme.css` for an existing variable.
+  2.  **Tweak:** If a variable exists, adjust it there to propagate changes globally.
+  3.  **Propose:** If no variable exists, propose creating a new semantic variable in `theme.css`.
+  4.  **Prohibition:** Do not hardcode "magic numbers" (pixels, hex codes) in component CSS or HTML.
+
+## 15. DSP: Design Sanity Protocol
+
+-   **Principle:** Design is an iterative process of emotional translation, not a single technical execution. To maintain sanity and quality:
+-   **Workflow:**
+    1.  **Translate:** Convert emotional keywords ("fun", "clean", "inviting") into technical primitives (spacing, rounded corners, whitespace).
+    2.  **Isolate:** Break the design into isolated components (e.g., "The Card", "The Stack").
+    3.  **Iterate:** Apply one change at a time (e.g., "Just the spacing", then "Just the font size").
+    4.  **Verify:** Visually confirm each micro-step before proceeding. Do not batch 10 design changes without looking.
+    5.  **Control:** Use `theme.css` as the mixing board. Tweak variables to find the "sweet spot" without touching the DOM.
