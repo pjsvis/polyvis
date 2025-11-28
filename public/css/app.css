@@ -277,6 +277,9 @@
   .inset-0 {
     inset: var(--spacing-0);
   }
+  .top-0 {
+    top: var(--spacing-0);
+  }
   .top-2\.5 {
     top: calc(var(--spacing) * 2.5);
   }
@@ -406,6 +409,9 @@
   .inline-flex {
     display: inline-flex;
   }
+  .table {
+    display: table;
+  }
   .aspect-square {
     aspect-ratio: 1 / 1;
   }
@@ -490,11 +496,17 @@
   .max-w-\[1600px\] {
     max-width: 1600px;
   }
+  .max-w-none {
+    max-width: none;
+  }
   .max-w-xs {
     max-width: var(--container-xs);
   }
   .min-w-\[200px\] {
     min-width: 200px;
+  }
+  .flex-1 {
+    flex: 1;
   }
   .flex-none {
     flex: none;
@@ -676,6 +688,9 @@
   .overflow-y-auto {
     overflow-y: auto;
   }
+  .overflow-y-scroll {
+    overflow-y: scroll;
+  }
   .rounded {
     border-radius: 0.25rem;
   }
@@ -709,9 +724,17 @@
     border-bottom-style: var(--tw-border-style);
     border-bottom-width: 1px;
   }
+  .border-b-2 {
+    border-bottom-style: var(--tw-border-style);
+    border-bottom-width: 2px;
+  }
   .border-l {
     border-left-style: var(--tw-border-style);
     border-left-width: 1px;
+  }
+  .border-l-2 {
+    border-left-style: var(--tw-border-style);
+    border-left-width: 2px;
   }
   .border-\[var\(--primary\)\] {
     border-color: var(--primary);
@@ -812,6 +835,9 @@
   .object-cover {
     object-fit: cover;
   }
+  .p-0 {
+    padding: var(--spacing-0);
+  }
   .p-1 {
     padding: var(--spacing-1);
   }
@@ -857,6 +883,9 @@
   .py-2 {
     padding-block: var(--spacing-2);
   }
+  .py-3 {
+    padding-block: var(--spacing-3);
+  }
   .py-8 {
     padding-block: var(--spacing-8);
   }
@@ -868,6 +897,9 @@
   }
   .pr-2 {
     padding-right: var(--spacing-2);
+  }
+  .pr-4 {
+    padding-right: var(--spacing-4);
   }
   .pb-1 {
     padding-bottom: var(--spacing-1);
@@ -1005,6 +1037,9 @@
   .uppercase {
     text-transform: uppercase;
   }
+  .italic {
+    font-style: italic;
+  }
   .underline {
     text-decoration-line: underline;
   }
@@ -1122,10 +1157,24 @@
       }
     }
   }
+  .hover\:border-\[var\(--border-base\)\] {
+    &:hover {
+      @media (hover: hover) {
+        border-color: var(--border-base);
+      }
+    }
+  }
   .hover\:border-black {
     &:hover {
       @media (hover: hover) {
         border-color: var(--color-black);
+      }
+    }
+  }
+  .hover\:bg-\[var\(--surface-hover\)\] {
+    &:hover {
+      @media (hover: hover) {
+        background-color: var(--surface-hover);
       }
     }
   }

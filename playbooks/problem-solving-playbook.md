@@ -40,3 +40,12 @@ container.addEventListener("mousedown", (e) => {
 **Principle:** If you can't see it, you can't debug it.
 -   **Cursors:** Changing the cursor (e.g., `grab` vs `grabbing`) is not just UX; it's a debug tool to confirm state changes.
 -   **Console Logs:** "Debug Mode" logging (e.g., `[SigmaDebug]`) is essential for tracing event order in real-time.
+
+### 4. The "Strip-it-Back" Heuristic
+**Principle:** Complexity is often the bug itself. When a UI component is misbehaving (e.g., text scrunching, invisible items, layout shifts), the issue is frequently caused by conflicting "fancy" styles (truncation, transitions, calculated padding).
+
+**The Lesson:**
+-   **Simplify to Verify:** Remove all non-essential styles. Revert to browser defaults or basic utility classes.
+-   **Example:** A Table of Contents was invisible/scrunching. We removed `truncate`, `leading-relaxed`, and complex hover effects.
+-   **Result:** The text became readable immediately. We could then decide if the "fancy" stuff was even necessary (it wasn't).
+-   **Rule:** If you need 5 lines of CSS to make a list item readable, you are over-engineering.

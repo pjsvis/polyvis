@@ -40,6 +40,14 @@ Located in `public/css/style.css`.
 
 **Solution:** Keep your z-index hierarchy flat and simple. Avoid unnecessary transforms on container elements.
 
+### 3. Visual Complexity as Technical Debt
+**Problem:** Over-engineering simple components (like a list of links) with `truncate`, complex `calc()` padding, and hover borders often leads to fragility (text disappearing, layout shifts).
+
+**Solution:**
+-   **Default to Natural Flow:** Let text wrap. It's the web's natural state.
+-   **Avoid "Magic" Truncation:** `truncate` requires specific parent widths (`min-w-0`, `flex-1`) to work reliably. If you don't *need* single-line text, don't force it.
+-   **Smell Test:** If a component looks "scrunched" or requires precise pixel tuning to be legible, strip it back to standard text styles.
+
 ## Component Standards
 
 ### Buttons (`.btn-structural`)

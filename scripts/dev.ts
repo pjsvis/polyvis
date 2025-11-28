@@ -28,6 +28,13 @@ const cssWatcher = Bun.spawn(["bun", "run", "watch:css"], {
     stderr: "inherit",
 });
 
+// 1.5 Start JS Watcher
+console.log("📜 Starting JS Watcher...");
+const jsWatcher = Bun.spawn(["bun", "run", "watch:js"], {
+    stdout: "inherit",
+    stderr: "inherit",
+});
+
 // 2. Start Web Server
 console.log(`🌍 Starting Web Server at http://localhost:${PORT}...`);
 
@@ -75,6 +82,7 @@ const server = Bun.serve({
 process.on("SIGINT", () => {
     console.log("\n🛑 Shutting down...");
     cssWatcher.kill();
+    jsWatcher.kill();
     server.stop();
     process.exit(0);
 });

@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PolyVis v2 - Stabilized</title>
+    <!-- <link rel="stylesheet" href="/css/app.css"> -->
+    <!-- <link rel="stylesheet" href="/css/markdown.css"> -->
+    <style>
+        /* RESET */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html,
+        body {
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        /* body { font-family: system-ui, sans-serif; } */
+        /* <-- Removed to let app.css fonts take over */
+
+        /* LAYOUT GRID (Hardcoded for Stability - Overrides app.css if needed) */
+        .app-shell {
+            display: grid;
+            height: 100vh;
+            width: 100vw;
+            /* Header, Middle, Footer */
+            grid-template-rows: 60px 1fr 40px;
+            /* Left, Main, Right */
+            grid-template-columns: 250px 1fr 300px;
+            grid-template-areas:
+                "header header header"
+                "left   main   right"
+                "footer footer footer";
+        }
+
+        /* ZONES */
+        .app-header {
+            grid-area: header;
+            background-color: #ffffff;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            align-items: center;
+            padding: 0 1rem;
+            z-index: 10;
+        }
+
+        .app-sidebar-left {
+            grid-area: left;
+            background-color: #fee2e2;
+            /* RED-100 */
+            border-right: 1px solid #e5e7eb;
+            overflow-y: auto;
+            padding: 1rem;
+        }
+
+        .app-main {
+            grid-area: main;
+            background-color: #dcfce7;
+            /* GREEN-100 */
+            overflow-y: auto;
+            padding: 2rem;
+        }
+
+        .app-sidebar-right {
+            grid-area: right;
+            background-color: #dbeafe;
+            /* BLUE-100 */
+            border-left: 1px solid #e5e7eb;
+            overflow-y: auto;
+            padding: 1rem;
+        }
+
+        .app-footer {
+            grid-area: footer;
+            background-color: #f3f4f6;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            color: #6b7280;
+        }
+
+        /* DEBUG OVERLAYS */
+        .debug-mode * {
+            outline: 1px solid red !important;
+            background-color: rgba(255, 0, 0, 0.05) !important;
+        }
+    </style>
+    <script>
+        // Shift+D Debug Toggle
+        document.addEventListener('keydown', (e) => {
+            if (e.shiftKey && e.key.toLowerCase() === 'd') {
+                document.body.classList.toggle('debug-mode');
+                console.log('Debug Mode Toggled');
+            }
+        });
+    </script>
+    <script src="/js/app.js" defer></script>
+</head>
+
+<body x-data="{
+    title: 'Step 4: Hybrid CSS (External + Inline)',
+    leftPanel: 'Left Panel (Reactive)',
+    mainContent: 'Main Content (Reactive)',
+    rightPanel: 'Right Panel (Reactive)'
+}">
+
+    <div class="app-shell">
+        <header class="app-header">
+            <h1 style="font-size: 1.25rem; font-weight: bold;" x-text="title"></h1>
+        </header>
+
+        <aside class="app-sidebar-left">
+            <h2 style="font-weight: bold; margin-bottom: 0.5rem;" x-text="leftPanel"></h2>
+            <p>Static Content</p>
+        </aside>
+
+        <main class="app-main">
+            <div style="max-width: 65ch; margin: 0 auto;">
+                <h1 style="font-size: 2rem; font-weight: bold; margin-bottom: 1rem;" x-text="mainContent"></h1>
+                <p>This layout uses <strong>Inline CSS</strong> + <strong>Alpine.js</strong>.</p>
+                <p>If the titles are 'Reactive', Alpine is working.</p>
+                <button @click="mainContent = 'Reactivity Verified!'"
+                    style="background: #3b82f6; color: white; padding: 0.5rem 1rem; border-radius: 0.25rem; border: none; margin-top: 1rem; cursor: pointer;">
+                    Test Reactivity
+                </button>
+            </div>
+        </main>
+
+        <aside class="app-sidebar-right">
+            <h2 style="font-weight: bold; margin-bottom: 0.5rem;" x-text="rightPanel"></h2>
+            <p>Static Content</p>
+        </aside>
+
+        <footer class="app-footer">
+            &copy; 2025 PolyVis | Alpine Mode
+        </footer>
+    </div>
+
+</body>
+
+</html>
