@@ -26,7 +26,7 @@
    * RATIONALIZATION: COLORS
    * Explicitly mapping semantic names to Open Props OKLCH values.
    */
-    --color-brand: var(--indigo-6);
+    --color-brand: var(--indigo-5);
     --color-brand-hover: var(--indigo-7);
     --color-surface-1: var(--surface-1);
     --color-surface-2: var(--surface-2);
@@ -36,6 +36,9 @@
     /* 
    * RATIONALIZATION: TYPOGRAPHY
    */
+    --font-sans: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --font-mono: "JetBrains Mono", "Roboto Mono", "Fira Code", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+
     --font-size-xs: var(--font-size-00);
     --font-size-sm: var(--font-size-0);
     --font-size-base: var(--font-size-1);
@@ -49,29 +52,132 @@
 
 :root {
     /* 
-     * APP VARIABLES
-     * Consolidating all tweakable variables here.
+     * APP VARIABLES (Default / Light)
      */
+    font-family: var(--font-sans);
 
-    /* Colors */
-    --primary: var(--gray-9);
-    --secondary: var(--gray-0);
-    /* Open Props doesn't have --white, using literal or --gray-0 */
-    --accent: var(--gray-1);
+    /* Colors - Google Internal Aesthetic (High Contrast) */
+    --primary: #202124;
+    /* Google Dark Gray */
+    --secondary: #ffffff;
+    /* Crisp White */
+    --accent: #f8f9fa;
+    /* Google Light Gray (Sidebars) */
 
     /* Dimensions */
-    --border-width: var(--border-size-1);
+    --border-width: 1px;
     --shadow-offset: var(--size-1);
 
+    /* Semantic Components */
+    --surface-panel: #ffffff;
+    --surface-hover: #f1f3f4;
+    --border-base: #dadce0;
+    /* Google Border Gray */
+    --radius-component: 8px;
+    /* Slightly rounder */
+
     /* Layout Dimensions */
-    --sidebar-width-left: var(--size-content-2);
-    /* Adjusted for better content fit */
-    --sidebar-width-right: var(--size-content-2);
+    --width-sidebar-base: var(--size-content-2);
+    --sidebar-width-left: var(--width-sidebar-base);
+    --sidebar-width-right: var(--width-sidebar-base);
+    --sidebar-content-align: stretch;
+    /* flex-start (left), flex-end (right), center, stretch */
+    --sidebar-padding: 0;
+    /* Default to 0, let children handle or override */
+
     --header-height: auto;
     --footer-height: var(--size-10);
-    /* Explicit control */
+    --width-wrapper: 1100px;
+    --width-home-box: 700px;
 
     /* Spacing */
     --app-padding: var(--size-4);
     --gap-standard: var(--size-4);
+
+    /* Scrollbar */
+    --scrollthumb-color: #dadce0;
+    --scrollthumb-hover-color: #bdc1c6;
+}
+
+/* System Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+    :root {
+        /* App Variable Overrides */
+        --primary: #e8eaed;
+        /* Google Light Gray Text */
+        --secondary: #202124;
+        /* Google Dark Background */
+        --accent: #292a2d;
+        /* Slightly lighter sidebar */
+
+        /* Open Props Dark Mode Overrides */
+        --link: #8ab4f8;
+        /* Google Blue Light */
+        --link-visited: #c58af9;
+        --text-1: #e8eaed;
+        --text-2: #9aa0a6;
+        --surface-1: #202124;
+        --surface-2: #292a2d;
+        --surface-3: #3c4043;
+        --surface-4: #4a4d51;
+        --scrollthumb-color: #3c4043;
+        --scrollthumb-hover-color: #5f6368;
+        --shadow-strength: 10%;
+        --shadow-color: 220 40% 2%;
+
+        /* Component Variables */
+        --code-bg: #292a2d;
+        --surface-panel: #292a2d;
+        --surface-hover: #3c4043;
+        --border-base: #5f6368;
+    }
+}
+
+/* Theme Overrides */
+html[data-theme="light"] {
+    color-scheme: light;
+    /* Ensure light mode variables are set (redundant but safe) */
+    --primary: #202124;
+    --secondary: #ffffff;
+    --accent: #f8f9fa;
+
+    --surface-1: #ffffff;
+    --surface-2: #f8f9fa;
+    --text-1: #202124;
+    --text-2: #5f6368;
+
+    /* Component Variables */
+    --code-bg: #f1f3f4;
+    --surface-panel: #ffffff;
+    --surface-hover: #f1f3f4;
+    --border-base: #dadce0;
+}
+
+html[data-theme="dark"] {
+    color-scheme: dark;
+
+    /* App Variable Overrides */
+    --primary: #e8eaed;
+    --secondary: #202124;
+    --accent: #292a2d;
+
+    /* Open Props Dark Mode Overrides */
+    --link: #8ab4f8;
+    --link-visited: #c58af9;
+    --text-1: #e8eaed;
+    --text-2: #9aa0a6;
+    --surface-1: #202124;
+    --surface-2: #292a2d;
+    --surface-3: #3c4043;
+    --surface-4: #4a4d51;
+    --scrollthumb-color: #3c4043;
+    --scrollthumb-hover-color: #5f6368;
+    --shadow-strength: 10%;
+    --shadow-color: 220 40% 2%;
+
+    /* Component Variables */
+    --code-bg: #292a2d;
+    --surface-panel: #292a2d;
+    --surface-hover: #3c4043;
+    --border-base: #5f6368;
 }

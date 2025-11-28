@@ -7,6 +7,8 @@ html {
     height: 100%;
     overflow: hidden;
     /* Strict app-shell behavior */
+    background-color: var(--accent);
+    color-scheme: light;
 }
 
 h1,
@@ -72,4 +74,23 @@ body {
 
 body.loaded {
     opacity: 1;
+}
+
+/* Custom Scrollbar for Sidebars */
+/* Custom Scrollbar for Sidebars */
+::-webkit-scrollbar {
+    width: var(--size-1);
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: var(--scrollthumb-color);
+    border-radius: var(--radius-1);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-color: var(--scrollthumb-hover-color);
 }

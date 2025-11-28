@@ -13,10 +13,9 @@
 .container-box {
     border: var(--border-width) solid var(--primary);
     background: var(--secondary);
-    padding: var(--size-fluid-2);
-    box-shadow: var(--size-2) var(--size-2) 0px rgba(0, 0, 0, 0.1);
+    padding: var(--size-4);
+    box-shadow: var(--shadow-offset) var(--shadow-offset) 0px rgba(0, 0, 0, 0.1);
 }
-
 
 /* 
    App Shell Layout (Holy Grail Grid)
@@ -56,13 +55,31 @@
 .app-sidebar-left {
     grid-area: left;
     border-right: var(--border-size-1) solid var(--gray-3);
-    background-color: var(--surface-2);
+    background-color: var(--accent);
     overflow: hidden;
     /* Sidebar itself doesn't scroll, children do */
     min-height: 0;
     /* Critical for grid row constraint */
     display: flex;
     flex-direction: column;
+    align-items: var(--sidebar-content-align);
+    padding: var(--sidebar-padding);
+    container-type: inline-size;
+    container-name: sidebar;
+    transition: transform 0.3s ease-in-out;
+    z-index: 50;
+}
+
+@media (max-width: 768px) {
+    .app-sidebar-left {
+        position: fixed;
+        top: var(--header-height);
+        bottom: 0;
+        left: 0;
+        width: 80%;
+        border-right: var(--border-width) solid var(--primary);
+        box-shadow: var(--shadow-3);
+    }
 }
 
 .app-main {
@@ -74,41 +91,11 @@
     /* Critical for grid row constraint */
     display: flex;
     flex-direction: column;
+    container-type: inline-size;
+    container-name: main;
 }
 
-.home-layout .app-shell {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-}
-
-.home-layout .app-header {
-    margin-bottom: var(--size-1);
-    /* Reduced gap (Open Props) */
-    width: fit-content;
-    /* Ensure it doesn't stretch full width if centered */
-    border-bottom: none;
-    /* Remove border if floating */
-    background-color: transparent;
-    /* Match panel background */
-    position: relative;
-    /* Ensure z-index works */
-    z-index: 100;
-    /* Force above card content */
-}
-
-.home-layout .app-main {
-    flex-grow: 0;
-    /* Don't expand, let parent center us */
-    width: 100%;
-    /* Ensure full width for grid centering */
-    display: grid;
-    place-items: center;
-    padding: 0;
-    /* Remove padding to allow tighter gap */
-}
+/* ... home layout ... */
 
 .home-layout .app-sidebar-left,
 .home-layout .app-sidebar-right,
@@ -116,13 +103,7 @@
     display: none;
 }
 
-.home-layout {
-    --sidebar-width-left: 0px;
-    --sidebar-width-right: 0px;
-    --footer-height: 0px;
-    background-color: var(--gray-4);
-    /* Darker background to make card pop */
-}
+/* ... home layout ... */
 
 /* Page Layout (Docs, etc) - Enable Scrolling */
 .page-layout .app-sidebar-left,
@@ -133,13 +114,31 @@
 .app-sidebar-right {
     grid-area: right;
     border-left: var(--border-size-1) solid var(--gray-3);
-    background-color: var(--surface-2);
+    background-color: var(--accent);
     overflow: hidden;
     /* Sidebar itself doesn't scroll, children do */
     min-height: 0;
     /* Critical for grid row constraint */
     display: flex;
     flex-direction: column;
+    align-items: var(--sidebar-content-align);
+    padding: var(--sidebar-padding);
+    container-type: inline-size;
+    container-name: sidebar;
+    transition: transform 0.3s ease-in-out;
+    z-index: 50;
+}
+
+@media (max-width: 768px) {
+    .app-sidebar-right {
+        position: fixed;
+        top: var(--header-height);
+        bottom: 0;
+        right: 0;
+        width: 80%;
+        border-left: var(--border-width) solid var(--primary);
+        box-shadow: var(--shadow-3);
+    }
 }
 
 .app-footer {
@@ -162,4 +161,31 @@
 
 .stack-small>*+* {
     margin-block-start: var(--size-1);
+}
+
+/* FORCE OVERRIDE FOR RIGHT SIDEBAR (Sigma Explorer) */
+#right-sidebar-override {
+    background-color: var(--white) !important;
+    color: var(--black) !important;
+    color-scheme: light !important;
+}
+
+#right-sidebar-override * {
+    color: var(--black) !important;
+}
+
+#right-sidebar-override button {
+    color: var(--black) !important;
+}
+
+#right-sidebar-override .text-gray-500,
+#right-sidebar-override .text-gray-400,
+#right-sidebar-override .text-gray-600 {
+    color: var(--gray-9) !important;
+    /* Slightly softer for secondary text, but still dark */
+}
+
+#right-sidebar-override details[open] {
+    background-color: var(--white) !important;
+    border: var(--border-size-1) solid var(--gray-3) !important;
 }

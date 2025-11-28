@@ -1,11 +1,11 @@
 @import "tailwindcss";
 @import "open-props/style";
-@import "open-props/normalize";
 
 @import "./layers/theme.css";
 
 @layer base, layout, components, utilities;
 
+@import "open-props/normalize" layer(base);
 @import "./layers/base.css" layer(base);
 @import "./layers/layout.css" layer(layout);
 @import "./layers/components.css" layer(components);

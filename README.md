@@ -12,7 +12,8 @@ The application is built with HTML, CSS, and [Alpine.js](https://alpinejs.dev/),
 - **Alpine.js Reactivity:** Uses [Alpine.js](https://alpinejs.dev/) for a lightweight, reactive UI without a complex build step.
 - **Alpine.js Reactivity:** Uses [Alpine.js](https://alpinejs.dev/) for a lightweight, reactive UI without a complex build step.
 - **Zero-Build Frontend:** Built with vanilla web technologies and Alpine.js for maximum simplicity and performance.
-- **Themable UI:** All design tokens (colors, dimensions) are centralized in `src/css/layers/theme.css` for easy customization.
+- **Themable UI:** All design tokens (colors, dimensions) are centralized in `src/css/layers/theme.css` ("The Control Panel") for easy customization.
+- **Semantic Styling:** No magic numbers. All styles use semantic variables (e.g., `--surface-panel`, `--border-base`) for consistent theming.
 
 ## Prerequisites
 

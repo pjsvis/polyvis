@@ -376,3 +376,32 @@ document.addEventListener('alpine:init', () => {
 ```html
 <div x-data="navigation" x-html="view"></div>
 ```
+
+--------------------------------
+
+### Alpine.js and Dynamic Content
+
+**Gotcha**: `addEventListener` in `init()` vs. `x-html`.
+
+**Problem**: If you render content dynamically using `x-html` or template strings, elements inside that content **do not exist** when the component's `init()` method runs. Attempting to attach event listeners via `this.$el.querySelector(...)` will fail.
+
+**Solutions**:
+
+1.  **Global Handlers (Simplest)**: Expose the handler function to the `window` object and use a standard inline `onclick` attribute.
+    ```javascript
+    // In your component logic
+    window.handleItemClick = (id) => { ... };
+    
+    // In your dynamic HTML string
+    return `<button onclick="window.handleItemClick(${id})">Click Me</button>`;
+    ```
+
+2.  **Event Delegation (Robust)**: Attach the listener to the static parent element (the one with `x-html`) and check the `event.target`.
+    ```html
+    <div x-html="content" @click="handleClick($event)"></div>
+    ```
+    ```javascript
+    handleClick(e) {
+      if (e.target.matches('.dynamic-btn')) { ... }
+    }
+    ```

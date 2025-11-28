@@ -25,6 +25,25 @@ If you prefer to run processes separately:
 bun run watch:css
 ```
 
+## 3. CSS Architecture & The Control Panel
+We enforce a strict "No Magic Numbers" policy. All design tokens are centralized.
+
+### The Control Panel (`src/css/layers/theme.css`)
+This file is the single source of truth for the application's look and feel.
+-   **Semantic Variables**: Use these for all component styling.
+    -   `--surface-panel`: Backgrounds for cards, sidebars, code blocks.
+    -   `--surface-hover`: Interactive hover states.
+    -   `--border-base`: Standard border width (usually 1px).
+    -   `--radius-component`: Standard border radius.
+-   **Typography**: Use aliases like `--font-size-sm` instead of raw values.
+
+### Adding New Styles
+1.  **Check `theme.css` first**: Does a variable already exist for your need?
+2.  **Define if missing**: If you need a new specific value (e.g., a specific width), add it to `theme.css` first.
+3.  **Use the variable**: In your component CSS, reference the variable.
+    -   **Bad**: `border: 1px solid #ccc;`
+    -   **Good**: `border: var(--border-base) solid var(--surface-panel);`
+
 ### Database Build
 The core data for the application must be generated from the source JSON files located in the `/scripts` directory.
 

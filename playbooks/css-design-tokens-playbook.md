@@ -86,3 +86,33 @@ We use modern CSS `@layer` to manage specificity and organization.
 -   **`utilities.css`** (`@layer utilities`): High-specificity overrides and helpers.
 
 **Gotcha**: `!important` priority is **inverted** in layers. `!important` in `base` overrides `!important` in `components`. Use sparingly!
+
+## 6. Theming Strategy
+**Problem**: Implementing a JS-based theme switcher (Light/Dark/System).
+
+### Gotcha: `color-scheme` vs. Media Queries
+Setting `color-scheme: dark` on the `html` element does **not** trigger `@media (prefers-color-scheme: dark)` blocks in CSS. Open Props variables often rely on these media queries.
+
+**Solution**: You must manually override variables for your dark theme selector.
+
+```css
+/* theme.css */
+html[data-theme="dark"] {
+  color-scheme: dark;
+  /* Manually apply Open Props dark mode values */
+  --surface-1: var(--gray-9);
+  --text-1: var(--gray-1);
+}
+```
+
+### Pattern: Semantic Variables (No "Nuclear" Fixes)
+**Rule**: Never use hardcoded hex values to fix contrast issues.
+- **Bad**: `background: #fff;` (Breaks in dark mode)
+- **Good**: `background: var(--surface-1);` (Adapts to theme)
+
+If a specific component needs a unique background, define a new semantic variable in `theme.css`:
+```css
+:root { --code-bg: var(--surface-2); }
+html[data-theme="dark"] { --code-bg: var(--surface-3); }
+```
+Then use `var(--code-bg)` in your component.

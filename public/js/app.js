@@ -1,3 +1,40 @@
+// src/js/utils/theme.js
+var THEME_KEY = "polyvis-theme";
+var getPreferredTheme = () => {
+  const stored = localStorage.getItem(THEME_KEY);
+  if (stored)
+    return stored;
+  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+};
+var setTheme = (theme) => {
+  if (theme === "system") {
+    localStorage.removeItem(THEME_KEY);
+    document.documentElement.removeAttribute("data-theme");
+  } else {
+    localStorage.setItem(THEME_KEY, theme);
+    document.documentElement.setAttribute("data-theme", theme);
+  }
+};
+var toggleTheme = () => {
+  const current = document.documentElement.getAttribute("data-theme") || "system";
+  let next = "light";
+  if (current === "light")
+    next = "dark";
+  else if (current === "dark")
+    next = "system";
+  console.log("Theme toggled to:", next);
+  setTheme(next);
+  return next;
+};
+console.log("Exposing toggleTheme to window");
+window.toggleTheme = toggleTheme;
+var initTheme = () => {
+  const stored = localStorage.getItem(THEME_KEY);
+  if (stored) {
+    document.documentElement.setAttribute("data-theme", stored);
+  }
+};
+
 // node_modules/alpinejs/dist/module.esm.js
 var flushPending = false;
 var flushing = false;
@@ -3159,6 +3196,863 @@ alpine_default.setReactivityEngine({ reactive: reactive2, effect: effect2, relea
 var src_default = alpine_default;
 var module_default = src_default;
 
+// src/js/components/nav.js
+var nav_default = () => ({
+  links: [
+    { name: "HQ", href: "/", icon: "home" },
+    { name: "Visualizer", href: "/graph/", icon: "activity" },
+    { name: "Docs", href: "/docs/", icon: "book-open" },
+    { name: "Explorer", href: "/explorer/", icon: "compass" },
+    { name: "Sigma Explorer", href: "/sigma-explorer/", icon: "layout-dashboard" },
+    { name: "Source", href: "https://github.com/pjsvis/polyvis", icon: "github", target: "_blank" }
+  ],
+  init() {
+    this.$nextTick(() => {
+      if (window.lucide)
+        window.lucide.createIcons();
+    });
+  },
+  get view() {
+    const currentPath = window.location.pathname;
+    const linksHTML = this.links.map((link) => {
+      const isActive = link.href === "/" && currentPath === "/" || link.href !== "/" && currentPath.startsWith(link.href);
+      const target = link.target || "_self";
+      const isExternal = target === "_blank";
+      const externalIcon = isExternal ? `<i data-lucide="external-link" style="width: 12px; height: 12px; margin-left: 4px; opacity: 0.7;"></i>` : "";
+      return `
+            <a href="${link.href}" target="${target}" class="nav-item ${isActive ? "active" : ""}">
+              <i data-lucide="${link.icon}" style="width: var(--font-size-sm); height: var(--font-size-sm);"></i>
+              ${link.name}
+              ${externalIcon}
+            </a>`;
+    }).join("");
+    return `
+        <nav class="nav-wrapper">
+            <div style="display: flex; align-items: center; gap: 2rem; width: 100%; justify-content: space-between;">
+                <div style="display: flex; align-items: center; gap: 2rem;">
+                    <a href="/" class="nav-brand">PolyVis</a>
+                    <div class="nav-links">
+                        ${linksHTML}
+                    </div>
+                </div>
+                <a href="#" id="nav-theme-toggle" onclick="window.toggleTheme(); return false;" class="nav-item">
+                    <i data-lucide="sun" style="width: var(--font-size-sm); height: var(--font-size-sm);"></i>
+                    Theme
+                </a>
+            </div>
+        </nav>
+        `;
+  }
+});
+
+// src/js/components/explorer.js
+var explorer_default = () => ({
+  db: null,
+  viz: null,
+  terms: [],
+  selectedTerm: "",
+  searchTerm: "",
+  status: "Connecting to Neural Substrate...",
+  loading: true,
+  loaded: false,
+  debug: false,
+  init() {
+    setTimeout(() => this.loaded = true, 50);
+    this.$nextTick(() => {
+      if (window.lucide)
+        window.lucide.createIcons();
+    });
+    this.viz = new Viz;
+    this.loadTerms();
+    this.initSqlJs();
+  },
+  async loadTerms() {
+    try {
+      const response = await fetch("../terms.json");
+      if (!response.ok)
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      this.terms = await response.json();
+      if (this.terms.length > 0) {
+        this.selectedTerm = "Pre-Mortem Heuristic";
+      }
+    } catch (error2) {
+      console.error("Could not load suggested terms:", error2);
+      this.status = "Error loading terms.";
+    }
+  },
+  initSqlJs() {
+    initSqlJs({
+      locateFile: (file) => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/${file}`
+    }).then((SQL) => {
+      const xhr = new XMLHttpRequest;
+      xhr.open("GET", "/data/ctx.db", true);
+      xhr.responseType = "arraybuffer";
+      xhr.onload = (e) => {
+        const uInt8Array = new Uint8Array(xhr.response);
+        this.db = new SQL.Database(uInt8Array);
+        this.status = "Database Loaded. Ready.";
+        this.loading = false;
+        if (this.selectedTerm) {
+          this.visualize(this.selectedTerm);
+        }
+      };
+      xhr.send();
+    });
+  },
+  visualize(term) {
+    if (!this.db || !term)
+      return;
+    this.selectedTerm = term;
+    this.searchTerm = term;
+    let stmt = this.db.prepare("SELECT * FROM nodes WHERE id = ? OR label = ? LIMIT 1");
+    stmt.bind([term, term]);
+    let rootId = null;
+    let nodes = new Set;
+    let edges = [];
+    let row = null;
+    if (stmt.step())
+      row = stmt.getAsObject();
+    stmt.free();
+    if (!row) {
+      stmt = this.db.prepare("SELECT * FROM nodes WHERE id LIKE ? OR label LIKE ? LIMIT 1");
+      stmt.bind([`%${term}%`, `%${term}%`]);
+      if (stmt.step())
+        row = stmt.getAsObject();
+      stmt.free();
+    }
+    if (row) {
+      rootId = row.id;
+      nodes.add(JSON.stringify(row));
+    } else {
+      this.status = "Term not found.";
+      this.$refs.graphOutput.innerHTML = "";
+      return;
+    }
+    const outStmt = this.db.prepare("SELECT n.*, e.relation FROM edges e JOIN nodes n ON e.target = n.id WHERE e.source = ?");
+    outStmt.bind([rootId]);
+    while (outStmt.step()) {
+      const r = outStmt.getAsObject();
+      nodes.add(JSON.stringify({ id: r.id, label: r.label, type: r.type }));
+      edges.push({ from: rootId, to: r.id, label: r.relation });
+    }
+    outStmt.free();
+    const inStmt = this.db.prepare("SELECT n.*, e.relation FROM edges e JOIN nodes n ON e.source = n.id WHERE e.target = ?");
+    inStmt.bind([rootId]);
+    while (inStmt.step()) {
+      const r = inStmt.getAsObject();
+      nodes.add(JSON.stringify({ id: r.id, label: r.label, type: r.type }));
+      edges.push({ from: r.id, to: rootId, label: r.relation });
+    }
+    inStmt.free();
+    let dot = `digraph NeuroMap {
+                    rankdir=LR;
+                    node [shape=box, fontname="Courier", margin="0.2,0.1", style=filled, fillcolor="white"];
+                    edge [fontname="Courier", fontsize=8, color="#555"];
+                `;
+    nodes.forEach((n) => {
+      const node = JSON.parse(n);
+      let color = "white";
+      let shape = "box";
+      let fontColor = "black";
+      if (node.id === rootId) {
+        color = "black";
+        fontColor = "white";
+      } else if (node.type === "Term") {
+        color = "#f4f4f4";
+      } else if (node.type === "Directive") {
+        color = "#e0e0e0";
+        shape = "component";
+      }
+      dot += `"${node.id}" [label="${node.label}", fillcolor="${color}", fontcolor="${fontColor}", shape="${shape}"];
+`;
+    });
+    edges.forEach((e) => {
+      dot += `"${e.from}" -> "${e.to}" [label="${e.label}"];
+`;
+    });
+    dot += "}";
+    this.renderGraph(dot);
+    this.status = `Visualizing: ${nodes.size} Nodes, ${edges.length} Connections.`;
+  },
+  renderGraph(dotString) {
+    const container = this.$refs.graphOutput;
+    this.viz.renderSVGElement(dotString).then((element) => {
+      container.innerHTML = "";
+      element.setAttribute("width", "100%");
+      element.setAttribute("height", "100%");
+      container.appendChild(element);
+    }).catch((error2) => {
+      console.error(error2);
+      this.status = "Error rendering graph.";
+    });
+  }
+});
+
+// src/js/components/sigma-explorer.js
+var sigma_explorer_default = () => ({
+  status: "Initializing...",
+  graph: null,
+  renderer: null,
+  activeColorViz: null,
+  activeSizeViz: null,
+  layout: "forceatlas2",
+  showStats: false,
+  stats: { nodes: 0, edges: 0, density: 0, avgDegree: 0 },
+  leftOpen: true,
+  rightOpen: true,
+  selectedNode: null,
+  hoveredNode: null,
+  loaded: false,
+  debug: false,
+  clickBlock: false,
+  tooltip: { visible: false, text: "", x: 0, y: 0 },
+  searchQuery: "",
+  searchResults: [],
+  isSearchFocused: false,
+  showTooltip(event, text) {
+    const rect = event.currentTarget.getBoundingClientRect();
+    this.tooltip.text = text;
+    this.tooltip.x = rect.right + 10;
+    this.tooltip.y = rect.top;
+    this.tooltip.visible = true;
+  },
+  hideTooltip() {
+    this.tooltip.visible = false;
+  },
+  handleSearch() {
+    if (!this.graph)
+      return;
+    if (!this.searchQuery) {
+      const nodes = this.graph.mapNodes((id, attrs) => ({ id, ...attrs })).filter((n) => n.nodeType === "Core Concept").sort((a, b) => b.size - a.size).slice(0, 5);
+      this.searchResults = nodes;
+      return;
+    }
+    const query = this.searchQuery.toLowerCase();
+    const results = this.graph.mapNodes((id, attrs) => ({ id, ...attrs })).filter((n) => n.id.toLowerCase().includes(query) || n.label.toLowerCase().includes(query)).slice(0, 10);
+    this.searchResults = results;
+  },
+  selectSearchResult(nodeId) {
+    this.selectNode(nodeId);
+    this.searchResults = [];
+    this.isSearchFocused = false;
+  },
+  selectNode(nodeId) {
+    if (!this.graph.hasNode(nodeId))
+      return;
+    const attrs = this.graph.getNodeAttributes(nodeId);
+    this.selectedNode = { id: nodeId, ...attrs };
+    this.rightOpen = true;
+    this.$refs.analysisGuide.open = false;
+    this.renderer.refresh();
+  },
+  linkify(text) {
+    if (!text)
+      return "";
+    return text.replace(/\b([A-Z]{2,}-\d+|term-\d+)\b/g, (match) => {
+      if (this.graph && this.graph.hasNode(match)) {
+        return `<a href="#" class="internal-link" data-node-id="${match}">${match}</a>`;
+      }
+      return match;
+    });
+  },
+  handleContentClick(event) {
+    if (event.target.matches(".internal-link")) {
+      event.preventDefault();
+      const nodeId = event.target.dataset.nodeId;
+      this.selectNode(nodeId);
+    }
+  },
+  init() {
+    setTimeout(() => this.loaded = true, 50);
+    this.initSqlJs();
+    this.$nextTick(() => {
+      if (window.lucide)
+        window.lucide.createIcons();
+    });
+  },
+  initSqlJs() {
+    initSqlJs({
+      locateFile: (file) => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/${file}`
+    }).then((SQL) => {
+      const xhr = new XMLHttpRequest;
+      xhr.open("GET", "/data/ctx.db", true);
+      xhr.responseType = "arraybuffer";
+      xhr.onload = (e) => {
+        if (xhr.status !== 200) {
+          this.status = `<span class="text-red-500">Error: ctx.db not found (Status ${xhr.status})</span>`;
+          return;
+        }
+        const uInt8Array = new Uint8Array(xhr.response);
+        const db = new SQL.Database(uInt8Array);
+        this.loadGraph(db);
+      };
+      xhr.send();
+    });
+  },
+  loadGraph(db) {
+    this.graph = new graphology.Graph;
+    this.status = "Extracting Data...";
+    try {
+      const nodesStmt = db.prepare("SELECT * FROM nodes");
+      while (nodesStmt.step()) {
+        const row = nodesStmt.getAsObject();
+        this.graph.addNode(row.id, {
+          label: row.label,
+          nodeType: row.type || "Unknown",
+          definition: row.definition || "",
+          size: row.type === "Core Concept" ? 20 : 6,
+          color: row.type === "Core Concept" ? "black" : "#475569",
+          originalSize: row.type === "Core Concept" ? 20 : 6,
+          originalColor: row.type === "Core Concept" ? "black" : "#475569",
+          x: Math.random() * 100,
+          y: Math.random() * 100,
+          external_refs: row.external_refs ? JSON.parse(row.external_refs) : []
+        });
+      }
+    } catch (e) {
+      console.error("Node Error", e);
+    }
+    try {
+      const edgesStmt = db.prepare("SELECT * FROM edges");
+      while (edgesStmt.step()) {
+        const row = edgesStmt.getAsObject();
+        if (this.graph.hasNode(row.source) && this.graph.hasNode(row.target)) {
+          if (!this.graph.hasEdge(row.source, row.target)) {
+            this.graph.addEdge(row.source, row.target, {
+              type: "arrow",
+              label: row.relation,
+              size: 2,
+              color: "#e5e5e5"
+            });
+          }
+        }
+      }
+    } catch (e) {
+      console.error("Edge Error", e);
+    }
+    const nodeCount = this.graph.order;
+    const edgeCount = this.graph.size;
+    this.status = `Graph Loaded: ${nodeCount} Nodes, ${edgeCount} Edges. Running Physics...`;
+    this.runLayout("forceatlas2");
+    this.toggleColorViz("louvain");
+    this.toggleSizeViz("pagerank");
+    const container = this.$refs.sigmaContainer;
+    container.innerHTML = "";
+    this.renderer = new Sigma(this.graph, container, {
+      renderEdgeLabels: true,
+      nodeReducer: (node, data2) => {
+        if (this.selectedNode && node === this.selectedNode.id) {
+          return { ...data2, highlighted: true, size: Math.max(data2.size, 25), zIndex: 10, label: data2.label };
+        }
+        return data2;
+      },
+      labelRenderedSizeThreshold: 8,
+      zIndex: true
+    });
+    container.style.cursor = "grab";
+    this.renderer.on("downStage", () => {
+      container.style.cursor = "grabbing";
+    });
+    document.addEventListener("mouseup", () => {
+      if (this.renderer && this.renderer.getMouseCaptor()) {
+        this.renderer.getMouseCaptor().isMouseEnabled = true;
+      }
+      if (!this.hoveredNode) {
+        container.style.cursor = "grab";
+      }
+    });
+    try {
+      if (this.renderer.getMouseCaptor()) {
+        this.renderer.getMouseCaptor().isMouseWheelEnabled = false;
+      }
+    } catch (e) {}
+    container.addEventListener("wheel", (e) => e.stopPropagation(), true);
+    this.status = "Interactive Mode Active. Buttons to Zoom, Drag to Move.";
+    this.renderer.on("clickNode", ({ node }) => {
+      console.log(`[SigmaDebug] clickNode: ${node}`);
+      this.clickBlock = true;
+      console.log(`[SigmaDebug] clickBlock SET to true`);
+      setTimeout(() => {
+        this.clickBlock = false;
+        console.log(`[SigmaDebug] clickBlock RESET to false`);
+      }, 200);
+      const attrs = this.graph.getNodeAttributes(node);
+      this.selectNode(node);
+    });
+    this.renderer.on("clickStage", () => {
+      console.log(`[SigmaDebug] clickStage. Blocked? ${this.clickBlock}. Hovered? ${this.hoveredNode}`);
+      if (this.clickBlock) {
+        console.log(`[SigmaDebug] clickStage BLOCKED`);
+        return;
+      }
+      if (this.hoveredNode) {
+        console.log(`[SigmaDebug] clickStage FALLBACK to hoveredNode: ${this.hoveredNode}`);
+        this.selectNode(this.hoveredNode);
+        return;
+      }
+      console.log(`[SigmaDebug] clickStage DESELECTING`);
+      this.selectedNode = null;
+      this.rightOpen = false;
+      this.graph.forEachNode((n) => {
+        this.graph.setNodeAttribute(n, "highlighted", false);
+        this.graph.setNodeAttribute(n, "size", this.graph.getNodeAttribute(n, "originalSize"));
+        this.graph.setNodeAttribute(n, "zIndex", 1);
+      });
+      if (this.renderer)
+        this.renderer.refresh();
+    });
+    container.addEventListener("mousedown", (e) => {
+      if (this.hoveredNode) {
+        console.log(`[SigmaDebug] Mousedown on Node ${this.hoveredNode} -> STOPPING PROPAGATION`);
+        e.stopPropagation();
+      }
+    }, true);
+    this.renderer.on("enterNode", ({ node }) => {
+      console.log(`[SigmaDebug] enterNode: ${node}`);
+      container.style.cursor = "pointer";
+      this.hoveredNode = node;
+    });
+    this.renderer.on("leaveNode", () => {
+      console.log(`[SigmaDebug] leaveNode`);
+      container.style.cursor = "";
+      this.hoveredNode = null;
+    });
+  },
+  zoomIn() {
+    if (!this.renderer)
+      return;
+    const camera = this.renderer.getCamera();
+    camera.animate({ ratio: camera.ratio / 1.5 });
+  },
+  zoomOut() {
+    if (!this.renderer)
+      return;
+    const camera = this.renderer.getCamera();
+    camera.animate({ ratio: camera.ratio * 1.5 });
+  },
+  zoomReset() {
+    if (!this.renderer)
+      return;
+    this.renderer.getCamera().animatedReset();
+  },
+  resetColors() {
+    this.graph.forEachNode((node, attributes) => {
+      if (attributes.originalColor)
+        this.graph.setNodeAttribute(node, "color", attributes.originalColor);
+    });
+  },
+  resetSizes() {
+    this.graph.forEachNode((node, attributes) => {
+      if (attributes.originalSize)
+        this.graph.setNodeAttribute(node, "size", attributes.originalSize);
+    });
+  },
+  toggleColorViz(type) {
+    if (this.activeColorViz === type) {
+      this.resetColors();
+      this.activeColorViz = null;
+      if (this.renderer)
+        this.renderer.refresh();
+      return;
+    }
+    this.resetColors();
+    this.activeColorViz = type;
+    if (type === "louvain") {
+      if (!graphologyLibrary.communitiesLouvain)
+        return alert("Louvain library not loaded.");
+      const communities = graphologyLibrary.communitiesLouvain(this.graph);
+      const colors = [
+        "#e5484d",
+        "#46a758",
+        "#f5d90a",
+        "#0090ff",
+        "#f76b15",
+        "#8e4ec6",
+        "#00a2c7",
+        "#d6409f",
+        "#99d52a",
+        "#12a594",
+        "#3e63dd",
+        "#6e56cf",
+        "#ae3ec9",
+        "#a15c13"
+      ];
+      this.graph.forEachNode((node) => {
+        this.graph.setNodeAttribute(node, "color", colors[communities[node] % colors.length]);
+      });
+    } else if (type === "betweenness") {
+      if (!graphologyLibrary.metrics)
+        return alert("Metrics library not loaded.");
+      const scores = graphologyLibrary.metrics.centrality.betweenness(this.graph);
+      const minScore = Math.min(...Object.values(scores));
+      const maxScore = Math.max(...Object.values(scores));
+      this.graph.forEachNode((node) => {
+        const normalized = (scores[node] - minScore) / (maxScore - minScore);
+        const r = Math.floor(148 + (220 - 148) * normalized);
+        const g = Math.floor(163 + (38 - 163) * normalized);
+        const b = Math.floor(184 + (38 - 184) * normalized);
+        this.graph.setNodeAttribute(node, "color", `rgb(${r}, ${g}, ${b})`);
+      });
+    } else if (type === "components") {
+      if (!graphologyLibrary.components)
+        return alert("Components library not loaded.");
+      const componentArrays = graphologyLibrary.components.connectedComponents(this.graph);
+      let largestComponent = [];
+      componentArrays.forEach((comp) => {
+        if (comp.length > largestComponent.length)
+          largestComponent = comp;
+      });
+      const largestComponentSet = new Set(largestComponent);
+      this.graph.forEachNode((node) => {
+        this.graph.setNodeAttribute(node, "color", largestComponentSet.has(node) ? "#3cb44b" : "#cccccc");
+      });
+    }
+    if (this.renderer)
+      this.renderer.refresh();
+  },
+  toggleSizeViz(type) {
+    if (this.activeSizeViz === type) {
+      this.resetSizes();
+      this.activeSizeViz = null;
+      if (this.renderer)
+        this.renderer.refresh();
+      return;
+    }
+    this.resetSizes();
+    this.activeSizeViz = type;
+    if (type === "pagerank") {
+      if (!graphologyLibrary.metrics)
+        return alert("Metrics library not loaded.");
+      const scores = graphologyLibrary.metrics.centrality.pagerank(this.graph);
+      const minScore = Math.min(...Object.values(scores));
+      const maxScore = Math.max(...Object.values(scores));
+      this.graph.forEachNode((node) => {
+        const normalized = (scores[node] - minScore) / (maxScore - minScore);
+        this.graph.setNodeAttribute(node, "size", 6 + 25 * normalized);
+      });
+    } else if (type === "degree") {
+      this.graph.forEachNode((node) => {
+        const degree = this.graph.degree(node);
+        this.graph.setNodeAttribute(node, "size", Math.min(6 + degree, 30));
+      });
+    }
+    if (this.renderer)
+      this.renderer.refresh();
+  },
+  toggleStats() {
+    this.showStats = !this.showStats;
+    if (this.showStats && this.graph) {
+      this.stats.nodes = this.graph.order;
+      this.stats.edges = this.graph.size;
+      this.stats.density = graphologyLibrary.metrics.graph.density(this.graph).toFixed(4);
+      let totalDegree = 0;
+      this.graph.forEachNode((node) => {
+        totalDegree += this.graph.degree(node);
+      });
+      this.stats.avgDegree = (totalDegree / this.graph.order).toFixed(2);
+    }
+  },
+  runLayout(algorithm) {
+    if (!this.graph)
+      return;
+    this.layout = algorithm;
+    if (this.layoutInstance) {
+      this.layoutInstance.stop();
+      this.layoutInstance = null;
+    }
+    if (algorithm === "forceatlas2") {
+      if (!graphologyLibrary.layoutForceAtlas2)
+        return alert("ForceAtlas2 not loaded.");
+      graphologyLibrary.layoutForceAtlas2.assign(this.graph, { iterations: 50, settings: { gravity: 1 } });
+    } else if (algorithm === "circular") {
+      if (!graphologyLibrary.layout)
+        return alert("Layout library not loaded.");
+      graphologyLibrary.layout.circle.assign(this.graph);
+    } else if (algorithm === "random") {
+      if (!graphologyLibrary.layout)
+        return alert("Layout library not loaded.");
+      graphologyLibrary.layout.random.assign(this.graph);
+    } else if (algorithm === "noverlap") {
+      if (!graphologyLibrary.layoutNoverlap)
+        return alert("Noverlap library not loaded.");
+      graphologyLibrary.layoutNoverlap.assign(this.graph);
+    }
+  }
+});
+
+// src/js/components/graph.js
+var graph_default = () => ({
+  viz: null,
+  dotInput: "",
+  status: "Initializing System...",
+  error: "",
+  hasOutput: false,
+  loaded: false,
+  templates: {
+    process: `digraph PolyVis {
+      rankdir=TB;
+      node [shape=box, style="filled", fillcolor="white", fontname="Courier", margin="0.2,0.1", penwidth=1];
+      edge [fontname="Courier", fontsize=10];
+
+      Input [label="Stuff (Input)", shape=plaintext];
+      Output [label="Things (Output)", shape=plaintext];
+
+      subgraph cluster_process {
+          label = "PolyVis Process";
+          style=dashed;
+          color=grey;
+          fontname="Courier";
+
+          Analyze [label="Analyze\\n(Deconstruct)"];
+          Structure [label="Structure\\n(Reassemble)"];
+          Fold [label="Fold\\n(Refine)"];
+      }
+
+      Input -> Analyze;
+      Analyze -> Structure;
+      Structure -> Fold;
+      Fold -> Output;
+  }`,
+    stack: `digraph PersonaStack {
+      rankdir=TB;
+      node [shape=record, fontname="Courier", margin="0.2,0.1", style=filled, fillcolor="white"];
+      edge [fontname="Courier", fontsize=10];
+
+      User [label="User (pjsvis)", shape=ellipse, fillcolor="#eee"];
+
+      subgraph cluster_stack {
+          label="The Persona Stack";
+          style=solid;
+
+          Persona [label="{Persona Layer|{CDA|CL}|Identity & Heuristics}"];
+          Skin [label="{Skin Layer|{UI|Visuals}|Interface}"];
+          Sleeve [label="{Sleeve Layer|{System Prompt|Tools}|Orchestration}"];
+          Substrate [label="{Substrate Layer|{LLM|Compute}|Raw Intelligence}"];
+      }
+
+      User -> Skin [label="Interacts"];
+      Skin -> Sleeve;
+      Sleeve -> Persona;
+      Persona -> Substrate;
+  }`,
+    network: `graph Network {
+      layout=neato;
+      overlap=false;
+      node [shape=circle, style=filled, fillcolor="black", fontcolor="white", fontname="Courier", fixedsize=true, width=0.8];
+      edge [color="#555"];
+
+      Node1 [label="Poly"];
+      Node2 [label="Vis"];
+      Node3 [label="Data"];
+      Node4 [label="Logic"];
+      Node5 [label="Code"];
+
+      Node1 -- Node2 [penwidth=3];
+      Node1 -- Node3;
+      Node2 -- Node4;
+      Node3 -- Node5;
+      Node4 -- Node5;
+      Node2 -- Node5;
+      Node3 -- Node4;
+  }`
+  },
+  init() {
+    setTimeout(() => this.loaded = true, 50);
+    this.$nextTick(() => {
+      if (window.lucide)
+        window.lucide.createIcons();
+    });
+    try {
+      if (typeof Viz === "undefined")
+        throw new Error("Viz library not loaded.");
+      this.viz = new Viz;
+      this.status = "Ready.";
+      this.$nextTick(() => {
+        this.loadTemplate("process");
+      });
+    } catch (e) {
+      console.error("Viz init failed:", e);
+      this.status = `<span class="text-red-500">System Error: ${e.message}</span>`;
+    }
+  },
+  debug: false,
+  loadTemplate(name) {
+    if (this.templates[name]) {
+      this.dotInput = this.templates[name];
+      this.render();
+    }
+  },
+  render() {
+    const dotString = this.dotInput.trim();
+    this.status = "Processing...";
+    this.error = "";
+    this.hasOutput = false;
+    this.$refs.graphOutput.innerHTML = '<p class="font-mono text-xs text-gray-400">Processing...</p>';
+    if (!dotString) {
+      this.status = "Input Empty.";
+      this.$refs.graphOutput.innerHTML = '<p class="font-mono text-xs text-gray-400">Input Empty.</p>';
+      return;
+    }
+    if (!this.viz) {
+      this.error = "Error: Engine not initialized.";
+      return;
+    }
+    this.viz.renderSVGElement(dotString).then((element) => {
+      this.$refs.graphOutput.innerHTML = "";
+      this.$refs.graphOutput.appendChild(element);
+      this.hasOutput = true;
+      this.status = "";
+    }).catch((error2) => {
+      console.error(error2);
+      this.$refs.graphOutput.innerHTML = "";
+      this.error = `SYNTAX ERROR: ${error2.message}`;
+    });
+  },
+  saveSVG() {
+    const svg = this.$refs.graphOutput.querySelector("svg");
+    if (!svg)
+      return;
+    if (!svg.getAttribute("xmlns"))
+      svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+    const data2 = new XMLSerializer().serializeToString(svg);
+    const blob = new Blob([data2], { type: "image/svg+xml;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "polyvis_graph.svg";
+    a.click();
+    URL.revokeObjectURL(url);
+  },
+  savePNG() {
+    const svg = this.$refs.graphOutput.querySelector("svg");
+    if (!svg)
+      return;
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+    const tempSvg = svg.cloneNode(true);
+    const bbox = svg.getBBox();
+    const scale = 2;
+    const padding = 40;
+    canvas.width = (bbox.width + padding) * scale;
+    canvas.height = (bbox.height + padding) * scale;
+    tempSvg.setAttribute("width", canvas.width);
+    tempSvg.setAttribute("height", canvas.height);
+    tempSvg.setAttribute("viewBox", `${bbox.x - padding / 2} ${bbox.y - padding / 2} ${bbox.width + padding} ${bbox.height + padding}`);
+    const data2 = new XMLSerializer().serializeToString(tempSvg);
+    const img = new Image;
+    img.onload = () => {
+      ctx.fillStyle = "white";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, 0, 0);
+      const a = document.createElement("a");
+      a.href = canvas.toDataURL("image/png");
+      a.download = "polyvis_graph.png";
+      a.click();
+    };
+    img.src = "data:image/svg+xml;base64," + btoa(unescape(encodeURIComponent(data2)));
+  }
+});
+
+// src/js/components/docs.js
+var docs_default = () => ({
+  loaded: false,
+  debug: false,
+  leftOpen: false,
+  rightOpen: false,
+  documents: [
+    { title: "00. Start Here", file: "example.md" },
+    { title: "01. Conceptual Lexicon", file: "lexicon.md" },
+    { title: "02. System Architecture", file: "architecture.md" },
+    { title: "03. Persona Engineering", file: "persona-engineering.md" },
+    { title: "04. The Tailwind Paradox", file: "the-tailwind-paradox.md" },
+    { title: "05. The Hejlsberg Inversion", file: "the-hejlsberg-inversion.md" },
+    { title: "06. Layout Test", file: "layout-test.md" },
+    { title: "07. Hi Fi CSS", file: "hi-fi-css.md" },
+    { title: "08 Zero Magic Contexting", file: "zero-magic-contexting.md" },
+    { title: "09 Performance Review", file: "perf-review.md" }
+  ],
+  init() {
+    setTimeout(() => this.loaded = true, 50);
+    this.renderSidebar();
+    this.loadCurrentDoc();
+  },
+  renderSidebar() {
+    const listContainers = document.querySelectorAll(".file-list-container");
+    if (listContainers.length === 0)
+      return;
+    const params = new URLSearchParams(window.location.search);
+    const currentFile = params.get("file") || "example.md";
+    const linksHTML = this.documents.map((doc) => `
+                <a href="?file=${doc.file}" class="doc-link ${doc.file === currentFile ? "active" : ""} flex items-center">
+                    <i data-lucide="file-text" class="w-4 h-4 mr-2"></i>
+                    ${doc.title}
+                </a>
+            `).join("");
+    listContainers.forEach((container) => {
+      container.innerHTML = linksHTML;
+    });
+    if (window.lucide)
+      window.lucide.createIcons();
+  },
+  loadCurrentDoc() {
+    let viz;
+    try {
+      viz = new Viz;
+    } catch (e) {
+      console.error(e);
+    }
+    const params = new URLSearchParams(window.location.search);
+    const file = params.get("file") || "example.md";
+    fetch(file).then((response) => {
+      if (!response.ok)
+        throw new Error(`HTTP error! status: ${response.status}`);
+      return response.text();
+    }).then((text) => {
+      const rawHtml = marked.parse(text);
+      const contentDiv = document.getElementById("content");
+      contentDiv.innerHTML = rawHtml;
+      this.renderGraphs(viz);
+    }).catch((err) => {
+      document.getElementById("content").innerHTML = `
+                        <div class="p-8 text-center">
+                            <h2 class="text-2xl font-bold mb-4">404: Document Not Found</h2>
+                            <p class="font-mono text-red-600 bg-red-50 border border-red-200 p-4 inline-block">
+                                File: ${file}
+                            </p>
+                            <p class="mt-4 text-gray-500">Please check the sidebar for valid documents.</p>
+                        </div>`;
+    });
+  },
+  renderGraphs(viz) {
+    const codeBlocks = document.querySelectorAll("code.language-dot");
+    codeBlocks.forEach((block) => {
+      const dotSource = block.textContent;
+      const preWrapper = block.parentElement;
+      const container = document.createElement("div");
+      container.className = "graph-container";
+      container.innerHTML = '<span class="font-mono text-xs text-gray-400">Rendering Structure...</span>';
+      preWrapper.parentNode.insertBefore(container, preWrapper);
+      preWrapper.style.display = "none";
+      if (viz) {
+        viz.renderSVGElement(dotSource).then((element) => {
+          container.innerHTML = "";
+          element.setAttribute("width", "100%");
+          element.setAttribute("height", "auto");
+          container.appendChild(element);
+        }).catch((error2) => {
+          container.innerHTML = `<div class="text-red-500 text-xs font-mono p-2">Graph Error: ${error2.message}</div>`;
+          preWrapper.style.display = "block";
+        });
+      }
+    });
+  }
+});
+
 // src/js/app.js
 window.Alpine = module_default;
+module_default.data("navigation", nav_default);
+module_default.data("explorerApp", explorer_default);
+module_default.data("sigmaApp", sigma_explorer_default);
+module_default.data("graphApp", graph_default);
+module_default.data("docsApp", docs_default);
 module_default.start();

@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PolyVis | Documentation</title>
+  <title>PolyVis Docs</title>
 
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/viz.js/2.1.2/viz.js"></script>
@@ -12,196 +12,95 @@
 
   <link rel="stylesheet" href="/css/app.css" />
   <link rel="stylesheet" href="/css/markdown.css" />
+  <!-- Inline Theme Init to prevent FOUC -->
+  <script>
+    (function () {
+      const stored = localStorage.getItem('polyvis-theme');
+      if (stored) {
+        document.documentElement.setAttribute('data-theme', stored);
+      }
+    })();
+  </script>
+
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
   <!-- Alpine.js -->
   <script src="/js/app.js" defer></script>
+  <!-- Theme Logic -->
+  <script type="module" src="/js/utils/theme.js"></script>
 </head>
 
-<body class="page-layout" x-data="{ loaded: false }" x-init="setTimeout(() => loaded = true, 50)"
-  :class="{ 'loaded': loaded }">
-  <style>
-    /* Sidebar Link Styling */
-    .doc-link {
-      display: block;
-      padding: 0.75rem 1rem;
-      border-bottom: 1px solid #eee;
-      font-family: "Menlo", "Monaco", monospace;
-      font-size: 0.8rem;
-      text-decoration: none;
-      color: #666;
-      transition: all 0.2s;
-    }
+<body class="page-layout overflow-hidden h-screen" x-data="docsApp()"
+  :class="{ 'loaded': loaded, 'layout-debug-mode': debug }" @keydown.window.shift.d="debug = !debug">
 
-    .doc-link:hover {
-      background-color: #f9f9f9;
-      color: black;
-      padding-left: 1.25rem;
-      /* Slight nudge effect */
-    }
+  <div class="app-shell">
+    <header class="app-header relative">
+      <!-- Mobile Toggle Left -->
+      <button class="md:hidden absolute left-4 p-2" @click="leftOpen = !leftOpen; rightOpen = false">
+        <i data-lucide="menu" class="w-6 h-6 text-[var(--primary)]"></i>
+      </button>
 
-    .doc-link.active {
-      background-color: black;
-      color: white;
-      font-weight: bold;
-    }
+      <div x-data="navigation" x-html="view" class="w-full"></div>
 
-    .doc-link:last-child {
-      border-bottom: none;
-    }
-  </style>
-  </head>
+      <!-- Mobile Toggle Right -->
+      <button class="md:hidden absolute right-4 p-2" @click="rightOpen = !rightOpen; leftOpen = false">
+        <i data-lucide="info" class="w-6 h-6 text-[var(--primary)]"></i>
+      </button>
+    </header>
 
-  <body class="page-layout overflow-hidden h-screen" x-data="{ loaded: false, debug: false }"
-    x-init="setTimeout(() => loaded = true, 50)" :class="{ 'loaded': loaded, 'layout-debug-mode': debug }"
-    @keydown.window.shift.d="debug = !debug">
-
-    <div class="app-shell">
-      <header class="app-header">
-        <script src="/components/nav.js"></script>
-        <div x-data="navigation" x-html="view"></div>
-      </header>
-
-      <aside class="app-sidebar-left overflow-y-auto custom-scrollbar hidden md:block p-4">
-        <div class="container-box" style="padding: 0">
-          <div class="border-b border-black bg-gray-50 p-4">
-            <h3 class="text-sm font-bold tracking-wider uppercase">
-              Directory
-            </h3>
-          </div>
-          <nav id="file-list"></nav>
-        </div>
-      </aside>
-
-      <main class="app-main overflow-y-auto custom-scrollbar px-2 md:px-6 items-start place-items-start block">
-        <div class="prose max-w-[65ch] mx-auto py-8">
-          <div id="content" class="min-h-[600px]">
-            <div class="flex h-full flex-col items-center justify-center pt-20">
-              <p class="animate-pulse font-mono text-gray-400">
-                Initializing Reader...
-              </p>
-            </div>
-          </div>
-        </div>
-      </main>
-
-      <aside class="app-sidebar-right"></aside>
-
-      <footer class="app-footer text-center font-mono text-xs text-gray-400">
-        &copy; 2025 PolyVis | Structural Information Engineering
-      </footer>
+    <!-- Mobile Backdrop -->
+    <div x-show="leftOpen || rightOpen" @click="leftOpen = false; rightOpen = false" x-transition.opacity
+      class="fixed inset-0 bg-black/50 z-40 md:hidden backdrop-blur-sm">
     </div>
 
-    <script>
-      // --- CONFIGURATION: REGISTER YOUR FILES HERE ---
-      const documents = [
-        { title: "00. Start Here", file: "example.md" },
-        { title: "01. Conceptual Lexicon", file: "lexicon.md" },
-        { title: "02. System Architecture", file: "architecture.md" },
-        { title: "03. Persona Engineering", file: "persona-engineering.md" },
-        { title: "04. The Tailwind Paradox", file: "the-tailwind-paradox.md" },
-        { title: "05. The Hejlsberg Inversion", file: "the-hejlsberg-inversion.md" },
-        { title: "06. Layout Test", file: "layout-test.md" },
-        { title: "07. Hi Fi CSS", file: "hi-fi-css.md" },
-        { title: "08 Zero Magic Contexting", file: "zero-magic-contexting.md" },
-        { title: "09 Performance Review", file: "perf-review.md" },
-        // Add new files here as you create them
-      ];
+    <aside class="app-sidebar-left overflow-y-auto custom-scrollbar md:block p-4 md:translate-x-0 relative"
+      :class="{ 'translate-x-0': leftOpen, '-translate-x-full': !leftOpen, 'block': true, 'hidden': false }">
+      <div class="container-box docs-directory">
+        <div class="border-b border-[var(--primary)] bg-[var(--accent)] p-4 flex justify-between items-center">
+          <h3 class="text-sm font-bold tracking-wider uppercase">
+            Directory
+          </h3>
+          <button class="md:hidden" @click="leftOpen = false">
+            <i data-lucide="x" class="w-4 h-4"></i>
+          </button>
+        </div>
+        <nav class="file-list-container"></nav>
+      </div>
+    </aside>
 
-      // --- INITIALIZATION ---
-      document.addEventListener("DOMContentLoaded", () => {
-        renderSidebar();
-        loadCurrentDoc();
-      });
+    <main class="app-main overflow-y-auto custom-scrollbar px-2 md:px-6 items-start place-items-start block">
+      <div class="prose max-w-[65ch] mx-auto py-8">
+        <div id="content" class="min-h-[600px]">
+          <div class="flex h-full flex-col items-center justify-center pt-20">
+            <p class="animate-pulse font-mono text-gray-400">
+              Initializing Reader...
+            </p>
+          </div>
+        </div>
+      </div>
+    </main>
 
-      // 1. Render the Sidebar
-      function renderSidebar() {
-        const listContainer = document.getElementById("file-list");
-        const params = new URLSearchParams(window.location.search);
-        const currentFile = params.get("file") || "example.md";
+    <aside class="app-sidebar-right overflow-y-auto custom-scrollbar md:block p-4 md:translate-x-0 relative"
+      :class="{ 'translate-x-0': rightOpen, 'translate-x-full': !rightOpen, 'block': true, 'hidden': false }">
+      <div class="container-box docs-directory-right">
+        <div class="border-b border-[var(--primary)] bg-[var(--accent)] p-4 flex justify-between items-center">
+          <h3 class="text-sm font-bold tracking-wider uppercase">
+            Directory
+          </h3>
+          <button class="md:hidden" @click="rightOpen = false">
+            <i data-lucide="x" class="w-4 h-4"></i>
+          </button>
+        </div>
+        <nav class="file-list-container"></nav>
+      </div>
+    </aside>
 
-        listContainer.innerHTML = documents
-          .map(
-            (doc) => `
-                <a href="?file=${doc.file}" class="doc-link ${doc.file === currentFile ? "active" : ""} flex items-center">
-                    <i data-lucide="file-text" class="w-4 h-4 mr-2"></i>
-                    ${doc.title}
-                </a>
-            `
-          )
-          .join("");
+    <footer class="app-footer text-center font-mono text-xs text-gray-400">
+      &copy; 2025 PolyVis | Structural Information Engineering
+    </footer>
+  </div>
 
-        if (window.lucide) window.lucide.createIcons();
-      }
 
-      // 2. Load and Render the Markdown
-      function loadCurrentDoc() {
-        let viz;
-        try {
-          viz = new Viz();
-        } catch (e) {
-          console.error(e);
-        }
-
-        const params = new URLSearchParams(window.location.search);
-        const file = params.get("file") || "example.md";
-
-        fetch(file)
-          .then((response) => {
-            if (!response.ok)
-              throw new Error(`HTTP error! status: ${response.status}`);
-            return response.text();
-          })
-          .then((text) => {
-            const rawHtml = marked.parse(text);
-            const contentDiv = document.getElementById("content");
-            contentDiv.innerHTML = rawHtml;
-            renderGraphs(viz);
-          })
-          .catch((err) => {
-            document.getElementById("content").innerHTML = `
-                        <div class="p-8 text-center">
-                            <h2 class="text-2xl font-bold mb-4">404: Document Not Found</h2>
-                            <p class="font-mono text-red-600 bg-red-50 border border-red-200 p-4 inline-block">
-                                File: ${file}
-                            </p>
-                            <p class="mt-4 text-gray-500">Please check the sidebar for valid documents.</p>
-                        </div>`;
-          });
-      }
-
-      // 3. Hydrate DOT Graphs
-      function renderGraphs(viz) {
-        const codeBlocks = document.querySelectorAll("code.language-dot");
-        codeBlocks.forEach((block) => {
-          const dotSource = block.textContent;
-          const preWrapper = block.parentElement;
-
-          const container = document.createElement("div");
-          container.className = "graph-container";
-          container.innerHTML =
-            '<span class="font-mono text-xs text-gray-400">Rendering Structure...</span>';
-
-          preWrapper.parentNode.insertBefore(container, preWrapper);
-          preWrapper.style.display = "none";
-
-          if (viz) {
-            viz
-              .renderSVGElement(dotSource)
-              .then((element) => {
-                container.innerHTML = "";
-                element.setAttribute("width", "100%");
-                element.setAttribute("height", "auto");
-                container.appendChild(element);
-              })
-              .catch((error) => {
-                container.innerHTML = `<div class="text-red-500 text-xs font-mono p-2">Graph Error: ${error.message}</div>`;
-                preWrapper.style.display = "block";
-              });
-          }
-        });
-      }
-    </script>
-  </body>
+</body>
 
 </html>

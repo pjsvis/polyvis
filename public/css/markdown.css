@@ -8,62 +8,49 @@
 }
 
 .prose h1 {
-    font-size: 2.5rem;
+    font-size: var(--font-size-fluid-3);
     font-weight: 800;
     letter-spacing: -1px;
-    margin-bottom: 1.5rem;
+    margin-bottom: var(--size-6);
     text-transform: uppercase;
-    border-bottom: 4px solid black;
-    padding-bottom: 0.5rem;
+    border-bottom: var(--size-1) solid var(--primary);
+    padding-bottom: var(--size-2);
 }
 
-/* Structural Metadata: Targets the first paragraph after the H1 */
-.prose h1+p {
-    font-family: "Menlo", "Monaco", monospace;
-    /* The Engineering Font */
-    font-size: 0.8rem;
-    color: #666;
-    /* De-emphasized */
-    margin-top: -0.5rem;
-    /* Tuck it closer to the H1's bottom border */
-    margin-bottom: 2rem;
-    /* Push the main content away */
-    padding-left: 0.2rem;
-    /* Slight optical alignment */
-    letter-spacing: 0.5px;
-}
+/* ... */
 
 .prose h2 {
-    font-size: 1.8rem;
+    font-size: var(--font-size-fluid-2);
     font-weight: 700;
-    margin-top: 2rem;
-    margin-bottom: 1rem;
-    border-bottom: 1px solid #ccc;
+    margin-top: var(--size-8);
+    margin-bottom: var(--size-4);
+    border-bottom: var(--border-base) solid var(--surface-panel);
 }
 
 .prose p {
-    margin-bottom: 1.25rem;
+    margin-bottom: var(--size-5);
     line-height: 1.6;
 }
 
 .prose ul {
     list-style-type: square;
-    margin-left: 1.5rem;
-    margin-bottom: 1.25rem;
+    margin-left: var(--size-6);
+    margin-bottom: var(--size-5);
 }
 
 .prose code {
-    background: #e5e7eb;
-    padding: 0.2rem 0.4rem;
+    background: var(--code-bg);
+    color: var(--text-1);
+    padding: var(--size-1) var(--size-2);
     font-family: "Menlo", monospace;
-    font-size: 0.9em;
+    font-size: var(--font-size-sm);
 }
 
 .prose pre {
-    background: #000;
-    color: #33ff00;
+    background: var(--black);
+    color: var(--green-4);
     /* Green Phosphor */
-    padding: 1rem;
+    padding: var(--size-4);
     white-space: pre-wrap;
     /* CSS3 */
     white-space: -moz-pre-wrap;
@@ -75,9 +62,9 @@
     word-wrap: break-word;
     /* Internet Explorer 5.5+ */
     overflow-wrap: break-word;
-    margin-bottom: 1.5rem;
-    border-left: 5px solid #33ff00;
-    text-shadow: 0 0 2px #33ff00;
+    margin-bottom: var(--size-6);
+    border-left: var(--size-1) solid var(--green-4);
+    text-shadow: 0 0 2px var(--green-4);
     /* Subtle Glow */
 }
 
@@ -89,82 +76,100 @@
 }
 
 .prose blockquote {
-    border-left: 4px solid black;
-    padding-left: 1rem;
+    border-left: var(--size-1) solid var(--primary);
+    padding-left: var(--size-4);
     /* Fixed: Use a size unit here */
-    padding-right: 1rem;
-    color: #555;
-    background-color: #f9f9f9;
+    padding-right: var(--size-4);
+    color: var(--text-2);
+    background-color: var(--surface-panel);
     font-style: normal;
     /* Optional: Explicitly turn off italics if you want the "Structural" look */
-    padding-top: 0.5rem;
+    padding-top: var(--size-2);
     /* Optional: Breathing room top */
-    padding-bottom: 0.5rem;
+    padding-bottom: var(--size-2);
     /* Optional: Breathing room bottom */
 }
 
 .prose table {
     width: 100%;
     border-collapse: collapse;
-    margin-bottom: 1.5rem;
-    font-size: 0.9rem;
+    margin-bottom: var(--size-6);
+    font-size: var(--font-size-0);
+    background-color: var(--surface-1);
+    color: var(--text-1);
 }
 
 .prose th,
 .prose td {
-    border: 1px solid var(--primary);
-    padding: 0.75rem;
+    border: var(--border-base) solid var(--primary);
+    padding: var(--size-3);
     text-align: left;
+    color: var(--text-1);
 }
 
 .prose th {
-    background-color: #f3f4f6;
+    background-color: var(--surface-panel);
+    color: var(--text-1);
     font-weight: bold;
     font-family: "Menlo", "Monaco", monospace;
     text-transform: uppercase;
-    font-size: 0.8rem;
+    font-size: var(--font-size-xs);
+}
+
+.prose tr {
+    background-color: var(--surface-1);
+    transition: background-color 0.2s;
 }
 
 .prose tr:nth-child(even) {
-    background-color: #f9fafb;
+    background-color: var(--surface-panel);
+}
+
+.prose tr:hover {
+    background-color: var(--surface-hover);
+}
+
+.prose td {
+    color: var(--text-1);
+    background-color: var(--surface-1);
 }
 
 /* --- BIBLIOGRAPHY --- */
 .bibliography {
-    margin-top: 3rem;
-    padding-top: 1.5rem;
-    border-top: 1px solid #ccc;
-    font-size: 0.85rem;
-    color: #555;
-    background-color: #f9fafb;
-    padding: 1.5rem;
-    border-radius: 4px;
+    margin-top: var(--size-10);
+    padding-top: var(--size-6);
+    border-top: var(--border-base) solid var(--surface-panel);
+    font-size: var(--font-size-0);
+    color: var(--text-2);
+    background-color: var(--surface-panel);
+    padding: var(--size-6);
+    border-radius: var(--radius-2);
 }
 
 .bibliography ol {
     list-style-type: decimal;
-    margin-left: 1.5rem;
-    padding-left: 0.5rem;
+    margin-left: var(--size-6);
+    padding-left: var(--size-2);
 }
 
 .bibliography li {
-    margin-bottom: 0.75rem;
+    margin-bottom: var(--size-3);
     line-height: 1.5;
 }
 
 .bibliography a {
-    color: #2563eb;
+    color: var(--link);
     /* Blue-600 */
     font-weight: bold;
     text-decoration: none;
-    border-bottom: 1px solid transparent;
+    border-bottom: var(--border-base) solid transparent;
     transition: all 0.2s;
 }
 
 .bibliography a:hover {
-    color: #1d4ed8;
+    color: var(--link-visited);
     /* Blue-700 */
-    border-bottom-color: #1d4ed8;
-    background-color: #eff6ff;
+    border-bottom-color: var(--link-visited);
+    background-color: var(--surface-panel);
     /* Blue-50 */
 }

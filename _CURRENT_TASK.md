@@ -1,43 +1,38 @@
-## Current Task: Visual QA & Regression Fixing
+    -   Automated builds (`build:js`, `build:css`) passed.
+    -   Manual verification pending (post-reboot).
 
-**Objective:** Compare the refactored UI against the "Old Page" reference and fix visual regressions ("Gremlins").
+**N# Current Task
 
-**Context:**
-**Context:**
--   Visual QA for Front Page (`public/index.html`) is largely complete.
--   **Step 1 (Navbar):** Fixed (Color, Alignment, Links).
--   **Step 2 (Card):** Fixed (Centering, Layout, Visuals).
--   **Step 3 (Spacing/Fonts):** Fixed (`.stack-large`, Open Props fonts).
--   **Step 4 (Overlap):** Fixed (Verified 28px gap).
+**Status:** Idle / Ready for Next Task
 
-**Next Steps:**
-1.  Await user confirmation to close this task.
-2.  Move to next QA target or feature work.
+## Objective
+The CSS refactor (Magic Numbers, Control Panel, Container Queries) and Front Page Theme Fix are complete.
 
-## Front Page Gremlins (public/index.html)
-- [ ] **Navbar Color:** Wrong color (likely default or missing variable).
-- [ ] **Navbar Alignment:** Left-justified, should be centered.
-- [ ] **Card Alignment:** Should be centered in the viewport.
-- [ ] **Card Layout:** Launch button overlaps copyright line.
-- [ ] **Card Spacing:** Sizing and spacing needs review.
-- [ ] **Button Style:** Text is purple (unexpected), should likely be high-contrast/brutalist.
+## Checklist
+- [x] Refactor Magic Numbers
+- [x] Establish Control Panel in `theme.css`
+- [x] Implement Container Queries
+- [x] Fix Front Page Theme Logic
+- [x] Refine Docs Directory Layout
+- [x] Add Temporary RHS Directory
+- [x] Implement Responsive Layout
+- [x] Implement Fluid Layout
+- [x] Emulate AntiGravity Design (Fonts, Colors, Resizing)
+- [x] Verify Changes `src/js/components/explorer.js`
+    - [x] Create `src/js/components/sigma-explorer.js`
+    - [x] Create `src/js/components/graph.js`
+    - [x] Update `src/js/app.js` to bundle these
+    - [x] Remove inline scripts from HTML files
+- [x] Fix CSS Issues
+    - [x] Move inline styles to `src/css/layers/`
+    - [x] Ensure `build:css` works correctly
+- [x] Verify Build Process
 
-## Diagnosis
--   **Navbar:** Currently transparent, picking up `app-shell` background (`var(--accent)`/gray). Needs explicit `var(--secondary)` (white) background. Alignment needs `margin: 0 auto` or flex centering in parent.
--   **Card Alignment:** `.app-main` is a flex column without centering. Needs `place-items: center` or `justify-content: center`.
--   **Button Color:** The `.btn-structural` is an `<a>` tag. It lacks a `color` override for `:visited`, so it turns purple.
--   **Card Overlap:** `.home-box::after` border has fixed offsets (`10px`). Content spacing (`stack-large`) might be insufficient.
-- [x] Refer to previous front page for details
-- [x] Ensure Nav Bar is rock solid across pages
-    - [x] Review current state
-    - [x] Standardize styling (Glassmorphism/Full-width)
-    - [x] Refactor `nav.js` and CSS
-    - [x] Update all pages to use standard component
-    - [x] Fix regression in Explorer page (missing script tag)
-- [x] Fix Layout Overflow in `public/graph/index.html`
-    - [x] Ensure no main window scrollbar
-    - [x] Implement internal scrolling for containers
-    - [x] Standardize layout with CSS variables (`--header-height`, `--footer-height`)
-- [x] Refactor CSS to Layers
-    - [x] Split `main.css` into `theme`, `base`, `layout`, `components`, `utilities`
-    - [x] Consolidate design tokens in `theme.css`
+
+## additional tasks
+
+- [ ] the fonts used in Google AntiGravity are very clear at small sizes. 
+- [ ] this is due to the fonts and the colours used in the theme. (dark in my case)
+- [ ] we should research the fonts and colours used by AntiGravity and try and emulate their clarity
+- similarly the three column AntiGravity layout is pretty neat, espescially the ability to resize
+- lets research and see what we can emulate/plunder  
