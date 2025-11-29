@@ -142,3 +142,19 @@ This document outlines the core operational protocols governing the actions of a
     1.  **Verify:** When using browser APIs, verify they work as expected in the current environment.
     2.  **Monitor:** Keep a vigilant eye on network requests. If external access is detected where it should be restricted, note it.
     3.  **No Assumptions:** Do not assume `browserAllowList.txt` guarantees isolation.
+
+## 18. RAP: Reality Alignment Protocol
+
+- **Principle:** If an agent attempts a fix 3 times without a verified change in outcome, it **must** stop, revert, and switch to an isolation/investigation mode.
+- **Context:**
+    -   **The Illusion of Progress:** Furiously editing code and running commands without observable changes indicates a flawed mental model.
+    -   **Process Smells:**
+        -   *The Spin Cycle:* Editing the same file 3+ times with different guesses.
+        -   *The Silent Failure:* Commands succeed but output doesn't change.
+        -   *The Complexity Spiral:* Adding code to fix a bug that shouldn't exist.
+- **Workflow:**
+    1.  **Monitor:** Count your attempts at a specific fix.
+    2.  **Trigger:** If Attempt #3 fails to produce the expected result: **STOP**.
+    3.  **Revert:** Undo the "guesswork" changes.
+    4.  **Isolate:** Switch to a "Clean Room" strategy (see `playbooks/problem-solving-playbook.md`) to verify the component in isolation.
+    5.  **Verify:** Only return to the main codebase once the fix is proven in isolation.
