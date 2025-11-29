@@ -5225,14 +5225,28 @@ var doc_viewer_default = () => ({
   contentMain: "",
   contentRef: "",
   activeDoc: null,
+  references: {},
   async init() {
     try {
-      this.docs = await (await fetch("/index.json")).json();
-      if (this.docs.length > 0) {
+      const [indexRes, refsRes] = await Promise.all([
+        fetch("/index.json"),
+        fetch("/data/references.json")
+      ]);
+      this.docs = await indexRes.json();
+      if (refsRes.ok) {
+        this.references = await refsRes.json();
+      } else {
+        console.warn("References not found, wiki-linking disabled.");
+      }
+      const params = new URLSearchParams(window.location.search);
+      const initialFile = params.get("file");
+      if (initialFile) {
+        this.loadMain(initialFile);
+      } else if (this.docs.length > 0) {
         this.loadMain(this.docs[0].file);
       }
     } catch (e) {
-      console.error("Failed to load index.json", e);
+      console.error("Failed to load initial data", e);
     }
   },
   async loadMain(filename) {
@@ -5264,6 +5278,29 @@ var doc_viewer_default = () => ({
     this.viewMode = "browse";
     this.contentRef = "";
   },
+  loadWikiRef(refId) {
+    const ref = this.references[refId];
+    if (!ref)
+      return;
+    const html = `
+            <div class="wiki-card">
+                <div class="wiki-header">
+                    <span class="wiki-type">${ref.type}</span>
+                    <h1 class="wiki-title">${ref.title}</h1>
+                    <div class="wiki-meta">ID: ${ref.id}</div>
+                </div>
+                <div class="wiki-content prose prose-sm">
+                    ${d.parse(ref.content)}
+                </div>
+                ${ref.tags.length ? `
+                <div class="wiki-tags">
+                    ${ref.tags.map((t) => `<span class="wiki-tag">${t}</span>`).join("")}
+                </div>` : ""}
+            </div>
+        `;
+    this.contentRef = html;
+    this.viewMode = "reference";
+  },
   parseMarkdown(raw2) {
     const renderer = new d.Renderer;
     renderer.heading = function({ tokens, depth, raw: raw3 }) {
@@ -5274,7 +5311,16 @@ var doc_viewer_default = () => ({
         slug = `section-${Math.random().toString(36).substr(2, 9)}`;
       return `<h${depth} id="${slug}">${text}</h${depth}>`;
     };
-    return d.parse(raw2, { renderer });
+    let html = d.parse(raw2, { renderer });
+    if (this.references) {
+      html = html.replace(/\b([A-Z]{2,}-\d+|[a-z]+-[a-z]+-\d+)\b/g, (match) => {
+        if (this.references[match]) {
+          return `<a href="#" class="wiki-ref" data-ref="${match}">${match}</a>`;
+        }
+        return match;
+      });
+    }
+    return html;
   },
   generateToC(containerSelector) {
     const container = document.querySelector(containerSelector);
@@ -5320,6 +5366,12 @@ var doc_viewer_default = () => ({
     if (!link)
       return;
     const href = link.getAttribute("href");
+    if (link.classList.contains("wiki-ref")) {
+      e.preventDefault();
+      const refId = link.getAttribute("data-ref");
+      this.loadWikiRef(refId);
+      return;
+    }
     if (!href)
       return;
     if (href.endsWith(".md") && !href.startsWith("http")) {

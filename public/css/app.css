@@ -419,9 +419,6 @@
   .inline {
     display: inline;
   }
-  .inline-block {
-    display: inline-block;
-  }
   .inline-flex {
     display: inline-flex;
   }
@@ -455,17 +452,11 @@
   .h-6 {
     height: var(--spacing-6);
   }
-  .h-12 {
-    height: var(--spacing-12);
-  }
   .h-\[500px\] {
     height: 500px;
   }
   .h-\[600px\] {
     height: 600px;
-  }
-  .h-\[calc\(100vh-60px\)\] {
-    height: calc(100vh - 60px);
   }
   .h-\[calc\(100vh-100px\)\] {
     height: calc(100vh - 100px);
@@ -488,9 +479,6 @@
   .min-h-\[300px\] {
     min-height: 300px;
   }
-  .min-h-\[600px\] {
-    min-height: 600px;
-  }
   .w-3 {
     width: var(--spacing-3);
   }
@@ -506,9 +494,6 @@
   .w-48 {
     width: calc(var(--spacing) * 48);
   }
-  .w-64 {
-    width: calc(var(--spacing) * 64);
-  }
   .w-80 {
     width: calc(var(--spacing) * 80);
   }
@@ -520,9 +505,6 @@
   }
   .max-w-6xl {
     max-width: var(--container-6xl);
-  }
-  .max-w-7xl {
-    max-width: var(--container-7xl);
   }
   .max-w-\[65ch\] {
     max-width: 65ch;
@@ -790,9 +772,6 @@
   .border-gray-300 {
     border-color: var(--color-gray-300);
   }
-  .border-red-200 {
-    border-color: var(--color-red-200);
-  }
   .border-red-500 {
     border-color: var(--color-red-500);
   }
@@ -937,9 +916,6 @@
   .pb-6 {
     padding-bottom: var(--spacing-6);
   }
-  .pb-8 {
-    padding-bottom: var(--spacing-8);
-  }
   .pl-2 {
     padding-left: var(--spacing-2);
   }
@@ -957,10 +933,6 @@
   }
   .font-mono {
     font-family: var(--font-mono);
-  }
-  .text-2xl {
-    font-size: var(--text-2xl);
-    line-height: var(--tw-leading, var(--text-2xl--line-height));
   }
   .text-3xl {
     font-size: var(--text-3xl);
@@ -1053,9 +1025,6 @@
   }
   .text-red-500 {
     color: var(--color-red-500);
-  }
-  .text-red-600 {
-    color: var(--color-red-600);
   }
   .text-red-700 {
     color: var(--color-red-700);
@@ -1373,11 +1342,6 @@
   .md\:grid-cols-4 {
     @media (width >= 48rem) {
       grid-template-columns: repeat(4, minmax(0, 1fr));
-    }
-  }
-  .md\:grid-cols-\[250px_1fr\] {
-    @media (width >= 48rem) {
-      grid-template-columns: 250px 1fr;
     }
   }
   .md\:flex-row {

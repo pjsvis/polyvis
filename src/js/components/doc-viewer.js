@@ -16,15 +16,36 @@ export default () => ({
     contentRef: '',
     activeDoc: null,
 
+    references: {}, // Lookup table for Wiki Refs
+
     async init() {
         try {
-            this.docs = await (await fetch('/index.json')).json();
-            // Load first doc by default if available
-            if (this.docs.length > 0) {
+            // Parallel fetch for speed
+            const [indexRes, refsRes] = await Promise.all([
+                fetch('/index.json'),
+                fetch('/data/references.json')
+            ]);
+
+            this.docs = await indexRes.json();
+
+            if (refsRes.ok) {
+                this.references = await refsRes.json();
+            } else {
+                console.warn("References not found, wiki-linking disabled.");
+            }
+
+            // Check URL params for initial file
+            const params = new URLSearchParams(window.location.search);
+            const initialFile = params.get('file');
+
+            if (initialFile) {
+                this.loadMain(initialFile);
+            } else if (this.docs.length > 0) {
+                // Default to first doc
                 this.loadMain(this.docs[0].file);
             }
         } catch (e) {
-            console.error("Failed to load index.json", e);
+            console.error("Failed to load initial data", e);
         }
     },
 
@@ -67,6 +88,33 @@ export default () => ({
         this.contentRef = '';
     },
 
+    // Load a Wiki Reference into the RHS
+    loadWikiRef(refId) {
+        const ref = this.references[refId];
+        if (!ref) return;
+
+        // Render the Reference Card
+        const html = `
+            <div class="wiki-card">
+                <div class="wiki-header">
+                    <span class="wiki-type">${ref.type}</span>
+                    <h1 class="wiki-title">${ref.title}</h1>
+                    <div class="wiki-meta">ID: ${ref.id}</div>
+                </div>
+                <div class="wiki-content prose prose-sm">
+                    ${marked.parse(ref.content)}
+                </div>
+                ${ref.tags.length ? `
+                <div class="wiki-tags">
+                    ${ref.tags.map(t => `<span class="wiki-tag">${t}</span>`).join('')}
+                </div>` : ''}
+            </div>
+        `;
+
+        this.contentRef = html;
+        this.viewMode = 'reference';
+    },
+
     // --- Helpers ---
 
     parseMarkdown(raw) {
@@ -79,7 +127,24 @@ export default () => ({
             if (!slug) slug = `section-${Math.random().toString(36).substr(2, 9)}`;
             return `<h${depth} id="${slug}">${text}</h${depth}>`;
         };
-        return marked.parse(raw, { renderer });
+
+        // 1. Parse Markdown to HTML
+        let html = marked.parse(raw, { renderer });
+
+        // 2. Auto-Link Wiki References (Regex Post-Processing)
+        // Pattern: Matches OH-XXX, COG-XXX, TERM-XXX, etc.
+        // We only link if the ID exists in this.references
+        if (this.references) {
+            html = html.replace(/\b([A-Z]{2,}-\d+|[a-z]+-[a-z]+-\d+)\b/g, (match) => {
+                // Check exact match or case-insensitive match if needed
+                if (this.references[match]) {
+                    return `<a href="#" class="wiki-ref" data-ref="${match}">${match}</a>`;
+                }
+                return match;
+            });
+        }
+
+        return html;
     },
 
     generateToC(containerSelector) {
@@ -136,6 +201,15 @@ export default () => ({
         if (!link) return;
 
         const href = link.getAttribute('href');
+
+        // Wiki Reference?
+        if (link.classList.contains('wiki-ref')) {
+            e.preventDefault();
+            const refId = link.getAttribute('data-ref');
+            this.loadWikiRef(refId);
+            return;
+        }
+
         if (!href) return;
 
         // Internal Markdown Link? (Simple check: ends with .md and not external)
