@@ -455,6 +455,9 @@
   .h-6 {
     height: var(--spacing-6);
   }
+  .h-12 {
+    height: var(--spacing-12);
+  }
   .h-\[500px\] {
     height: 500px;
   }
@@ -502,6 +505,9 @@
   }
   .w-48 {
     width: calc(var(--spacing) * 48);
+  }
+  .w-64 {
+    width: calc(var(--spacing) * 64);
   }
   .w-80 {
     width: calc(var(--spacing) * 80);
@@ -793,9 +799,6 @@
   .border-surface-2 {
     border-color: var(--color-surface-2);
   }
-  .\!bg-gray-200 {
-    background-color: var(--color-gray-200) !important;
-  }
   .\!bg-white {
     background-color: var(--color-white) !important;
   }
@@ -1014,15 +1017,6 @@
   }
   .\!text-black {
     color: var(--color-black) !important;
-  }
-  .\!text-gray-500 {
-    color: var(--color-gray-500) !important;
-  }
-  .\!text-gray-600 {
-    color: var(--color-gray-600) !important;
-  }
-  .\!text-gray-800 {
-    color: var(--color-gray-800) !important;
   }
   .text-\[var\(--primary\)\] {
     color: var(--primary);
@@ -2327,7 +2321,7 @@ html[data-theme="dark"] {
   --surface-hover: #3c4043;
   --border-base: #5f6368;
 }
-@layer base, layout, components, utilities;
+@layer base, layout, components, graph, utilities;
 @layer base {
   :where(html) {
     --csstools-color-scheme--light: initial;
@@ -3192,6 +3186,42 @@ html[data-theme="dark"] {
     flex-direction: column;
     overflow: hidden;
   }
+}
+.explorer-sidebar-left {
+  width: var(--sidebar-width-left);
+  background-color: var(--surface-2);
+  border-color: var(--border-base);
+}
+.explorer-sidebar-right {
+  width: var(--sidebar-width-right);
+  background-color: var(--surface-panel);
+  border-color: var(--border-base);
+  color: var(--text-1);
+}
+.explorer-graph-panel {
+  --graph-bg: #e5e7eb;
+  --graph-edge: #ffffff;
+  background-color: #e5e7eb;
+}
+#sigma-container {
+  background-color: inherit;
+}
+.sigma-zoom-controls {
+  --zoom-bg: #ffffff;
+  --zoom-text: #202124;
+  --zoom-border: #dadce0;
+  background-color: var(--zoom-bg);
+  border-color: var(--zoom-border);
+  color: var(--zoom-text);
+  box-shadow: var(--shadow-2);
+}
+.sigma-zoom-btn {
+  background-color: var(--zoom-bg);
+  color: var(--zoom-text);
+  border-color: var(--zoom-border);
+}
+.sigma-zoom-btn:hover {
+  background-color: var(--surface-2);
 }
 @layer utilities {
   .stack-large>*+* {

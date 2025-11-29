@@ -4,8 +4,7 @@ export default () => ({
     links: [
         { name: "HQ", href: "/", icon: "home" },
         { name: "Docs", href: "/docs/", icon: "book-open" },
-        { name: "Explorer", href: "/explorer/", icon: "compass" },
-        { name: "Sigma Explorer", href: "/sigma-explorer/", icon: "layout-dashboard" },
+        { name: "Graph Explorer", href: "/sigma-explorer/", icon: "layout-dashboard" },
     ],
     init() {
         this.$nextTick(() => {

@@ -1,6 +1,6 @@
 /**
  * Theme Manager
- * Handles toggling between Light, Dark, and System themes.
+ * Handles toggling between Light and Dark themes.
  * Persists preference to localStorage.
  */
 

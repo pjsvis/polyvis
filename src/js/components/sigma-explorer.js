@@ -164,7 +164,7 @@ export default () => ({
                             type: "arrow",
                             label: row.relation,
                             size: 2,
-                            color: "#e5e5e5",
+                            color: getComputedStyle(document.documentElement).getPropertyValue('--graph-edge').trim() || '#ffffff',
                         });
                     }
                 }

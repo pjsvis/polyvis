@@ -84,6 +84,8 @@
     --radius-component: 8px;
     /* Slightly rounder */
 
+    /* Graph variables moved to src/css/layers/graph.css for isolation */
+
     /* Layout Dimensions */
     --width-sidebar-base: var(--size-content-2);
     --sidebar-width-left: var(--width-sidebar-base);

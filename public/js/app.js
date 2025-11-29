@@ -3197,8 +3197,7 @@ var nav_default = () => ({
   links: [
     { name: "HQ", href: "/", icon: "home" },
     { name: "Docs", href: "/docs/", icon: "book-open" },
-    { name: "Explorer", href: "/explorer/", icon: "compass" },
-    { name: "Sigma Explorer", href: "/sigma-explorer/", icon: "layout-dashboard" }
+    { name: "Graph Explorer", href: "/sigma-explorer/", icon: "layout-dashboard" }
   ],
   init() {
     this.$nextTick(() => {
@@ -3518,7 +3517,7 @@ var sigma_explorer_default = () => ({
               type: "arrow",
               label: row.relation,
               size: 2,
-              color: "#e5e5e5"
+              color: getComputedStyle(document.documentElement).getPropertyValue("--graph-edge").trim() || "#ffffff"
             });
           }
         }

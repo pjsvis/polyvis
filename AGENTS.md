@@ -131,3 +131,14 @@ This document outlines the core operational protocols governing the actions of a
     1.  **Commands:** Always use `bun run`, `bun install`, `bun add`.
     2.  **Scripts:** Ensure all `package.json` scripts are compatible with Bun.
     3.  **Performance:** Leverage Bun's speed for builds and dev servers.
+
+## 17. BCP: Browser Capabilities Protocol
+
+- **Principle:** Agents must explicitly verify browser capabilities and network access boundaries before making assumptions about the environment.
+- **Context:**
+    - `getComputedStyle` is permitted on `localhost` without user prompts.
+    - External domains (e.g., `example.com`) may be accessible despite `browserAllowList.txt` restrictions.
+- **Workflow:**
+    1.  **Verify:** When using browser APIs, verify they work as expected in the current environment.
+    2.  **Monitor:** Keep a vigilant eye on network requests. If external access is detected where it should be restricted, note it.
+    3.  **No Assumptions:** Do not assume `browserAllowList.txt` guarantees isolation.

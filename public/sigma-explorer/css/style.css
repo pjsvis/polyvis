@@ -1,7 +1,7 @@
 #sigma-container {
   width: 100%;
   height: 800px;
-  background-color: white;
+  /* background-color: white; Removed to allow theme variable */
   border: 1px solid black;
   box-shadow: 8px 8px 0px rgba(0, 0, 0, 0.1);
   position: relative;

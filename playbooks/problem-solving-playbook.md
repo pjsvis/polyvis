@@ -49,3 +49,15 @@ container.addEventListener("mousedown", (e) => {
 -   **Example:** A Table of Contents was invisible/scrunching. We removed `truncate`, `leading-relaxed`, and complex hover effects.
 -   **Result:** The text became readable immediately. We could then decide if the "fancy" stuff was even necessary (it wasn't).
 -   **Rule:** If you need 5 lines of CSS to make a list item readable, you are over-engineering.
+
+### 5. The "Isolation Test" Pattern (Clean Room Debugging)
+**Context:** When a component works in theory (or in a different context) but fails in the main application, and the cause is obscured by the complexity of the full system (e.g., global styles, complex bundles, script interference).
+
+**The Workflow:**
+1.  **Stop Debugging the Monolith:** Do not waste hours fighting the full application bundle.
+2.  **Create a "Clean Room":** Create a temporary, minimal HTML file (e.g., `isolation-test.html`) and a minimal entry point (e.g., `test.css` or `test.js`).
+3.  **Import One Thing:** Import *only* the component or style you are trying to fix.
+4.  **Verify:** Does it work in isolation?
+    -   **Yes:** The component is fine. The bug is in the *integration* (e.g., build process, specificity clash, script conflict).
+    -   **No:** The component is broken. Fix it here, where the feedback loop is fast.
+5.  **Re-integrate:** Once fixed in isolation, move it back to the main app. If it breaks again, you know exactly where to look (the integration point).

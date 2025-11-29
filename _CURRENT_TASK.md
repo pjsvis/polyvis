@@ -1,14 +1,20 @@
     -   Automated builds (`build:js`, `build:css`) passed.
     -   Manual verification pending (post-reboot).
 
-**N# Current Task
+# Current Task: CSS Isolation & Tailwind v4
 
-**Status:** Idle / Ready for Next Task
+**Status:** Complete
+**Objective:** Isolate `sigma-explorer` styles to prevent theme bleeding and ensure consistent graph visualization.
 
-## Objective
-The CSS refactor (Magic Numbers, Control Panel, Container Queries) and Front Page Theme Fix are complete.
+## Checklist
+- [x] Research Tailwind v4 "CSS-first" configuration
+- [x] Create `playbooks/tailwind-v4-playbook.md`
+- [x] Refactor `src/css/layers/graph.css` for isolation
+- [x] Remove inline styles from `public/sigma-explorer/index.html`
+- [x] Fix bundling issue (Direct import vs Layer wrapper)
+- [x] Verify isolation on `localhost:3000`
 
-# Current Task: Emulate AntiGravity Design (Typography & Colors)
+# Previous Task: Emulate AntiGravity Design (Typography & Colors)
 
 **Objective**: Adopt the visual language (fonts, colors) of Google's AntiGravity agent to improve clarity and aesthetics.
 **Mode**: Design / Implementation.
