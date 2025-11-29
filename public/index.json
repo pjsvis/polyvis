@@ -38,5 +38,9 @@
     {
         "title": "09. Performance Review",
         "file": "perf-review.md"
+    },
+    {
+        "title": "10. Bestiary of Tendencies",
+        "file": "bestiary-of-substrate-tendencies.md"
     }
 ]
