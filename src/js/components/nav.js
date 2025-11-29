@@ -3,11 +3,9 @@ import { toggleTheme } from '../utils/theme.js';
 export default () => ({
     links: [
         { name: "HQ", href: "/", icon: "home" },
-        { name: "Visualizer", href: "/graph/", icon: "activity" },
         { name: "Docs", href: "/docs/", icon: "book-open" },
         { name: "Explorer", href: "/explorer/", icon: "compass" },
         { name: "Sigma Explorer", href: "/sigma-explorer/", icon: "layout-dashboard" },
-        { name: "Source", href: "https://github.com/pjsvis/polyvis", icon: "github", target: "_blank" },
     ],
     init() {
         this.$nextTick(() => {
@@ -36,7 +34,7 @@ export default () => ({
             .join("");
 
         return `
-        <nav class="nav-wrapper">
+        <nav class="nav-wrapper" style="max-width: 100%;">
             <div style="display: flex; align-items: center; gap: 2rem; width: 100%; justify-content: space-between;">
                 <div style="display: flex; align-items: center; gap: 2rem;">
                     <a href="/" class="nav-brand">PolyVis</a>
@@ -44,10 +42,12 @@ export default () => ({
                         ${linksHTML}
                     </div>
                 </div>
-                <a href="#" id="nav-theme-toggle" onclick="window.toggleTheme(); return false;" class="nav-item">
-                    <i data-lucide="sun" style="width: var(--font-size-sm); height: var(--font-size-sm);"></i>
-                    Theme
-                </a>
+                <div style="display: flex; align-items: center; gap: 1.5rem;">
+                    <a href="#" id="nav-theme-toggle" onclick="window.toggleTheme(); return false;" class="nav-item">
+                        <i data-lucide="sun" style="width: var(--font-size-sm); height: var(--font-size-sm);"></i>
+                        Theme
+                    </a>
+                </div>
             </div>
         </nav>
         `;

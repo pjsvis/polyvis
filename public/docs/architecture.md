@@ -42,3 +42,8 @@ digraph Architecture {
     Docs -> Apache;
 }
 ```
+
+
+## Source Code
+
+[GitHub Repository](https://github.com/pjsvis/polyvis)

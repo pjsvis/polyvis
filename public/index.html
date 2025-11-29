@@ -7,6 +7,15 @@
   <title>PolyVis | Structural Information Engineering</title>
   <link rel="stylesheet" href="/css/app.css" />
   <script src="/js/app.js" defer></script>
+  <!-- Inline Theme Init to prevent FOUC -->
+  <script>
+    (function () {
+      const stored = localStorage.getItem('polyvis-theme');
+      if (stored) {
+        document.documentElement.setAttribute('data-theme', stored);
+      }
+    })();
+  </script>
   <script type="module" src="/js/utils/theme.js"></script>
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
@@ -34,10 +43,6 @@
         <a href="/" class="nav-item">
           <i data-lucide="home" style="width: var(--font-size-sm); height: var(--font-size-sm);"></i>
           HQ
-        </a>
-        <a href="/graph/" class="nav-item">
-          <i data-lucide="activity" style="width: var(--font-size-sm); height: var(--font-size-sm);"></i>
-          Visualizer
         </a>
         <a href="/docs/" class="nav-item">
           <i data-lucide="book-open" style="width: var(--font-size-sm); height: var(--font-size-sm);"></i>

@@ -115,10 +115,10 @@
 @media (prefers-color-scheme: dark) {
     :root {
         /* App Variable Overrides (AntiGravity / Google Dark) */
-        --primary: #202124;
-        /* Main Background (Deep Gray) */
-        --secondary: #ffffff;
-        /* Primary Text (Crisp White) */
+        --primary: #ffffff;
+        /* Borders/Text (White) */
+        --secondary: #202124;
+        /* Backgrounds (Dark Gray) */
         --accent: #303134;
         /* Secondary Background / Sidebar */
 
@@ -181,8 +181,8 @@ html[data-theme="dark"] {
     color-scheme: dark;
 
     /* App Variable Overrides */
-    --primary: #202124;
-    --secondary: #ffffff;
+    --primary: #ffffff;
+    --secondary: #202124;
     --accent: #303134;
 
     /* Open Props Dark Mode Overrides */

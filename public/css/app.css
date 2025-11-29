@@ -293,6 +293,9 @@
   .top-4 {
     top: var(--spacing-4);
   }
+  .top-20 {
+    top: calc(var(--spacing) * 20);
+  }
   .top-full {
     top: 100%;
   }
@@ -331,6 +334,9 @@
   }
   .z-20 {
     z-index: 20;
+  }
+  .z-30 {
+    z-index: 30;
   }
   .z-40 {
     z-index: 40;
@@ -2264,8 +2270,8 @@
 }
 @media (prefers-color-scheme: dark) {
   :root {
-    --primary: #202124;
-    --secondary: #ffffff;
+    --primary: #ffffff;
+    --secondary: #202124;
     --accent: #303134;
     --link: #8ab4f8;
     --link-visited: #c58af9;
@@ -2301,8 +2307,8 @@ html[data-theme="light"] {
 }
 html[data-theme="dark"] {
   color-scheme: dark;
-  --primary: #202124;
-  --secondary: #ffffff;
+  --primary: #ffffff;
+  --secondary: #202124;
   --accent: #303134;
   --link: #8ab4f8;
   --link-visited: #c58af9;

@@ -17,11 +17,7 @@ var setTheme = (theme) => {
 };
 var toggleTheme = () => {
   const current = document.documentElement.getAttribute("data-theme") || "light";
-  let next = "light";
-  if (current === "light")
-    next = "dark";
-  else
-    next = "light";
+  const next = current === "dark" ? "light" : "dark";
   console.log("Theme toggled to:", next);
   setTheme(next);
   return next;
