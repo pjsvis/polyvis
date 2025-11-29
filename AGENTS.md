@@ -123,3 +123,11 @@ This document outlines the core operational protocols governing the actions of a
     3.  **Iterate:** Apply one change at a time (e.g., "Just the spacing", then "Just the font size").
     4.  **Verify:** Visually confirm each micro-step before proceeding. Do not batch 10 design changes without looking.
     5.  **Control:** Use `theme.css` as the mixing board. Tweak variables to find the "sweet spot" without touching the DOM.
+
+## 16. BFP: Bun First Protocol
+
+-   **Principle:** Bun is the designated runtime and package manager. `npm`, `yarn`, or `pnpm` are prohibited unless strictly necessary.
+-   **Workflow:**
+    1.  **Commands:** Always use `bun run`, `bun install`, `bun add`.
+    2.  **Scripts:** Ensure all `package.json` scripts are compatible with Bun.
+    3.  **Performance:** Leverage Bun's speed for builds and dev servers.

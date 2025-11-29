@@ -10,16 +10,17 @@
     gap: var(--size-2);
     background-color: var(--secondary);
     color: var(--primary);
-    border: var(--border-base) solid var(--primary);
-    padding: var(--size-2) var(--size-4);
+    border: var(--border-size-2) solid var(--primary);
+    padding: var(--size-3) var(--size-6);
     font-family: var(--font-mono);
     text-transform: uppercase;
-    font-size: var(--font-size-sm);
-    /* letter-spacing removed */
+    font-size: var(--font-size-base);
+    font-weight: 700;
     cursor: pointer;
-    box-shadow: var(--size-1) var(--size-1) 0px 0px var(--black);
+    box-shadow: var(--size-2) var(--size-2) 0px 0px var(--primary);
     transition: all 0.1s ease;
     text-decoration: none;
+    border-radius: 0;
 }
 
 /* ... existing hover/active styles ... */
@@ -29,7 +30,7 @@
     font-weight: 700;
     text-transform: uppercase;
     text-decoration: none;
-    color: var(--primary);
+    color: var(--text-1);
     font-family: var(--font-mono);
     /* Unified font */
     /* letter-spacing removed */
@@ -110,11 +111,18 @@
 .nav-item:hover,
 .nav-item.active {
     text-decoration: underline;
-    color: var(--primary);
+    color: var(--text-1);
 }
 
 .nav-item.active {
     font-weight: bold;
+}
+
+.home-nav {
+    display: flex;
+    gap: var(--size-6);
+    flex-wrap: wrap;
+    justify-content: center;
 }
 
 /* Sidenotes */

@@ -8,14 +8,16 @@
     /* 
    * RATIONALIZATION: SPACING
    * Replacing the linear 0.25rem scale with Open Props relative sizing.
+   * Anchored on 4px grid.
    */
     --spacing-0: var(--size-00);
-    --spacing-1: var(--size-1);
-    --spacing-2: var(--size-2);
-    --spacing-3: var(--size-3);
-    --spacing-4: var(--size-4);
-    --spacing-5: var(--size-5);
-    --spacing-6: var(--size-6);
+    --spacing-1: 4px;
+    --spacing-2: 8px;
+    --spacing-3: 12px;
+    --spacing-4: 16px;
+    /* Standard Gap */
+    --spacing-5: 20px;
+    --spacing-6: 24px;
     --spacing-7: var(--size-7);
     --spacing-8: var(--size-8);
     --spacing-9: var(--size-9);
@@ -45,12 +47,12 @@
     --font-sans: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     --font-mono: "JetBrains Mono", "Roboto Mono", "Fira Code", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 
-    --font-size-xs: var(--font-size-00);
-    --font-size-sm: var(--font-size-0);
-    --font-size-base: var(--font-size-1);
-    --font-size-lg: var(--font-size-2);
-    --font-size-xl: var(--font-size-3);
-    --font-size-2xl: var(--font-size-4);
+    --font-size-xs: 0.75rem;
+    --font-size-sm: 0.875rem;
+    --font-size-base: 1rem;
+    --font-size-lg: 1.125rem;
+    --font-size-xl: 1.25rem;
+    --font-size-2xl: 1.5rem;
     --font-size-fluid-1: var(--font-size-fluid-1);
     --font-size-fluid-2: var(--font-size-fluid-2);
     --font-size-fluid-3: var(--font-size-fluid-3);
@@ -87,9 +89,7 @@
     --sidebar-width-left: var(--width-sidebar-base);
     --sidebar-width-right: var(--width-sidebar-base);
     --sidebar-content-align: stretch;
-    /* flex-start (left), flex-end (right), center, stretch */
     --sidebar-padding: 0;
-    /* Default to 0, let children handle or override */
 
     --header-height: auto;
     --footer-height: var(--size-10);
@@ -103,10 +103,8 @@
     /* TOC Specifics */
     --toc-gap-section: var(--size-4);
     --toc-gap-item: var(--size-2);
-    /* Increased spacing for sub-items */
     --toc-indent: 1rem;
     --scroll-offset: var(--size-5);
-    /* Reduced breathing room */
 
     /* Scrollbar */
     --scrollthumb-color: #dadce0;
@@ -117,43 +115,45 @@
 @media (prefers-color-scheme: dark) {
     :root {
         /* App Variable Overrides (AntiGravity / Google Dark) */
-        --primary: var(--gray-0);
-        /* Text: High Contrast (#f8f9fa) */
-        --secondary: var(--gray-9);
-        /* Background: Deep (#202124) */
-        --accent: var(--gray-8);
-        /* Sidebar: Slightly lighter (#3c4043) */
+        --primary: #202124;
+        /* Main Background (Deep Gray) */
+        --secondary: #ffffff;
+        /* Primary Text (Crisp White) */
+        --accent: #303134;
+        /* Secondary Background / Sidebar */
 
         /* Open Props Dark Mode Overrides */
-        --link: var(--blue-4);
-        /* Google Blue (#8ab4f8) */
-        --link-visited: var(--violet-4);
+        --link: #8ab4f8;
+        /* Google Blue (Links) */
+        --link-visited: #c58af9;
+        /* Google Violet (Visited) */
 
-        --text-1: var(--gray-0);
+        --text-1: #ffffff;
         /* Primary Text */
-        --text-2: var(--gray-3);
+        --text-2: #bdc1c6;
         /* Secondary Text */
 
-        --surface-1: var(--gray-9);
-        /* Main BG */
-        --surface-2: var(--gray-8);
-        /* Panels */
-        --surface-3: var(--gray-7);
+        --surface-1: #202124;
+        /* App Background */
+        --surface-2: #303134;
+        /* Card / Panel Background */
+        --surface-3: #3c4043;
         /* Hover */
-        --surface-4: var(--gray-6);
+        --surface-4: #4d5156;
         /* Active */
 
-        --scrollthumb-color: var(--gray-7);
-        --scrollthumb-hover-color: var(--gray-6);
+        --scrollthumb-color: #5f6368;
+        --scrollthumb-hover-color: #9aa0a6;
 
         --shadow-strength: 10%;
         --shadow-color: 220 40% 2%;
 
         /* Component Variables */
-        --code-bg: var(--gray-8);
-        --surface-panel: var(--gray-8);
-        --surface-hover: var(--gray-7);
-        --border-base: var(--gray-7);
+        --code-bg: #303134;
+        --surface-panel: #303134;
+        --surface-hover: #3c4043;
+        --border-base: #5f6368;
+        /* Subtle Borders */
     }
 }
 
@@ -181,31 +181,31 @@ html[data-theme="dark"] {
     color-scheme: dark;
 
     /* App Variable Overrides */
-    --primary: var(--gray-0);
-    --secondary: var(--gray-9);
-    --accent: var(--gray-8);
+    --primary: #202124;
+    --secondary: #ffffff;
+    --accent: #303134;
 
     /* Open Props Dark Mode Overrides */
-    --link: var(--blue-4);
-    --link-visited: var(--violet-4);
+    --link: #8ab4f8;
+    --link-visited: #c58af9;
 
-    --text-1: var(--gray-0);
-    --text-2: var(--gray-3);
+    --text-1: #ffffff;
+    --text-2: #bdc1c6;
 
-    --surface-1: var(--gray-9);
-    --surface-2: var(--gray-8);
-    --surface-3: var(--gray-7);
-    --surface-4: var(--gray-6);
+    --surface-1: #202124;
+    --surface-2: #303134;
+    --surface-3: #3c4043;
+    --surface-4: #4d5156;
 
-    --scrollthumb-color: var(--gray-7);
-    --scrollthumb-hover-color: var(--gray-6);
+    --scrollthumb-color: #5f6368;
+    --scrollthumb-hover-color: #9aa0a6;
 
     --shadow-strength: 10%;
     --shadow-color: 220 40% 2%;
 
     /* Component Variables */
-    --code-bg: var(--gray-8);
-    --surface-panel: var(--gray-8);
-    --surface-hover: var(--gray-7);
-    --border-base: var(--gray-7);
+    --code-bg: #303134;
+    --surface-panel: #303134;
+    --surface-hover: #3c4043;
+    --border-base: #5f6368;
 }

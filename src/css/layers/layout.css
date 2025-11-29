@@ -103,6 +103,23 @@
     display: none;
 }
 
+.home-layout .app-header {
+    background-color: transparent;
+    border-bottom: none;
+}
+
+.home-layout .nav-wrapper {
+    max-width: var(--width-home-box);
+}
+
+.home-layout .app-main {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: var(--size-2);
+}
+
 /* ... home layout ... */
 
 /* Page Layout (Docs, etc) - Enable Scrolling */

@@ -18,35 +18,7 @@
     <header class="app-header">
       <nav class="nav-wrapper">
         <div style="display: flex; align-items: center; gap: 2rem; width: 100%; justify-content: space-between;">
-          <div style="display: flex; align-items: center; gap: 2rem;">
-            <a href="/" class="nav-brand">PolyVis</a>
-            <div class="nav-links">
-              <a href="/" class="nav-item">
-                <i data-lucide="home" style="width: var(--font-size-sm); height: var(--font-size-sm);"></i>
-                HQ
-              </a>
-              <a href="/graph/" class="nav-item">
-                <i data-lucide="activity" style="width: var(--font-size-sm); height: var(--font-size-sm);"></i>
-                Visualizer
-              </a>
-              <a href="/docs/" class="nav-item">
-                <i data-lucide="book-open" style="width: var(--font-size-sm); height: var(--font-size-sm);"></i>
-                Docs
-              </a>
-              <a href="/explorer/" class="nav-item">
-                <i data-lucide="compass" style="width: var(--font-size-sm); height: var(--font-size-sm);"></i>
-                Explorer
-              </a>
-              <a href="/sigma-explorer/" class="nav-item">
-                <i data-lucide="layout-dashboard" style="width: var(--font-size-sm); height: var(--font-size-sm);"></i>
-                Sigma Explorer
-              </a>
-              <a href="https://github.com/pjsvis/polyvis" target="_blank" class="nav-item">
-                <i data-lucide="github" style="width: var(--font-size-sm); height: var(--font-size-sm);"></i>
-                Source
-              </a>
-            </div>
-          </div>
+          <a href="/" class="nav-brand">PolyVis</a>
           <a href="#" id="nav-theme-toggle" onclick="window.toggleTheme(); return false;" class="nav-item">
             <i data-lucide="sun" style="width: var(--font-size-sm); height: var(--font-size-sm);"></i>
             Theme
@@ -58,6 +30,28 @@
     <aside class="app-sidebar-left"></aside>
 
     <main class="app-main">
+      <div class="home-nav">
+        <a href="/" class="nav-item">
+          <i data-lucide="home" style="width: var(--font-size-sm); height: var(--font-size-sm);"></i>
+          HQ
+        </a>
+        <a href="/graph/" class="nav-item">
+          <i data-lucide="activity" style="width: var(--font-size-sm); height: var(--font-size-sm);"></i>
+          Visualizer
+        </a>
+        <a href="/docs/" class="nav-item">
+          <i data-lucide="book-open" style="width: var(--font-size-sm); height: var(--font-size-sm);"></i>
+          Docs
+        </a>
+        <a href="/explorer/" class="nav-item">
+          <i data-lucide="compass" style="width: var(--font-size-sm); height: var(--font-size-sm);"></i>
+          Explorer
+        </a>
+        <a href="/sigma-explorer/" class="nav-item">
+          <i data-lucide="layout-dashboard" style="width: var(--font-size-sm); height: var(--font-size-sm);"></i>
+          Sigma Explorer
+        </a>
+      </div>
       <div class="container-box home-box stack-large">
         <h1 class="home-title">PolyVis</h1>
         <div class="home-subtitle">Structural Information Engineering</div>
@@ -83,6 +77,12 @@
   </div>
 
 
+  <script>
+    // Initialize Lucide Icons
+    if (window.lucide) {
+      window.lucide.createIcons();
+    }
+  </script>
 </body>
 
 </html>

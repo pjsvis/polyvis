@@ -16,12 +16,12 @@ var setTheme = (theme) => {
   }
 };
 var toggleTheme = () => {
-  const current = document.documentElement.getAttribute("data-theme") || "system";
+  const current = document.documentElement.getAttribute("data-theme") || "light";
   let next = "light";
   if (current === "light")
     next = "dark";
-  else if (current === "dark")
-    next = "system";
+  else
+    next = "light";
   console.log("Theme toggled to:", next);
   setTheme(next);
   return next;
