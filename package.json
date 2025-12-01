@@ -16,7 +16,8 @@
     "build:css": "tailwindcss -i ./src/css/main.css -o ./public/css/app.css",
     "watch:css": "tailwindcss -i ./src/css/main.css -o ./public/css/app.css --watch",
     "build:js": "bun build ./src/js/app.js ./src/js/utils/theme.js --outdir ./public/js",
-    "watch:js": "bun build ./src/js/app.js ./src/js/utils/theme.js --outdir ./public/js --watch"
+    "watch:js": "bun build ./src/js/app.js ./src/js/utils/theme.js --outdir ./public/js --watch",
+    "build:data": "bun run scripts/build_data.ts && bun run scripts/build_experience.ts"
   },
   "peerDependencies": {
     "typescript": "^5"

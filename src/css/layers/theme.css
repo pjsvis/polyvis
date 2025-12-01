@@ -56,6 +56,12 @@
     --font-size-fluid-1: var(--font-size-fluid-1);
     --font-size-fluid-2: var(--font-size-fluid-2);
     --font-size-fluid-3: var(--font-size-fluid-3);
+
+    /* HEADING SIZES */
+    --font-size-h1: var(--font-size-2xl);
+    --font-size-h2: var(--font-size-xl);
+    --font-size-h3: var(--font-size-lg);
+    --font-size-h4: var(--font-size-base);
 }
 
 :root {
@@ -107,6 +113,11 @@
     --toc-gap-item: var(--size-2);
     --toc-indent: 1rem;
     --scroll-offset: var(--size-5);
+
+    /* Markdown / IDE Style */
+    --markdown-font-size: 14px;
+    --markdown-line-height: 1.2;
+
 
     /* Scrollbar */
     --scrollthumb-color: #dadce0;

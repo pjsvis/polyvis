@@ -18,12 +18,17 @@ export default () => ({
 
     references: {}, // Lookup table for Wiki Refs
 
+    experience: [],
+    playbooks: [],
+    debriefs: [],
+
     async init() {
         try {
             // Parallel fetch for speed
-            const [indexRes, refsRes] = await Promise.all([
+            const [indexRes, refsRes, expRes] = await Promise.all([
                 fetch('/index.json'),
-                fetch('/data/references.json')
+                fetch('/data/references.json'),
+                fetch('/data/experience.json')
             ]);
 
             this.docs = await indexRes.json();
@@ -32,6 +37,11 @@ export default () => ({
                 this.references = await refsRes.json();
             } else {
                 console.warn("References not found, wiki-linking disabled.");
+            }
+
+            if (expRes.ok) {
+                this.experience = await expRes.json();
+                this.processExperience();
             }
 
             // Check URL params for initial file
@@ -49,6 +59,28 @@ export default () => ({
         }
     },
 
+    processExperience() {
+        // Filter Playbooks
+        const playbooks = this.experience.filter(item => item.type === 'playbook');
+
+        // Filter Debriefs (Sort by date desc if possible, or just use order)
+        const debriefs = this.experience.filter(item => item.type === 'debrief');
+        // Sort debriefs by date descending
+        debriefs.sort((a, b) => {
+            if (a.date && b.date) return b.date.localeCompare(a.date);
+            return 0;
+        });
+
+        // Handle AGENTS.md (Protocol) - Prepend to Playbooks
+        const agents = this.experience.find(item => item.type === 'protocol');
+        if (agents) {
+            playbooks.unshift(agents);
+        }
+
+        this.playbooks = playbooks;
+        this.debriefs = debriefs;
+    },
+
     // --- Actions ---
 
     async loadMain(filename) {
@@ -58,11 +90,20 @@ export default () => ({
             this.activeDoc = filename;
 
             // Generate ToC after DOM update
+            // Generate ToC after DOM update
             this.$nextTick(() => {
                 this.generateToC('#main-content');
-                window.scrollTo(0, 0);
+                this.processVizDiagrams();
+
+                // Scroll main container to top
+                const main = document.querySelector('.app-main');
+                if (main) main.scrollTop = 0;
+
                 // Auto-switch to outline view on mobile or if preferred
-                this.navTab = 'outline';
+                // Small delay to allow for visual transition
+                // setTimeout(() => {
+                //     this.navTab = 'outline';
+                // }, 300);
             });
 
             // Reset View
@@ -78,6 +119,7 @@ export default () => ({
             const raw = await (await fetch(`/docs/${filename}`)).text();
             this.contentRef = this.parseMarkdown(raw);
             this.viewMode = 'reference';
+            this.processVizDiagrams();
         } catch (e) {
             console.error(`Failed to load ref ${filename}`, e);
         }
@@ -113,6 +155,7 @@ export default () => ({
 
         this.contentRef = html;
         this.viewMode = 'reference';
+        this.processVizDiagrams();
     },
 
     // --- Helpers ---
@@ -126,6 +169,41 @@ export default () => ({
             let slug = cleanText.toLowerCase().replace(/[^\w]+/g, '-').replace(/^-+|-+$/g, '');
             if (!slug) slug = `section-${Math.random().toString(36).substr(2, 9)}`;
             return `<h${depth} id="${slug}">${text}</h${depth}>`;
+        };
+
+        // Custom Code Renderer for DOT
+        renderer.code = function ({ text, lang, escaped }) {
+            if (lang === 'dot' || lang === 'graphviz') {
+                try {
+                    // Use Viz.js (assumed to be loaded globally via script tag in index.html)
+                    if (typeof Viz !== 'undefined') {
+                        const viz = new Viz();
+                        // We need to return a placeholder that we swap out, or render synchronously?
+                        // Viz.js 2.x is async. For simplicity in this synchronous renderer, 
+                        // we might need a synchronous version or a different approach.
+                        // However, the old viz.js (lite) was sync.
+                        // Let's check if we can use the global `Viz` function directly if it's the older version.
+
+                        // If we are using the version from the CDN in index.html (viz.js), it might be the older sync one or newer async.
+                        // Let's assume standard usage:
+                        return `<div class="viz-container" data-dot="${encodeURIComponent(text)}">Loading Diagram...</div>`;
+                    }
+                } catch (e) {
+                    console.error("DOT Render Error", e);
+                    return `<pre class="text-red-500">Error rendering DOT diagram</pre>`;
+                }
+            }
+            // Default behavior with Highlight.js
+            if (typeof hljs !== 'undefined') {
+                try {
+                    const language = lang && hljs.getLanguage(lang) ? lang : 'plaintext';
+                    const highlighted = hljs.highlight(text, { language }).value;
+                    return `<pre><code class="hljs language-${language}">${highlighted}</code></pre>`;
+                } catch (e) {
+                    console.warn("Highlight.js error", e);
+                }
+            }
+            return `<pre><code class="language-${lang}">${text}</code></pre>`;
         };
 
         // 1. Parse Markdown to HTML
@@ -144,7 +222,36 @@ export default () => ({
             });
         }
 
+        // 3. Post-process Viz.js diagrams
+        // We need to do this after the HTML is inserted into the DOM usually, but since we are returning HTML string,
+        // we can't easily wait for async Viz.js here.
+        // Instead, we'll rely on a nextTick handler in the component to find these containers and render them.
+        // See processVizDiagrams() method below.
+
         return html;
+    },
+
+    processVizDiagrams() {
+        this.$nextTick(() => {
+            const containers = document.querySelectorAll('.viz-container');
+            containers.forEach(container => {
+                const dot = decodeURIComponent(container.getAttribute('data-dot'));
+                if (typeof Viz !== 'undefined') {
+                    const viz = new Viz();
+                    viz.renderSVGElement(dot)
+                        .then(element => {
+                            container.innerHTML = '';
+                            container.appendChild(element);
+                            container.classList.remove('viz-container');
+                            container.classList.add('viz-rendered');
+                        })
+                        .catch(error => {
+                            console.error(error);
+                            container.innerHTML = `<pre class="text-red-500">Error: ${error.message}</pre>`;
+                        });
+                }
+            });
+        });
     },
 
     generateToC(containerSelector) {

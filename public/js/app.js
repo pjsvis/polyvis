@@ -5226,17 +5226,25 @@ var doc_viewer_default = () => ({
   contentRef: "",
   activeDoc: null,
   references: {},
+  experience: [],
+  playbooks: [],
+  debriefs: [],
   async init() {
     try {
-      const [indexRes, refsRes] = await Promise.all([
+      const [indexRes, refsRes, expRes] = await Promise.all([
         fetch("/index.json"),
-        fetch("/data/references.json")
+        fetch("/data/references.json"),
+        fetch("/data/experience.json")
       ]);
       this.docs = await indexRes.json();
       if (refsRes.ok) {
         this.references = await refsRes.json();
       } else {
         console.warn("References not found, wiki-linking disabled.");
+      }
+      if (expRes.ok) {
+        this.experience = await expRes.json();
+        this.processExperience();
       }
       const params = new URLSearchParams(window.location.search);
       const initialFile = params.get("file");
@@ -5249,6 +5257,21 @@ var doc_viewer_default = () => ({
       console.error("Failed to load initial data", e);
     }
   },
+  processExperience() {
+    const playbooks = this.experience.filter((item) => item.type === "playbook");
+    const debriefs = this.experience.filter((item) => item.type === "debrief");
+    debriefs.sort((a, b2) => {
+      if (a.date && b2.date)
+        return b2.date.localeCompare(a.date);
+      return 0;
+    });
+    const agents = this.experience.find((item) => item.type === "protocol");
+    if (agents) {
+      playbooks.unshift(agents);
+    }
+    this.playbooks = playbooks;
+    this.debriefs = debriefs;
+  },
   async loadMain(filename) {
     try {
       const raw2 = await (await fetch(`/docs/${filename}`)).text();
@@ -5256,8 +5279,10 @@ var doc_viewer_default = () => ({
       this.activeDoc = filename;
       this.$nextTick(() => {
         this.generateToC("#main-content");
-        window.scrollTo(0, 0);
-        this.navTab = "outline";
+        this.processVizDiagrams();
+        const main = document.querySelector(".app-main");
+        if (main)
+          main.scrollTop = 0;
       });
       this.viewMode = "browse";
     } catch (e) {
@@ -5270,6 +5295,7 @@ var doc_viewer_default = () => ({
       const raw2 = await (await fetch(`/docs/${filename}`)).text();
       this.contentRef = this.parseMarkdown(raw2);
       this.viewMode = "reference";
+      this.processVizDiagrams();
     } catch (e) {
       console.error(`Failed to load ref ${filename}`, e);
     }
@@ -5300,6 +5326,7 @@ var doc_viewer_default = () => ({
         `;
     this.contentRef = html;
     this.viewMode = "reference";
+    this.processVizDiagrams();
   },
   parseMarkdown(raw2) {
     const renderer = new d.Renderer;
@@ -5311,6 +5338,29 @@ var doc_viewer_default = () => ({
         slug = `section-${Math.random().toString(36).substr(2, 9)}`;
       return `<h${depth} id="${slug}">${text}</h${depth}>`;
     };
+    renderer.code = function({ text, lang, escaped }) {
+      if (lang === "dot" || lang === "graphviz") {
+        try {
+          if (typeof Viz !== "undefined") {
+            const viz = new Viz;
+            return `<div class="viz-container" data-dot="${encodeURIComponent(text)}">Loading Diagram...</div>`;
+          }
+        } catch (e) {
+          console.error("DOT Render Error", e);
+          return `<pre class="text-red-500">Error rendering DOT diagram</pre>`;
+        }
+      }
+      if (typeof hljs !== "undefined") {
+        try {
+          const language = lang && hljs.getLanguage(lang) ? lang : "plaintext";
+          const highlighted = hljs.highlight(text, { language }).value;
+          return `<pre><code class="hljs language-${language}">${highlighted}</code></pre>`;
+        } catch (e) {
+          console.warn("Highlight.js error", e);
+        }
+      }
+      return `<pre><code class="language-${lang}">${text}</code></pre>`;
+    };
     let html = d.parse(raw2, { renderer });
     if (this.references) {
       html = html.replace(/\b([A-Z]{2,}-\d+|[a-z]+-[a-z]+-\d+)\b/g, (match) => {
@@ -5321,6 +5371,26 @@ var doc_viewer_default = () => ({
       });
     }
     return html;
+  },
+  processVizDiagrams() {
+    this.$nextTick(() => {
+      const containers = document.querySelectorAll(".viz-container");
+      containers.forEach((container) => {
+        const dot = decodeURIComponent(container.getAttribute("data-dot"));
+        if (typeof Viz !== "undefined") {
+          const viz = new Viz;
+          viz.renderSVGElement(dot).then((element) => {
+            container.innerHTML = "";
+            container.appendChild(element);
+            container.classList.remove("viz-container");
+            container.classList.add("viz-rendered");
+          }).catch((error2) => {
+            console.error(error2);
+            container.innerHTML = `<pre class="text-red-500">Error: ${error2.message}</pre>`;
+          });
+        }
+      });
+    });
   },
   generateToC(containerSelector) {
     const container = document.querySelector(containerSelector);

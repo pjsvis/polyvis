@@ -3,7 +3,7 @@
 
 @import "./layers/theme.css";
 
-@layer base, layout, components, graph, utilities;
+@layer base, layout, components, graph, markdown, utilities;
 
 @import "open-props/normalize" layer(base);
 @import "./layers/base.css" layer(base);

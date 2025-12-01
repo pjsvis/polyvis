@@ -10,6 +10,10 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/viz.js/2.1.2/viz.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/viz.js/2.1.2/full.render.js"></script>
 
+    <!-- Highlight.js (GitHub Dark Theme for IDE-like feel) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+
     <!-- Google Fonts: Inter & Roboto -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -71,10 +75,10 @@
                 style="overflow: hidden; height: 100%; padding: 0; border: none; background-color: var(--surface-1);">
 
                 <!-- TABS -->
-                <div class="flex border-b sticky top-0 z-10"
+                <div class="flex border-b sticky top-0 z-10 overflow-x-auto no-scrollbar"
                     style="border-color: var(--border-base); background-color: var(--surface-2);">
                     <button @click="navTab = 'index'"
-                        class="flex-1 py-3 text-xs font-bold uppercase tracking-wider text-center border-b-2 transition-colors"
+                        class="flex-1 min-w-[60px] py-3 text-[10px] font-bold uppercase tracking-wider text-center border-b-2 transition-colors whitespace-nowrap"
                         :style="{
                         borderColor: navTab === 'index' ? 'var(--color-brand)' : 'transparent',
                         color: navTab === 'index' ? 'var(--color-brand)' : 'var(--text-2)',
@@ -82,8 +86,26 @@
                     }">
                         Index
                     </button>
+                    <button @click="navTab = 'debriefs'"
+                        class="flex-1 min-w-[60px] py-3 text-[10px] font-bold uppercase tracking-wider text-center border-b-2 transition-colors whitespace-nowrap"
+                        :style="{
+                        borderColor: navTab === 'debriefs' ? 'var(--color-brand)' : 'transparent',
+                        color: navTab === 'debriefs' ? 'var(--color-brand)' : 'var(--text-2)',
+                        backgroundColor: navTab === 'debriefs' ? 'var(--surface-1)' : 'transparent'
+                    }">
+                        Debriefs
+                    </button>
+                    <button @click="navTab = 'playbooks'"
+                        class="flex-1 min-w-[60px] py-3 text-[10px] font-bold uppercase tracking-wider text-center border-b-2 transition-colors whitespace-nowrap"
+                        :style="{
+                        borderColor: navTab === 'playbooks' ? 'var(--color-brand)' : 'transparent',
+                        color: navTab === 'playbooks' ? 'var(--color-brand)' : 'var(--text-2)',
+                        backgroundColor: navTab === 'playbooks' ? 'var(--surface-1)' : 'transparent'
+                    }">
+                        Playbooks
+                    </button>
                     <button @click="navTab = 'outline'"
-                        class="flex-1 py-3 text-xs font-bold uppercase tracking-wider text-center border-b-2 transition-colors"
+                        class="flex-1 min-w-[60px] py-3 text-[10px] font-bold uppercase tracking-wider text-center border-b-2 transition-colors whitespace-nowrap"
                         :style="{
                         borderColor: navTab === 'outline' ? 'var(--color-brand)' : 'transparent',
                         color: navTab === 'outline' ? 'var(--color-brand)' : 'var(--text-2)',
@@ -118,9 +140,6 @@
                     style="gap: var(--toc-gap-section);">
                     <!-- Current Doc Title -->
                     <div class="mb-4 pb-2 border-b" style="border-color: var(--border-base);">
-                        <h4 class="text-xs font-bold uppercase tracking-wider mb-2 opacity-60"
-                            style="color: var(--text-2);">
-                            Current Document</h4>
                         <div class="text-lg font-bold leading-tight mb-2" style="color: var(--text-1);"
                             x-text="docs.find(d => d.file === activeDoc)?.title || activeDoc"></div>
                     </div>
@@ -158,6 +177,46 @@
                     </template>
                     <div x-show="toc.length === 0" class="p-4 text-sm italic text-center" style="color: var(--text-2);">
                         No headers found in this document.
+                    </div>
+                </nav>
+
+                <!-- TAB CONTENT: PLAYBOOKS -->
+                <nav x-show="navTab === 'playbooks'"
+                    class="file-list-container flex flex-col gap-1 p-4 overflow-y-auto flex-1 min-h-0">
+                    <template x-for="book in playbooks" :key="book.path">
+                        <a href="#" @click.prevent="loadMain(book.path)"
+                            class="doc-link block px-4 py-3 text-sm rounded transition-colors mb-2" :style="{
+                       backgroundColor: activeDoc === book.path ? 'var(--surface-2)' : 'var(--surface-1)',
+                       color: activeDoc === book.path ? 'var(--color-brand)' : 'var(--text-1)',
+                       border: '1px solid var(--border-base)'
+                   }" class="hover:bg-[var(--surface-hover)]">
+                            <div class="font-bold mb-1" x-text="book.title"></div>
+                            <div class="text-xs opacity-60 font-mono" x-text="book.id"></div>
+                        </a>
+                    </template>
+                    <div x-show="playbooks.length === 0" class="p-4 text-sm italic text-center text-gray-500">
+                        No playbooks found.
+                    </div>
+                </nav>
+
+                <!-- TAB CONTENT: DEBRIEFS -->
+                <nav x-show="navTab === 'debriefs'"
+                    class="file-list-container flex flex-col gap-1 p-4 overflow-y-auto flex-1 min-h-0">
+                    <template x-for="debrief in debriefs" :key="debrief.path">
+                        <a href="#" @click.prevent="loadMain(debrief.path)"
+                            class="doc-link block px-4 py-3 text-sm rounded transition-colors mb-2" :style="{
+                       backgroundColor: activeDoc === debrief.path ? 'var(--surface-2)' : 'var(--surface-1)',
+                       color: activeDoc === debrief.path ? 'var(--color-brand)' : 'var(--text-1)',
+                       border: '1px solid var(--border-base)'
+                   }" class="hover:bg-[var(--surface-hover)]">
+                            <div class="font-bold mb-1" x-text="debrief.title"></div>
+                            <div class="flex justify-between text-xs opacity-60 font-mono">
+                                <span x-text="debrief.date || 'No Date'"></span>
+                            </div>
+                        </a>
+                    </template>
+                    <div x-show="debriefs.length === 0" class="p-4 text-sm italic text-center text-gray-500">
+                        No debriefs found.
                     </div>
                 </nav>
 

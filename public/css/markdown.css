@@ -1,177 +1,243 @@
 /* /css/markdown.css */
 
-/* --- PAGE SPECIFIC: DOCS (Prose) --- */
-.prose {
-    max-width: 65ch;
-    margin: 0 auto;
-    overflow-wrap: break-word;
-}
+@layer markdown {
 
-.prose h1 {
-    font-size: var(--font-size-fluid-3);
-    font-weight: 800;
-    letter-spacing: -1px;
-    margin-bottom: var(--size-6);
-    text-transform: uppercase;
-    border-bottom: var(--size-1) solid var(--primary);
-    padding-bottom: var(--size-2);
-    text-wrap: balance;
-}
+    /* --- PAGE SPECIFIC: DOCS (Prose) --- */
+    .prose {
+        width: 100%;
+        max-width: 60ch;
+        margin: 0 auto;
+        overflow-wrap: break-word;
+        font-size: var(--markdown-font-size);
+        line-height: var(--markdown-line-height);
+        color: var(--text-1);
+    }
 
-/* ... */
+    h1,
+    h2,
+    h3,
+    h4 {
+        text-wrap: wrap;
+        /* Explicitly override base layer's balance */
+    }
 
-.prose h2 {
-    font-size: var(--font-size-fluid-2);
-    font-weight: 700;
-    margin-top: var(--size-8);
-    margin-bottom: var(--size-4);
-    border-bottom: var(--border-base) solid var(--surface-panel);
-}
+    h1 {
+        font-size: var(--font-size-h1);
+        font-weight: 800;
+        letter-spacing: -0.025em;
+        margin-bottom: var(--size-4);
+        text-transform: uppercase;
+        border-bottom: var(--size-1) solid var(--primary);
+        padding-bottom: var(--size-2);
+    }
 
-.prose p {
-    margin-bottom: var(--size-5);
-    line-height: 1.6;
-    text-wrap: pretty;
-}
+    h2 {
+        font-size: var(--font-size-h2);
+        font-weight: 700;
+        margin-top: var(--size-6);
+        margin-bottom: var(--size-3);
+        border-bottom: var(--border-base) solid var(--surface-panel);
+    }
 
-.prose ul {
-    list-style-type: square;
-    margin-left: var(--size-6);
-    margin-bottom: var(--size-5);
-}
+    h3 {
+        font-size: var(--font-size-h3);
+        font-weight: 600;
+        margin-top: var(--size-5);
+        margin-bottom: var(--size-2);
+    }
 
-.prose code {
-    background: var(--code-bg);
-    color: var(--text-1);
-    padding: var(--size-1) var(--size-2);
-    font-family: "Menlo", monospace;
-    font-size: var(--font-size-sm);
-}
+    h4 {
+        font-size: var(--font-size-h4);
+        font-weight: 600;
+        margin-top: var(--size-5);
+        margin-bottom: var(--size-2);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--text-2);
+    }
 
-.prose pre {
-    background: var(--black);
-    color: var(--green-4);
-    /* Green Phosphor */
-    padding: var(--size-4);
-    white-space: pre-wrap;
-    /* CSS3 */
-    white-space: -moz-pre-wrap;
-    /* Mozilla, since 1999 */
-    white-space: -pre-wrap;
-    /* Opera 4-6 */
-    white-space: -o-pre-wrap;
-    /* Opera 7 */
-    word-wrap: break-word;
-    /* Internet Explorer 5.5+ */
-    overflow-wrap: break-word;
-    margin-bottom: var(--size-6);
-    border-left: var(--size-1) solid var(--green-4);
-    text-shadow: 0 0 2px var(--green-4);
-    /* Subtle Glow */
-}
+    p {
+        margin-bottom: var(--size-3);
+        line-height: var(--markdown-line-height);
+        text-wrap: pretty;
+    }
 
-.prose pre code {
-    background-color: transparent;
-    padding: 0;
-    color: inherit;
-    border: none;
-}
+    ul {
+        list-style-type: square;
+        margin-left: var(--size-4);
+        margin-bottom: var(--size-3);
+    }
 
-.prose blockquote {
-    border-left: var(--size-1) solid var(--primary);
-    padding-left: var(--size-4);
-    /* Fixed: Use a size unit here */
-    padding-right: var(--size-4);
-    color: var(--text-2);
-    background-color: var(--surface-panel);
-    font-style: normal;
-    /* Optional: Explicitly turn off italics if you want the "Structural" look */
-    padding-top: var(--size-2);
-    /* Optional: Breathing room top */
-    padding-bottom: var(--size-2);
-    /* Optional: Breathing room bottom */
-}
+    ol {
+        list-style-type: decimal;
+        margin-left: var(--size-4);
+        margin-bottom: var(--size-3);
+    }
 
-.prose table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-bottom: var(--size-6);
-    font-size: var(--font-size-0);
-    background-color: var(--surface-1);
-    color: var(--text-1);
-}
+    li {
+        margin-bottom: var(--size-2);
+    }
 
-.prose th,
-.prose td {
-    border: var(--border-base) solid var(--primary);
-    padding: var(--size-3);
-    text-align: left;
-    color: var(--text-1);
-}
+    /* Threaded Lists (AntiGravity Style) */
+    ul ul,
+    ol ul,
+    ul ol,
+    ol ol {
+        border-left: 1px solid var(--border-base);
+        margin-left: var(--size-1);
+        /* Tucked in */
+        padding-left: var(--size-4);
+        margin-bottom: 0;
+    }
 
-.prose th {
-    background-color: var(--surface-panel);
-    color: var(--text-1);
-    font-weight: bold;
-    font-family: "Menlo", "Monaco", monospace;
-    text-transform: uppercase;
-    font-size: var(--font-size-xs);
-}
+    /* Ensure bullets line up correctly with the thread */
+    ul ul li,
+    ol ul li,
+    ul ol li,
+    ol ol li {
+        margin-left: 0;
+    }
 
-.prose tr {
-    background-color: var(--surface-1);
-    transition: background-color 0.2s;
-}
+    code {
+        background: var(--surface-2);
+        color: var(--color-brand);
+        padding: 0.2em 0.4em;
+        font-family: var(--font-mono);
+        font-size: 0.85em;
+        border-radius: 4px;
+    }
 
-.prose tr:nth-child(even) {
-    background-color: var(--surface-panel);
-}
+    pre {
+        background: var(--surface-2);
+        color: var(--text-1);
+        padding: var(--size-4);
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        margin-bottom: var(--size-4);
+        border-left: 4px solid var(--border-base);
+        border-radius: var(--radius-2);
+        font-family: var(--font-mono);
+        font-size: 0.9em;
+        line-height: 1.5;
+    }
 
-.prose tr:hover {
-    background-color: var(--surface-hover);
-}
+    pre code {
+        background-color: transparent;
+        padding: 0;
+        color: inherit;
+        border: none;
+        font-size: inherit;
+    }
 
-.prose td {
-    color: var(--text-1);
-    background-color: var(--surface-1);
-}
+    /* Highlight.js Integration (IDE Style) */
+    pre:has(.hljs) {
+        background-color: #0d1117;
+        /* Force GitHub Dark BG */
+        color: #c9d1d9;
+        padding: 0;
+        /* Reset padding, let hljs handle it via code block */
+    }
 
-/* --- BIBLIOGRAPHY --- */
-.bibliography {
-    margin-top: var(--size-10);
-    padding-top: var(--size-6);
-    border-top: var(--border-base) solid var(--surface-panel);
-    font-size: var(--font-size-0);
-    color: var(--text-2);
-    background-color: var(--surface-panel);
-    padding: var(--size-6);
-    border-radius: var(--radius-2);
-}
+    pre code.hljs {
+        padding: var(--size-4);
+        background-color: transparent;
+        /* Inherit from pre */
+        font-family: var(--font-mono);
+        font-size: var(--markdown-font-size);
+        line-height: var(--markdown-line-height);
+    }
 
-.bibliography ol {
-    list-style-type: decimal;
-    margin-left: var(--size-6);
-    padding-left: var(--size-2);
-}
+    blockquote {
+        border-left: 3px solid var(--text-1);
+        /* High contrast (White/Black) */
+        padding-left: var(--size-4);
+        padding-right: var(--size-4);
+        color: var(--text-2);
+        background-color: transparent;
+        /* Clean look */
+        font-style: normal;
+        padding-top: var(--size-1);
+        padding-bottom: var(--size-1);
+        margin-bottom: var(--size-4);
+        margin-top: var(--size-2);
+    }
 
-.bibliography li {
-    margin-bottom: var(--size-3);
-    line-height: 1.5;
-}
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: var(--size-4);
+        font-size: var(--markdown-font-size);
+        background-color: var(--surface-1);
+        color: var(--text-1);
+    }
 
-.bibliography a {
-    color: var(--link);
-    /* Blue-600 */
-    font-weight: bold;
-    text-decoration: none;
-    border-bottom: var(--border-base) solid transparent;
-    transition: all 0.2s;
-}
+    th,
+    td {
+        border: 1px solid var(--border-base);
+        padding: var(--size-3);
+        text-align: left;
+        vertical-align: top;
+        color: var(--text-1);
+    }
 
-.bibliography a:hover {
-    color: var(--link-visited);
-    /* Blue-700 */
-    border-bottom-color: var(--link-visited);
-    background-color: var(--surface-panel);
-    /* Blue-50 */
+    th {
+        background-color: var(--surface-panel);
+        color: var(--text-1);
+        font-weight: bold;
+        font-family: var(--font-mono);
+        text-transform: uppercase;
+        font-size: var(--font-size-xs);
+    }
+
+    tr {
+        background-color: var(--surface-1);
+        transition: background-color 0.2s;
+    }
+
+    tr:nth-child(even) {
+        background-color: var(--surface-panel);
+    }
+
+    tr:hover {
+        background-color: var(--surface-hover);
+    }
+
+    /* --- BIBLIOGRAPHY --- */
+    .bibliography {
+        margin-top: var(--size-10);
+        padding-top: var(--size-6);
+        border-top: var(--border-base) solid var(--surface-panel);
+        font-size: var(--font-size-0);
+        color: var(--text-2);
+        background-color: var(--surface-panel);
+        padding: var(--size-6);
+        border-radius: var(--radius-2);
+    }
+
+    .bibliography ol {
+        list-style-type: decimal;
+        margin-left: var(--size-6);
+        padding-left: var(--size-2);
+    }
+
+    .bibliography li {
+        margin-bottom: var(--size-3);
+        line-height: 1.5;
+    }
+
+    .bibliography a {
+        color: var(--link);
+        font-weight: bold;
+        text-decoration: none;
+        border-bottom: var(--border-base) solid transparent;
+        transition: all 0.2s;
+    }
+
+    .bibliography a:hover {
+        color: var(--link-visited);
+        border-bottom-color: var(--link-visited);
+        background-color: var(--surface-panel);
+    }
 }

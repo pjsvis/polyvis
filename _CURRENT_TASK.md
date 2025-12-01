@@ -1,29 +1,29 @@
     -   Automated builds (`build:js`, `build:css`) passed.
     -   Manual verification pending (post-reboot).
 
-# Current Task: Idle
+# Current Task: Session Ended
 
-**Status:** Ready for Next Task
-**Objective:** Awaiting user input.
+**Status:** Active
+**Objective:** Refine markdown styling (Width set to 60ch).
 
 ## Checklist
-- [ ] Await instructions
+- [x] Wrap up session
 
-# Previous Task: CSS Isolation & Tailwind v4
+# Previous Task: Session Wrap Up
 
-**Objective**: Adopt the visual language (fonts, colors) of Google's AntiGravity agent to improve clarity and aesthetics.
-**Mode**: Design / Implementation.
-**Scratchpad**: `playbooks/scratchpad-design.md` (To be created).
+**Objective**: Index all experience artifacts (playbooks, scratchpads, etc.) to make them browsable.
+**Mode**: Implementation.
+**Scratchpad**: `playbooks/scratchpad-indexing.md` (To be created).
 
 ## Status
-- [ ] Research & Plan Design System
-- [ ] Apply Visual Styles (Dark Mode, Typography)
+- [ ] Research & Plan Indexing Strategy
+- [ ] Implement Indexing Logic
 
 ## Checklist
-- [ ] Define Color Palette (High Contrast Dark Mode)
-- [ ] Define Typography (Google Sans/Inter, Fluid Sizes)
-- [ ] Update `theme.css` / CSS Variables
-- [ ] Verify clarity at small sizes
+- [ ] Define Artifact Types (Playbook, Scratchpad, etc.)
+- [ ] Create `playbooks.md` index file
+- [ ] Generate TOC for `playbooks.md`
+- [ ] Verify browsing experience
 
 # Completed Task: YOLO Debugging Sidebar Scroll
 **Status**: Complete
@@ -46,28 +46,5 @@
 - [x] Emulate AntiGravity Design (Fonts, Colors, Resizing)
 - [x] Verify Changes
 
-# Current Task: Implement Doc Viewer v2
-- [x] **Preparation**
-    - [x] Generate `public/index.json` from existing docs
-    - [x] Create `src/js/components/doc-viewer.js` (Alpine Store)
-    - [x] Create `public/docs/v2.html` (Alternative Layout)
-- [x] **Implementation**
-    - [x] Implement "Sliding Window" Logic (Browse vs Reference Mode)
-    - [x] Implement Left Panel Tabs (Index vs Outline)
-    - [x] Implement Markdown Parsing & ID Injection
-    - [x] Implement ToC Generation
-- [x] **Verification**
-    - [x] Verify Mobile/Desktop Responsiveness
-    - [x] Verify Internal Link Routing
-    - [x] Verify Back Button Logic `src/js/components/explorer.js`
-    - [x] Create `src/js/components/sigma-explorer.js`
-    - [x] Create `src/js/components/graph.js`
-    - [x] Update `src/js/app.js` to bundle these
-    - [x] Remove inline scripts from HTML files
-- [x] Fix CSS Issues
-    - [x] Move inline styles to `src/css/layers/`
-    - [x] Ensure `build:css` works correctly
-- [x] Verify Build Process
-
 # Future Ideas (Backlog)
-- [ ] **Publish Playbooks**: Create a `playbooks.md` index that lists all playbooks and scratchpads, allowing them to be browsed via the main `v3.html` viewer. The TOC will naturally handle the listing.  
+- [ ] **Publish Playbooks**: Create a `playbooks.md` index that lists all playbooks and scratchpads, allowing them to be browsed via the main `v3.html` viewer. The TOC will naturally handle the listing.
