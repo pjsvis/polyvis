@@ -72,14 +72,48 @@
                         <div class="mb-2 font-mono text-[10px] font-bold uppercase text-gray-400">Analysis</div>
                         <div class="space-y-2">
                             <!-- Louvain -->
-                            <div class="group relative">
-                                <button class="btn-structural w-full justify-start gap-1 text-xs"
-                                    :class="{ 'active': activeColorViz === 'louvain' }"
-                                    @click="toggleColorViz('louvain')"
-                                    @mouseenter="showTooltip($event, 'Detects communities (clusters) and colors nodes to show group membership.')"
-                                    @mouseleave="hideTooltip()">
-                                    <i data-lucide="users" class="h-3 w-3"></i> Louvain
-                                </button>
+                            <div class="space-y-1">
+                                <div class="group relative flex gap-1">
+                                    <button class="btn-structural w-full justify-start gap-1 text-xs"
+                                        :class="{ 'active': activeColorViz === 'louvain' }"
+                                        @click="toggleColorViz('louvain')"
+                                        @mouseenter="showTooltip($event, 'Detects communities (clusters) and colors nodes to show group membership.')"
+                                        @mouseleave="hideTooltip()">
+                                        <i data-lucide="users" class="h-3 w-3"></i> Louvain Communities
+                                    </button>
+                                </div>
+
+                                <!-- Community List (Visible only when Louvain is active) -->
+                                <div x-show="activeColorViz === 'louvain'" x-transition
+                                    class="pl-2 space-y-1 border-l-2 border-gray-100 ml-1">
+
+                                    <!-- Show All -->
+                                    <button
+                                        class="w-full text-left text-[10px] px-2 py-1 rounded hover:bg-gray-100 flex items-center gap-2"
+                                        :class="{ 'font-bold bg-gray-50': activeLouvainGroup === null }"
+                                        @click="activeLouvainGroup = null; toggleColorViz('louvain', true)">
+                                        <div class="w-2 h-2 rounded-full border border-gray-300 bg-white"></div>
+                                        Show All
+                                    </button>
+
+                                    <!-- Dynamic List -->
+                                    <template x-for="group in getLouvainGroups()" :key="group.id">
+                                        <button
+                                            class="w-full text-left text-[10px] px-2 py-1.5 rounded hover:bg-gray-100 flex items-center gap-3 transition-colors"
+                                            :class="{ 'font-bold bg-gray-50': activeLouvainGroup === group.id }"
+                                            @click="activeLouvainGroup = group.id; toggleColorViz('louvain')">
+                                            <!-- Larger Swatch -->
+                                            <div class="w-4 h-4 rounded-sm shadow-sm border border-black/10 flex-shrink-0"
+                                                :style="`background-color: ${group.color}`"></div>
+
+                                            <div class="flex flex-col leading-none">
+                                                <span x-text="`Group ${group.id}`"></span>
+                                                <span class="text-[9px] text-gray-400 font-normal"
+                                                    x-text="`${group.count} nodes`"></span>
+                                            </div>
+                                        </button>
+                                    </template>
+                                </div>
                             </div>
 
                             <!-- PageRank -->

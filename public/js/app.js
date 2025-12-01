@@ -3401,6 +3401,8 @@ var sigma_explorer_default = () => ({
   debug: false,
   clickBlock: false,
   tooltip: { visible: false, text: "", x: 0, y: 0 },
+  activeLouvainGroup: null,
+  louvainCommunities: null,
   searchQuery: "",
   searchResults: [],
   isSearchFocused: false,
@@ -3489,8 +3491,11 @@ var sigma_explorer_default = () => ({
     this.status = "Extracting Data...";
     try {
       const nodesStmt = db.prepare("SELECT * FROM nodes");
+      const excludedIds = new Set(["term-035", "CIP-3", "term-040", "term-036", "term-038", "term-027", "term-025", "term-026", "term-024"]);
       while (nodesStmt.step()) {
         const row = nodesStmt.getAsObject();
+        if (excludedIds.has(row.id))
+          continue;
         this.graph.addNode(row.id, {
           label: row.label,
           nodeType: row.type || "Unknown",
@@ -3642,39 +3647,61 @@ var sigma_explorer_default = () => ({
         this.graph.setNodeAttribute(node, "size", attributes.originalSize);
     });
   },
-  toggleColorViz(type) {
-    if (this.activeColorViz === type) {
+  toggleColorViz(type) {},
+  toggleColorViz(type, force = false) {
+    if (!force && this.activeColorViz === type && this.activeLouvainGroup === null) {
       this.resetColors();
       this.activeColorViz = null;
       if (this.renderer)
         this.renderer.refresh();
       return;
     }
-    this.resetColors();
+    if (this.activeColorViz !== type) {
+      this.resetColors();
+      this.activeLouvainGroup = null;
+    }
     this.activeColorViz = type;
     if (type === "louvain") {
       if (!graphologyLibrary.communitiesLouvain)
         return alert("Louvain library not loaded.");
-      const communities = graphologyLibrary.communitiesLouvain(this.graph);
+      if (!this.louvainCommunities) {
+        this.louvainCommunities = graphologyLibrary.communitiesLouvain(this.graph);
+      }
+      const communities = this.louvainCommunities;
+      const counts = {};
+      Object.values(communities).forEach((id) => counts[id] = (counts[id] || 0) + 1);
+      const sortedGroupIds = Object.keys(counts).sort((a, b) => counts[b] - counts[a]);
+      const rankMap = {};
+      sortedGroupIds.forEach((id, index) => rankMap[id] = index);
       const colors = [
         "#e5484d",
-        "#46a758",
-        "#f5d90a",
-        "#0090ff",
         "#f76b15",
-        "#8e4ec6",
+        "#f5d90a",
+        "#46a758",
         "#00a2c7",
+        "#0090ff",
+        "#6e56cf",
         "#d6409f",
         "#99d52a",
         "#12a594",
         "#3e63dd",
-        "#6e56cf",
-        "#ae3ec9",
-        "#a15c13"
+        "#a15c13",
+        "#8e4ec6",
+        "#3cb44b"
       ];
       this.graph.forEachNode((node) => {
-        this.graph.setNodeAttribute(node, "color", colors[communities[node] % colors.length]);
+        const communityId = communities[node];
+        const rank = rankMap[communityId];
+        if (this.activeLouvainGroup !== null && communityId !== this.activeLouvainGroup) {
+          this.graph.setNodeAttribute(node, "hidden", true);
+        } else {
+          this.graph.setNodeAttribute(node, "hidden", false);
+          this.graph.setNodeAttribute(node, "color", colors[rank % colors.length]);
+        }
       });
+      if (this.activeLouvainGroup === null && this.renderer) {
+        this.renderer.getCamera().animatedReset();
+      }
     } else if (type === "betweenness") {
       if (!graphologyLibrary.metrics)
         return alert("Metrics library not loaded.");
@@ -3772,6 +3799,60 @@ var sigma_explorer_default = () => ({
         return alert("Noverlap library not loaded.");
       graphologyLibrary.layoutNoverlap.assign(this.graph);
     }
+  },
+  getLouvainGroups() {
+    if (!this.louvainCommunities)
+      return [];
+    const counts = {};
+    Object.values(this.louvainCommunities).forEach((id) => {
+      counts[id] = (counts[id] || 0) + 1;
+    });
+    const colors = [
+      "#e5484d",
+      "#f76b15",
+      "#f5d90a",
+      "#46a758",
+      "#00a2c7",
+      "#0090ff",
+      "#6e56cf",
+      "#d6409f",
+      "#99d52a",
+      "#12a594",
+      "#3e63dd",
+      "#a15c13",
+      "#8e4ec6",
+      "#3cb44b"
+    ];
+    const sortedGroups = Object.keys(counts).map((id) => ({
+      id: parseInt(id),
+      count: counts[id]
+    })).sort((a, b) => b.count - a.count);
+    return sortedGroups.map((group, index) => ({
+      ...group,
+      color: colors[index % colors.length]
+    }));
+  },
+  cycleLouvainGroup() {
+    if (!this.louvainCommunities)
+      return;
+    const groups = [...new Set(Object.values(this.louvainCommunities))].sort((a, b) => a - b);
+    if (this.activeLouvainGroup === null) {
+      this.activeLouvainGroup = groups[0];
+      if (this.renderer)
+        this.renderer.setSetting("labelRenderedSizeThreshold", 4);
+    } else {
+      const currentIndex = groups.indexOf(this.activeLouvainGroup);
+      if (currentIndex === groups.length - 1) {
+        this.activeLouvainGroup = null;
+        if (this.renderer)
+          this.renderer.setSetting("labelRenderedSizeThreshold", 8);
+      } else {
+        this.activeLouvainGroup = groups[currentIndex + 1];
+        if (this.renderer)
+          this.renderer.setSetting("labelRenderedSizeThreshold", 4);
+      }
+    }
+    this.toggleColorViz("louvain");
   }
 });
 

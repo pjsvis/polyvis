@@ -110,6 +110,10 @@ try {
       definition += " Closely related to the 50-First-Dates Scenario (term-015) and OPM-1.";
     }
 
+    // Exclude disconnected/distorting nodes (User Request)
+    const excludedIds = new Set(["term-035", "CIP-3", "term-040"]);
+    if (excludedIds.has(entry.id)) continue;
+
     insertNode.run(entry.id, entry.title, entry.type, definition, externalRefs);
     parseAndInsertEdges(entry.id, entry.tags);
   }
@@ -133,6 +137,10 @@ try {
             ? JSON.stringify(entry.definition)
             : entry.definition || "";
 
+        // Exclude disconnected/distorting nodes (User Request)
+        const excludedIds = new Set(["term-035", "CIP-3", "term-040"]);
+        if (excludedIds.has(entry.id)) continue;
+
         insertNode.run(entry.id, term, "Directive", defn, "[]");
         parseAndInsertEdges(entry.id, entry.tags);
         directiveCount++;
@@ -144,6 +152,93 @@ try {
   console.error(`Error processing Core Directives: ${error}`);
 }
 
+// 3. Generate Semantic Edges (Keyword Matching)
+console.log("Generating Semantic Edges...");
+try {
+  // Fetch all nodes to use as both sources and targets
+  const nodes = db.query("SELECT id, label, definition FROM nodes").all() as {
+    id: string;
+    label: string;
+    definition: string;
+  }[];
+
+  let semanticEdgeCount = 0;
+
+  const insertSemanticEdge = db.prepare(
+    "INSERT OR IGNORE INTO edges (source, target, relation) VALUES (?, ?, 'semantic')"
+  );
+
+  // Stop words to ignore (common English words + generic project terms)
+  const stopWords = new Set([
+    "the", "and", "that", "this", "with", "from", "into", "for", "are", "not",
+    "which", "what", "how", "why", "who", "when", "where", "can", "may", "will",
+    "has", "have", "had", "but", "all", "any", "one", "two", "use", "used",
+    "using", "user", "system", "data", "code", "node", "edge", "graph", "polyvis",
+    "context", "concept", "term", "define", "definition", "example", "principle",
+    "heuristic", "directive", "type", "value", "layer", "level", "core", "base"
+  ]);
+
+  for (const source of nodes) {
+    if (!source.definition) continue;
+
+    for (const target of nodes) {
+      if (source.id === target.id) continue;
+      if (!target.label) continue;
+
+      // 1. Try Exact Match first (High Confidence)
+      const escapedLabel = target.label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const exactRegex = new RegExp(`\\b${escapedLabel}\\b`, 'i');
+
+      if (exactRegex.test(source.definition)) {
+        insertSemanticEdge.run(source.id, target.id);
+        semanticEdgeCount++;
+        continue; // Found a match, move to next target
+      }
+
+      // 2. Try Keyword Match (Lower Confidence, High Density)
+      // Split label into words, filter stop words and short words
+      const keywords = target.label.split(/[\s-]+/)
+        .map(w => w.toLowerCase().replace(/[^a-z0-9]/g, '')) // Clean punctuation
+        .filter(w => w.length > 3 && !stopWords.has(w));
+
+      if (keywords.length === 0) continue;
+
+      // Check if ANY significant keyword is present
+      let matchFound = false;
+      for (const keyword of keywords) {
+        const keywordRegex = new RegExp(`\\b${keyword}\\b`, 'i');
+        if (keywordRegex.test(source.definition)) {
+          matchFound = true;
+          break;
+        }
+      }
+
+      if (matchFound) {
+        insertSemanticEdge.run(source.id, target.id);
+        semanticEdgeCount++;
+      }
+    }
+  }
+  console.log(`Generated ${semanticEdgeCount} Semantic Edges.`);
+
+} catch (error) {
+  console.error(`Error generating semantic edges: ${error}`);
+}
+
 // --- Finalization ---
 db.close();
 console.log(`✅ SUCCESS: '${dbPath}' created.`);
+
+// Copy to public/data for frontend access
+const publicDataDir = join(scriptDir, "..", "public", "data");
+const publicDbPath = join(publicDataDir, "ctx.db");
+
+try {
+  if (!require("fs").existsSync(publicDataDir)) {
+    require("fs").mkdirSync(publicDataDir, { recursive: true });
+  }
+  Bun.write(publicDbPath, Bun.file(dbPath));
+  console.log(`✅ COPIED: '${dbPath}' -> '${publicDbPath}'`);
+} catch (e) {
+  console.error(`❌ Failed to copy DB to public/data: ${e}`);
+}
