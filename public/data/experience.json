@@ -112,6 +112,13 @@
     "tags": []
   },
   {
+    "id": "css-specificity-playbook",
+    "type": "playbook",
+    "title": "CSS Specificity & Theme Integration Playbook",
+    "path": "playbooks/css-specificity-playbook.md",
+    "tags": []
+  },
+  {
     "id": "css-playbook",
     "type": "playbook",
     "title": "CSS Playbook",
@@ -397,6 +404,14 @@
     "title": "Debrief: Tab Transition Polish",
     "path": "debriefs/2025-11-29-tab-transition.md",
     "date": "2025-11-29",
+    "tags": []
+  },
+  {
+    "id": "2025-12-01-markdown-styling-fixes",
+    "type": "debrief",
+    "title": "Debrief: Markdown Styling Fixes",
+    "path": "debriefs/2025-12-01-markdown-styling-fixes.md",
+    "date": "2025-12-01",
     "tags": []
   },
   {

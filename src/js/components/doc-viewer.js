@@ -62,13 +62,20 @@ export default () => ({
     processExperience() {
         // Filter Playbooks
         const playbooks = this.experience.filter(item => item.type === 'playbook');
+        // Sort playbooks alphabetically
+        playbooks.sort((a, b) => {
+            const titleA = (a.title || a.path).toLowerCase();
+            const titleB = (b.title || b.path).toLowerCase();
+            return titleA.localeCompare(titleB);
+        });
 
         // Filter Debriefs (Sort by date desc if possible, or just use order)
         const debriefs = this.experience.filter(item => item.type === 'debrief');
-        // Sort debriefs by date descending
+        // Sort debriefs by date descending (Newest First)
         debriefs.sort((a, b) => {
-            if (a.date && b.date) return b.date.localeCompare(a.date);
-            return 0;
+            const dateA = new Date(a.date || 0);
+            const dateB = new Date(b.date || 0);
+            return dateB - dateA;
         });
 
         // Handle AGENTS.md (Protocol) - Prepend to Playbooks
@@ -231,7 +238,64 @@ export default () => ({
         // Instead, we'll rely on a nextTick handler in the component to find these containers and render them.
         // See processVizDiagrams() method below.
 
+        // 3. Group into Cards (Post-Processing)
+        html = this.groupIntoCards(html);
+
         return html;
+    },
+
+    groupIntoCards(htmlString) {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(htmlString, 'text/html');
+        const body = doc.body;
+        const children = Array.from(body.children);
+
+        if (children.length === 0) return htmlString;
+
+        const container = document.createElement('div');
+        let currentSection = null;
+
+        // Helper to finalize a section
+        const closeSection = () => {
+            if (currentSection) {
+                container.appendChild(currentSection);
+                currentSection = null;
+            }
+        };
+
+        // Helper to start a new section
+        const openSection = (className) => {
+            closeSection();
+            currentSection = document.createElement('section');
+            currentSection.className = className;
+        };
+
+        // Start with an intro section for content before the first H2
+        openSection('doc-intro');
+
+        children.forEach(node => {
+            if (node.tagName === 'H2') {
+                // Start a new card for this H2 block
+                openSection('doc-card');
+            }
+
+            // If we are in a section, append. 
+            // Note: If the first element is H2, the doc-intro will be empty and we should probably skip appending it?
+            // Actually, let's just append. Empty sections can be handled by CSS or cleanup.
+            if (currentSection) {
+                currentSection.appendChild(node);
+            }
+        });
+
+        closeSection();
+
+        // Cleanup empty intro if it exists
+        const firstChild = container.firstElementChild;
+        if (firstChild && firstChild.classList.contains('doc-intro') && firstChild.children.length === 0) {
+            firstChild.remove();
+        }
+
+        return container.innerHTML;
     },
 
     processVizDiagrams() {

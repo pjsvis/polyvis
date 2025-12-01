@@ -19,7 +19,7 @@ The `x-init` directive allows you to run JavaScript code when an Alpine.js compo
 
 Source: https://alpinejs.dev/docs/index
 
-The `x-on` directive listens for browser events on an element and executes Alpine.js expressions in response. This example uses `x-on:click` to toggle a boolean variable.
+The `x-on` directive listens for browser events on an element and executes  expressions in response. This example uses `x-on:click` to toggle a boolean variable.
 
 ```html
 <button x-on:click="open = ! open">
@@ -29,7 +29,7 @@ The `x-on` directive listens for browser events on an element and executes Alpin
 
 --------------------------------
 
-### Basic Alpine.js Component with x-data and x-show
+### Basic  Component with x-data and x-show
 
 Source: https://alpinejs.dev/docs/index
 
@@ -47,7 +47,7 @@ Demonstrates a fundamental Alpine.js component. The `x-data` attribute initializ
 
 --------------------------------
 
-### Alpine.js x-for for Rendering Lists
+###  x-for for Rendering Lists
 
 Source: https://alpinejs.dev/docs/index
 
@@ -61,7 +61,7 @@ The `x-for` directive is used to repeat a block of HTML for each item in a colle
 
 --------------------------------
 
-### Alpine.js x-bind for Dynamic Attributes
+###  x-bind for Dynamic Attributes
 
 Source: https://alpinejs.dev/docs/index
 
@@ -75,7 +75,7 @@ The `x-bind` directive allows for dynamic binding of HTML attributes to Alpine.j
 
 --------------------------------
 
-### Alpine.js x-text for Text Content
+###  x-text for Text Content
 
 Source: https://alpinejs.dev/docs/index
 
@@ -90,7 +90,7 @@ The `x-text` directive sets the text content of an element. It's useful for disp
 
 --------------------------------
 
-### Alpine.js x-model for Input Synchronization
+###  x-model for Input Synchronization
 
 Source: https://alpinejs.dev/docs/index
 
@@ -106,7 +106,7 @@ The `x-model` directive creates a two-way binding between a piece of data and an
 
 --------------------------------
 
-### Alpine.js Alpine.store for Global Stores
+###  Alpine.store for Global Stores
 
 Source: https://alpinejs.dev/docs/index
 
@@ -124,7 +124,7 @@ Alpine.store('notifications', {
 
 --------------------------------
 
-### Alpine.js $store for Global State Management
+###  $store for Global State Management
 
 Source: https://alpinejs.dev/docs/index
 
@@ -150,7 +150,7 @@ This snippet shows how to include the Alpine.js framework in your HTML document 
 
 --------------------------------
 
-### Alpine.js Alpine.data for Reusable Components
+###  Alpine.data for Reusable Components
 
 Source: https://alpinejs.dev/docs/index
 
@@ -168,7 +168,7 @@ Alpine.data('dropdown', () => ({
 
 --------------------------------
 
-### Alpine.js x-ignore for Skipping Initialization
+###  x-ignore for Skipping Initialization
 
 Source: https://alpinejs.dev/docs/index
 
@@ -182,7 +182,7 @@ The `x-ignore` directive prevents a block of HTML from being initialized by Alpi
 
 --------------------------------
 
-### Alpine.js x-transition for Element Transitions
+###  x-transition for Element Transitions
 
 Source: https://alpinejs.dev/docs/index
 
@@ -196,7 +196,7 @@ The `x-transition` directive adds CSS transition effects to elements when they a
 
 --------------------------------
 
-### Alpine.js x-cloak for Initial Rendering
+###  x-cloak for Initial Rendering
 
 Source: https://alpinejs.dev/docs/index
 
@@ -210,7 +210,7 @@ The `x-cloak` attribute hides an element until Alpine.js has finished initializi
 
 --------------------------------
 
-### Alpine.js x-effect for Reactive Effects
+###  x-effect for Reactive Effects
 
 Source: https://alpinejs.dev/docs/index
 
@@ -222,7 +222,7 @@ The `x-effect` directive executes a script whenever any of its reactive dependen
 
 --------------------------------
 
-### Alpine.js $nextTick for Next Browser Paint
+###  $nextTick for Next Browser Paint
 
 Source: https://alpinejs.dev/docs/index
 
@@ -239,7 +239,7 @@ The `$nextTick` magic property defers the execution of a callback function until
 
 --------------------------------
 
-### Alpine.js $dispatch for Custom Events
+###  $dispatch for Custom Events
 
 Source: https://alpinejs.dev/docs/index
 
@@ -253,7 +253,7 @@ The `$dispatch` magic property allows you to dispatch custom browser events from
 
 --------------------------------
 
-### Alpine.js x-html for Inner HTML
+###  x-html for Inner HTML
 
 Source: https://alpinejs.dev/docs/index
 
@@ -267,7 +267,7 @@ The `x-html` directive sets the inner HTML of an element. This is useful for inj
 
 --------------------------------
 
-### Alpine.js x-ref and $refs for Element Referencing
+###  x-ref and $refs for Element Referencing
 
 Source: https://alpinejs.dev/docs/index
 
@@ -282,7 +282,7 @@ The `x-ref` attribute assigns a key to an element, which can then be accessed vi
 
 --------------------------------
 
-### Alpine.js x-if for Conditional Rendering
+###  x-if for Conditional Rendering
 
 Source: https://alpinejs.dev/docs/index
 
@@ -296,7 +296,7 @@ The `x-if` directive conditionally adds or removes a block of HTML from the DOM.
 
 --------------------------------
 
-### Alpine.js $watch for Data Observation
+###  $watch for Data Observation
 
 Source: https://alpinejs.dev/docs/index
 
@@ -310,7 +310,7 @@ The `$watch` magic property allows you to observe changes in a piece of Alpine.j
 
 --------------------------------
 
-### Alpine.js $el for Referencing Current Element
+###  $el for Referencing Current Element
 
 Source: https://alpinejs.dev/docs/index
 
@@ -324,7 +324,7 @@ The `$el` magic property provides a reference to the current DOM element the Alp
 
 --------------------------------
 
-### Alpine.js for Page Transitions
+###  for Page Transitions
 
 **Pattern**: Use a `loaded` state to trigger CSS transitions after component initialization. This prevents FOUC and ensures smooth entry.
 
@@ -379,7 +379,7 @@ document.addEventListener('alpine:init', () => {
 
 --------------------------------
 
-### Alpine.js and Dynamic Content
+###  and Dynamic Content
 
 **Gotcha**: `addEventListener` in `init()` vs. `x-html`.
 

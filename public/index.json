@@ -24,10 +24,6 @@
         "file": "the-hejlsberg-inversion.md"
     },
     {
-        "title": "06. Layout Test",
-        "file": "layout-test.md"
-    },
-    {
         "title": "07. Hi Fi CSS",
         "file": "hi-fi-css.md"
     },
@@ -42,5 +38,9 @@
     {
         "title": "10. Bestiary of Tendencies",
         "file": "bestiary-of-substrate-tendencies.md"
+    },
+    {
+        "title": "11. Markdown Test Suite",
+        "file": "markdown-test.md"
     }
 ]

@@ -114,9 +114,7 @@
     --toc-indent: 1rem;
     --scroll-offset: var(--size-5);
 
-    /* Markdown / IDE Style */
-    --markdown-font-size: 14px;
-    --markdown-line-height: 1.2;
+
 
 
     /* Scrollbar */

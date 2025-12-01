@@ -5259,11 +5259,16 @@ var doc_viewer_default = () => ({
   },
   processExperience() {
     const playbooks = this.experience.filter((item) => item.type === "playbook");
+    playbooks.sort((a, b2) => {
+      const titleA = (a.title || a.path).toLowerCase();
+      const titleB = (b2.title || b2.path).toLowerCase();
+      return titleA.localeCompare(titleB);
+    });
     const debriefs = this.experience.filter((item) => item.type === "debrief");
     debriefs.sort((a, b2) => {
-      if (a.date && b2.date)
-        return b2.date.localeCompare(a.date);
-      return 0;
+      const dateA = new Date(a.date || 0);
+      const dateB = new Date(b2.date || 0);
+      return dateB - dateA;
     });
     const agents = this.experience.find((item) => item.type === "protocol");
     if (agents) {
@@ -5372,7 +5377,44 @@ var doc_viewer_default = () => ({
         return match;
       });
     }
+    html = this.groupIntoCards(html);
     return html;
+  },
+  groupIntoCards(htmlString) {
+    const parser = new DOMParser;
+    const doc = parser.parseFromString(htmlString, "text/html");
+    const body = doc.body;
+    const children = Array.from(body.children);
+    if (children.length === 0)
+      return htmlString;
+    const container = document.createElement("div");
+    let currentSection = null;
+    const closeSection = () => {
+      if (currentSection) {
+        container.appendChild(currentSection);
+        currentSection = null;
+      }
+    };
+    const openSection = (className) => {
+      closeSection();
+      currentSection = document.createElement("section");
+      currentSection.className = className;
+    };
+    openSection("doc-intro");
+    children.forEach((node) => {
+      if (node.tagName === "H2") {
+        openSection("doc-card");
+      }
+      if (currentSection) {
+        currentSection.appendChild(node);
+      }
+    });
+    closeSection();
+    const firstChild = container.firstElementChild;
+    if (firstChild && firstChild.classList.contains("doc-intro") && firstChild.children.length === 0) {
+      firstChild.remove();
+    }
+    return container.innerHTML;
   },
   processVizDiagrams() {
     this.$nextTick(() => {
