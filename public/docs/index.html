@@ -21,7 +21,10 @@
         rel="stylesheet">
 
     <link rel="stylesheet" href="/css/app.css" />
-    <link rel="stylesheet" href="/css/markdown.css" />
+    <!-- <link rel="stylesheet" href="/css/markdown.css" /> -->
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.8.1/github-markdown.min.css" />
+
     <!-- Inline Theme Init to prevent FOUC -->
     <script>
         (function () {
@@ -226,7 +229,7 @@
         <!-- MAIN CONTENT -->
         <main class="app-main overflow-y-auto custom-scrollbar px-2 md:px-6 items-start place-items-start block"
             @click="handleContentClick($event)">
-            <div class="prose max-w-[65ch] mx-auto py-8" id="main-content" x-html="contentMain">
+            <div class="markdown-body max-w-[60ch] mx-auto py-8 bg-transparent" id="main-content" x-html="contentMain">
                 <!-- Content injected here -->
                 <div class="flex h-full flex-col items-center justify-center pt-20">
                     <p class="animate-pulse font-mono text-gray-400">Loading Content...</p>

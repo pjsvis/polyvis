@@ -4,7 +4,7 @@
 # Current Task: Session Ended
 
 **Status:** Active
-**Objective:** Refine markdown styling (Width set to 60ch).
+**Objective:** Refine markdown styling (Switched to github-markdown-css).
 
 ## Checklist
 - [x] Wrap up session
