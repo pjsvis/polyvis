@@ -255,6 +255,14 @@
     "tags": []
   },
   {
+    "id": "2025-12-01-semantic-edges",
+    "type": "debrief",
+    "title": "Debrief: Semantic Edge Generation",
+    "path": "debriefs/2025-12-01-semantic-edges.md",
+    "date": "2025-12-01",
+    "tags": []
+  },
+  {
     "id": "2025-11-27-02-debrief-nav-consistency",
     "type": "debrief",
     "title": "Debrief: Navigation Consistency Refactor",
@@ -436,6 +444,14 @@
     "title": "Session Debrief: Theme Standardization & Workflow Improvements",
     "path": "debriefs/2025-11-27-theme-and-workflow.md",
     "date": "2025-11-27",
+    "tags": []
+  },
+  {
+    "id": "2025-12-01-graph-explorer",
+    "type": "debrief",
+    "title": "Debrief: Semantic Graph & Community Explorer",
+    "path": "debriefs/2025-12-01-graph-explorer.md",
+    "date": "2025-12-01",
     "tags": []
   },
   {

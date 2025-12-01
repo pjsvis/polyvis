@@ -111,7 +111,7 @@ try {
     }
 
     // Exclude disconnected/distorting nodes (User Request)
-    const excludedIds = new Set(["term-035", "CIP-3", "term-040"]);
+    const excludedIds = new Set(["term-035", "CIP-3", "term-040", "term-027", "term-025", "term-026", "term-024"]);
     if (excludedIds.has(entry.id)) continue;
 
     insertNode.run(entry.id, entry.title, entry.type, definition, externalRefs);
@@ -138,7 +138,7 @@ try {
             : entry.definition || "";
 
         // Exclude disconnected/distorting nodes (User Request)
-        const excludedIds = new Set(["term-035", "CIP-3", "term-040"]);
+        const excludedIds = new Set(["term-035", "CIP-3", "term-040", "term-027", "term-025", "term-026", "term-024"]);
         if (excludedIds.has(entry.id)) continue;
 
         insertNode.run(entry.id, term, "Directive", defn, "[]");

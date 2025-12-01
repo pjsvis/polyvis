@@ -3701,6 +3701,9 @@ var sigma_explorer_default = () => ({
       });
       if (this.activeLouvainGroup === null && this.renderer) {
         this.renderer.getCamera().animatedReset();
+        this.renderer.setSetting("labelRenderedSizeThreshold", 8);
+      } else if (this.renderer) {
+        this.renderer.setSetting("labelRenderedSizeThreshold", 2);
       }
     } else if (type === "betweenness") {
       if (!graphologyLibrary.metrics)

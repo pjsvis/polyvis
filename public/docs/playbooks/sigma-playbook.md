@@ -72,6 +72,13 @@ In v2.4.0, prevent the `wheel` event from reaching Sigma using Alpine's `.stop` 
 ></div>
 ```
 
+### Camera Animation Risks
+
+> [!CAUTION]
+> **Race Conditions**: Avoid animating the camera (e.g., `camera.animate()`) immediately after hiding or showing a large number of nodes (e.g., filtering). This can cause race conditions in the renderer where labels disappear or artifacts remain.
+>
+> **Best Practice**: If you are filtering the graph significantly, allow the user to manually zoom/pan rather than auto-centering, or add a significant delay before animation.
+
 ## Event Handling
 
 ### The "Click Race" (Node vs Stage)
@@ -150,6 +157,18 @@ this.renderer = new Sigma(this.graph, container, {
   labelRenderedSizeThreshold: 8, 
   // ...
 });
+```
+
+### Dynamic Threshold Adjustment
+
+You can adjust the label threshold at runtime to show more or fewer labels depending on the context (e.g., lower the threshold when filtering to a small community).
+
+```js
+// Show more labels (e.g., when filtering)
+this.renderer.setSetting("labelRenderedSizeThreshold", 4);
+
+// Show fewer labels (e.g., default view)
+this.renderer.setSetting("labelRenderedSizeThreshold", 8);
 ```
 
 ### Pre-Render Visualization

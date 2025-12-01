@@ -1,9 +1,10 @@
 # Current Task: Substack Launch Prep
 
-**Status:** Ready to Start
+**Status:** In Progress
 **Objective:** Prepare the content and assets for the PolyVis Substack launch, utilizing the newly polished graph visualization.
 
 ## Checklist
+- [x] Refine Louvain Visualization (Exclude noise nodes, fix label visibility)
 - [ ] Review `substack/substack-playbook-1.md` and `substack/substack-playbook-2.md`
 - [ ] Generate high-resolution screenshots/assets of the graph (Full View + Community Views)
 - [ ] Finalize the narrative ("Structural Information Engineering")

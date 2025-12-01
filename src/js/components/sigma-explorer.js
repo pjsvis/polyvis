@@ -475,6 +475,10 @@ export default () => ({
             if (this.activeLouvainGroup === null && this.renderer) {
                 // Reset to full view when showing all
                 this.renderer.getCamera().animatedReset();
+                this.renderer.setSetting("labelRenderedSizeThreshold", 8);
+            } else if (this.renderer) {
+                // Filter Active: Show more labels (Threshold 2 ensures size 6 nodes show labels)
+                this.renderer.setSetting("labelRenderedSizeThreshold", 2);
             }
         } else if (type === 'betweenness') {
             if (!graphologyLibrary.metrics) return alert("Metrics library not loaded.");

@@ -176,3 +176,41 @@ When using `graphology-library` in the browser, the exports are structured as fo
     - `graphologyLibrary.communitiesLouvain`
     - `graphologyLibrary.shortestPath`
     - `graphologyLibrary.metrics`
+
+## Applied Patterns (Best Practices)
+
+### 1. Graph Gardening (Filtering)
+**Problem:** Disconnected or "noise" nodes distort force-directed layouts (ForceAtlas2), causing the main component to be squashed.
+**Solution:** Filter these nodes out **during ingestion** (Frontend) rather than deleting them from the database. This preserves the "Source of Truth" while ensuring a clean view.
+
+```javascript
+const excludedIds = new Set(["term-001", "term-002"]);
+// Inside ingestion loop
+if (excludedIds.has(row.id)) continue;
+```
+
+### 2. Semantic Edge Generation
+**Problem:** Knowledge graphs are often too sparse (few edges) to reveal meaningful structure.
+**Solution:** Generate "Semantic Edges" by scanning node definitions for keywords from other nodes.
+- **Exact Match:** High confidence, low recall.
+- **Keyword Match:** Lower confidence, high recall (creates "hairballs" which are good for structural analysis).
+- **Stop Words:** Critical to filter out common words ("the", "system") to prevent clique formation.
+
+### 3. Louvain Community Coloring
+**Problem:** Louvain community IDs are unstable (arbitrary integers). Assigning colors by ID (`colors[id % length]`) leads to "Color Thrashing" where the main cluster changes color if the graph topology changes slightly.
+**Solution:** Assign colors by **Rank** (Size).
+1. Calculate community sizes.
+2. Sort communities by size (Descending).
+3. Assign the first color (e.g., Red) to the largest group, second (Orange) to the second largest, etc.
+
+```javascript
+// Rank-based coloring
+const counts = {};
+communities.forEach(id => counts[id] = (counts[id] || 0) + 1);
+const sortedGroups = Object.keys(counts).sort((a, b) => counts[b] - counts[a]);
+const rankMap = {};
+sortedGroups.forEach((id, index) => rankMap[id] = index);
+
+// Assign color
+const color = palette[rankMap[communityId] % palette.length];
+```
