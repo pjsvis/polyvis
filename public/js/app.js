@@ -5284,7 +5284,9 @@ var doc_viewer_default = () => ({
         if (main)
           main.scrollTop = 0;
       });
-      this.viewMode = "browse";
+      if (this.viewMode !== "reference") {
+        this.viewMode = "browse";
+      }
     } catch (e) {
       console.error(`Failed to load ${filename}`, e);
       this.contentMain = `<p class="text-red-500">Error loading document: ${filename}</p>`;

@@ -21,9 +21,9 @@
         rel="stylesheet">
 
     <link rel="stylesheet" href="/css/app.css" />
-    <!-- <link rel="stylesheet" href="/css/markdown.css" /> -->
     <link rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.8.1/github-markdown.min.css" />
+    <link rel="stylesheet" href="/css/markdown.css" />
 
     <!-- Inline Theme Init to prevent FOUC -->
     <script>
@@ -48,7 +48,7 @@
     @keydown.window.shift.d="document.body.classList.toggle('debug-mode')">
 
     <div class="app-shell"
-        :style="{ 'grid-template-columns': viewMode === 'reference' ? '0px minmax(0, 1fr) var(--sidebar-width-right)' : 'var(--sidebar-width-left) minmax(0, 1fr) 0px' }">
+        :style="{ 'grid-template-columns': (viewMode === 'reference' || viewMode === 'browse') ? 'var(--sidebar-width-left) minmax(0, 1fr) var(--sidebar-width-right)' : 'var(--sidebar-width-left) minmax(0, 1fr) 0px' }">
         <header class="app-header">
             <div x-data="navigation" x-html="view"></div>
         </header>
@@ -107,15 +107,7 @@
                     }">
                         Playbooks
                     </button>
-                    <button @click="navTab = 'outline'"
-                        class="flex-1 min-w-[60px] py-3 text-[10px] font-bold uppercase tracking-wider text-center border-b-2 transition-colors whitespace-nowrap"
-                        :style="{
-                        borderColor: navTab === 'outline' ? 'var(--color-brand)' : 'transparent',
-                        color: navTab === 'outline' ? 'var(--color-brand)' : 'var(--text-2)',
-                        backgroundColor: navTab === 'outline' ? 'var(--surface-1)' : 'transparent'
-                    }">
-                        Outline
-                    </button>
+                    <!-- Outline Tab Removed -->
                     <button class="md:hidden px-3 border-l" style="border-color: var(--border-base);"
                         @click="leftOpen = false">
                         <i data-lucide="x" class="w-4 h-4" style="color: var(--text-2);"></i>
@@ -138,50 +130,7 @@
                 </nav>
 
                 <!-- TAB CONTENT: OUTLINE (ToC) -->
-                <nav x-show="navTab === 'outline'"
-                    class="file-list-container flex flex-col p-4 overflow-y-auto flex-1 min-h-0"
-                    style="gap: var(--toc-gap-section);">
-                    <!-- Current Doc Title -->
-                    <div class="mb-4 pb-2 border-b" style="border-color: var(--border-base);">
-                        <div class="text-lg font-bold leading-tight mb-2" style="color: var(--text-1);"
-                            x-text="docs.find(d => d.file === activeDoc)?.title || activeDoc"></div>
-                    </div>
-
-                    <template x-for="(group, idx) in toc" :key="idx">
-                        <div class="mb-3 p-3 rounded-xl flex flex-col transition-colors hover:bg-[var(--surface-hover)]"
-                            style="background-color: var(--surface-2); gap: var(--toc-gap-item);">
-
-                            <!-- Group Header (H2) -->
-                            <template x-if="group.header">
-                                <a :href="'#' + group.header.id"
-                                    class="group flex items-baseline gap-2 text-sm font-medium transition-colors hover:text-[var(--brand)]"
-                                    style="color: var(--text-1);">
-                                    <span x-show="showTocNumbers && group.header.number" x-text="group.header.number"
-                                        class="font-mono text-[0.75em] opacity-50 shrink-0 select-none"></span>
-                                    <span x-text="group.header.text" class="leading-tight"></span>
-                                </a>
-                            </template>
-
-                            <!-- Group Children (H3+) -->
-                            <div class="flex flex-col pl-2 border-l ml-1"
-                                style="border-color: var(--border-base); gap: var(--toc-gap-item);"
-                                x-show="group.children.length > 0">
-                                <template x-for="child in group.children" :key="child.id">
-                                    <a :href="'#' + child.id"
-                                        class="group flex items-baseline gap-2 py-0.5 pl-2 text-xs transition-colors hover:text-[var(--brand)]"
-                                        style="color: var(--text-2);">
-                                        <span x-show="showTocNumbers && child.number" x-text="child.number"
-                                            class="font-mono text-[0.75em] opacity-50 shrink-0 select-none"></span>
-                                        <span x-text="child.text" class="leading-tight"></span>
-                                    </a>
-                                </template>
-                            </div>
-                        </div>
-                    </template>
-                    <div x-show="toc.length === 0" class="p-4 text-sm italic text-center" style="color: var(--text-2);">
-                        No headers found in this document.
-                    </div>
-                </nav>
+                <!-- Outline Content Removed -->
 
                 <!-- TAB CONTENT: PLAYBOOKS -->
                 <nav x-show="navTab === 'playbooks'"
@@ -229,7 +178,8 @@
         <!-- MAIN CONTENT -->
         <main class="app-main overflow-y-auto custom-scrollbar px-2 md:px-6 items-start place-items-start block"
             @click="handleContentClick($event)">
-            <div class="markdown-body max-w-[60ch] mx-auto py-8 bg-transparent" id="main-content" x-html="contentMain">
+            <div class="markdown-body max-w-[60ch] mx-auto py-8" id="main-content" x-html="contentMain"
+                style="background-color: transparent;">
                 <!-- Content injected here -->
                 <div class="flex h-full flex-col items-center justify-center pt-20">
                     <p class="animate-pulse font-mono text-gray-400">Loading Content...</p>
@@ -240,7 +190,8 @@
         <!-- RIGHT SIDEBAR: REFERENCE PANEL -->
         <aside class="app-sidebar-right overflow-hidden md:block p-0 md:translate-x-0 relative"
             :class="{ 'translate-x-0': rightOpen, 'translate-x-full': !rightOpen, 'block': true, 'hidden': false }"
-            x-show="viewMode === 'reference' || rightOpen" style="border-left: 1px solid var(--border-base);">
+            x-show="viewMode === 'reference' || viewMode === 'browse' || rightOpen"
+            style="border-left: 1px solid var(--border-base);">
 
             <div class="container-box docs-directory-right h-full flex flex-col"
                 style="overflow: hidden; height: 100%; padding: 0; border: none; background-color: var(--surface-1);">
@@ -248,18 +199,59 @@
                 <!-- HEADER -->
                 <div class="flex items-center justify-between p-3 border-b sticky top-0 z-10"
                     style="border-color: var(--border-base); background-color: var(--surface-2);">
-                    <h3 class="text-xs font-bold uppercase tracking-wider" style="color: var(--text-2);">Reference</h3>
-                    <button @click="goBack()"
+                    <h3 class="text-xs font-bold uppercase tracking-wider" style="color: var(--text-2);"
+                        x-text="contentRef ? 'Reference' : 'Outline'"></h3>
+                    <button x-show="contentRef" @click="goBack()"
                         class="flex items-center gap-1 text-xs font-bold px-2 py-1 rounded hover:bg-gray-200 transition-colors"
                         style="color: var(--color-brand);">
                         <i data-lucide="arrow-left" class="w-3 h-3"></i> Back
                     </button>
                 </div>
 
-                <!-- CONTENT -->
-                <div class="p-4 overflow-y-auto flex-1 min-h-0 prose prose-sm max-w-none" x-html="contentRef">
-                    <!-- Reference Content Injected Here -->
+                <!-- REFERENCE CONTENT -->
+                <div x-show="contentRef" class="p-4 overflow-y-auto flex-1 min-h-0 prose prose-sm max-w-none"
+                    x-html="contentRef">
                 </div>
+
+                <!-- OUTLINE CONTENT (Default) -->
+                <nav x-show="!contentRef" class="file-list-container flex flex-col p-4 overflow-y-auto flex-1 min-h-0"
+                    style="gap: var(--toc-gap-section);">
+
+                    <template x-for="(group, idx) in toc" :key="idx">
+                        <div class="mb-3 p-3 rounded-xl flex flex-col transition-colors hover:bg-[var(--surface-hover)]"
+                            style="background-color: var(--surface-2); gap: var(--toc-gap-item);">
+
+                            <!-- Group Header (H2) -->
+                            <template x-if="group.header">
+                                <a :href="'#' + group.header.id"
+                                    class="group flex items-baseline gap-2 text-sm font-medium transition-colors hover:text-[var(--brand)]"
+                                    style="color: var(--text-1);">
+                                    <span x-show="showTocNumbers && group.header.number" x-text="group.header.number"
+                                        class="font-mono text-[0.75em] opacity-50 shrink-0 select-none"></span>
+                                    <span x-text="group.header.text" class="leading-tight"></span>
+                                </a>
+                            </template>
+
+                            <!-- Group Children (H3+) -->
+                            <div class="flex flex-col pl-2 border-l ml-1"
+                                style="border-color: var(--border-base); gap: var(--toc-gap-item);"
+                                x-show="group.children.length > 0">
+                                <template x-for="child in group.children" :key="child.id">
+                                    <a :href="'#' + child.id"
+                                        class="group flex items-baseline gap-2 py-0.5 pl-2 text-xs transition-colors hover:text-[var(--brand)]"
+                                        style="color: var(--text-2);">
+                                        <span x-show="showTocNumbers && child.number" x-text="child.number"
+                                            class="font-mono text-[0.75em] opacity-50 shrink-0 select-none"></span>
+                                        <span x-text="child.text" class="leading-tight"></span>
+                                    </a>
+                                </template>
+                            </div>
+                        </div>
+                    </template>
+                    <div x-show="toc.length === 0" class="p-4 text-sm italic text-center" style="color: var(--text-2);">
+                        No headers found in this document.
+                    </div>
+                </nav>
             </div>
         </aside>
         <footer class="app-footer text-center font-mono text-xs text-gray-400">

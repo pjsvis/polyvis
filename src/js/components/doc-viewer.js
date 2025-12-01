@@ -107,7 +107,10 @@ export default () => ({
             });
 
             // Reset View
-            this.viewMode = 'browse';
+            // this.viewMode = 'browse'; // Keep current view mode or default to browse
+            if (this.viewMode !== 'reference') {
+                this.viewMode = 'browse';
+            }
         } catch (e) {
             console.error(`Failed to load ${filename}`, e);
             this.contentMain = `<p class="text-red-500">Error loading document: ${filename}</p>`;
