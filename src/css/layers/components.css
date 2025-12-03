@@ -21,34 +21,21 @@
     transition: all 0.1s ease;
     text-decoration: none;
     border-radius: 0;
-}
 
-/* ... existing hover/active styles ... */
+    &:hover {
+        transform: none;
+        box-shadow: none;
+        background-color: var(--primary);
+        color: var(--secondary);
+    }
 
-.nav-brand {
-    font-size: var(--font-size-xl);
-    font-weight: 700;
-    text-transform: uppercase;
-    text-decoration: none;
-    color: var(--text-1);
-    font-family: var(--font-mono);
-    /* Unified font */
-    /* letter-spacing removed */
-}
-
-.btn-structural:hover {
-    transform: none;
-    box-shadow: none;
-    background-color: var(--primary);
-    color: var(--secondary);
-}
-
-.btn-structural:active,
-.btn-structural.active {
-    transform: translateY(2px);
-    box-shadow: none;
-    background-color: var(--primary);
-    color: var(--secondary);
+    &:active,
+    &.active {
+        transform: translateY(2px);
+        box-shadow: none;
+        background-color: var(--primary);
+        color: var(--secondary);
+    }
 }
 
 .structural-input {
@@ -57,12 +44,12 @@
     border: var(--border-base) solid var(--primary);
     border-radius: 0;
     box-shadow: inset var(--size-1) var(--size-1) 0px 0px rgba(0, 0, 0, 0.05);
-}
 
-.structural-input:focus {
-    outline: none;
-    border-color: var(--primary);
-    box-shadow: inset var(--size-1) var(--size-1) 0px 0px rgba(0, 0, 0, 0.1);
+    &:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: inset var(--size-1) var(--size-1) 0px 0px rgba(0, 0, 0, 0.1);
+    }
 }
 
 .search-input {
@@ -73,11 +60,11 @@
     border-bottom: var(--border-size-2) solid var(--primary);
     padding: var(--size-4);
     background: transparent;
-}
 
-.search-input:focus {
-    outline: none;
-    border-bottom: var(--size-1) solid var(--primary);
+    &:focus {
+        outline: none;
+        border-bottom: var(--size-1) solid var(--primary);
+    }
 }
 
 /* Navigation */
@@ -108,16 +95,16 @@
     display: flex;
     align-items: center;
     gap: var(--size-2);
-}
 
-.nav-item:hover,
-.nav-item.active {
-    text-decoration: underline;
-    color: var(--text-1);
-}
+    &:hover,
+    &.active {
+        text-decoration: underline;
+        color: var(--text-1);
+    }
 
-.nav-item.active {
-    font-weight: bold;
+    &.active {
+        font-weight: bold;
+    }
 }
 
 .home-nav {
@@ -160,12 +147,12 @@
     background-color: var(--surface-panel);
     padding: 0 var(--border-size-2);
     border-radius: var(--radius-component);
-}
 
-.internal-link:hover {
-    background-color: var(--primary);
-    color: var(--secondary);
-    border-bottom: none;
+    &:hover {
+        background-color: var(--primary);
+        color: var(--secondary);
+        border-bottom: none;
+    }
 }
 
 .home-box {
@@ -179,11 +166,9 @@
     /* Base styles for narrow containers (sidebar/mobile) */
     padding: var(--size-4);
     aspect-ratio: auto;
-}
 
-/* When container is wide enough (e.g. main area) */
-@container (min-width: 700px) {
-    .home-box {
+    /* When container is wide enough (e.g. main area) */
+    @container (min-width: 700px) {
         max-width: var(--width-home-box);
         aspect-ratio: 1.7;
         padding: var(--size-8);
@@ -246,24 +231,24 @@
     text-decoration: none;
     color: var(--text-2);
     transition: all 0.2s;
-}
 
-.doc-link:hover {
-    background-color: var(--surface-hover);
-    color: var(--text-1);
-    /* Fallback */
-    color: contrast-color(var(--surface-hover));
-    padding-left: var(--size-5);
-    /* Slight nudge effect */
-}
+    &:hover {
+        background-color: var(--surface-hover);
+        color: var(--text-1);
+        /* Fallback */
+        color: contrast-color(var(--surface-hover));
+        padding-left: var(--size-5);
+        /* Slight nudge effect */
+    }
 
-.doc-link.active {
-    background-color: var(--color-brand);
-    color: var(--gray-0);
-    /* Fallback */
-    color: contrast-color(var(--color-brand));
-    /* Modern Standard */
-    font-weight: bold;
+    &.active {
+        background-color: var(--color-brand);
+        color: var(--gray-0);
+        /* Fallback */
+        color: contrast-color(var(--color-brand));
+        /* Modern Standard */
+        font-weight: bold;
+    }
 }
 
 .doc-link:last-child {

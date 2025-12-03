@@ -48,8 +48,8 @@
     background-color: var(--zoom-bg);
     color: var(--zoom-text);
     border-color: var(--zoom-border);
-}
 
-.sigma-zoom-btn:hover {
-    background-color: var(--surface-2);
+    &:hover {
+        background-color: var(--surface-2);
+    }
 }

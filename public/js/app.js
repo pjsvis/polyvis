@@ -3506,8 +3506,18 @@ var sigma_explorer_default = () => ({
           color: row.type === "Core Concept" ? "black" : "#475569",
           originalSize: row.type === "Core Concept" ? 20 : 6,
           originalColor: row.type === "Core Concept" ? "black" : "#475569",
-          x: Math.random() * 100,
-          y: Math.random() * 100,
+          x: function(str) {
+            let hash = 0;
+            for (let i = 0;i < str.length; i++)
+              hash = Math.imul(31, hash) + str.charCodeAt(i) | 0;
+            return Math.abs(hash) % 1000 / 10;
+          }(row.id + "x"),
+          y: function(str) {
+            let hash = 0;
+            for (let i = 0;i < str.length; i++)
+              hash = Math.imul(31, hash) + str.charCodeAt(i) | 0;
+            return Math.abs(hash) % 1000 / 10;
+          }(row.id + "y"),
           external_refs: row.external_refs ? JSON.parse(row.external_refs) : []
         });
       }
@@ -3665,7 +3675,9 @@ var sigma_explorer_default = () => ({
       if (!graphologyLibrary.communitiesLouvain)
         return alert("Louvain library not loaded.");
       if (!this.louvainCommunities) {
-        this.louvainCommunities = graphologyLibrary.communitiesLouvain(this.graph);
+        this.louvainCommunities = graphologyLibrary.communitiesLouvain(this.graph, {
+          resolution: 1.1
+        });
         this.louvainNames = {};
         const communityNodes = {};
         this.graph.forEachNode((node) => {
@@ -3690,7 +3702,12 @@ var sigma_explorer_default = () => ({
       const communities = this.louvainCommunities;
       const counts = {};
       Object.values(communities).forEach((id) => counts[id] = (counts[id] || 0) + 1);
-      const sortedGroupIds = Object.keys(counts).sort((a, b) => counts[b] - counts[a]);
+      const sortedGroupIds = Object.keys(counts).sort((a, b) => {
+        const diff = counts[b] - counts[a];
+        if (diff !== 0)
+          return diff;
+        return a.localeCompare(b);
+      });
       const rankMap = {};
       sortedGroupIds.forEach((id, index) => rankMap[id] = index);
       const colors = [

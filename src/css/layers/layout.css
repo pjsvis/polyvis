@@ -68,10 +68,8 @@
     container-name: sidebar;
     transition: transform 0.3s ease-in-out;
     z-index: 50;
-}
 
-@media (max-width: 768px) {
-    .app-sidebar-left {
+    @media (max-width: 768px) {
         position: fixed;
         top: var(--header-height);
         bottom: 0;
@@ -144,10 +142,8 @@
     container-name: sidebar;
     transition: transform 0.3s ease-in-out;
     z-index: 50;
-}
 
-@media (max-width: 768px) {
-    .app-sidebar-right {
+    @media (max-width: 768px) {
         position: fixed;
         top: var(--header-height);
         bottom: 0;

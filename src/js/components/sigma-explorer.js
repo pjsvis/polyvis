@@ -159,8 +159,19 @@ export default () => ({
                     color: row.type === "Core Concept" ? "black" : "#475569",
                     originalSize: row.type === "Core Concept" ? 20 : 6,
                     originalColor: row.type === "Core Concept" ? "black" : "#475569",
-                    x: Math.random() * 100,
-                    y: Math.random() * 100,
+                    // User Request: Deterministic Layout
+                    // We use a hash of the ID to ensure the node always starts at the same position.
+                    // This ensures ForceAtlas2 converges to the same shape every time.
+                    x: (function (str) {
+                        let hash = 0;
+                        for (let i = 0; i < str.length; i++) hash = Math.imul(31, hash) + str.charCodeAt(i) | 0;
+                        return (Math.abs(hash) % 1000) / 10; // 0-100
+                    })(row.id + 'x'),
+                    y: (function (str) {
+                        let hash = 0;
+                        for (let i = 0; i < str.length; i++) hash = Math.imul(31, hash) + str.charCodeAt(i) | 0;
+                        return (Math.abs(hash) % 1000) / 10; // 0-100
+                    })(row.id + 'y'),
                     external_refs: row.external_refs ? JSON.parse(row.external_refs) : []
                 });
             }
@@ -425,7 +436,13 @@ export default () => ({
 
             // Calculate communities if not already cached
             if (!this.louvainCommunities) {
-                this.louvainCommunities = graphologyLibrary.communitiesLouvain(this.graph);
+                // User Request: Target ~7 communities (Miller's Law)
+                // Resolution > 1.0 produces smaller, more numerous communities.
+                // Resolution < 1.0 produces larger, fewer communities.
+                // We bump it to 1.1 to shift from [4-6] range to [6-8] range.
+                this.louvainCommunities = graphologyLibrary.communitiesLouvain(this.graph, {
+                    resolution: 1.1
+                });
 
                 // Compute Community Names (Hubs)
                 this.louvainNames = {};
@@ -461,7 +478,12 @@ export default () => ({
 
             // 2. Sort Group IDs by size (Descending)
             // The largest group will get index 0, second largest index 1, etc.
-            const sortedGroupIds = Object.keys(counts).sort((a, b) => counts[b] - counts[a]);
+            // ADDED: Deterministic tie-breaker (ID comparison) to prevent color shifting on reload
+            const sortedGroupIds = Object.keys(counts).sort((a, b) => {
+                const diff = counts[b] - counts[a];
+                if (diff !== 0) return diff;
+                return a.localeCompare(b);
+            });
 
             // 3. Create a Map: GroupID -> Rank Index
             const rankMap = {};
