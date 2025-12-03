@@ -11,13 +11,13 @@
     background-color: var(--secondary);
     color: var(--primary);
     border: var(--border-size-2) solid var(--primary);
-    padding: var(--size-3) var(--size-6);
+    padding: var(--size-2) var(--size-4);
     font-family: var(--font-mono);
     text-transform: uppercase;
     font-size: var(--font-size-base);
     font-weight: 700;
     cursor: pointer;
-    box-shadow: var(--size-2) var(--size-2) 0px 0px var(--primary);
+    box-shadow: none;
     transition: all 0.1s ease;
     text-decoration: none;
     border-radius: 0;
@@ -37,16 +37,18 @@
 }
 
 .btn-structural:hover {
-    transform: translate(calc(var(--border-size-2) * -1), calc(var(--border-size-2) * -1));
-    box-shadow: var(--size-2) var(--size-2) 0px 0px var(--black);
+    transform: none;
+    box-shadow: none;
+    background-color: var(--primary);
+    color: var(--secondary);
 }
 
 .btn-structural:active,
 .btn-structural.active {
-    transform: translate(var(--border-size-2), var(--border-size-2));
-    box-shadow: var(--border-size-2) var(--border-size-2) 0px 0px var(--black);
+    transform: translateY(2px);
+    box-shadow: none;
     background-color: var(--primary);
-    color: white;
+    color: var(--secondary);
 }
 
 .structural-input {

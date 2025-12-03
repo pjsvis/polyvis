@@ -3409,7 +3409,9 @@ var sigma_explorer_default = () => ({
   showTooltip(event, text) {
     const rect = event.currentTarget.getBoundingClientRect();
     this.tooltip.text = text;
-    this.tooltip.x = rect.right + 10;
+    const sidebar = document.querySelector(".explorer-sidebar-left");
+    const sidebarWidth = sidebar ? sidebar.getBoundingClientRect().width : 280;
+    this.tooltip.x = Math.max(rect.right + 20, sidebarWidth + 10);
     this.tooltip.y = rect.top;
     this.tooltip.visible = true;
   },
@@ -3592,10 +3594,8 @@ var sigma_explorer_default = () => ({
       }
       console.log(`[SigmaDebug] clickStage DESELECTING`);
       this.selectedNode = null;
-      this.rightOpen = false;
       this.graph.forEachNode((n) => {
         this.graph.setNodeAttribute(n, "highlighted", false);
-        this.graph.setNodeAttribute(n, "size", this.graph.getNodeAttribute(n, "originalSize"));
         this.graph.setNodeAttribute(n, "zIndex", 1);
       });
       if (this.renderer)
@@ -3666,6 +3666,26 @@ var sigma_explorer_default = () => ({
         return alert("Louvain library not loaded.");
       if (!this.louvainCommunities) {
         this.louvainCommunities = graphologyLibrary.communitiesLouvain(this.graph);
+        this.louvainNames = {};
+        const communityNodes = {};
+        this.graph.forEachNode((node) => {
+          const comm = this.louvainCommunities[node];
+          if (!communityNodes[comm])
+            communityNodes[comm] = [];
+          communityNodes[comm].push(node);
+        });
+        Object.keys(communityNodes).forEach((commId) => {
+          let maxDegree = -1;
+          let hubNode = null;
+          communityNodes[commId].forEach((node) => {
+            const degree = this.graph.degree(node);
+            if (degree > maxDegree) {
+              maxDegree = degree;
+              hubNode = node;
+            }
+          });
+          this.louvainNames[commId] = this.graph.getNodeAttribute(hubNode, "label") || hubNode;
+        });
       }
       const communities = this.louvainCommunities;
       const counts = {};
@@ -3832,7 +3852,8 @@ var sigma_explorer_default = () => ({
     })).sort((a, b) => b.count - a.count);
     return sortedGroups.map((group, index) => ({
       ...group,
-      color: colors[index % colors.length]
+      color: colors[index % colors.length],
+      name: this.louvainNames ? this.louvainNames[group.id] : `Group ${group.id}`
     }));
   },
   cycleLouvainGroup() {

@@ -28,7 +28,14 @@ export default () => ({
     showTooltip(event, text) {
         const rect = event.currentTarget.getBoundingClientRect();
         this.tooltip.text = text;
-        this.tooltip.x = rect.right + 10;
+
+        // User Request: Ensure tooltip is contained in graph area (right of sidebar)
+        // Dynamically calculate sidebar width to be robust
+        const sidebar = document.querySelector('.explorer-sidebar-left');
+        const sidebarWidth = sidebar ? sidebar.getBoundingClientRect().width : 280;
+
+        // Position to the right of the sidebar with a small buffer
+        this.tooltip.x = Math.max(rect.right + 20, sidebarWidth + 10);
         this.tooltip.y = rect.top;
         this.tooltip.visible = true;
     },
@@ -301,10 +308,9 @@ export default () => ({
 
             console.log(`[SigmaDebug] clickStage DESELECTING`);
             this.selectedNode = null;
-            this.rightOpen = false;
+            // this.rightOpen = false; // User Request: Keep panel open (pinned)
             this.graph.forEachNode((n) => {
                 this.graph.setNodeAttribute(n, "highlighted", false);
-                this.graph.setNodeAttribute(n, "size", this.graph.getNodeAttribute(n, "originalSize"));
                 this.graph.setNodeAttribute(n, "zIndex", 1);
             });
             if (this.renderer) this.renderer.refresh();
@@ -420,6 +426,32 @@ export default () => ({
             // Calculate communities if not already cached
             if (!this.louvainCommunities) {
                 this.louvainCommunities = graphologyLibrary.communitiesLouvain(this.graph);
+
+                // Compute Community Names (Hubs)
+                this.louvainNames = {};
+                const communityNodes = {};
+
+                // Group nodes
+                this.graph.forEachNode((node) => {
+                    const comm = this.louvainCommunities[node];
+                    if (!communityNodes[comm]) communityNodes[comm] = [];
+                    communityNodes[comm].push(node);
+                });
+
+                // Find hub for each community
+                Object.keys(communityNodes).forEach(commId => {
+                    let maxDegree = -1;
+                    let hubNode = null;
+                    communityNodes[commId].forEach(node => {
+                        const degree = this.graph.degree(node);
+                        if (degree > maxDegree) {
+                            maxDegree = degree;
+                            hubNode = node;
+                        }
+                    });
+                    // Use label if available, else ID
+                    this.louvainNames[commId] = this.graph.getNodeAttribute(hubNode, "label") || hubNode;
+                });
             }
             const communities = this.louvainCommunities;
 
@@ -609,10 +641,11 @@ export default () => ({
             count: counts[id]
         })).sort((a, b) => b.count - a.count);
 
-        // Assign colors by RANK
+        // Assign colors by RANK and add NAME
         return sortedGroups.map((group, index) => ({
             ...group,
-            color: colors[index % colors.length]
+            color: colors[index % colors.length],
+            name: this.louvainNames ? this.louvainNames[group.id] : `Group ${group.id}`
         }));
     },
 
