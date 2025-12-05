@@ -14,13 +14,6 @@
     "tags": []
   },
   {
-    "id": "scratchpad-scrolling",
-    "type": "playbook",
-    "title": "Scratchpad: Sidebar Scrolling Experiments",
-    "path": "playbooks/scratchpad-scrolling.md",
-    "tags": []
-  },
-  {
     "id": "problem-solving-playbook",
     "type": "playbook",
     "title": "Problem Solving Playbook",
@@ -42,13 +35,6 @@
     "tags": []
   },
   {
-    "id": "scratchpad-toc",
-    "type": "playbook",
-    "title": "Scratchpad: TOC Generation Debugging",
-    "path": "playbooks/scratchpad-toc.md",
-    "tags": []
-  },
-  {
     "id": "sigma-playbook",
     "type": "playbook",
     "title": "Sigma.js Playbook",
@@ -67,20 +53,6 @@
     "type": "playbook",
     "title": "Tailwind CSS v4 Playbook",
     "path": "playbooks/tailwind-v4-playbook.md",
-    "tags": []
-  },
-  {
-    "id": "scratchpad-design",
-    "type": "playbook",
-    "title": "Design Scratchpad: AntiGravity Emulation",
-    "path": "playbooks/scratchpad-design.md",
-    "tags": []
-  },
-  {
-    "id": "scratchpad-toc-disappearance",
-    "type": "playbook",
-    "title": "Scratchpad: TOC Disappearance Investigation",
-    "path": "playbooks/scratchpad-toc-disappearance.md",
     "tags": []
   },
   {
@@ -161,6 +133,13 @@
     "tags": []
   },
   {
+    "id": "css-nesting-playbook",
+    "type": "playbook",
+    "title": "PolyVis: CSS Nesting Playbook & Operational Standards",
+    "path": "playbooks/css-nesting-playbook.md",
+    "tags": []
+  },
+  {
     "id": "css-defensive-playbook",
     "type": "playbook",
     "title": "Defensive CSS Playbook",
@@ -172,6 +151,13 @@
     "type": "playbook",
     "title": "Flexbox Playbook",
     "path": "playbooks/css-flexbox-playbook.md",
+    "tags": []
+  },
+  {
+    "id": "biome-playbook",
+    "type": "playbook",
+    "title": "Biome Playbook",
+    "path": "playbooks/biome-playbook.md",
     "tags": []
   },
   {
@@ -279,6 +265,14 @@
     "tags": []
   },
   {
+    "id": "2025-12-03-css-nesting-and-graph-stability",
+    "type": "debrief",
+    "title": "Debrief: CSS Nesting & Graph Stability",
+    "path": "debriefs/2025-12-03-css-nesting-and-graph-stability.md",
+    "date": "2025-12-03",
+    "tags": []
+  },
+  {
     "id": "2025-11-21-03-sigma-zoom",
     "type": "debrief",
     "title": "Debrief: Sigma Zoom Implementation",
@@ -292,6 +286,22 @@
     "title": "Debrief: Text Wrap Optimization",
     "path": "debriefs/2025-11-29-text-wrap.md",
     "date": "2025-11-29",
+    "tags": []
+  },
+  {
+    "id": "2025-12-01-louvain-refinements",
+    "type": "debrief",
+    "title": "Debrief: Louvain Visualization Refinements & Database Recovery",
+    "path": "debriefs/2025-12-01-louvain-refinements.md",
+    "date": "2025-12-01",
+    "tags": []
+  },
+  {
+    "id": "2025-12-05-mistral-agent-chat-api",
+    "type": "debrief",
+    "title": "Debrief: Implementing an Interactive Chat with the Mistral Agent API",
+    "path": "debriefs/2025-12-05-mistral-agent-chat-api.md",
+    "date": "2025-12-05",
     "tags": []
   },
   {

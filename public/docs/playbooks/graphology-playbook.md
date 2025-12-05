@@ -212,5 +212,34 @@ const rankMap = {};
 sortedGroups.forEach((id, index) => rankMap[id] = index);
 
 // Assign color
+// Assign color
 const color = palette[rankMap[communityId] % palette.length];
+```
+
+### 4. Louvain Resolution Tuning
+**Problem:** The default Louvain resolution (1.0) often produces too few or too many communities for human cognitive processing (Miller's Law: $7 \pm 2$).
+**Solution:** Tune the `resolution` parameter to target the "Sweet Spot" (5-9 communities).
+- **Resolution < 1.0:** Larger, fewer communities (Macro View).
+- **Resolution > 1.0:** Smaller, more numerous communities (Micro View).
+- **Strategy:** Do not expose this to the user. Find the value that works for your specific dataset density and lock it in.
+
+```javascript
+// Example: Bumping resolution to 1.1 to increase community count from 4 to ~7
+const communities = graphologyLibrary.communitiesLouvain(graph, { 
+    resolution: 1.1 
+});
+```
+
+### 5. Deterministic Layouts
+**Problem:** Force-directed layouts (ForceAtlas2) and Community Detection (Louvain) are sensitive to initial conditions. Random initial positions (`Math.random()`) cause the graph to "shape-shift" and communities to swap colors on every reload.
+**Solution:** Initialize node positions using a **deterministic hash** of the Node ID.
+
+```javascript
+// Deterministic Randomness
+const hash = (str) => {
+    let h = 0;
+    for (let i = 0; i < str.length; i++) h = Math.imul(31, h) + str.charCodeAt(i) | 0;
+    return (Math.abs(h) % 1000) / 10;
+};
+graph.addNode(id, { x: hash(id + 'x'), y: hash(id + 'y') });
 ```
