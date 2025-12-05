@@ -24,6 +24,7 @@
     "typescript": "^5"
   },
   "dependencies": {
+    "@mistralai/mistralai": "^1.10.0",
     "marked": "^17.0.1"
   }
 }

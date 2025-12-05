@@ -89,21 +89,36 @@ This document outlines the core operational protocols governing the actions of a
   4.  **Centralization:** `theme.css` is the single source of truth for the application's visual configuration.
 
 ## 11. PMP: Port Management Protocol
-    - **Directive:** If Port 3000 is in use when starting the dev server, KILL the process occupying it.
-12. EVP: Empirical Verification Protocol
-    - **Directive:** Do not guess. Verify.
-    - **Action:** When diagnosing UI issues, you MUST use the browser tools to inspect computed styles. Theoretical CSS debugging is prohibited when a live environment is available.
-    - **Reasoning:** The "truth" is what the browser renders, not what the code theoretically says.
 
-13. GEP: Granular Execution Protocol
-    - **Directive:** When fixing regressions or performing complex refactors, proceed one isolated step at a time.
-    - **Workflow:**
-        1.  Diagnose one specific issue.
-        2.  Propose the fix.
-        3.  Apply the fix.
-        4.  Verify the fix.
-        5.  Only then move to the next issue.
-    - **Reasoning:** Prevents compounding errors and "bounding ahead" without validation.
+- **Directive:** If Port 3000 is in use when starting the dev server, KILL the process occupying it.
+    
+## 12. EVP: Empirical Verification Protocol
+
+- **Directive:** Do not guess. Verify. The "truth" is what the environment (browser, runtime, or library) actually does, not what you assume it does.
+
+- **Workflow (UI Debugging):**
+    - **Action:** When diagnosing UI issues, you MUST use the browser tools to inspect computed styles.
+    - **Reasoning:** Theoretical CSS debugging is prohibited when a live environment is available.
+
+- **Workflow (External API / Library Debugging):**
+    - **Context:** When integrating with an external library (especially a beta or poorly documented one), repeated `TypeError` or `ValidationError`s are signs of a flawed mental model.
+    - **Action Sequence:**
+        1.  **Stop Guessing:** After a maximum of two failed attempts based on assumptions, halt immediately. Do not try a third guess.
+        2.  **Verify Dependency Stability:** Check for the existence of `bun.lockb`. If it is missing, run `bun install` to generate it. This ensures a known, reproducible state.
+        3.  **Find the Ground Truth:** Navigate to `node_modules/` and locate the library's TypeScript definition files (`.d.ts`). **This is the primary source of truth.** Read the type definitions for the relevant classes and methods to understand their exact names, parameters, and return types.
+        4.  **Decode Validation Errors:** Treat `SDKValidationError` or similar errors as explicit instructions from the library. Analyze the error's `path` and `expected` properties to precisely correct the structure of your request payload. Do not guess the structure.
+        5.  **Isolate (If Necessary):** If the API contract is still unclear, create a temporary scratchpad file (e.g., `SCRATCHPAD_api_discovery.ts`) to run a minimal, isolated test against the specific method in question.
+
+## 13. GEP: Granular Execution Protocol
+
+- **Directive:** When fixing regressions or performing complex refactors, proceed one isolated step at a time.
+- **Workflow:**
+    1.  Diagnose one specific issue.
+    2.  Propose the fix.
+    3.  Apply the fix.
+    4.  Verify the fix.
+    5.  Only then move to the next issue.
+- **Reasoning:** Prevents compounding errors and "bounding ahead" without validation.
 
 ## 14. TFP: Theme First Protocol
 
@@ -158,3 +173,14 @@ This document outlines the core operational protocols governing the actions of a
     3.  **Revert:** Undo the "guesswork" changes.
     4.  **Isolate:** Switch to a "Clean Room" strategy (see `playbooks/problem-solving-playbook.md`) to verify the component in isolation.
     5.  **Verify:** Only return to the main codebase once the fix is proven in isolation.
+
+## 19. SEP: Secret Exclusivity Protocol
+
+-   **Principle:** API keys, tokens, and other secrets must never be hardcoded in source files or checked into version control. They must be managed exclusively through environment variables.
+-   **Workflow:**
+    1.  **Identification:** When an API key or other secret is required, identify it as sensitive information.
+    2.  **Storage:** Store the secret in a `.env` file in the project root. The variable name should be prefixed with the service it relates to (e.g., `MISTRAL_API_KEY`).
+    3.  **Gitignore:** Ensure `.env` is listed in the project's `.gitignore` file to prevent it from being committed.
+    4.  **Access:** In the code (e.g., Bun, Node.js), access the secret using `process.env.VARIABLE_NAME`.
+    5.  **Validation:** The code must include a check to ensure the environment variable is present at runtime and throw a clear error if it is missing.
+    6.  **Prohibition:** Do not, under any circumstances, write the secret value directly into a script, log file, or any other artifact that could be committed.
