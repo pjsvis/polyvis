@@ -10,11 +10,35 @@
 - [ ] Finalize the narrative ("Structural Information Engineering")
 - [ ] Publish
 
-# Previous Task: CSS Nesting & Graph Stability
-**Status:** Complete
-- [x] Refactor CSS to use Native Nesting (Locality of Behavior)
-- [x] Stabilize Graph Layout (Deterministic Node Positioning)
-- [x] Stabilize Community Colors (Deterministic Sorting)
-- [x] Tune Louvain Resolution (Target ~7 Communities)
-- [x] Document CSS Strategy (`public/docs/css-nesting.md`)
+
+## Next task
+
+# Task: Build Resonance Engine (v1.0)
+
+refer to 
+
+- `briefs/A-brief-resonance-engine.md` 
+- `briefs/B-brief-configuration-engine.md`
+- `briefs/C-brief-experience-graph.md`  
+
+for details
+
+
+
+**Status:** Pending
+**Objective:** Create the standalone `resonance` binary for Meta-Cognitive Graph management.
+
+## Checklist
+- [ ] **Initialization & Config**
+    - [ ] Create `resonance.settings.json` schema/interface.
+    - [ ] Implement `src/config.ts` loader.
+    - [ ] Implement `src/commands/init.ts` (Scaffolding).
+- [ ] **Core Logic (ETL)**
+    - [ ] Port `build_experience.ts` logic to `src/commands/sync.ts`.
+    - [ ] Implement Edge Generation (Regex for `OH-` and `[[links]]`).
+- [ ] **Compilation**
+    - [ ] Configure `bun build --compile`.
+    - [ ] Verify binary portability.
+
+
 
