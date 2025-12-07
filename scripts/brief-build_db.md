@@ -17,4 +17,4 @@ Serialize the array using JSON.stringify().
 Update the INSERT statement to bind this JSON string to the new column.
 
 Fallback: If no refs exist, store an empty array [] or null.
-````
+```

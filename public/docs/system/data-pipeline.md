@@ -90,7 +90,7 @@ digraph DocumentDataPipeline {
     color = "lightblue";
     
     debriefs [label="debriefs/*.md", shape=folder];
-    playbooks [label="public/docs/playbooks/*.md", shape=folder];
+    playbooks [label="playbooks/*.md", shape=folder];
     root_docs [label="AGENTS.md, etc.", shape=note];
   }
 
@@ -117,7 +117,7 @@ digraph DocumentDataPipeline {
 
 1.  **Sources:** The pipeline gathers Markdown files from several locations:
     -   `debriefs/`: Contains all post-task debriefing documents.
-    -   `public/docs/playbooks/`: Contains procedural guides.
+    -   `playbooks/`: Contains procedural guides.
     -   Root-level documents like `AGENTS.md`.
 2.  **Processing:** The `scripts/build_experience.ts` script executes the following steps:
     -   Reads the content of each source Markdown file.

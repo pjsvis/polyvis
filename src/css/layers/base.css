@@ -3,36 +3,36 @@
  */
 
 html {
-    scrollbar-gutter: stable both-edges;
-    height: 100%;
-    overflow: hidden;
-    /* Strict app-shell behavior */
-    background-color: var(--accent);
-    color-scheme: light;
+	scrollbar-gutter: stable both-edges;
+	height: 100%;
+	overflow: hidden;
+	/* Strict app-shell behavior */
+	background-color: var(--accent);
+	color-scheme: light;
 }
 
 h1,
 h2,
 h3,
 h4 {
-    text-wrap: balance;
-    scroll-margin-top: var(--scroll-offset);
+	text-wrap: balance;
+	scroll-margin-top: var(--scroll-offset);
 }
 
 p {
-    text-wrap: pretty;
-    max-width: var(--size-content-3);
+	text-wrap: pretty;
+	max-width: var(--size-content-3);
 }
 
 img {
-    /* Responsiveness */
-    max-width: 100%;
-    height: auto;
+	/* Responsiveness */
+	max-width: 100%;
+	height: auto;
 
-    /* Error handling */
-    position: relative;
-    font-style: italic;
-    background-color: var(--surface-2);
+	/* Error handling */
+	position: relative;
+	font-style: italic;
+	background-color: var(--surface-2);
 }
 
 /* 
@@ -40,57 +40,57 @@ img {
  */
 
 body {
-    font-family: var(--font-sans);
-    background-color: var(--accent);
-    color: var(--primary);
-    margin: 0;
-    line-height: 1.5;
-    height: 100%;
-    overflow: hidden;
-    /* Strict app-shell behavior */
+	font-family: var(--font-sans);
+	background-color: var(--accent);
+	color: var(--primary);
+	margin: 0;
+	line-height: 1.5;
+	height: 100%;
+	overflow: hidden;
+	/* Strict app-shell behavior */
 }
 
 /* Brutalist Link Reset */
 a,
 a:visited {
-    color: var(--link);
-    text-decoration: none;
+	color: var(--link);
+	text-decoration: none;
 }
 
 a:hover {
-    text-decoration: none;
+	text-decoration: none;
 }
 
 /* Monospace accents */
 .mono {
-    font-family: var(--font-mono);
+	font-family: var(--font-mono);
 }
 
 /* Page Transitions */
 body {
-    opacity: 0;
-    transition: opacity 0.6s ease-out;
+	opacity: 0;
+	transition: opacity 0.6s ease-out;
 }
 
 body.loaded {
-    opacity: 1;
+	opacity: 1;
 }
 
 /* Custom Scrollbar for Sidebars */
 /* Custom Scrollbar for Sidebars */
 ::-webkit-scrollbar {
-    width: var(--size-1);
+	width: var(--size-1);
 }
 
 ::-webkit-scrollbar-track {
-    background: transparent;
+	background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-    background-color: var(--scrollthumb-color);
-    border-radius: var(--radius-1);
+	background-color: var(--scrollthumb-color);
+	border-radius: var(--radius-1);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background-color: var(--scrollthumb-hover-color);
+	background-color: var(--scrollthumb-hover-color);
 }

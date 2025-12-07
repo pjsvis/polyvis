@@ -27,6 +27,8 @@ tags: [mistral, api, bun, typescript, debugging, agents]
     - **Validation Error 1**: `expected: "object", received: "undefined", path: ["conversationAppendRequest"]`. My fix was to nest the entire payload under `conversationAppendRequest`, which was an over-correction.
     - **Validation Error 2**: `expected: "string", received: "undefined", path: ["conversationId"]`. This error, contrasted with the first, provided the final clue: the `conversationId` needed to be a top-level property, sibling to the `conversationAppendRequest` object.
 
+- **Inaccurate Documentation due to Incomplete Analysis**: In the process of documenting the data pipelines, I incorrectly identified `public/docs/playbooks/` as the source for playbooks, when it is in fact the *destination*. The true source is the root `playbooks/` directory. This error was caused by a failure to fully read and comprehend the `scripts/build_experience.ts` configuration before creating documentation.
+
 ## Lessons Learned
 
 - **Lesson 1: Source Code is the Ultimate Ground Truth (EVP)**: **Do not guess API methods, especially for beta features.** When documentation is sparse or ambiguous, the **only** reliable source of truth is the library's own type definition files (`.d.ts`) in `node_modules`. Reading the file (`node_modules/@mistralai/mistralai/sdk/conversations.d.ts`) immediately revealed the `append()` method and would have prevented every single `TypeError`. This is the most important lesson from this entire process.
@@ -36,3 +38,5 @@ tags: [mistral, api, bun, typescript, debugging, agents]
 - **Lesson 3: Lock Dependencies Immediately**: The missing `bun.lockb` was a major red flag. It introduced uncertainty about the library's state. Running `bun install` to generate a lockfile should be a reflexive first step when debugging any library-related issue to ensure a stable, known, and reproducible environment.
 
 - **Lesson 4: Beta APIs Have Unconventional Structures**: The final, correct payload structure for the `append` method is not conventional REST or RPC design. It requires two top-level properties (`conversationId` and `conversationAppendRequest`) for a single operation. This serves as a strong reminder that beta APIs can have unique and non-obvious contracts that can only be satisfied by strictly adhering to their specific schema.
+
+- **Lesson 5: Documentation Demands the Same Rigor as Code**: Creating documentation is not a secondary task; it is a core part of the development process and must be treated with the same level of rigor. When documenting a system, one must read and fully understand the source code being described. Making assumptions about a system's behavior for documentation is just as bad as guessing at its API. The EVP ("Do not guess. Verify.") applies to documentation as much as it does to debugging.

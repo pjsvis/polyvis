@@ -1,286 +1,293 @@
 .badge {
-    width: fit-content;
-    margin-inline: auto;
+	width: fit-content;
+	margin-inline: auto;
 }
 
 .btn-structural {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: var(--size-2);
-    background-color: var(--secondary);
-    color: var(--primary);
-    border: var(--border-size-2) solid var(--primary);
-    padding: var(--size-2) var(--size-4);
-    font-family: var(--font-mono);
-    text-transform: uppercase;
-    font-size: var(--font-size-base);
-    font-weight: 700;
-    cursor: pointer;
-    box-shadow: none;
-    transition: all 0.1s ease;
-    text-decoration: none;
-    border-radius: 0;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: var(--size-2);
+	background-color: var(--secondary);
+	color: var(--primary);
+	border: var(--border-size-2) solid var(--primary);
+	padding: var(--size-2) var(--size-4);
+	font-family: var(--font-mono);
+	text-transform: uppercase;
+	font-size: var(--font-size-base);
+	font-weight: 700;
+	cursor: pointer;
+	box-shadow: none;
+	transition: all 0.1s ease;
+	text-decoration: none;
+	border-radius: 0;
 
-    &:hover {
-        transform: none;
-        box-shadow: none;
-        background-color: var(--primary);
-        color: var(--secondary);
-    }
+	&:hover {
+		transform: none;
+		box-shadow: none;
+		background-color: var(--primary);
+		color: var(--secondary);
+	}
 
-    &:active,
-    &.active {
-        transform: translateY(2px);
-        box-shadow: none;
-        background-color: var(--primary);
-        color: var(--secondary);
-    }
+	&:active,
+	&.active {
+		transform: translateY(2px);
+		box-shadow: none;
+		background-color: var(--primary);
+		color: var(--secondary);
+	}
 }
 
 .structural-input {
-    font-family: var(--font-mono);
-    font-size: var(--font-size-sm);
-    border: var(--border-base) solid var(--primary);
-    border-radius: 0;
-    box-shadow: inset var(--size-1) var(--size-1) 0px 0px rgba(0, 0, 0, 0.05);
+	font-family: var(--font-mono);
+	font-size: var(--font-size-sm);
+	border: var(--border-base) solid var(--primary);
+	border-radius: 0;
+	box-shadow: inset var(--size-1) var(--size-1) 0px 0px rgba(0, 0, 0, 0.05);
 
-    &:focus {
-        outline: none;
-        border-color: var(--primary);
-        box-shadow: inset var(--size-1) var(--size-1) 0px 0px rgba(0, 0, 0, 0.1);
-    }
+	&:focus {
+		outline: none;
+		border-color: var(--primary);
+		box-shadow: inset var(--size-1) var(--size-1) 0px 0px rgba(0, 0, 0, 0.1);
+	}
 }
 
 .search-input {
-    width: 100%;
-    font-family: var(--font-mono);
-    font-size: var(--font-size-xl);
-    border: none;
-    border-bottom: var(--border-size-2) solid var(--primary);
-    padding: var(--size-4);
-    background: transparent;
+	width: 100%;
+	font-family: var(--font-mono);
+	font-size: var(--font-size-xl);
+	border: none;
+	border-bottom: var(--border-size-2) solid var(--primary);
+	padding: var(--size-4);
+	background: transparent;
 
-    &:focus {
-        outline: none;
-        border-bottom: var(--size-1) solid var(--primary);
-    }
+	&:focus {
+		outline: none;
+		border-bottom: var(--size-1) solid var(--primary);
+	}
 }
 
 /* Navigation */
 .nav-wrapper {
-    width: 100%;
-    max-width: var(--width-wrapper);
-    margin: 0 auto;
-    padding: var(--size-2) var(--size-4);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background-color: transparent;
-    /* Instruction #4 */
+	width: 100%;
+	max-width: var(--width-wrapper);
+	margin: 0 auto;
+	padding: var(--size-2) var(--size-4);
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	background-color: transparent;
+	/* Instruction #4 */
 }
 
-
 .nav-links {
-    display: flex;
-    gap: var(--size-6);
+	display: flex;
+	gap: var(--size-6);
 }
 
 .nav-item {
-    font-family: var(--font-mono);
-    font-size: var(--font-size-sm);
-    text-transform: uppercase;
-    text-decoration: none;
-    color: var(--text-2);
-    display: flex;
-    align-items: center;
-    gap: var(--size-2);
+	font-family: var(--font-mono);
+	font-size: var(--font-size-sm);
+	text-transform: uppercase;
+	text-decoration: none;
+	color: var(--text-2);
+	display: flex;
+	align-items: center;
+	gap: var(--size-2);
 
-    &:hover,
-    &.active {
-        text-decoration: underline;
-        color: var(--text-1);
-    }
+	&:hover,
+	&.active {
+		text-decoration: underline;
+		color: var(--text-1);
+	}
 
-    &.active {
-        font-weight: bold;
-    }
+	&.active {
+		font-weight: bold;
+	}
 }
 
 .home-nav {
-    display: flex;
-    gap: var(--size-6);
-    flex-wrap: wrap;
-    justify-content: center;
+	display: flex;
+	gap: var(--size-6);
+	flex-wrap: wrap;
+	justify-content: center;
 }
 
 /* Sidenotes */
 .sidenote {
-    display: block;
-    margin: var(--size-6) 0;
-    padding: var(--size-4);
-    background-color: var(--surface-panel);
-    border-left: var(--border-size-3) solid var(--primary);
-    color: var(--text-2);
-    font-family: var(--font-mono);
-    font-size: var(--font-size-xs);
-    line-height: 1.4;
+	display: block;
+	margin: var(--size-6) 0;
+	padding: var(--size-4);
+	background-color: var(--surface-panel);
+	border-left: var(--border-size-3) solid var(--primary);
+	color: var(--text-2);
+	font-family: var(--font-mono);
+	font-size: var(--font-size-xs);
+	line-height: 1.4;
 }
 
 .sidenote::before {
-    content: "NOTE:";
-    display: block;
-    font-weight: bold;
-    margin-bottom: var(--size-2);
-    color: var(--primary);
-    font-size: var(--font-size-xs);
-    /* letter-spacing removed */
+	content: "NOTE:";
+	display: block;
+	font-weight: bold;
+	margin-bottom: var(--size-2);
+	color: var(--primary);
+	font-size: var(--font-size-xs);
+	/* letter-spacing removed */
 }
 
 /* Internal Links */
 .internal-link {
-    color: var(--primary);
-    text-decoration: none;
-    border-bottom: var(--border-base) dotted var(--primary);
-    cursor: pointer;
-    font-weight: bold;
-    background-color: var(--surface-panel);
-    padding: 0 var(--border-size-2);
-    border-radius: var(--radius-component);
+	color: var(--primary);
+	text-decoration: none;
+	border-bottom: var(--border-base) dotted var(--primary);
+	cursor: pointer;
+	font-weight: bold;
+	background-color: var(--surface-panel);
+	padding: 0 var(--border-size-2);
+	border-radius: var(--radius-component);
 
-    &:hover {
-        background-color: var(--primary);
-        color: var(--secondary);
-        border-bottom: none;
-    }
+	&:hover {
+		background-color: var(--primary);
+		color: var(--secondary);
+		border-bottom: none;
+	}
 }
 
 .home-box {
-    text-align: center;
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    position: relative;
-    /* Base styles for narrow containers (sidebar/mobile) */
-    padding: var(--size-4);
-    aspect-ratio: auto;
+	text-align: center;
+	width: 100%;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	position: relative;
+	/* Base styles for narrow containers (sidebar/mobile) */
+	padding: var(--size-4);
+	aspect-ratio: auto;
 
-    /* When container is wide enough (e.g. main area) */
-    @container (min-width: 700px) {
-        max-width: var(--width-home-box);
-        aspect-ratio: 1.7;
-        padding: var(--size-8);
-    }
+	/* When container is wide enough (e.g. main area) */
+	@container (min-width: 700px) {
+		max-width: var(--width-home-box);
+		aspect-ratio: 1.7;
+		padding: var(--size-8);
+	}
 }
 
 /* .home-box::after removed for cleaner look */
 
 .home-title {
-    font-family: var(--font-mono);
-    font-size: var(--font-size-6);
-    font-weight: 900;
-    text-transform: uppercase;
-    /* letter-spacing removed */
-    margin: 0;
-    line-height: 1;
+	font-family: var(--font-mono);
+	font-size: var(--font-size-6);
+	font-weight: 900;
+	text-transform: uppercase;
+	/* letter-spacing removed */
+	margin: 0;
+	line-height: 1;
 }
 
 .home-subtitle {
-    font-family: var(--font-sans);
-    font-size: var(--font-size-2);
-    color: var(--gray-6);
-    text-transform: uppercase;
-    /* letter-spacing removed */
-    border-bottom: var(--border-base) solid var(--primary) !important;
-    /* Instruction #3 */
-    padding-bottom: var(--size-4);
-    display: inline-block;
-    font-weight: 700;
+	font-family: var(--font-sans);
+	font-size: var(--font-size-2);
+	color: var(--gray-6);
+	text-transform: uppercase;
+	/* letter-spacing removed */
+	border-bottom: var(--border-base) solid var(--primary) !important;
+	/* Instruction #3 */
+	padding-bottom: var(--size-4);
+	display: inline-block;
+	font-weight: 700;
 }
 
 .tagline {
-    font-family: var(--font-serif);
-    font-size: var(--font-size-3);
-    font-weight: 300;
-    font-style: italic;
-    color: var(--gray-8);
+	font-family: var(--font-serif);
+	font-size: var(--font-size-3);
+	font-weight: 300;
+	font-style: italic;
+	color: var(--gray-8);
+
+	@media (prefers-color-scheme: dark) {
+		color: var(--gray-4);
+	}
+
+	:root[data-theme="dark"] & {
+		color: var(--gray-4);
+	}
 }
 
 .btn-structural {
-    text-decoration: none;
+	text-decoration: none;
 }
 
 .footer-text {
-    font-family: var(--font-mono);
-    font-size: var(--font-size-xs);
-    color: var(--primary);
-    opacity: 0.7;
-    text-transform: uppercase;
-    /* letter-spacing removed */
+	font-family: var(--font-mono);
+	font-size: var(--font-size-xs);
+	color: var(--primary);
+	opacity: 0.7;
+	text-transform: uppercase;
+	/* letter-spacing removed */
 }
 
 /* Docs Sidebar Links */
 .doc-link {
-    display: block;
-    padding: var(--size-3) var(--size-4);
-    border-bottom: var(--border-base) solid var(--surface-panel);
-    font-family: var(--font-mono);
-    font-size: var(--font-size-sm);
-    text-decoration: none;
-    color: var(--text-2);
-    transition: all 0.2s;
+	display: block;
+	padding: var(--size-3) var(--size-4);
+	border-bottom: var(--border-base) solid var(--surface-panel);
+	font-family: var(--font-mono);
+	font-size: var(--font-size-sm);
+	text-decoration: none;
+	color: var(--text-2);
+	transition: all 0.2s;
 
-    &:hover {
-        background-color: var(--surface-hover);
-        color: var(--text-1);
-        /* Fallback */
-        color: contrast-color(var(--surface-hover));
-        padding-left: var(--size-5);
-        /* Slight nudge effect */
-    }
+	&:hover {
+		background-color: var(--surface-hover);
+		color: var(--text-1);
+		/* Fallback */
+		color: contrast-color(var(--surface-hover));
+		padding-left: var(--size-5);
+		/* Slight nudge effect */
+	}
 
-    &.active {
-        background-color: var(--color-brand);
-        color: var(--gray-0);
-        /* Fallback */
-        color: contrast-color(var(--color-brand));
-        /* Modern Standard */
-        font-weight: bold;
-    }
+	&.active {
+		background-color: var(--color-brand);
+		color: var(--gray-0);
+		/* Fallback */
+		color: contrast-color(var(--color-brand));
+		/* Modern Standard */
+		font-weight: bold;
+	}
 }
 
 .doc-link:last-child {
-    border-bottom: none;
+	border-bottom: none;
 }
 
 .docs-directory {
-    padding: 0;
-    margin-top: var(--size-4);
-    margin-left: auto;
-    /* Align to RHS */
-    width: 90%;
-    /* Breathing room */
-    flex-grow: 1;
-    /* Fill remaining height */
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    /* Contain list */
+	padding: 0;
+	margin-top: var(--size-4);
+	margin-left: auto;
+	/* Align to RHS */
+	width: 90%;
+	/* Breathing room */
+	flex-grow: 1;
+	/* Fill remaining height */
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+	/* Contain list */
 }
 
 .docs-directory-right {
-    padding: 0;
-    margin-top: var(--size-4);
-    margin-right: auto;
-    /* Align to LHS (closer to content) */
-    width: 90%;
-    /* Breathing room */
-    flex-grow: 1;
-    /* Fill remaining height */
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    /* Contain list */
+	padding: 0;
+	margin-top: var(--size-4);
+	margin-right: auto;
+	/* Align to LHS (closer to content) */
+	width: 90%;
+	/* Breathing room */
+	flex-grow: 1;
+	/* Fill remaining height */
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+	/* Contain list */
 }

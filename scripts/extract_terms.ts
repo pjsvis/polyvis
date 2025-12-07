@@ -13,15 +13,15 @@ const outputPath = join(publicDir, "terms.json");
 
 // --- Pre-flight Checks ---
 if (!existsSync(dbPath)) {
-  console.error(`❌ Error: Database not found at ${dbPath}`);
-  console.error("Please run 'bun run scripts/build_db.ts' first.");
-  process.exit(1);
+	console.error(`❌ Error: Database not found at ${dbPath}`);
+	console.error("Please run 'bun run scripts/build_db.ts' first.");
+	process.exit(1);
 }
 
 // Ensure the 'public' directory exists before trying to write to it.
 if (!existsSync(publicDir)) {
-  console.log(`Creating 'public' directory at ${publicDir}...`);
-  mkdirSync(publicDir, { recursive: true });
+	console.log(`Creating 'public' directory at ${publicDir}...`);
+	mkdirSync(publicDir, { recursive: true });
 }
 
 // --- Database Query ---
@@ -57,31 +57,31 @@ const query = `
 `;
 
 try {
-  // --- Data Extraction & Transformation ---
-  console.log("Querying database for high-value terms...");
-  const results = db.query(query).all() as { label: string }[];
+	// --- Data Extraction & Transformation ---
+	console.log("Querying database for high-value terms...");
+	const results = db.query(query).all() as { label: string }[];
 
-  // We just want an array of the term labels.
-  const terms = results.map((row) => row.label);
+	// We just want an array of the term labels.
+	const terms = results.map((row) => row.label);
 
-  if (terms.length === 0) {
-    console.warn(
-      "⚠️ Warning: Query returned no terms. The resulting file will be an empty array."
-    );
-  }
+	if (terms.length === 0) {
+		console.warn(
+			"⚠️ Warning: Query returned no terms. The resulting file will be an empty array.",
+		);
+	}
 
-  // --- File Output ---
-  // Write the curated list of terms to a static JSON file.
-  // This file can be easily fetched by the frontend.
-  await Bun.write(outputPath, JSON.stringify(terms, null, 2));
+	// --- File Output ---
+	// Write the curated list of terms to a static JSON file.
+	// This file can be easily fetched by the frontend.
+	await Bun.write(outputPath, JSON.stringify(terms, null, 2));
 
-  console.log(
-    `✅ Successfully extracted and wrote ${terms.length} terms to ${outputPath}`
-  );
+	console.log(
+		`✅ Successfully extracted and wrote ${terms.length} terms to ${outputPath}`,
+	);
 } catch (error) {
-  console.error(`❌ An error occurred: ${error}`);
+	console.error(`❌ An error occurred: ${error}`);
 } finally {
-  // --- Finalization ---
-  db.close();
-  console.log("Term extraction complete.");
+	// --- Finalization ---
+	db.close();
+	console.log("Term extraction complete.");
 }

@@ -383,7 +383,7 @@
                                         </div>
                                     </div>
                                 </div>
-                            </div>
+
 
                             <!-- External References -->
                             <template x-if="selectedNode.external_refs && selectedNode.external_refs.length > 0">
@@ -421,73 +421,7 @@
     </div>
 
 
-    if (this.activeSizeViz === type) {
-    this.resetSizes();
-    this.activeSizeViz = null;
-    if (this.renderer) this.renderer.refresh();
-    return;
-    }
 
-    this.resetSizes();
-    this.activeSizeViz = type;
-
-    if (!graphologyLibrary.metrics) return alert("Metrics library not loaded.");
-
-    if (type === 'pagerank') {
-    const scores = graphologyLibrary.metrics.centrality.pagerank(this.graph);
-    const minScore = Math.min(...Object.values(scores));
-    const maxScore = Math.max(...Object.values(scores));
-    this.graph.forEachNode((node) => {
-    // User Request: Ensure min size is 6px (reduced again)
-    this.graph.setNodeAttribute(node, "size", 6 + ((scores[node] - minScore) / (maxScore - minScore)) * 14);
-    });
-    } else if (type === 'degree') {
-    const scores = graphologyLibrary.metrics.centrality.degree(this.graph);
-    const minScore = Math.min(...Object.values(scores));
-    const maxScore = Math.max(...Object.values(scores));
-    this.graph.forEachNode((node) => {
-    // User Request: Ensure min size is 6px (reduced again)
-    this.graph.setNodeAttribute(node, "size", 6 + ((scores[node] - minScore) / (maxScore - minScore)) * 14);
-    });
-    }
-    if (this.renderer) this.renderer.refresh();
-    },
-
-    runLayout(layoutName) {
-    this.layout = layoutName;
-    const lib = window.graphologyLibrary;
-    if (!lib) return;
-
-    if (layoutName === 'forceatlas2') {
-    if (lib.layoutForceAtlas2) {
-    lib.layoutForceAtlas2.assign(this.graph, { iterations: 50, settings: { gravity: 1 } });
-    }
-    } else if (layoutName === 'circular') {
-    if (lib.layout && lib.layout.circular) lib.layout.circular.assign(this.graph);
-    } else if (layoutName === 'random') {
-    if (lib.layout && lib.layout.random) lib.layout.random.assign(this.graph);
-    } else if (layoutName === 'noverlap') {
-    if (lib.layoutNoverlap) lib.layoutNoverlap.assign(this.graph);
-    }
-
-    if (this.renderer) {
-    this.renderer.refresh();
-    this.renderer.getCamera().animatedReset();
-    }
-    },
-
-    toggleStats() {
-    this.showStats = !this.showStats;
-    if (this.showStats) {
-    this.stats.nodes = this.graph.order;
-    this.stats.edges = this.graph.size;
-    this.stats.density = graphologyLibrary.metrics.graph.density(this.graph).toFixed(4);
-    this.stats.avgDegree = ((2 * this.stats.edges) / this.stats.nodes).toFixed(2);
-    }
-    }
-    }));
-    });
-    </script>
     <div x-show="tooltip.visible" x-transition.opacity
         class="fixed z-[100] p-2 text-xs font-bold rounded shadow-xl pointer-events-none max-w-xs bg-white text-black border border-gray-300"
         :style="`top: ${tooltip.y}px; left: ${tooltip.x}px`" x-text="tooltip.text">

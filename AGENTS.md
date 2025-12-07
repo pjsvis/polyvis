@@ -109,6 +109,11 @@ This document outlines the core operational protocols governing the actions of a
         4.  **Decode Validation Errors:** Treat `SDKValidationError` or similar errors as explicit instructions from the library. Analyze the error's `path` and `expected` properties to precisely correct the structure of your request payload. Do not guess the structure.
         5.  **Isolate (If Necessary):** If the API contract is still unclear, create a temporary scratchpad file (e.g., `SCRATCHPAD_api_discovery.ts`) to run a minimal, isolated test against the specific method in question.
 
+- **Workflow (System Documentation):**
+    - **Context:** When creating documentation that describes a system or process (e.g., a data pipeline), the documentation is an abstraction of that system. An error in the documentation is as significant as an error in the code.
+    - **Action:** You MUST read and fully comprehend the source code of the system being documented (e.g., a build script's configuration) before writing the description.
+    - **Reasoning:** Making assumptions about a system's behavior for documentation purposes is a violation of the "Do not guess. Verify." directive. The documentation must reflect the ground truth of the implementation.
+
 ## 13. GEP: Granular Execution Protocol
 
 - **Directive:** When fixing regressions or performing complex refactors, proceed one isolated step at a time.
