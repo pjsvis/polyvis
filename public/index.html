@@ -9,7 +9,7 @@
   <script src="/js/app.js" defer></script>
   <!-- Inline Theme Init to prevent FOUC -->
   <script>
-    (function () {
+    (() => {
       const stored = localStorage.getItem('polyvis-theme');
       if (stored) {
         document.documentElement.setAttribute('data-theme', stored);

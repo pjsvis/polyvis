@@ -191,7 +191,7 @@ export default () => ({
 		};
 
 		// Custom Code Renderer for DOT
-		renderer.code = function ({ text, lang, escaped }) {
+		renderer.code = ({ text, lang, escaped }) => {
 			if (lang === "dot" || lang === "graphviz") {
 				try {
 					// Use Viz.js (assumed to be loaded globally via script tag in index.html)

@@ -95,7 +95,7 @@ window.LexiconService = {
 		const values = rawResult[0].values;
 
 		return values.map((row) => {
-			let obj = {};
+			const obj = {};
 			columns.forEach((col, index) => {
 				obj[col] = row[index];
 			});

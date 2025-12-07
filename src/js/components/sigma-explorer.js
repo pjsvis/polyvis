@@ -178,13 +178,13 @@ export default () => ({
 					// User Request: Deterministic Layout
 					// We use a hash of the ID to ensure the node always starts at the same position.
 					// This ensures ForceAtlas2 converges to the same shape every time.
-					x: (function (str) {
+					x: ((str) => {
 						let hash = 0;
 						for (let i = 0; i < str.length; i++)
 							hash = (Math.imul(31, hash) + str.charCodeAt(i)) | 0;
 						return (Math.abs(hash) % 1000) / 10; // 0-100
 					})(row.id + "x"),
-					y: (function (str) {
+					y: ((str) => {
 						let hash = 0;
 						for (let i = 0; i < str.length; i++)
 							hash = (Math.imul(31, hash) + str.charCodeAt(i)) | 0;

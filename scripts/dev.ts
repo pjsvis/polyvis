@@ -1,4 +1,4 @@
-import { join, extname } from "path";
+import { extname, join } from "path";
 
 // Configuration
 const PORT = 3000;
@@ -56,8 +56,8 @@ const server = Bun.serve({
 			path = "/index.html";
 		}
 
-		let filePath = join(PUBLIC_DIR, path);
-		let file = Bun.file(filePath);
+		const filePath = join(PUBLIC_DIR, path);
+		const file = Bun.file(filePath);
 
 		return file.exists().then(async (exists) => {
 			if (exists) {

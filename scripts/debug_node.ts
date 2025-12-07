@@ -13,7 +13,7 @@ const db = new Database(dbPath, { readonly: true });
 
 try {
 	// 1. Find the exact node ID for the given label
-	console.log(`Searching for node with label: \"${searchTerm}\"`);
+	console.log(`Searching for node with label: "${searchTerm}"`);
 	const nodeQuery = db.query(
 		`SELECT id, label FROM nodes WHERE label = ? LIMIT 1`,
 	);
@@ -31,7 +31,7 @@ try {
 	console.log(`✅ Found Node -> ID: ${nodeId}, Label: ${nodeResult.label}`);
 
 	// 2. Find all edges connected to this node
-	console.log(`\nSearching for all edges connected to ID: \"${nodeId}\"`);
+	console.log(`\nSearching for all edges connected to ID: "${nodeId}"`);
 	const edgeQuery = db.query(
 		`SELECT * FROM edges WHERE source = ? OR target = ?`,
 	);

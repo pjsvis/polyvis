@@ -1,6 +1,6 @@
 import { Database } from "bun:sqlite";
-import { join } from "path";
 import { existsSync, mkdirSync } from "fs";
+import { join } from "path";
 
 console.log("Starting term extraction...");
 

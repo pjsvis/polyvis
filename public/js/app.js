@@ -46,7 +46,7 @@ function queueJob(job) {
 	queueFlush();
 }
 function dequeueJob(job) {
-	let index = queue.indexOf(job);
+	const index = queue.indexOf(job);
 	if (index !== -1 && index > lastFlushedIndex) queue.splice(index, 1);
 }
 function queueFlush() {
@@ -96,8 +96,8 @@ function overrideEffect(override) {
 }
 function elementBoundEffect(el) {
 	let cleanup2 = () => {};
-	let wrappedEffect = (callback) => {
-		let effectReference = effect(callback);
+	const wrappedEffect = (callback) => {
+		const effectReference = effect(callback);
 		if (!el._x_effects) {
 			el._x_effects = /* @__PURE__ */ new Set();
 			el._x_runEffects = () => {
@@ -122,8 +122,8 @@ function elementBoundEffect(el) {
 function watch(getter, callback) {
 	let firstTime = true;
 	let oldValue;
-	let effectReference = effect(() => {
-		let value = getter();
+	const effectReference = effect(() => {
+		const value = getter();
 		JSON.stringify(value);
 		if (!firstTime) {
 			queueMicrotask(() => {
@@ -191,9 +191,9 @@ function stopObservingMutations() {
 }
 var queuedMutations = [];
 function flushObserver() {
-	let records = observer.takeRecords();
+	const records = observer.takeRecords();
 	queuedMutations.push(() => records.length > 0 && onMutate(records));
-	let queueLengthWhenTriggered = queuedMutations.length;
+	const queueLengthWhenTriggered = queuedMutations.length;
 	queueMicrotask(() => {
 		if (queuedMutations.length === queueLengthWhenTriggered) {
 			while (queuedMutations.length > 0) queuedMutations.shift()();
@@ -203,7 +203,7 @@ function flushObserver() {
 function mutateDom(callback) {
 	if (!currentlyObserving) return callback();
 	stopObservingMutations();
-	let result = callback();
+	const result = callback();
 	startObservingMutations();
 	return result;
 }
@@ -245,14 +245,14 @@ function onMutate(mutations) {
 			});
 		}
 		if (mutations[i].type === "attributes") {
-			let el = mutations[i].target;
-			let name = mutations[i].attributeName;
-			let oldValue = mutations[i].oldValue;
-			let add2 = () => {
+			const el = mutations[i].target;
+			const name = mutations[i].attributeName;
+			const oldValue = mutations[i].oldValue;
+			const add2 = () => {
 				if (!addedAttributes.has(el)) addedAttributes.set(el, []);
 				addedAttributes.get(el).push({ name, value: el.getAttribute(name) });
 			};
-			let remove = () => {
+			const remove = () => {
 				if (!removedAttributes.has(el)) removedAttributes.set(el, []);
 				removedAttributes.get(el).push(name);
 			};
@@ -272,11 +272,11 @@ function onMutate(mutations) {
 	addedAttributes.forEach((attrs, el) => {
 		onAttributeAddeds.forEach((i) => i(el, attrs));
 	});
-	for (let node of removedNodes) {
+	for (const node of removedNodes) {
 		if (addedNodes.some((i) => i.contains(node))) continue;
 		onElRemoveds.forEach((i) => i(node));
 	}
-	for (let node of addedNodes) {
+	for (const node of addedNodes) {
 		if (!node.isConnected) continue;
 		onElAddeds.forEach((i) => i(node));
 	}
@@ -314,9 +314,7 @@ var mergeProxyTrap = {
 	has({ objects }, name) {
 		if (name == Symbol.unscopables) return false;
 		return objects.some(
-			(obj) =>
-				Object.prototype.hasOwnProperty.call(obj, name) ||
-				Reflect.has(obj, name),
+			(obj) => Object.hasOwn(obj, name) || Reflect.has(obj, name),
 		);
 	},
 	get({ objects }, name, thisProxy) {
@@ -329,7 +327,7 @@ var mergeProxyTrap = {
 	},
 	set({ objects }, name, value, thisProxy) {
 		const target =
-			objects.find((obj) => Object.prototype.hasOwnProperty.call(obj, name)) ||
+			objects.find((obj) => Object.hasOwn(obj, name)) ||
 			objects[objects.length - 1];
 		const descriptor = Object.getOwnPropertyDescriptor(target, name);
 		if (descriptor?.set && descriptor?.get)
@@ -338,22 +336,22 @@ var mergeProxyTrap = {
 	},
 };
 function collapseProxies() {
-	let keys = Reflect.ownKeys(this);
+	const keys = Reflect.ownKeys(this);
 	return keys.reduce((acc, key) => {
 		acc[key] = Reflect.get(this, key);
 		return acc;
 	}, {});
 }
 function initInterceptors(data2) {
-	let isObject2 = (val) =>
+	const isObject2 = (val) =>
 		typeof val === "object" && !Array.isArray(val) && val !== null;
-	let recurse = (obj, basePath = "") => {
+	const recurse = (obj, basePath = "") => {
 		Object.entries(Object.getOwnPropertyDescriptors(obj)).forEach(
 			([key, { value, enumerable }]) => {
 				if (enumerable === false || value === undefined) return;
 				if (typeof value === "object" && value !== null && value.__v_skip)
 					return;
-				let path = basePath === "" ? key : `${basePath}.${key}`;
+				const path = basePath === "" ? key : `${basePath}.${key}`;
 				if (
 					typeof value === "object" &&
 					value !== null &&
@@ -375,7 +373,7 @@ function initInterceptors(data2) {
 	return recurse(data2);
 }
 function interceptor(callback, mutateObj = () => {}) {
-	let obj = {
+	const obj = {
 		initialValue: undefined,
 		_x_interceptor: true,
 		initialize(data2, path, key) {
@@ -395,9 +393,9 @@ function interceptor(callback, mutateObj = () => {}) {
 			initialValue !== null &&
 			initialValue._x_interceptor
 		) {
-			let initialize = obj.initialize.bind(obj);
+			const initialize = obj.initialize.bind(obj);
 			obj.initialize = (data2, path, key) => {
-				let innerValue = initialValue.initialize(data2, path, key);
+				const innerValue = initialValue.initialize(data2, path, key);
 				obj.initialValue = innerValue;
 				return initialize(data2, path, key);
 			};
@@ -427,7 +425,7 @@ function magic(name, callback) {
 	magics[name] = callback;
 }
 function injectMagics(obj, el) {
-	let memoizedUtilities = getUtilities(el);
+	const memoizedUtilities = getUtilities(el);
 	Object.entries(magics).forEach(([name, callback]) => {
 		Object.defineProperty(obj, `$${name}`, {
 			get() {
@@ -439,8 +437,8 @@ function injectMagics(obj, el) {
 	return obj;
 }
 function getUtilities(el) {
-	let [utilities, cleanup2] = getElementBoundUtilities(el);
-	let utils = { interceptor, ...utilities };
+	const [utilities, cleanup2] = getElementBoundUtilities(el);
+	const utils = { interceptor, ...utilities };
 	onElRemoved(el, cleanup2);
 	return utils;
 }
@@ -483,9 +481,9 @@ ${
 }
 var shouldAutoEvaluateFunctions = true;
 function dontAutoEvaluateFunctions(callback) {
-	let cache = shouldAutoEvaluateFunctions;
+	const cache = shouldAutoEvaluateFunctions;
 	shouldAutoEvaluateFunctions = false;
-	let result = callback();
+	const result = callback();
 	shouldAutoEvaluateFunctions = cache;
 	return result;
 }
@@ -502,10 +500,10 @@ function setEvaluator(newEvaluator) {
 	theEvaluatorFunction = newEvaluator;
 }
 function normalEvaluator(el, expression) {
-	let overriddenMagics = {};
+	const overriddenMagics = {};
 	injectMagics(overriddenMagics, el);
-	let dataStack = [overriddenMagics, ...closestDataStack(el)];
-	let evaluator =
+	const dataStack = [overriddenMagics, ...closestDataStack(el)];
+	const evaluator =
 		typeof expression === "function"
 			? generateEvaluatorFromFunction(dataStack, expression)
 			: generateEvaluatorFromString(dataStack, expression, el);
@@ -516,7 +514,7 @@ function generateEvaluatorFromFunction(dataStack, func) {
 		receiver = () => {},
 		{ scope: scope2 = {}, params = [], context } = {},
 	) => {
-		let result = func.apply(mergeProxies([scope2, ...dataStack]), params);
+		const result = func.apply(mergeProxies([scope2, ...dataStack]), params);
 		runIfTypeOfFunction(receiver, result);
 	};
 }
@@ -525,15 +523,15 @@ function generateFunctionFromString(expression, el) {
 	if (evaluatorMemo[expression]) {
 		return evaluatorMemo[expression];
 	}
-	let AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
-	let rightSideSafeExpression =
+	const AsyncFunction = Object.getPrototypeOf(async () => {}).constructor;
+	const rightSideSafeExpression =
 		/^[\n\s]*if.*\(.*\)/.test(expression.trim()) ||
 		/^(let|const)\s/.test(expression.trim())
 			? `(async()=>{ ${expression} })()`
 			: expression;
 	const safeAsyncFunction = () => {
 		try {
-			let func2 = new AsyncFunction(
+			const func2 = new AsyncFunction(
 				["__self", "scope"],
 				`with (scope) { __self.result = ${rightSideSafeExpression} }; __self.finished = true; return __self.result;`,
 			);
@@ -546,21 +544,21 @@ function generateFunctionFromString(expression, el) {
 			return Promise.resolve();
 		}
 	};
-	let func = safeAsyncFunction();
+	const func = safeAsyncFunction();
 	evaluatorMemo[expression] = func;
 	return func;
 }
 function generateEvaluatorFromString(dataStack, expression, el) {
-	let func = generateFunctionFromString(expression, el);
+	const func = generateFunctionFromString(expression, el);
 	return (
 		receiver = () => {},
 		{ scope: scope2 = {}, params = [], context } = {},
 	) => {
 		func.result = undefined;
 		func.finished = false;
-		let completeScope = mergeProxies([scope2, ...dataStack]);
+		const completeScope = mergeProxies([scope2, ...dataStack]);
 		if (typeof func === "function") {
-			let promise = func
+			const promise = func
 				.call(context, func, completeScope)
 				.catch((error2) => handleError(error2, el, expression));
 			if (func.finished) {
@@ -579,7 +577,7 @@ function generateEvaluatorFromString(dataStack, expression, el) {
 }
 function runIfTypeOfFunction(receiver, value, scope2, params, el) {
 	if (shouldAutoEvaluateFunctions && typeof value === "function") {
-		let result = value.apply(scope2, params);
+		const result = value.apply(scope2, params);
 		if (result instanceof Promise) {
 			result
 				.then((i) => runIfTypeOfFunction(receiver, i, scope2, params))
@@ -629,7 +627,7 @@ function directives(el, attributes, originalAttributeOverride) {
 		let vAttributes = Object.entries(el._x_virtualDirectives).map(
 			([name, value]) => ({ name, value }),
 		);
-		let staticAttributes = attributesOnly(vAttributes);
+		const staticAttributes = attributesOnly(vAttributes);
 		vAttributes = vAttributes.map((attribute) => {
 			if (staticAttributes.find((attr) => attr.name === attribute.name)) {
 				return {
@@ -641,8 +639,8 @@ function directives(el, attributes, originalAttributeOverride) {
 		});
 		attributes = attributes.concat(vAttributes);
 	}
-	let transformedAttributeMap = {};
-	let directives2 = attributes
+	const transformedAttributeMap = {};
+	const directives2 = attributes
 		.map(
 			toTransformedAttributes(
 				(newName, oldName) => (transformedAttributeMap[newName] = oldName),
@@ -665,15 +663,15 @@ var directiveHandlerStacks = /* @__PURE__ */ new Map();
 var currentHandlerStackKey = Symbol();
 function deferHandlingDirectives(callback) {
 	isDeferringHandlers = true;
-	let key = Symbol();
+	const key = Symbol();
 	currentHandlerStackKey = key;
 	directiveHandlerStacks.set(key, []);
-	let flushHandlers = () => {
+	const flushHandlers = () => {
 		while (directiveHandlerStacks.get(key).length)
 			directiveHandlerStacks.get(key).shift()();
 		directiveHandlerStacks.delete(key);
 	};
-	let stopDeferring = () => {
+	const stopDeferring = () => {
 		isDeferringHandlers = false;
 		flushHandlers();
 	};
@@ -681,26 +679,26 @@ function deferHandlingDirectives(callback) {
 	stopDeferring();
 }
 function getElementBoundUtilities(el) {
-	let cleanups = [];
-	let cleanup2 = (callback) => cleanups.push(callback);
-	let [effect3, cleanupEffect] = elementBoundEffect(el);
+	const cleanups = [];
+	const cleanup2 = (callback) => cleanups.push(callback);
+	const [effect3, cleanupEffect] = elementBoundEffect(el);
 	cleanups.push(cleanupEffect);
-	let utilities = {
+	const utilities = {
 		Alpine: alpine_default,
 		effect: effect3,
 		cleanup: cleanup2,
 		evaluateLater: evaluateLater.bind(evaluateLater, el),
 		evaluate: evaluate.bind(evaluate, el),
 	};
-	let doCleanup = () => cleanups.forEach((i) => i());
+	const doCleanup = () => cleanups.forEach((i) => i());
 	return [utilities, doCleanup];
 }
 function getDirectiveHandler(el, directive2) {
-	let noop = () => {};
+	const noop = () => {};
 	let handler4 = directiveHandlers[directive2.type] || noop;
-	let [utilities, cleanup2] = getElementBoundUtilities(el);
+	const [utilities, cleanup2] = getElementBoundUtilities(el);
 	onAttributeRemoved(el, directive2.original, cleanup2);
-	let fullHandler = () => {
+	const fullHandler = () => {
 		if (el._x_ignore || el._x_ignoreSelf) return;
 		handler4.inline && handler4.inline(el, directive2, utilities);
 		handler4 = handler4.bind(handler4, el, directive2, utilities);
@@ -720,7 +718,7 @@ var startingWith =
 var into = (i) => i;
 function toTransformedAttributes(callback = () => {}) {
 	return ({ name, value }) => {
-		let { name: newName, value: newValue } = attributeTransformers.reduce(
+		const { name: newName, value: newValue } = attributeTransformers.reduce(
 			(carry, transform) => {
 				return transform(carry);
 			},
@@ -743,10 +741,10 @@ function toParsedDirectives(
 	originalAttributeOverride,
 ) {
 	return ({ name, value }) => {
-		let typeMatch = name.match(alpineAttributeRegex());
-		let valueMatch = name.match(/:([a-zA-Z0-9\-_:]+)/);
-		let modifiers = name.match(/\.[^.\]]+(?=[^\]]*$)/g) || [];
-		let original =
+		const typeMatch = name.match(alpineAttributeRegex());
+		const valueMatch = name.match(/:([a-zA-Z0-9\-_:]+)/);
+		const modifiers = name.match(/\.[^.\]]+(?=[^\]]*$)/g) || [];
+		const original =
 			originalAttributeOverride || transformedAttributeMap[name] || name;
 		return {
 			type: typeMatch ? typeMatch[1] : null,
@@ -776,8 +774,8 @@ var directiveOrder = [
 	"teleport",
 ];
 function byPriority(a, b) {
-	let typeA = directiveOrder.indexOf(a.type) === -1 ? DEFAULT : a.type;
-	let typeB = directiveOrder.indexOf(b.type) === -1 ? DEFAULT : b.type;
+	const typeA = directiveOrder.indexOf(a.type) === -1 ? DEFAULT : a.type;
+	const typeB = directiveOrder.indexOf(b.type) === -1 ? DEFAULT : b.type;
 	return directiveOrder.indexOf(typeA) - directiveOrder.indexOf(typeB);
 }
 function dispatch(el, name, detail = {}) {
@@ -826,7 +824,7 @@ function start() {
 	onAttributesAdded((el, attrs) => {
 		directives(el, attrs).forEach((handle) => handle());
 	});
-	let outNestedComponents = (el) => !closestRoot(el.parentElement, true);
+	const outNestedComponents = (el) => !closestRoot(el.parentElement, true);
 	Array.from(document.querySelectorAll(allSelectors().join(",")))
 		.filter(outNestedComponents)
 		.forEach((el) => {
@@ -893,7 +891,7 @@ function destroyTree(root, walker = walk) {
 	});
 }
 function warnAboutMissingPlugins() {
-	let pluginDirectives = [
+	const pluginDirectives = [
 		["ui", "dialog", ["[x-dialog], [x-popover]"]],
 		["anchor", "anchor", ["[x-anchor]"]],
 		["sort", "sort", ["[x-sort]"]],
@@ -942,13 +940,13 @@ function setClasses(el, value) {
 	return setClassesFromString(el, value);
 }
 function setClassesFromString(el, classString) {
-	let split = (classString2) => classString2.split(" ").filter(Boolean);
-	let missingClasses = (classString2) =>
+	const split = (classString2) => classString2.split(" ").filter(Boolean);
+	const missingClasses = (classString2) =>
 		classString2
 			.split(" ")
 			.filter((i) => !el.classList.contains(i))
 			.filter(Boolean);
-	let addClassesAndReturnUndo = (classes) => {
+	const addClassesAndReturnUndo = (classes) => {
 		el.classList.add(...classes);
 		return () => {
 			el.classList.remove(...classes);
@@ -958,15 +956,15 @@ function setClassesFromString(el, classString) {
 	return addClassesAndReturnUndo(missingClasses(classString));
 }
 function setClassesFromObject(el, classObject) {
-	let split = (classString) => classString.split(" ").filter(Boolean);
-	let forAdd = Object.entries(classObject)
+	const split = (classString) => classString.split(" ").filter(Boolean);
+	const forAdd = Object.entries(classObject)
 		.flatMap(([classString, bool]) => (bool ? split(classString) : false))
 		.filter(Boolean);
-	let forRemove = Object.entries(classObject)
+	const forRemove = Object.entries(classObject)
 		.flatMap(([classString, bool]) => (!bool ? split(classString) : false))
 		.filter(Boolean);
-	let added = [];
-	let removed = [];
+	const added = [];
+	const removed = [];
 	forRemove.forEach((i) => {
 		if (el.classList.contains(i)) {
 			el.classList.remove(i);
@@ -991,7 +989,7 @@ function setStyles(el, value) {
 	return setStylesFromString(el, value);
 }
 function setStylesFromObject(el, value) {
-	let previousStyles = {};
+	const previousStyles = {};
 	Object.entries(value).forEach(([key, value2]) => {
 		previousStyles[key] = el.style[key];
 		if (!key.startsWith("--")) {
@@ -1009,7 +1007,7 @@ function setStylesFromObject(el, value) {
 	};
 }
 function setStylesFromString(el, value) {
-	let cache = el.getAttribute("style", value);
+	const cache = el.getAttribute("style", value);
 	el.setAttribute("style", value);
 	return () => {
 		el.setAttribute("style", cache || "");
@@ -1043,7 +1041,7 @@ directive(
 );
 function registerTransitionsFromClassString(el, classString, stage) {
 	registerTransitionObject(el, setClasses, "");
-	let directiveStorageMap = {
+	const directiveStorageMap = {
 		enter: (classes) => {
 			el._x_transition.enter.during = classes;
 		},
@@ -1067,11 +1065,11 @@ function registerTransitionsFromClassString(el, classString, stage) {
 }
 function registerTransitionsFromHelper(el, modifiers, stage) {
 	registerTransitionObject(el, setStyles);
-	let doesntSpecify =
+	const doesntSpecify =
 		!modifiers.includes("in") && !modifiers.includes("out") && !stage;
-	let transitioningIn =
+	const transitioningIn =
 		doesntSpecify || modifiers.includes("in") || ["enter"].includes(stage);
-	let transitioningOut =
+	const transitioningOut =
 		doesntSpecify || modifiers.includes("out") || ["leave"].includes(stage);
 	if (modifiers.includes("in") && !doesntSpecify) {
 		modifiers = modifiers.filter(
@@ -1083,17 +1081,20 @@ function registerTransitionsFromHelper(el, modifiers, stage) {
 			(i, index) => index > modifiers.indexOf("out"),
 		);
 	}
-	let wantsAll = !modifiers.includes("opacity") && !modifiers.includes("scale");
-	let wantsOpacity = wantsAll || modifiers.includes("opacity");
-	let wantsScale = wantsAll || modifiers.includes("scale");
-	let opacityValue = wantsOpacity ? 0 : 1;
-	let scaleValue = wantsScale ? modifierValue(modifiers, "scale", 95) / 100 : 1;
-	let delay = modifierValue(modifiers, "delay", 0) / 1000;
-	let origin = modifierValue(modifiers, "origin", "center");
-	let property = "opacity, transform";
-	let durationIn = modifierValue(modifiers, "duration", 150) / 1000;
-	let durationOut = modifierValue(modifiers, "duration", 75) / 1000;
-	let easing = `cubic-bezier(0.4, 0.0, 0.2, 1)`;
+	const wantsAll =
+		!modifiers.includes("opacity") && !modifiers.includes("scale");
+	const wantsOpacity = wantsAll || modifiers.includes("opacity");
+	const wantsScale = wantsAll || modifiers.includes("scale");
+	const opacityValue = wantsOpacity ? 0 : 1;
+	const scaleValue = wantsScale
+		? modifierValue(modifiers, "scale", 95) / 100
+		: 1;
+	const delay = modifierValue(modifiers, "delay", 0) / 1000;
+	const origin = modifierValue(modifiers, "origin", "center");
+	const property = "opacity, transform";
+	const durationIn = modifierValue(modifiers, "duration", 150) / 1000;
+	const durationOut = modifierValue(modifiers, "duration", 75) / 1000;
+	const easing = `cubic-bezier(0.4, 0.0, 0.2, 1)`;
 	if (transitioningIn) {
 		el._x_transition.enter.during = {
 			transformOrigin: origin,
@@ -1162,15 +1163,15 @@ function registerTransitionObject(el, setFunction, defaultValue = {}) {
 			},
 		};
 }
-window.Element.prototype._x_toggleAndCascadeWithTransitions = function (
+window.Element.prototype._x_toggleAndCascadeWithTransitions = (
 	el,
 	value,
 	show,
 	hide,
-) {
+) => {
 	const nextTick2 =
 		document.visibilityState === "visible" ? requestAnimationFrame : setTimeout;
-	let clickAwayCompatibleShow = () => nextTick2(show);
+	const clickAwayCompatibleShow = () => nextTick2(show);
 	if (value) {
 		if (
 			el._x_transition &&
@@ -1200,14 +1201,14 @@ window.Element.prototype._x_toggleAndCascadeWithTransitions = function (
 			})
 		: Promise.resolve(hide);
 	queueMicrotask(() => {
-		let closest = closestHide(el);
+		const closest = closestHide(el);
 		if (closest) {
 			if (!closest._x_hideChildren) closest._x_hideChildren = [];
 			closest._x_hideChildren.push(el);
 		} else {
 			nextTick2(() => {
-				let hideAfterChildren = (el2) => {
-					let carry = Promise.all([
+				const hideAfterChildren = (el2) => {
+					const carry = Promise.all([
 						el2._x_hidePromise,
 						...(el2._x_hideChildren || []).map(hideAfterChildren),
 					]).then(([i]) => i?.());
@@ -1223,7 +1224,7 @@ window.Element.prototype._x_toggleAndCascadeWithTransitions = function (
 	});
 };
 function closestHide(el) {
-	let parent = el.parentNode;
+	const parent = el.parentNode;
 	if (!parent) return;
 	return parent._x_hidePromise ? parent : closestHide(parent);
 }
@@ -1266,7 +1267,7 @@ function transition(
 }
 function performTransition(el, stages) {
 	let interrupted, reachedBefore, reachedEnd;
-	let finish = once(() => {
+	const finish = once(() => {
 		mutateDom(() => {
 			interrupted = true;
 			if (!reachedBefore) stages.before();
@@ -1305,7 +1306,7 @@ function performTransition(el, stages) {
 					.transitionDuration.replace(/,.*/, "")
 					.replace("s", ""),
 			) * 1000;
-		let delay =
+		const delay =
 			Number(
 				getComputedStyle(el)
 					.transitionDelay.replace(/,.*/, "")
@@ -1337,7 +1338,7 @@ function modifierValue(modifiers, key, fallback) {
 		if (isNaN(rawValue)) return fallback;
 	}
 	if (key === "duration" || key === "delay") {
-		let match = rawValue.match(/([0-9]+)ms/);
+		const match = rawValue.match(/([0-9]+)ms/);
 		if (match) return match[1];
 	}
 	if (key === "origin") {
@@ -1385,7 +1386,7 @@ function clone(oldEl, newEl) {
 }
 function cloneTree(el) {
 	let hasRunThroughFirstEl = false;
-	let shallowWalker = (el2, callback) => {
+	const shallowWalker = (el2, callback) => {
 		walk(el2, (el3, skip) => {
 			if (hasRunThroughFirstEl && isRoot(el3)) return skip();
 			hasRunThroughFirstEl = true;
@@ -1395,9 +1396,9 @@ function cloneTree(el) {
 	initTree(el, shallowWalker);
 }
 function dontRegisterReactiveSideEffects(callback) {
-	let cache = effect;
+	const cache = effect;
 	overrideEffect((callback2, el) => {
-		let storedEffect = cache(callback2);
+		const storedEffect = cache(callback2);
 		release(storedEffect);
 		return () => {};
 	});
@@ -1571,7 +1572,7 @@ function extractProp(el, name, fallback, extract = true) {
 	if (el._x_bindings && el._x_bindings[name] !== undefined)
 		return el._x_bindings[name];
 	if (el._x_inlineBindings && el._x_inlineBindings[name] !== undefined) {
-		let binding = el._x_inlineBindings[name];
+		const binding = el._x_inlineBindings[name];
 		binding.extract = extract;
 		return dontAutoEvaluateFunctions(() => {
 			return evaluate(el, binding.expression);
@@ -1580,7 +1581,7 @@ function extractProp(el, name, fallback, extract = true) {
 	return getAttributeBinding(el, name, fallback);
 }
 function getAttributeBinding(el, name, fallback) {
-	let attr = el.getAttribute(name);
+	const attr = el.getAttribute(name);
 	if (attr === null)
 		return typeof fallback === "function" ? fallback() : fallback;
 	if (attr === "") return true;
@@ -1602,11 +1603,10 @@ function isRadio(el) {
 function debounce(func, wait) {
 	let timeout;
 	return function () {
-		const context = this,
-			args = arguments;
-		const later = function () {
+		const args = arguments;
+		const later = () => {
 			timeout = null;
-			func.apply(context, args);
+			func.apply(this, args);
 		};
 		clearTimeout(timeout);
 		timeout = setTimeout(later, wait);
@@ -1615,10 +1615,9 @@ function debounce(func, wait) {
 function throttle(func, limit) {
 	let inThrottle;
 	return function () {
-		let context = this,
-			args = arguments;
+		const args = arguments;
 		if (!inThrottle) {
-			func.apply(context, args);
+			func.apply(this, args);
 			inThrottle = true;
 			setTimeout(() => (inThrottle = false), limit);
 		}
@@ -1631,15 +1630,15 @@ function entangle(
 	let firstRun = true;
 	let outerHash;
 	let innerHash;
-	let reference = effect(() => {
-		let outer = outerGet();
-		let inner = innerGet();
+	const reference = effect(() => {
+		const outer = outerGet();
+		const inner = innerGet();
 		if (firstRun) {
 			innerSet(cloneIfObject(outer));
 			firstRun = false;
 		} else {
-			let outerHashLatest = JSON.stringify(outer);
-			let innerHashLatest = JSON.stringify(inner);
+			const outerHashLatest = JSON.stringify(outer);
+			const innerHashLatest = JSON.stringify(inner);
 			if (outerHashLatest !== outerHash) {
 				innerSet(cloneIfObject(outer));
 			} else if (outerHashLatest !== innerHashLatest) {
@@ -1658,7 +1657,7 @@ function cloneIfObject(value) {
 	return typeof value === "object" ? JSON.parse(JSON.stringify(value)) : value;
 }
 function plugin(callback) {
-	let callbacks = Array.isArray(callback) ? callback : [callback];
+	const callbacks = Array.isArray(callback) ? callback : [callback];
 	callbacks.forEach((i) => i(alpine_default));
 }
 var stores = {};
@@ -1676,7 +1675,7 @@ function store(name, value) {
 	if (
 		typeof value === "object" &&
 		value !== null &&
-		value.hasOwnProperty("init") &&
+		Object.hasOwn(value, "init") &&
 		typeof value.init === "function"
 	) {
 		stores[name].init();
@@ -1687,7 +1686,8 @@ function getStores() {
 }
 var binds = {};
 function bind2(name, bindings) {
-	let getBindings = typeof bindings !== "function" ? () => bindings : bindings;
+	const getBindings =
+		typeof bindings !== "function" ? () => bindings : bindings;
 	if (name instanceof Element) {
 		return applyBindingsObject(name, getBindings());
 	} else {
@@ -1708,13 +1708,13 @@ function injectBindingProviders(obj) {
 	return obj;
 }
 function applyBindingsObject(el, obj, original) {
-	let cleanupRunners = [];
+	const cleanupRunners = [];
 	while (cleanupRunners.length) cleanupRunners.pop()();
 	let attributes = Object.entries(obj).map(([name, value]) => ({
 		name,
 		value,
 	}));
-	let staticAttributes = attributesOnly(attributes);
+	const staticAttributes = attributesOnly(attributes);
 	attributes = attributes.map((attribute) => {
 		if (staticAttributes.find((attr) => attr.name === attribute.name)) {
 			return {
@@ -2304,13 +2304,12 @@ function clear() {
 }
 function createForEach(isReadonly, isShallow) {
 	return function forEach(callback, thisArg) {
-		const observed = this;
-		const target = observed["__v_raw"];
+		const target = this["__v_raw"];
 		const rawTarget = toRaw(target);
 		const wrap = isShallow ? toShallow : isReadonly ? toReadonly : toReactive;
 		!isReadonly && track(rawTarget, "iterate", ITERATE_KEY);
 		return target.forEach((value, key) => {
-			return callback.call(thisArg, wrap(value), wrap(key), observed);
+			return callback.call(thisArg, wrap(value), wrap(key), this);
 		});
 	};
 }
@@ -2582,13 +2581,13 @@ magic(
 	"watch",
 	(el, { evaluateLater: evaluateLater2, cleanup: cleanup2 }) =>
 		(key, callback) => {
-			let evaluate2 = evaluateLater2(key);
-			let getter = () => {
+			const evaluate2 = evaluateLater2(key);
+			const getter = () => {
 				let value;
 				evaluate2((i) => (value = i));
 				return value;
 			};
-			let unwatch = watch(getter, callback);
+			const unwatch = watch(getter, callback);
 			cleanup2(unwatch);
 		},
 );
@@ -2601,7 +2600,7 @@ magic("refs", (el) => {
 	return el._x_refs_proxy;
 });
 function getArrayOfRefObject(el) {
-	let refObjects = [];
+	const refObjects = [];
 	findClosest(el, (i) => {
 		if (i._x_refs) refObjects.push(i._x_refs);
 	});
@@ -2622,10 +2621,10 @@ function setIdRoot(el, name) {
 	if (!el._x_ids[name]) el._x_ids[name] = findAndIncrementId(name);
 }
 magic("id", (el, { cleanup: cleanup2 }) => (name, key = null) => {
-	let cacheKey = `${name}${key ? `-${key}` : ""}`;
+	const cacheKey = `${name}${key ? `-${key}` : ""}`;
 	return cacheIdByNameOnElement(el, cacheKey, cleanup2, () => {
-		let root = closestIdRoot(el, name);
-		let id = root ? root._x_ids[name] : findAndIncrementId(name);
+		const root = closestIdRoot(el, name);
+		const id = root ? root._x_ids[name] : findAndIncrementId(name);
 		return key ? `${name}-${id}-${key}` : `${name}-${id}`;
 	});
 });
@@ -2637,7 +2636,7 @@ interceptClone((from, to) => {
 function cacheIdByNameOnElement(el, cacheKey, cleanup2, callback) {
 	if (!el._x_id) el._x_id = {};
 	if (el._x_id[cacheKey]) return el._x_id[cacheKey];
-	let output = callback();
+	const output = callback();
 	el._x_id[cacheKey] = output;
 	cleanup2(() => {
 		delete el._x_id[cacheKey];
@@ -2662,23 +2661,23 @@ directive(
 		{ expression },
 		{ effect: effect3, evaluateLater: evaluateLater2, cleanup: cleanup2 },
 	) => {
-		let func = evaluateLater2(expression);
-		let innerGet = () => {
+		const func = evaluateLater2(expression);
+		const innerGet = () => {
 			let result;
 			func((i) => (result = i));
 			return result;
 		};
-		let evaluateInnerSet = evaluateLater2(`${expression} = __placeholder`);
-		let innerSet = (val) =>
+		const evaluateInnerSet = evaluateLater2(`${expression} = __placeholder`);
+		const innerSet = (val) =>
 			evaluateInnerSet(() => {}, { scope: { __placeholder: val } });
-		let initialValue = innerGet();
+		const initialValue = innerGet();
 		innerSet(initialValue);
 		queueMicrotask(() => {
 			if (!el._x_model) return;
 			el._x_removeModelListeners["default"]();
-			let outerGet = el._x_model.get;
-			let outerSet = el._x_model.set;
-			let releaseEntanglement = entangle(
+			const outerGet = el._x_model.get;
+			const outerSet = el._x_model.set;
+			const releaseEntanglement = entangle(
 				{
 					get() {
 						return outerGet();
@@ -2705,8 +2704,8 @@ directive(
 	(el, { modifiers, expression }, { cleanup: cleanup2 }) => {
 		if (el.tagName.toLowerCase() !== "template")
 			warn("x-teleport can only be used on a <template> tag", el);
-		let target = getTarget(expression);
-		let clone2 = el.content.cloneNode(true).firstElementChild;
+		const target = getTarget(expression);
+		const clone2 = el.content.cloneNode(true).firstElementChild;
 		el._x_teleport = clone2;
 		clone2._x_teleportBack = el;
 		el.setAttribute("data-teleport-template", true);
@@ -2720,7 +2719,7 @@ directive(
 			});
 		}
 		addScopeToNode(clone2, {}, el);
-		let placeInDom = (clone3, target2, modifiers2) => {
+		const placeInDom = (clone3, target2, modifiers2) => {
 			if (modifiers2.includes("prepend")) {
 				target2.parentNode.insertBefore(clone3, target2);
 			} else if (modifiers2.includes("append")) {
@@ -2736,7 +2735,7 @@ directive(
 			})();
 		});
 		el._x_teleportPutBack = () => {
-			let target2 = getTarget(expression);
+			const target2 = getTarget(expression);
 			mutateDom(() => {
 				placeInDom(el._x_teleport, target2, modifiers);
 			});
@@ -2751,7 +2750,7 @@ directive(
 );
 var teleportContainerDuringClone = document.createElement("div");
 function getTarget(expression) {
-	let target = skipDuringClone(
+	const target = skipDuringClone(
 		() => {
 			return document.querySelector(expression);
 		},
@@ -2782,8 +2781,8 @@ directive(
 function on(el, event, modifiers, callback) {
 	let listenerTarget = el;
 	let handler4 = (e) => callback(e);
-	let options = {};
-	let wrapHandler = (callback2, wrapper) => (e) => wrapper(callback2, e);
+	const options = {};
+	const wrapHandler = (callback2, wrapper) => (e) => wrapper(callback2, e);
 	if (modifiers.includes("dot")) event = dotSyntax(event);
 	if (modifiers.includes("camel")) event = camelCase2(event);
 	if (modifiers.includes("passive")) options.passive = true;
@@ -2791,17 +2790,17 @@ function on(el, event, modifiers, callback) {
 	if (modifiers.includes("window")) listenerTarget = window;
 	if (modifiers.includes("document")) listenerTarget = document;
 	if (modifiers.includes("debounce")) {
-		let nextModifier =
+		const nextModifier =
 			modifiers[modifiers.indexOf("debounce") + 1] || "invalid-wait";
-		let wait = isNumeric(nextModifier.split("ms")[0])
+		const wait = isNumeric(nextModifier.split("ms")[0])
 			? Number(nextModifier.split("ms")[0])
 			: 250;
 		handler4 = debounce(handler4, wait);
 	}
 	if (modifiers.includes("throttle")) {
-		let nextModifier =
+		const nextModifier =
 			modifiers[modifiers.indexOf("throttle") + 1] || "invalid-wait";
-		let wait = isNumeric(nextModifier.split("ms")[0])
+		const wait = isNumeric(nextModifier.split("ms")[0])
 			? Number(nextModifier.split("ms")[0])
 			: 250;
 		handler4 = throttle(handler4, wait);
@@ -2890,7 +2889,7 @@ function isListeningForASpecificKeyThatHasntBeenPressed(e, modifiers) {
 		].includes(i);
 	});
 	if (keyModifiers.includes("debounce")) {
-		let debounceIndex = keyModifiers.indexOf("debounce");
+		const debounceIndex = keyModifiers.indexOf("debounce");
 		keyModifiers.splice(
 			debounceIndex,
 			isNumeric(
@@ -2901,7 +2900,7 @@ function isListeningForASpecificKeyThatHasntBeenPressed(e, modifiers) {
 		);
 	}
 	if (keyModifiers.includes("throttle")) {
-		let debounceIndex = keyModifiers.indexOf("throttle");
+		const debounceIndex = keyModifiers.indexOf("throttle");
 		keyModifiers.splice(
 			debounceIndex,
 			isNumeric(
@@ -2943,7 +2942,7 @@ function isListeningForASpecificKeyThatHasntBeenPressed(e, modifiers) {
 function keyToModifiers(key) {
 	if (!key) return [];
 	key = kebabCase2(key);
-	let modifierToKeyMap = {
+	const modifierToKeyMap = {
 		ctrl: "control",
 		slash: "/",
 		space: " ",
@@ -2974,7 +2973,7 @@ directive(
 		if (modifiers.includes("parent")) {
 			scopeTarget = el.parentNode;
 		}
-		let evaluateGet = evaluateLater(scopeTarget, expression);
+		const evaluateGet = evaluateLater(scopeTarget, expression);
 		let evaluateSet;
 		if (typeof expression === "string") {
 			evaluateSet = evaluateLater(scopeTarget, `${expression} = __placeholder`);
@@ -2989,12 +2988,12 @@ directive(
 		} else {
 			evaluateSet = () => {};
 		}
-		let getValue = () => {
+		const getValue = () => {
 			let result;
 			evaluateGet((value) => (result = value));
 			return isGetterSetter(result) ? result.get() : result;
 		};
-		let setValue = (value) => {
+		const setValue = (value) => {
 			let result;
 			evaluateGet((value2) => (result = value2));
 			if (isGetterSetter(result)) {
@@ -3010,13 +3009,13 @@ directive(
 				if (!el.hasAttribute("name")) el.setAttribute("name", expression);
 			});
 		}
-		let event =
+		const event =
 			el.tagName.toLowerCase() === "select" ||
 			["checkbox", "radio"].includes(el.type) ||
 			modifiers.includes("lazy")
 				? "change"
 				: "input";
-		let removeListener = isCloning
+		const removeListener = isCloning
 			? () => {}
 			: on(el, event, modifiers, (e) => {
 					setValue(getInputValue(el, modifiers, e, getValue()));
@@ -3034,7 +3033,7 @@ directive(
 		el._x_removeModelListeners["default"] = removeListener;
 		cleanup2(() => el._x_removeModelListeners["default"]());
 		if (el.form) {
-			let removeResetListener = on(el.form, "reset", [], (e) => {
+			const removeResetListener = on(el.form, "reset", [], (e) => {
 				nextTick(
 					() =>
 						el._x_model &&
@@ -3065,7 +3064,7 @@ directive(
 			delete window.fromModel;
 		};
 		effect3(() => {
-			let value = getValue();
+			const value = getValue();
 			if (
 				modifiers.includes("unintrusive") &&
 				document.activeElement.isSameNode(el)
@@ -3104,12 +3103,12 @@ function getInputValue(el, modifiers, event, currentValue) {
 		} else if (el.tagName.toLowerCase() === "select" && el.multiple) {
 			if (modifiers.includes("number")) {
 				return Array.from(event.target.selectedOptions).map((option) => {
-					let rawValue = option.value || option.text;
+					const rawValue = option.value || option.text;
 					return safeParseNumber(rawValue);
 				});
 			} else if (modifiers.includes("boolean")) {
 				return Array.from(event.target.selectedOptions).map((option) => {
-					let rawValue = option.value || option.text;
+					const rawValue = option.value || option.text;
 					return safeParseBoolean(rawValue);
 				});
 			}
@@ -3140,7 +3139,7 @@ function getInputValue(el, modifiers, event, currentValue) {
 	});
 }
 function safeParseNumber(rawValue) {
-	let number = rawValue ? parseFloat(rawValue) : null;
+	const number = rawValue ? parseFloat(rawValue) : null;
 	return isNumeric2(number) ? number : rawValue;
 }
 function checkedAttrLooseCompare2(valueA, valueB) {
@@ -3173,7 +3172,7 @@ directive(
 directive(
 	"text",
 	(el, { expression }, { effect: effect3, evaluateLater: evaluateLater2 }) => {
-		let evaluate2 = evaluateLater2(expression);
+		const evaluate2 = evaluateLater2(expression);
 		effect3(() => {
 			evaluate2((value) => {
 				mutateDom(() => {
@@ -3186,7 +3185,7 @@ directive(
 directive(
 	"html",
 	(el, { expression }, { effect: effect3, evaluateLater: evaluateLater2 }) => {
-		let evaluate2 = evaluateLater2(expression);
+		const evaluate2 = evaluateLater2(expression);
 		effect3(() => {
 			evaluate2((value) => {
 				mutateDom(() => {
@@ -3206,9 +3205,9 @@ var handler2 = (
 	{ effect: effect3, cleanup: cleanup2 },
 ) => {
 	if (!value) {
-		let bindingProviders = {};
+		const bindingProviders = {};
 		injectBindingProviders(bindingProviders);
-		let getBindings = evaluateLater(el, expression);
+		const getBindings = evaluateLater(el, expression);
 		getBindings(
 			(bindings) => {
 				applyBindingsObject(el, bindings, original);
@@ -3225,7 +3224,7 @@ var handler2 = (
 	) {
 		return;
 	}
-	let evaluate2 = evaluateLater(el, expression);
+	const evaluate2 = evaluateLater(el, expression);
 	effect3(() =>
 		evaluate2((result) => {
 			if (
@@ -3256,16 +3255,16 @@ addRootSelector(() => `[${prefix("data")}]`);
 directive("data", (el, { expression }, { cleanup: cleanup2 }) => {
 	if (shouldSkipRegisteringDataDuringClone(el)) return;
 	expression = expression === "" ? "{}" : expression;
-	let magicContext = {};
+	const magicContext = {};
 	injectMagics(magicContext, el);
-	let dataProviderContext = {};
+	const dataProviderContext = {};
 	injectDataProviders(dataProviderContext, magicContext);
 	let data2 = evaluate(el, expression, { scope: dataProviderContext });
 	if (data2 === undefined || data2 === true) data2 = {};
 	injectMagics(data2, el);
-	let reactiveData = reactive(data2);
+	const reactiveData = reactive(data2);
 	initInterceptors(reactiveData);
-	let undo = addScopeToNode(el, reactiveData);
+	const undo = addScopeToNode(el, reactiveData);
 	reactiveData["init"] && evaluate(el, reactiveData["init"]);
 	cleanup2(() => {
 		reactiveData["destroy"] && evaluate(el, reactiveData["destroy"]);
@@ -3284,7 +3283,7 @@ function shouldSkipRegisteringDataDuringClone(el) {
 	return el.hasAttribute("data-has-alpine-state");
 }
 directive("show", (el, { modifiers, expression }, { effect: effect3 }) => {
-	let evaluate2 = evaluateLater(el, expression);
+	const evaluate2 = evaluateLater(el, expression);
 	if (!el._x_doHide)
 		el._x_doHide = () => {
 			mutateDom(() => {
@@ -3305,16 +3304,16 @@ directive("show", (el, { modifiers, expression }, { effect: effect3 }) => {
 				}
 			});
 		};
-	let hide = () => {
+	const hide = () => {
 		el._x_doHide();
 		el._x_isShown = false;
 	};
-	let show = () => {
+	const show = () => {
 		el._x_doShow();
 		el._x_isShown = true;
 	};
-	let clickAwayCompatibleShow = () => setTimeout(show);
-	let toggle = once(
+	const clickAwayCompatibleShow = () => setTimeout(show);
+	const toggle = once(
 		(value) => (value ? show() : hide()),
 		(value) => {
 			if (typeof el._x_toggleAndCascadeWithTransitions === "function") {
@@ -3340,9 +3339,9 @@ directive("show", (el, { modifiers, expression }, { effect: effect3 }) => {
 directive(
 	"for",
 	(el, { expression }, { effect: effect3, cleanup: cleanup2 }) => {
-		let iteratorNames = parseForExpression(expression);
-		let evaluateItems = evaluateLater(el, iteratorNames.items);
-		let evaluateKey = evaluateLater(el, el._x_keyExpression || "index");
+		const iteratorNames = parseForExpression(expression);
+		const evaluateItems = evaluateLater(el, iteratorNames.items);
+		const evaluateKey = evaluateLater(el, el._x_keyExpression || "index");
 		el._x_prevKeys = [];
 		el._x_lookup = {};
 		effect3(() => loop(el, iteratorNames, evaluateItems, evaluateKey));
@@ -3359,20 +3358,20 @@ directive(
 	},
 );
 function loop(el, iteratorNames, evaluateItems, evaluateKey) {
-	let isObject2 = (i) => typeof i === "object" && !Array.isArray(i);
-	let templateEl = el;
+	const isObject2 = (i) => typeof i === "object" && !Array.isArray(i);
+	const templateEl = el;
 	evaluateItems((items) => {
 		if (isNumeric3(items) && items >= 0) {
 			items = Array.from(Array(items).keys(), (i) => i + 1);
 		}
 		if (items === undefined) items = [];
-		let lookup = el._x_lookup;
+		const lookup = el._x_lookup;
 		let prevKeys = el._x_prevKeys;
-		let scopes = [];
-		let keys = [];
+		const scopes = [];
+		const keys = [];
 		if (isObject2(items)) {
 			items = Object.entries(items).map(([key, value]) => {
-				let scope2 = getIterationScopeVariables(
+				const scope2 = getIterationScopeVariables(
 					iteratorNames,
 					value,
 					key,
@@ -3389,7 +3388,7 @@ function loop(el, iteratorNames, evaluateItems, evaluateKey) {
 			});
 		} else {
 			for (let i = 0; i < items.length; i++) {
-				let scope2 = getIterationScopeVariables(
+				const scope2 = getIterationScopeVariables(
 					iteratorNames,
 					items[i],
 					i,
@@ -3405,25 +3404,25 @@ function loop(el, iteratorNames, evaluateItems, evaluateKey) {
 				scopes.push(scope2);
 			}
 		}
-		let adds = [];
-		let moves = [];
-		let removes = [];
-		let sames = [];
+		const adds = [];
+		const moves = [];
+		const removes = [];
+		const sames = [];
 		for (let i = 0; i < prevKeys.length; i++) {
-			let key = prevKeys[i];
+			const key = prevKeys[i];
 			if (keys.indexOf(key) === -1) removes.push(key);
 		}
 		prevKeys = prevKeys.filter((key) => !removes.includes(key));
 		let lastKey = "template";
 		for (let i = 0; i < keys.length; i++) {
-			let key = keys[i];
-			let prevIndex = prevKeys.indexOf(key);
+			const key = keys[i];
+			const prevIndex = prevKeys.indexOf(key);
 			if (prevIndex === -1) {
 				prevKeys.splice(i, 0, key);
 				adds.push([lastKey, i]);
 			} else if (prevIndex !== i) {
-				let keyInSpot = prevKeys.splice(i, 1)[0];
-				let keyForSpot = prevKeys.splice(prevIndex - 1, 1)[0];
+				const keyInSpot = prevKeys.splice(i, 1)[0];
+				const keyForSpot = prevKeys.splice(prevIndex - 1, 1)[0];
 				prevKeys.splice(i, 0, keyForSpot);
 				prevKeys.splice(prevIndex, 0, keyInSpot);
 				moves.push([keyInSpot, keyForSpot]);
@@ -3433,7 +3432,7 @@ function loop(el, iteratorNames, evaluateItems, evaluateKey) {
 			lastKey = key;
 		}
 		for (let i = 0; i < removes.length; i++) {
-			let key = removes[i];
+			const key = removes[i];
 			if (!(key in lookup)) continue;
 			mutateDom(() => {
 				destroyTree(lookup[key]);
@@ -3442,10 +3441,10 @@ function loop(el, iteratorNames, evaluateItems, evaluateKey) {
 			delete lookup[key];
 		}
 		for (let i = 0; i < moves.length; i++) {
-			let [keyInSpot, keyForSpot] = moves[i];
-			let elInSpot = lookup[keyInSpot];
-			let elForSpot = lookup[keyForSpot];
-			let marker = document.createElement("div");
+			const [keyInSpot, keyForSpot] = moves[i];
+			const elInSpot = lookup[keyInSpot];
+			const elForSpot = lookup[keyForSpot];
+			const marker = document.createElement("div");
 			mutateDom(() => {
 				if (!elForSpot)
 					warn(
@@ -3464,16 +3463,16 @@ function loop(el, iteratorNames, evaluateItems, evaluateKey) {
 			elForSpot._x_refreshXForScope(scopes[keys.indexOf(keyForSpot)]);
 		}
 		for (let i = 0; i < adds.length; i++) {
-			let [lastKey2, index] = adds[i];
+			const [lastKey2, index] = adds[i];
 			let lastEl = lastKey2 === "template" ? templateEl : lookup[lastKey2];
 			if (lastEl._x_currentIfEl) lastEl = lastEl._x_currentIfEl;
-			let scope2 = scopes[index];
-			let key = keys[index];
-			let clone2 = document.importNode(
+			const scope2 = scopes[index];
+			const key = keys[index];
+			const clone2 = document.importNode(
 				templateEl.content,
 				true,
 			).firstElementChild;
-			let reactiveScope = reactive(scope2);
+			const reactiveScope = reactive(scope2);
 			addScopeToNode(clone2, reactiveScope, templateEl);
 			clone2._x_refreshXForScope = (newScope) => {
 				Object.entries(newScope).forEach(([key2, value]) => {
@@ -3499,15 +3498,15 @@ function loop(el, iteratorNames, evaluateItems, evaluateKey) {
 	});
 }
 function parseForExpression(expression) {
-	let forIteratorRE = /,([^,\}\]]*)(?:,([^,\}\]]*))?$/;
-	let stripParensRE = /^\s*\(|\)\s*$/g;
-	let forAliasRE = /([\s\S]*?)\s+(?:in|of)\s+([\s\S]*)/;
-	let inMatch = expression.match(forAliasRE);
+	const forIteratorRE = /,([^,}\]]*)(?:,([^,}\]]*))?$/;
+	const stripParensRE = /^\s*\(|\)\s*$/g;
+	const forAliasRE = /([\s\S]*?)\s+(?:in|of)\s+([\s\S]*)/;
+	const inMatch = expression.match(forAliasRE);
 	if (!inMatch) return;
-	let res = {};
+	const res = {};
 	res.items = inMatch[2].trim();
-	let item = inMatch[1].replace(stripParensRE, "").trim();
-	let iteratorMatch = item.match(forIteratorRE);
+	const item = inMatch[1].replace(stripParensRE, "").trim();
+	const iteratorMatch = item.match(forIteratorRE);
 	if (iteratorMatch) {
 		res.item = item.replace(forIteratorRE, "").trim();
 		res.index = iteratorMatch[1].trim();
@@ -3520,9 +3519,9 @@ function parseForExpression(expression) {
 	return res;
 }
 function getIterationScopeVariables(iteratorNames, item, index, items) {
-	let scopeVariables = {};
+	const scopeVariables = {};
 	if (/^\[.*\]$/.test(iteratorNames.item) && Array.isArray(item)) {
-		let names = iteratorNames.item
+		const names = iteratorNames.item
 			.replace("[", "")
 			.replace("]", "")
 			.split(",")
@@ -3535,7 +3534,7 @@ function getIterationScopeVariables(iteratorNames, item, index, items) {
 		!Array.isArray(item) &&
 		typeof item === "object"
 	) {
-		let names = iteratorNames.item
+		const names = iteratorNames.item
 			.replace("{", "")
 			.replace("}", "")
 			.split(",")
@@ -3556,7 +3555,7 @@ function isNumeric3(subject) {
 }
 function handler3() {}
 handler3.inline = (el, { expression }, { cleanup: cleanup2 }) => {
-	let root = closestRoot(el);
+	const root = closestRoot(el);
 	if (!root._x_refs) root._x_refs = {};
 	root._x_refs[expression] = el;
 	cleanup2(() => delete root._x_refs[expression]);
@@ -3567,10 +3566,10 @@ directive(
 	(el, { expression }, { effect: effect3, cleanup: cleanup2 }) => {
 		if (el.tagName.toLowerCase() !== "template")
 			warn("x-if can only be used on a <template> tag", el);
-		let evaluate2 = evaluateLater(el, expression);
-		let show = () => {
+		const evaluate2 = evaluateLater(el, expression);
+		const show = () => {
 			if (el._x_currentIfEl) return el._x_currentIfEl;
-			let clone2 = el.content.cloneNode(true).firstElementChild;
+			const clone2 = el.content.cloneNode(true).firstElementChild;
 			addScopeToNode(clone2, {}, el);
 			mutateDom(() => {
 				el.after(clone2);
@@ -3586,7 +3585,7 @@ directive(
 			};
 			return clone2;
 		};
-		let hide = () => {
+		const hide = () => {
 			if (!el._x_undoIf) return;
 			el._x_undoIf();
 			delete el._x_undoIf;
@@ -3600,7 +3599,7 @@ directive(
 	},
 );
 directive("id", (el, { expression }, { evaluate: evaluate2 }) => {
-	let names = evaluate2(expression);
+	const names = evaluate2(expression);
 	names.forEach((name) => setIdRoot(el, name));
 });
 interceptClone((from, to) => {
@@ -3613,13 +3612,13 @@ directive(
 	"on",
 	skipDuringClone(
 		(el, { value, modifiers, expression }, { cleanup: cleanup2 }) => {
-			let evaluate2 = expression ? evaluateLater(el, expression) : () => {};
+			const evaluate2 = expression ? evaluateLater(el, expression) : () => {};
 			if (el.tagName.toLowerCase() === "template") {
 				if (!el._x_forwardEvents) el._x_forwardEvents = [];
 				if (!el._x_forwardEvents.includes(value))
 					el._x_forwardEvents.push(value);
 			}
-			let removeListener = on(el, value, modifiers, (e) => {
+			const removeListener = on(el, value, modifiers, (e) => {
 				evaluate2(() => {}, { scope: { $event: e }, params: [e] });
 			});
 			cleanup2(() => removeListener());
@@ -3768,8 +3767,8 @@ var explorer_default = () => ({
 		);
 		stmt.bind([term, term]);
 		let rootId = null;
-		let nodes = new Set();
-		let edges = [];
+		const nodes = new Set();
+		const edges = [];
 		let row = null;
 		if (stmt.step()) row = stmt.getAsObject();
 		stmt.free();
@@ -3996,13 +3995,13 @@ var sigma_explorer_default = () => ({
 					color: row.type === "Core Concept" ? "black" : "#475569",
 					originalSize: row.type === "Core Concept" ? 20 : 6,
 					originalColor: row.type === "Core Concept" ? "black" : "#475569",
-					x: (function (str) {
+					x: ((str) => {
 						let hash = 0;
 						for (let i = 0; i < str.length; i++)
 							hash = (Math.imul(31, hash) + str.charCodeAt(i)) | 0;
 						return (Math.abs(hash) % 1000) / 10;
 					})(row.id + "x"),
-					y: (function (str) {
+					y: ((str) => {
 						let hash = 0;
 						for (let i = 0; i < str.length; i++)
 							hash = (Math.imul(31, hash) + str.charCodeAt(i)) | 0;
@@ -4638,14 +4637,14 @@ function k(u, e = "") {
 }
 var me = (() => {
 	try {
-		return !!new RegExp("(?<=1)(?<!1)");
+		return !!/(?<=1)(?<!1)/;
 	} catch {
 		return false;
 	}
 })();
 var m = {
 	codeRemoveIndent: /^(?: {1,4}| {0,3}\t)/gm,
-	outputLinkReplace: /\\([\[\]])/g,
+	outputLinkReplace: /\\([[\]])/g,
 	indentCodeCompensation: /^(\s+)(?:```)/,
 	beginningSpace: /^\s+/,
 	endingHash: /#$/,
@@ -4686,7 +4685,7 @@ var m = {
 	escapeTestNoEncode: /[<>"']|&(?!(#\d{1,7}|#[Xx][a-fA-F0-9]{1,6}|\w+);)/,
 	escapeReplaceNoEncode: /[<>"']|&(?!(#\d{1,7}|#[Xx][a-fA-F0-9]{1,6}|\w+);)/g,
 	unescapeTest: /&(#(?:\d+)|(?:#x[0-9A-Fa-f]+)|(?:\w+));?/gi,
-	caret: /(^|[^\[])\^/g,
+	caret: /(^|[^[])\^/g,
 	percentDecode: /%25/g,
 	findPipe: /\|/g,
 	splitPipe: / \|/,
@@ -4735,12 +4734,12 @@ var Oe = k(re)
 	.replace(/blockquote/g, / {0,3}>/)
 	.replace(/heading/g, / {0,3}#{1,6}/)
 	.replace(/html/g, / {0,3}<[^\n>]+>\n/)
-	.replace(/table/g, / {0,3}\|?(?:[:\- ]*\|)+[\:\- ]*\n/)
+	.replace(/table/g, / {0,3}\|?(?:[:\- ]*\|)+[:\- ]*\n/)
 	.getRegex();
 var Q =
 	/^([^\n]+(?:\n(?!hr|heading|lheading|blockquote|fences|list|html|table| +\n)[^\n]+)*)/;
 var we = /^[^\n]+/;
-var F = /(?!\s*\])(?:\\[\s\S]|[^\[\]\\])+/;
+var F = /(?!\s*\])(?:\\[\s\S]|[^[\]\\])+/;
 var ye = k(
 	/^ {0,3}\[(label)\]: *(?:\n[ \t]*)?([^<\s][^\s]*|<.*?>)(?:(?: +(?:\n[ \t]*)?| *\n[ \t]*)(title))? *(?:\n+|$)/,
 )
@@ -4864,11 +4863,11 @@ var Le = {
 		.replace("|tag", "")
 		.getRegex(),
 };
-var Me = /^\\([!"#$%&'()*+,\-./:;<=>?@\[\]\\^_`{|}~])/;
+var Me = /^\\([!"#$%&'()*+,\-./:;<=>?@[\]\\^_`{|}~])/;
 var ze = /^(`+)([^`]|[^`][\s\S]*?[^`])\1(?!`)/;
 var oe = /^( {2,}|\\)\n(?!\s*$)/;
 var Ae =
-	/^(`+|[^`])(?:(?= {2,}\n)|[\s\S]*?(?:(?=[\\<!\[`*_]|\b_|$)|[^ ](?= {2,}\n)))/;
+	/^(`+|[^`])(?:(?= {2,}\n)|[\s\S]*?(?:(?=[\\<![`*_]|\b_|$)|[^ ](?= {2,}\n)))/;
 var D = /[\p{P}\p{S}]/u;
 var K = /[\s\p{P}\p{S}]/u;
 var ae = /[^\s\p{P}\p{S}]/u;
@@ -4881,7 +4880,7 @@ var Ee = /(?:[^\s\p{P}\p{S}]|~)/u;
 var Be = k(/link|precode-code|html/, "g")
 	.replace(
 		"link",
-		/\[(?:[^\[\]`]|(?<a>`+)[^`]+\k<a>(?!`))*?\]\((?:\\[\s\S]|[^\\\(\)]|\((?:\\[\s\S]|[^\\\(\)])*\))*\)/,
+		/\[(?:[^[\]`]|(?<a>`+)[^`]+\k<a>(?!`))*?\]\((?:\\[\s\S]|[^\\()]|\((?:\\[\s\S]|[^\\()])*\))*\)/,
 	)
 	.replace("precode-", me ? "(?<!`)()" : "(^^|[^`])")
 	.replace("code", /(?<b>`+)[^`]+\k<b>(?!`)/)
@@ -4930,7 +4929,7 @@ var Fe = k(
 		/\s+[a-zA-Z:_][\w.:-]*(?:\s*=\s*"[^"]*"|\s*=\s*'[^']*'|\s*=\s*[^\s"'=<>`]+)?/,
 	)
 	.getRegex();
-var q = /(?:\[(?:\\[\s\S]|[^\[\]\\])*\]|\\[\s\S]|`+[^`]*?`+(?!`)|[^\[\]\\`])*?/;
+var q = /(?:\[(?:\\[\s\S]|[^[\]\\])*\]|\\[\s\S]|`+[^`]*?`+(?!`)|[^[\]\\`])*?/;
 var je = k(/^!?\[(label)\]\(\s*(href)(?:(?:[ \t]*(?:\n[ \t]*)?)(title))?\s*\)/)
 	.replace("label", q)
 	.replace("href", /<(?:\\.|[^\n<>\\])+>|[^ \t\n\x00-\x1f]*/)
@@ -4985,7 +4984,7 @@ var G = {
 	...W,
 	emStrongRDelimAst: He,
 	emStrongLDelim: ve,
-	url: k(/^((?:protocol):\/\/|www\.)(?:[a-zA-Z0-9\-]+\.?)+[^\s<]*|^email/)
+	url: k(/^((?:protocol):\/\/|www\.)(?:[a-zA-Z0-9-]+\.?)+[^\s<]*|^email/)
 		.replace("protocol", ne)
 		.replace(
 			"email",
@@ -4996,7 +4995,7 @@ var G = {
 		/(?:[^?!.,:;*_'"~()&]+|\([^)]*\)|&(?![a-zA-Z0-9]+;$)|[?!.,:;*_'"~)]+(?!$))+/,
 	del: /^(~~?)(?=[^\s~])((?:\\[\s\S]|[^\\])*?(?:\\[\s\S]|[^\s~\\]))\1(?=[^~]|$)/,
 	text: k(
-		/^([`~]+|[^`~])(?:(?= {2,}\n)|(?=[a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-]+@)|[\s\S]*?(?:(?=[\\<!\[`*~_]|\b_|protocol:\/\/|www\.|$)|[^ ](?= {2,}\n)|[^a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-](?=[a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-]+@)))/,
+		/^([`~]+|[^`~])(?:(?= {2,}\n)|(?=[a-zA-Z0-9.!#$%&'*+/=?_`{|}~-]+@)|[\s\S]*?(?:(?=[\\<![`*~_]|\b_|protocol:\/\/|www\.|$)|[^ ](?= {2,}\n)|[^a-zA-Z0-9.!#$%&'*+/=?_`{|}~-](?=[a-zA-Z0-9.!#$%&'*+/=?_`{|}~-]+@)))/,
 	)
 		.replace("protocol", ne)
 		.getRegex(),
@@ -5052,11 +5051,11 @@ function J(u, e) {
 	return n;
 }
 function z(u, e, t) {
-	let n = u.length;
+	const n = u.length;
 	if (n === 0) return "";
 	let r = 0;
 	for (; r < n; ) {
-		let i = u.charAt(n - r - 1);
+		const i = u.charAt(n - r - 1);
 		if (i === e && !t) r++;
 		else if (i !== e && t) r++;
 		else break;
@@ -5073,11 +5072,11 @@ function de(u, e) {
 	return t > 0 ? -2 : -1;
 }
 function ge(u, e, t, n, r) {
-	let i = e.href,
+	const i = e.href,
 		s = e.title || null,
 		a = u[1].replace(r.other.outputLinkReplace, "$1");
 	n.state.inLink = true;
-	let o = {
+	const o = {
 		type: u[0].charAt(0) === "!" ? "image" : "link",
 		raw: t,
 		href: i,
@@ -5088,16 +5087,16 @@ function ge(u, e, t, n, r) {
 	return (n.state.inLink = false), o;
 }
 function Je(u, e, t) {
-	let n = u.match(t.other.indentCodeCompensation);
+	const n = u.match(t.other.indentCodeCompensation);
 	if (n === null) return e;
-	let r = n[1];
+	const r = n[1];
 	return e
 		.split(`
 `)
 		.map((i) => {
-			let s = i.match(t.other.beginningSpace);
+			const s = i.match(t.other.beginningSpace);
 			if (s === null) return i;
-			let [a] = s;
+			const [a] = s;
 			return a.length >= r.length ? i.slice(r.length) : i;
 		})
 		.join(`
@@ -5111,13 +5110,13 @@ var y = class {
 		this.options = e || T;
 	}
 	space(e) {
-		let t = this.rules.block.newline.exec(e);
+		const t = this.rules.block.newline.exec(e);
 		if (t && t[0].length > 0) return { type: "space", raw: t[0] };
 	}
 	code(e) {
-		let t = this.rules.block.code.exec(e);
+		const t = this.rules.block.code.exec(e);
 		if (t) {
-			let n = t[0].replace(this.rules.other.codeRemoveIndent, "");
+			const n = t[0].replace(this.rules.other.codeRemoveIndent, "");
 			return {
 				type: "code",
 				raw: t[0],
@@ -5133,9 +5132,9 @@ var y = class {
 		}
 	}
 	fences(e) {
-		let t = this.rules.block.fences.exec(e);
+		const t = this.rules.block.fences.exec(e);
 		if (t) {
-			let n = t[0],
+			const n = t[0],
 				r = Je(n, t[3] || "", this.rules);
 			return {
 				type: "code",
@@ -5148,11 +5147,11 @@ var y = class {
 		}
 	}
 	heading(e) {
-		let t = this.rules.block.heading.exec(e);
+		const t = this.rules.block.heading.exec(e);
 		if (t) {
 			let n = t[2].trim();
 			if (this.rules.other.endingHash.test(n)) {
-				let r = z(n, "#");
+				const r = z(n, "#");
 				(this.options.pedantic ||
 					!r ||
 					this.rules.other.endingSpaceChar.test(r)) &&
@@ -5168,7 +5167,7 @@ var y = class {
 		}
 	}
 	hr(e) {
-		let t = this.rules.block.hr.exec(e);
+		const t = this.rules.block.hr.exec(e);
 		if (t)
 			return {
 				type: "hr",
@@ -5180,7 +5179,7 @@ var y = class {
 			};
 	}
 	blockquote(e) {
-		let t = this.rules.block.blockquote.exec(e);
+		const t = this.rules.block.blockquote.exec(e);
 		if (t) {
 			let n = z(
 					t[0],
@@ -5201,7 +5200,7 @@ var y = class {
 					else if (!a) o.push(n[l]);
 					else break;
 				n = n.slice(l);
-				let p = o.join(`
+				const p = o.join(`
 `),
 					c = p
 						.replace(
@@ -5218,7 +5217,7 @@ ${p}`
 						? `${i}
 ${c}`
 						: c);
-				let g = this.lexer.state.top;
+				const g = this.lexer.state.top;
 				if (
 					((this.lexer.state.top = true),
 					this.lexer.blockTokens(c, s, true),
@@ -5226,10 +5225,10 @@ ${c}`
 					n.length === 0)
 				)
 					break;
-				let h = s.at(-1);
+				const h = s.at(-1);
 				if (h?.type === "code") break;
 				if (h?.type === "blockquote") {
-					let R = h,
+					const R = h,
 						f =
 							R.raw +
 							`
@@ -5242,7 +5241,7 @@ ${c}`
 						(i = i.substring(0, i.length - R.text.length) + O.text);
 					break;
 				} else if (h?.type === "list") {
-					let R = h,
+					const R = h,
 						f =
 							R.raw +
 							`
@@ -5255,7 +5254,6 @@ ${c}`
 						(i = i.substring(0, i.length - R.raw.length) + O.raw),
 						(n = f.substring(s.at(-1).raw.length).split(`
 `));
-					continue;
 				}
 			}
 			return { type: "blockquote", raw: r, tokens: s, text: i };
@@ -5319,7 +5317,7 @@ ${c}`
 						(l = true)),
 					!l)
 				) {
-					let O = this.rules.other.nextBulletRegex(f),
+					const O = this.rules.other.nextBulletRegex(f),
 						V = this.rules.other.hrRegex(f),
 						Y = this.rules.other.fencesBeginRegex(f),
 						ee = this.rules.other.headingBeginRegex(f),
@@ -5382,11 +5380,11 @@ ${c}`
 					}),
 					(i.raw += p);
 			}
-			let o = i.items.at(-1);
+			const o = i.items.at(-1);
 			if (o) (o.raw = o.raw.trimEnd()), (o.text = o.text.trimEnd());
 			else return;
 			i.raw = i.raw.trimEnd();
-			for (let l of i.items) {
+			for (const l of i.items) {
 				if (
 					((this.lexer.state.top = false),
 					(l.tokens = this.lexer.blockTokens(l.text, [])),
@@ -5414,9 +5412,9 @@ ${c}`
 								break;
 							}
 					}
-					let p = this.rules.other.listTaskCheckbox.exec(l.raw);
+					const p = this.rules.other.listTaskCheckbox.exec(l.raw);
 					if (p) {
-						let c = {
+						const c = {
 							type: "checkbox",
 							raw: p[0] + " ",
 							checked: p[0] !== "[ ]",
@@ -5440,7 +5438,7 @@ ${c}`
 					}
 				}
 				if (!i.loose) {
-					let p = l.tokens.filter((g) => g.type === "space"),
+					const p = l.tokens.filter((g) => g.type === "space"),
 						c =
 							p.length > 0 &&
 							p.some((g) => this.rules.other.anyLine.test(g.raw));
@@ -5448,15 +5446,15 @@ ${c}`
 				}
 			}
 			if (i.loose)
-				for (let l of i.items) {
+				for (const l of i.items) {
 					l.loose = true;
-					for (let p of l.tokens) p.type === "text" && (p.type = "paragraph");
+					for (const p of l.tokens) p.type === "text" && (p.type = "paragraph");
 				}
 			return i;
 		}
 	}
 	html(e) {
-		let t = this.rules.block.html.exec(e);
+		const t = this.rules.block.html.exec(e);
 		if (t)
 			return {
 				type: "html",
@@ -5467,9 +5465,9 @@ ${c}`
 			};
 	}
 	def(e) {
-		let t = this.rules.block.def.exec(e);
+		const t = this.rules.block.def.exec(e);
 		if (t) {
-			let n = t[1]
+			const n = t[1]
 					.toLowerCase()
 					.replace(this.rules.other.multipleSpaceGlobal, " "),
 				r = t[2]
@@ -5486,9 +5484,9 @@ ${c}`
 		}
 	}
 	table(e) {
-		let t = this.rules.block.table.exec(e);
+		const t = this.rules.block.table.exec(e);
 		if (!t || !this.rules.other.tableDelimiter.test(t[2])) return;
-		let n = J(t[1]),
+		const n = J(t[1]),
 			r = t[2].replace(this.rules.other.tableAlignChars, "").split("|"),
 			i = t[3]?.trim()
 				? t[3].replace(this.rules.other.tableRowBlankLine, "").split(`
@@ -5496,7 +5494,7 @@ ${c}`
 				: [],
 			s = { type: "table", raw: t[0], header: [], align: [], rows: [] };
 		if (n.length === r.length) {
-			for (let a of r)
+			for (const a of r)
 				this.rules.other.tableAlignRight.test(a)
 					? s.align.push("right")
 					: this.rules.other.tableAlignCenter.test(a)
@@ -5511,7 +5509,7 @@ ${c}`
 					header: true,
 					align: s.align[a],
 				});
-			for (let a of i)
+			for (const a of i)
 				s.rows.push(
 					J(a, s.header.length).map((o, l) => ({
 						text: o,
@@ -5524,7 +5522,7 @@ ${c}`
 		}
 	}
 	lheading(e) {
-		let t = this.rules.block.lheading.exec(e);
+		const t = this.rules.block.lheading.exec(e);
 		if (t)
 			return {
 				type: "heading",
@@ -5535,9 +5533,9 @@ ${c}`
 			};
 	}
 	paragraph(e) {
-		let t = this.rules.block.paragraph.exec(e);
+		const t = this.rules.block.paragraph.exec(e);
 		if (t) {
-			let n =
+			const n =
 				t[1].charAt(t[1].length - 1) ===
 				`
 `
@@ -5552,7 +5550,7 @@ ${c}`
 		}
 	}
 	text(e) {
-		let t = this.rules.block.text.exec(e);
+		const t = this.rules.block.text.exec(e);
 		if (t)
 			return {
 				type: "text",
@@ -5562,11 +5560,11 @@ ${c}`
 			};
 	}
 	escape(e) {
-		let t = this.rules.inline.escape.exec(e);
+		const t = this.rules.inline.escape.exec(e);
 		if (t) return { type: "escape", raw: t[0], text: t[1] };
 	}
 	tag(e) {
-		let t = this.rules.inline.tag.exec(e);
+		const t = this.rules.inline.tag.exec(e);
 		if (t)
 			return (
 				!this.lexer.state.inLink && this.rules.other.startATag.test(t[0])
@@ -5591,21 +5589,21 @@ ${c}`
 			);
 	}
 	link(e) {
-		let t = this.rules.inline.link.exec(e);
+		const t = this.rules.inline.link.exec(e);
 		if (t) {
-			let n = t[2].trim();
+			const n = t[2].trim();
 			if (
 				!this.options.pedantic &&
 				this.rules.other.startAngleBracket.test(n)
 			) {
 				if (!this.rules.other.endAngleBracket.test(n)) return;
-				let s = z(n.slice(0, -1), "\\");
+				const s = z(n.slice(0, -1), "\\");
 				if ((n.length - s.length) % 2 === 0) return;
 			} else {
-				let s = de(t[2], "()");
+				const s = de(t[2], "()");
 				if (s === -2) return;
 				if (s > -1) {
-					let o = (t[0].indexOf("!") === 0 ? 5 : 4) + t[1].length + s;
+					const o = (t[0].indexOf("!") === 0 ? 5 : 4) + t[1].length + s;
 					(t[2] = t[2].substring(0, s)),
 						(t[0] = t[0].substring(0, o).trim()),
 						(t[3] = "");
@@ -5614,7 +5612,7 @@ ${c}`
 			let r = t[2],
 				i = "";
 			if (this.options.pedantic) {
-				let s = this.rules.other.pedanticHrefTitle.exec(r);
+				const s = this.rules.other.pedanticHrefTitle.exec(r);
 				s && ((r = s[1]), (i = s[3]));
 			} else i = t[3] ? t[3].slice(1, -1) : "";
 			return (
@@ -5642,10 +5640,13 @@ ${c}`
 			(n = this.rules.inline.reflink.exec(e)) ||
 			(n = this.rules.inline.nolink.exec(e))
 		) {
-			let r = (n[2] || n[1]).replace(this.rules.other.multipleSpaceGlobal, " "),
+			const r = (n[2] || n[1]).replace(
+					this.rules.other.multipleSpaceGlobal,
+					" ",
+				),
 				i = t[r.toLowerCase()];
 			if (!i) {
-				let s = n[0].charAt(0);
+				const s = n[0].charAt(0);
 				return { type: "text", raw: s, text: s };
 			}
 			return ge(n, i, n[0], this.lexer, this.rules);
@@ -5678,10 +5679,10 @@ ${c}`
 				}
 				if (((l -= o), l > 0)) continue;
 				o = Math.min(o, o + l + p);
-				let g = [...r[0]][0].length,
+				const g = [...r[0]][0].length,
 					h = e.slice(0, s + r.index + g + o);
 				if (Math.min(s, o) % 2) {
-					let f = h.slice(1, -1);
+					const f = h.slice(1, -1);
 					return {
 						type: "em",
 						raw: h,
@@ -5689,7 +5690,7 @@ ${c}`
 						tokens: this.lexer.inlineTokens(f),
 					};
 				}
-				let R = h.slice(2, -2);
+				const R = h.slice(2, -2);
 				return {
 					type: "strong",
 					raw: h,
@@ -5700,7 +5701,7 @@ ${c}`
 		}
 	}
 	codespan(e) {
-		let t = this.rules.inline.code.exec(e);
+		const t = this.rules.inline.code.exec(e);
 		if (t) {
 			let n = t[2].replace(this.rules.other.newLineCharGlobal, " "),
 				r = this.rules.other.nonSpaceChar.test(n),
@@ -5714,11 +5715,11 @@ ${c}`
 		}
 	}
 	br(e) {
-		let t = this.rules.inline.br.exec(e);
+		const t = this.rules.inline.br.exec(e);
 		if (t) return { type: "br", raw: t[0] };
 	}
 	del(e) {
-		let t = this.rules.inline.del.exec(e);
+		const t = this.rules.inline.del.exec(e);
 		if (t)
 			return {
 				type: "del",
@@ -5728,7 +5729,7 @@ ${c}`
 			};
 	}
 	autolink(e) {
-		let t = this.rules.inline.autolink.exec(e);
+		const t = this.rules.inline.autolink.exec(e);
 		if (t) {
 			let n, r;
 			return (
@@ -5768,9 +5769,9 @@ ${c}`
 		}
 	}
 	inlineText(e) {
-		let t = this.rules.inline.text.exec(e);
+		const t = this.rules.inline.text.exec(e);
 		if (t) {
-			let n = this.lexer.state.inRawBlock;
+			const n = this.lexer.state.inRawBlock;
 			return { type: "text", raw: t[0], text: t[0], escaped: n };
 		}
 	}
@@ -5791,7 +5792,7 @@ var x = class u {
 			(this.tokenizer.lexer = this),
 			(this.inlineQueue = []),
 			(this.state = { inLink: false, inRawBlock: false, top: true });
-		let t = { other: m, block: E.normal, inline: M.normal };
+		const t = { other: m, block: E.normal, inline: M.normal };
 		this.options.pedantic
 			? ((t.block = E.pedantic), (t.inline = M.pedantic))
 			: this.options.gfm &&
@@ -5816,7 +5817,7 @@ var x = class u {
 		)),
 			this.blockTokens(e, this.tokens);
 		for (let t = 0; t < this.inlineQueue.length; t++) {
-			let n = this.inlineQueue[t];
+			const n = this.inlineQueue[t];
 			this.inlineTokens(n.src, n.tokens);
 		}
 		return (this.inlineQueue = []), this.tokens;
@@ -5838,7 +5839,7 @@ var x = class u {
 				continue;
 			if ((r = this.tokenizer.space(e))) {
 				e = e.substring(r.raw.length);
-				let s = t.at(-1);
+				const s = t.at(-1);
 				r.raw.length === 1 && s !== undefined
 					? (s.raw += `
 `)
@@ -5847,7 +5848,7 @@ var x = class u {
 			}
 			if ((r = this.tokenizer.code(e))) {
 				e = e.substring(r.raw.length);
-				let s = t.at(-1);
+				const s = t.at(-1);
 				s?.type === "paragraph" || s?.type === "text"
 					? ((s.raw +=
 							(s.raw.endsWith(`
@@ -5888,7 +5889,7 @@ var x = class u {
 			}
 			if ((r = this.tokenizer.def(e))) {
 				e = e.substring(r.raw.length);
-				let s = t.at(-1);
+				const s = t.at(-1);
 				s?.type === "paragraph" || s?.type === "text"
 					? ((s.raw +=
 							(s.raw.endsWith(`
@@ -5925,7 +5926,7 @@ var x = class u {
 					s < 1 / 0 && s >= 0 && (i = e.substring(0, s + 1));
 			}
 			if (this.state.top && (r = this.tokenizer.paragraph(i))) {
-				let s = t.at(-1);
+				const s = t.at(-1);
 				n && s?.type === "paragraph"
 					? ((s.raw +=
 							(s.raw.endsWith(`
@@ -5945,7 +5946,7 @@ var x = class u {
 			}
 			if ((r = this.tokenizer.text(e))) {
 				e = e.substring(r.raw.length);
-				let s = t.at(-1);
+				const s = t.at(-1);
 				s?.type === "text"
 					? ((s.raw +=
 							(s.raw.endsWith(`
@@ -5962,7 +5963,7 @@ var x = class u {
 				continue;
 			}
 			if (e) {
-				let s = "Infinite loop on byte: " + e.charCodeAt(0);
+				const s = "Infinite loop on byte: " + e.charCodeAt(0);
 				if (this.options.silent) {
 					console.error(s);
 					break;
@@ -5978,7 +5979,7 @@ var x = class u {
 		let n = e,
 			r = null;
 		if (this.tokens.links) {
-			let o = Object.keys(this.tokens.links);
+			const o = Object.keys(this.tokens.links);
 			if (o.length > 0)
 				for (
 					;
@@ -6034,7 +6035,7 @@ var x = class u {
 			}
 			if ((o = this.tokenizer.reflink(e, this.tokens.links))) {
 				e = e.substring(o.raw.length);
-				let p = t.at(-1);
+				const p = t.at(-1);
 				o.type === "text" && p?.type === "text"
 					? ((p.raw += o.raw), (p.text += o.text))
 					: t.push(o);
@@ -6079,12 +6080,12 @@ var x = class u {
 				(e = e.substring(o.raw.length)),
 					o.raw.slice(-1) !== "_" && (a = o.raw.slice(-1)),
 					(s = true);
-				let p = t.at(-1);
+				const p = t.at(-1);
 				p?.type === "text" ? ((p.raw += o.raw), (p.text += o.text)) : t.push(o);
 				continue;
 			}
 			if (e) {
-				let p = "Infinite loop on byte: " + e.charCodeAt(0);
+				const p = "Infinite loop on byte: " + e.charCodeAt(0);
 				if (this.options.silent) {
 					console.error(p);
 					break;
@@ -6104,7 +6105,7 @@ var P = class {
 		return "";
 	}
 	code({ text: e, lang: t, escaped: n }) {
-		let r = (t || "").match(m.notSpaceStart)?.[0],
+		const r = (t || "").match(m.notSpaceStart)?.[0],
 			i =
 				e.replace(m.endingNewline, "") +
 				`
@@ -6144,10 +6145,10 @@ ${this.parser.parse(e)}</blockquote>
 		let { ordered: t, start: n } = e,
 			r = "";
 		for (let a = 0; a < e.items.length; a++) {
-			let o = e.items[a];
+			const o = e.items[a];
 			r += this.listitem(o);
 		}
-		let i = t ? "ol" : "ul",
+		const i = t ? "ol" : "ul",
 			s = t && n !== 1 ? ' start="' + n + '"' : "";
 		return (
 			"<" +
@@ -6182,7 +6183,7 @@ ${this.parser.parse(e)}</blockquote>
 		t += this.tablerow({ text: n });
 		let r = "";
 		for (let i = 0; i < e.rows.length; i++) {
-			let s = e.rows[i];
+			const s = e.rows[i];
 			n = "";
 			for (let a = 0; a < s.length; a++) n += this.tablecell(s[a]);
 			r += this.tablerow({ text: n });
@@ -6206,7 +6207,7 @@ ${e}</tr>
 `;
 	}
 	tablecell(e) {
-		let t = this.parser.parseInline(e.tokens),
+		const t = this.parser.parseInline(e.tokens),
 			n = e.header ? "th" : "td";
 		return (
 			(e.align ? `<${n} align="${e.align}">` : `<${n}>`) +
@@ -6231,7 +6232,7 @@ ${e}</tr>
 		return `<del>${this.parser.parseInline(e)}</del>`;
 	}
 	link({ href: e, title: t, tokens: n }) {
-		let r = this.parser.parseInline(n),
+		const r = this.parser.parseInline(n),
 			i = X(e);
 		if (i === null) return r;
 		e = i;
@@ -6240,7 +6241,7 @@ ${e}</tr>
 	}
 	image({ href: e, title: t, text: n, tokens: r }) {
 		r && (n = this.parser.parseInline(r, this.parser.textRenderer));
-		let i = X(e);
+		const i = X(e);
 		if (i === null) return w(n);
 		e = i;
 		let s = `<img src="${e}" alt="${n}"`;
@@ -6307,9 +6308,9 @@ var b = class u2 {
 	parse(e) {
 		let t = "";
 		for (let n = 0; n < e.length; n++) {
-			let r = e[n];
+			const r = e[n];
 			if (this.options.extensions?.renderers?.[r.type]) {
-				let s = r,
+				const s = r,
 					a = this.options.extensions.renderers[s.type].call(
 						{ parser: this },
 						s,
@@ -6334,7 +6335,7 @@ var b = class u2 {
 					continue;
 				}
 			}
-			let i = r;
+			const i = r;
 			switch (i.type) {
 				case "space": {
 					t += this.renderer.space(i);
@@ -6385,7 +6386,7 @@ var b = class u2 {
 					break;
 				}
 				default: {
-					let s = 'Token with "' + i.type + '" type was not found.';
+					const s = 'Token with "' + i.type + '" type was not found.';
 					if (this.options.silent) return console.error(s), "";
 					throw new Error(s);
 				}
@@ -6396,9 +6397,9 @@ var b = class u2 {
 	parseInline(e, t = this.renderer) {
 		let n = "";
 		for (let r = 0; r < e.length; r++) {
-			let i = e[r];
+			const i = e[r];
 			if (this.options.extensions?.renderers?.[i.type]) {
-				let a = this.options.extensions.renderers[i.type].call(
+				const a = this.options.extensions.renderers[i.type].call(
 					{ parser: this },
 					i,
 				);
@@ -6421,7 +6422,7 @@ var b = class u2 {
 					continue;
 				}
 			}
-			let s = i;
+			const s = i;
 			switch (s.type) {
 				case "escape": {
 					n += t.text(s);
@@ -6468,7 +6469,7 @@ var b = class u2 {
 					break;
 				}
 				default: {
-					let a = 'Token with "' + s.type + '" type was not found.';
+					const a = 'Token with "' + s.type + '" type was not found.';
 					if (this.options.silent) return console.error(a), "";
 					throw new Error(a);
 				}
@@ -6529,25 +6530,25 @@ var B = class {
 	}
 	walkTokens(e, t) {
 		let n = [];
-		for (let r of e)
+		for (const r of e)
 			switch (((n = n.concat(t.call(this, r))), r.type)) {
 				case "table": {
-					let i = r;
-					for (let s of i.header) n = n.concat(this.walkTokens(s.tokens, t));
-					for (let s of i.rows)
-						for (let a of s) n = n.concat(this.walkTokens(a.tokens, t));
+					const i = r;
+					for (const s of i.header) n = n.concat(this.walkTokens(s.tokens, t));
+					for (const s of i.rows)
+						for (const a of s) n = n.concat(this.walkTokens(a.tokens, t));
 					break;
 				}
 				case "list": {
-					let i = r;
+					const i = r;
 					n = n.concat(this.walkTokens(i.items, t));
 					break;
 				}
 				default: {
-					let i = r;
+					const i = r;
 					this.defaults.extensions?.childTokens?.[i.type]
 						? this.defaults.extensions.childTokens[i.type].forEach((s) => {
-								let a = i[s].flat(1 / 0);
+								const a = i[s].flat(1 / 0);
 								n = n.concat(this.walkTokens(a, t));
 							})
 						: i.tokens && (n = n.concat(this.walkTokens(i.tokens, t)));
@@ -6556,17 +6557,17 @@ var B = class {
 		return n;
 	}
 	use(...e) {
-		let t = this.defaults.extensions || { renderers: {}, childTokens: {} };
+		const t = this.defaults.extensions || { renderers: {}, childTokens: {} };
 		return (
 			e.forEach((n) => {
-				let r = { ...n };
+				const r = { ...n };
 				if (
 					((r.async = this.defaults.async || r.async || false),
 					n.extensions &&
 						(n.extensions.forEach((i) => {
 							if (!i.name) throw new Error("extension name required");
 							if ("renderer" in i) {
-								let s = t.renderers[i.name];
+								const s = t.renderers[i.name];
 								s
 									? (t.renderers[i.name] = function (...a) {
 											let o = i.renderer.apply(this, a);
@@ -6579,7 +6580,7 @@ var B = class {
 									throw new Error(
 										"extension level must be 'block' or 'inline'",
 									);
-								let s = t[i.level];
+								const s = t[i.level];
 								s ? s.unshift(i.tokenizer) : (t[i.level] = [i.tokenizer]),
 									i.start &&
 										(i.level === "block"
@@ -6598,11 +6599,11 @@ var B = class {
 						(r.extensions = t)),
 					n.renderer)
 				) {
-					let i = this.defaults.renderer || new P(this.defaults);
-					for (let s in n.renderer) {
+					const i = this.defaults.renderer || new P(this.defaults);
+					for (const s in n.renderer) {
 						if (!(s in i)) throw new Error(`renderer '${s}' does not exist`);
 						if (["options", "parser"].includes(s)) continue;
-						let a = s,
+						const a = s,
 							o = n.renderer[a],
 							l = i[a];
 						i[a] = (...p) => {
@@ -6613,11 +6614,11 @@ var B = class {
 					r.renderer = i;
 				}
 				if (n.tokenizer) {
-					let i = this.defaults.tokenizer || new y(this.defaults);
-					for (let s in n.tokenizer) {
+					const i = this.defaults.tokenizer || new y(this.defaults);
+					for (const s in n.tokenizer) {
 						if (!(s in i)) throw new Error(`tokenizer '${s}' does not exist`);
 						if (["options", "rules", "lexer"].includes(s)) continue;
-						let a = s,
+						const a = s,
 							o = n.tokenizer[a],
 							l = i[a];
 						i[a] = (...p) => {
@@ -6628,11 +6629,11 @@ var B = class {
 					r.tokenizer = i;
 				}
 				if (n.hooks) {
-					let i = this.defaults.hooks || new S();
-					for (let s in n.hooks) {
+					const i = this.defaults.hooks || new S();
+					for (const s in n.hooks) {
 						if (!(s in i)) throw new Error(`hook '${s}' does not exist`);
 						if (["options", "block"].includes(s)) continue;
-						let a = s,
+						const a = s,
 							o = n.hooks[a],
 							l = i[a];
 						S.passThroughHooks.has(s)
@@ -6642,10 +6643,10 @@ var B = class {
 										S.passThroughHooksRespectAsync.has(s)
 									)
 										return (async () => {
-											let g = await o.call(i, p);
+											const g = await o.call(i, p);
 											return l.call(i, g);
 										})();
-									let c = o.call(i, p);
+									const c = o.call(i, p);
 									return l.call(i, c);
 								})
 							: (i[a] = (...p) => {
@@ -6661,7 +6662,7 @@ var B = class {
 					r.hooks = i;
 				}
 				if (n.walkTokens) {
-					let i = this.defaults.walkTokens,
+					const i = this.defaults.walkTokens,
 						s = n.walkTokens;
 					r.walkTokens = function (a) {
 						let o = [];
@@ -6686,7 +6687,7 @@ var B = class {
 	}
 	parseMarkdown(e) {
 		return (n, r) => {
-			let i = { ...r },
+			const i = { ...r },
 				s = { ...this.defaults, ...i },
 				a = this.onError(!!s.silent, !!s.async);
 			if (this.defaults.async === true && i.async === false)
@@ -6707,7 +6708,7 @@ var B = class {
 				);
 			if ((s.hooks && ((s.hooks.options = s), (s.hooks.block = e)), s.async))
 				return (async () => {
-					let o = s.hooks ? await s.hooks.preprocess(n) : n,
+					const o = s.hooks ? await s.hooks.preprocess(n) : n,
 						p = await (s.hooks
 							? await s.hooks.provideLexer()
 							: e
@@ -6715,7 +6716,7 @@ var B = class {
 								: x.lexInline)(o, s),
 						c = s.hooks ? await s.hooks.processAllTokens(p) : p;
 					s.walkTokens && (await Promise.all(this.walkTokens(c, s.walkTokens)));
-					let h = await (s.hooks
+					const h = await (s.hooks
 						? await s.hooks.provideParser()
 						: e
 							? b.parse
@@ -6746,7 +6747,7 @@ var B = class {
 Please report this to https://github.com/markedjs/marked.`),
 				e)
 			) {
-				let r =
+				const r =
 					"<p>An error occurred:</p><pre>" + w(n.message + "", true) + "</pre>";
 				return t ? Promise.resolve(r) : r;
 			}
@@ -6759,17 +6760,13 @@ var _ = new B();
 function d(u3, e) {
 	return _.parse(u3, e);
 }
-d.options = d.setOptions = function (u3) {
-	return _.setOptions(u3), (d.defaults = _.defaults), Z(d.defaults), d;
-};
+d.options = d.setOptions = (u3) => (
+	_.setOptions(u3), (d.defaults = _.defaults), Z(d.defaults), d
+);
 d.getDefaults = L;
 d.defaults = T;
-d.use = function (...u3) {
-	return _.use(...u3), (d.defaults = _.defaults), Z(d.defaults), d;
-};
-d.walkTokens = function (u3, e) {
-	return _.walkTokens(u3, e);
-};
+d.use = (...u3) => (_.use(...u3), (d.defaults = _.defaults), Z(d.defaults), d);
+d.walkTokens = (u3, e) => _.walkTokens(u3, e);
 d.parseInline = _.parseInline;
 d.Parser = b;
 d.parser = b.parse;
@@ -6926,7 +6923,7 @@ var doc_viewer_default = () => ({
 			if (!slug) slug = `section-${Math.random().toString(36).substr(2, 9)}`;
 			return `<h${depth} id="${slug}">${text}</h${depth}>`;
 		};
-		renderer.code = function ({ text, lang, escaped }) {
+		renderer.code = ({ text, lang, escaped }) => {
 			if (lang === "dot" || lang === "graphviz") {
 				try {
 					if (typeof Viz !== "undefined") {

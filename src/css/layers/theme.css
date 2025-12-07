@@ -66,6 +66,11 @@
 	--font-size-h2: var(--font-size-xl);
 	--font-size-h3: var(--font-size-lg);
 	--font-size-h4: var(--font-size-base);
+
+	/* UTILITIES */
+	--font-size-xxs: 0.625rem;
+	--width-stats: 200px;
+	--z-tooltip: 100;
 }
 
 :root {
@@ -91,7 +96,7 @@
 	--surface-hover: #f1f3f4;
 	--border-base: #dadce0;
 	/* Google Border Gray */
-	--radius-component: 8px;
+	--radius-component: var(--radius-2);
 	/* Slightly rounder */
 
 	/* Graph variables moved to src/css/layers/graph.css for isolation */
@@ -105,8 +110,8 @@
 
 	--header-height: auto;
 	--footer-height: var(--size-10);
-	--width-wrapper: 1100px;
-	--width-home-box: 700px;
+	--width-wrapper: var(--size-content-3);
+	--width-home-box: var(--size-content-2);
 
 	/* Spacing */
 	--app-padding: var(--size-4);
@@ -115,7 +120,7 @@
 	/* TOC Specifics */
 	--toc-gap-section: var(--size-4);
 	--toc-gap-item: var(--size-2);
-	--toc-indent: 1rem;
+	--toc-indent: var(--size-4);
 	--scroll-offset: var(--size-5);
 
 	/* Scrollbar */

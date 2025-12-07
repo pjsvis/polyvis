@@ -1,11 +1,11 @@
-import { join, basename } from "path";
 import {
-	writeFileSync,
-	readFileSync,
 	existsSync,
 	mkdirSync,
 	readdirSync,
+	readFileSync,
+	writeFileSync,
 } from "fs";
+import { basename, join } from "path";
 
 // --- Configuration ---
 const ROOT_DIR = process.cwd();

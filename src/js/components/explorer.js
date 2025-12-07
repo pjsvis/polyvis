@@ -72,8 +72,8 @@ export default () => ({
 		stmt.bind([term, term]);
 
 		let rootId = null;
-		let nodes = new Set();
-		let edges = [];
+		const nodes = new Set();
+		const edges = [];
 		let row = null;
 
 		if (stmt.step()) row = stmt.getAsObject();

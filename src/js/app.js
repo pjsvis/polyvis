@@ -1,9 +1,9 @@
 import Alpine from "alpinejs";
-import navigation from "./components/nav.js";
-import explorerApp from "./components/explorer.js";
-import sigmaApp from "./components/sigma-explorer.js";
-import graphApp from "./components/graph.js";
 import docViewer from "./components/doc-viewer.js";
+import explorerApp from "./components/explorer.js";
+import graphApp from "./components/graph.js";
+import navigation from "./components/nav.js";
+import sigmaApp from "./components/sigma-explorer.js";
 
 window.Alpine = Alpine;
 
