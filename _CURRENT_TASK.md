@@ -3,17 +3,31 @@
 **Status:** In Progress
 **Objective:** Replace initial test documentation with real content, finalize the Substack narrative, and publish.
 
+
+## todo
+
+- [ ] Why are debriefs from November all H1 whereas debriefs from December are all ok. Probably a faulty ingestion pipeline, as we changed it recently
+- [ ] The debriefs ingestion pipelline should move the lessons-learend to before the accomplishments, and problems sections.
+- [ ]  The wiki-style feture in our docs page is not working correctly. Identify a page with a wiki link and invetigate.
+- [ ] The front page business-card is not working properly as a result of recent style changes. Fix it.
+- [ ]In sigma-explorer the ANALYSIS GUIDE text is dark on dark in light more, but ok in dark mode
+- [ ] The POLYVIS string in the nav bar should be stronger
+- [ ] the sigma exploer text in the nav bar should not wrap
+- [ ] We should remove the source link from the navbar
+- [ ] Document any other issues that need addressed
+
+
 ## Checklist
 - [ ] Review `substack/substack-playbook-1.md` and `substack/substack-playbook-2.md`
 - [x] Refactor CSS Variables and Legacy Cleanup <!-- id: 0 -->
     - [x] Cleanup deprecated explorer and graph files <!-- id: 1 -->
     - [x] Refactor navbar to static HTML <!-- id: 2 -->
     - [x] Verify site navigation <!-- id: 3 -->
-- [ ] **CSS Lint Sprint** (New) <!-- id: 4 -->
-    - [ ] Review `briefs/_brief-css-lint-sprint.md` <!-- id: 5 -->
-    - [ ] Resolve `noImportantStyles` in `utilities.css` <!-- id: 6 -->
-    - [ ] Resolve `noImportantStyles` in `markdown.css` <!-- id: 7 -->
-    - [ ] Verify clean `bun run check` <!-- id: 8 -->
+- [x] **CSS Lint Sprint** (New) <!-- id: 4 -->
+    - [x] Review `briefs/_brief-css-lint-sprint.md` <!-- id: 5 -->
+    - [x] Resolve `noImportantStyles` in `utilities.css` <!-- id: 6 -->
+    - [x] Resolve `noImportantStyles` in `markdown.css` <!-- id: 7 -->
+    - [x] Verify clean `bun run check` <!-- id: 8 -->
 
 
 ## Next task

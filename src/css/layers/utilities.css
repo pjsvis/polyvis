@@ -1,6 +1,6 @@
 /* Utilities */
 .stack-large > * + * {
-	margin-top: var(--size-6) !important;
+	margin-top: var(--size-6);
 }
 
 .status-dot {
@@ -14,7 +14,9 @@
 
 /* Debug Layout Utility */
 .layout-debug-mode * {
+	/* biome-ignore lint/complexity/noImportantStyles: Debug utility requires overrides */
 	outline: var(--border-size-1) dashed rgba(255, 0, 0, 0.3) !important;
+	/* biome-ignore lint/complexity/noImportantStyles: Debug utility requires overrides */
 	background: rgba(255, 0, 0, 0.02) !important;
 }
 
@@ -27,5 +29,5 @@
 		transparent var(--size-15),
 		transparent calc(100% - var(--size-15)),
 		rgba(0, 0, 255, 0.05) calc(100% - var(--size-15))
-	) !important;
+	);
 }

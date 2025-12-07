@@ -192,7 +192,7 @@
 	color: var(--gray-6);
 	text-transform: uppercase;
 	/* letter-spacing removed */
-	border-bottom: var(--border-base) solid var(--primary) !important;
+	border-bottom: var(--border-base) solid var(--primary);
 	/* Instruction #3 */
 	padding-bottom: var(--size-4);
 	display: inline-block;
@@ -243,6 +243,8 @@
 		background-color: var(--surface-hover);
 		color: var(--text-1);
 		/* Fallback */
+		/* biome-ignore lint/correctness/noUnknownFunction: Draft CSS feature */
+		/* biome-ignore lint/suspicious/noDuplicateProperties: Fallback pattern */
 		color: contrast-color(var(--surface-hover));
 		padding-left: var(--size-5);
 		/* Slight nudge effect */
@@ -252,6 +254,8 @@
 		background-color: var(--color-brand);
 		color: var(--gray-0);
 		/* Fallback */
+		/* biome-ignore lint/correctness/noUnknownFunction: Draft CSS feature */
+		/* biome-ignore lint/suspicious/noDuplicateProperties: Fallback pattern */
 		color: contrast-color(var(--color-brand));
 		/* Modern Standard */
 		font-weight: bold;

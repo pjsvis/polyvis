@@ -3,7 +3,7 @@
 public/layout-test.html
 public/test/
 public/js/
-public/css/
+public/css/app.css
 node_modules/
 dist/
 .DS_Store

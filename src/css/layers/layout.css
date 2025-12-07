@@ -98,33 +98,6 @@
 	container-name: main;
 }
 
-/* ... home layout ... */
-
-.home-layout .app-sidebar-left,
-.home-layout .app-sidebar-right,
-.home-layout .app-footer {
-	display: none;
-}
-
-.home-layout .app-header {
-	background-color: transparent;
-	border-bottom: none;
-}
-
-.home-layout .nav-wrapper {
-	max-width: var(--width-home-box);
-}
-
-.home-layout .app-main {
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
-	align-items: center;
-	gap: var(--size-2);
-}
-
-/* ... home layout ... */
-
 /* Page Layout (Docs, etc) - Enable Scrolling */
 .page-layout .app-sidebar-left,
 .page-layout .app-main {
@@ -181,29 +154,55 @@
 	margin-block-start: var(--size-1);
 }
 
+/* ... home layout (Moved to end for specificity) ... */
+
+.home-layout .app-sidebar-left,
+.home-layout .app-sidebar-right,
+.home-layout .app-footer {
+	display: none;
+}
+
+.home-layout .app-header {
+	background-color: transparent;
+	border-bottom: none;
+}
+
+.home-layout .nav-wrapper {
+	max-width: var(--width-home-box);
+}
+
+.home-layout .app-main {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	gap: var(--size-2);
+}
+/* ... home layout ... */
+
 /* FORCE OVERRIDE FOR RIGHT SIDEBAR (Sigma Explorer) */
 #right-sidebar-override {
-	background-color: var(--white) !important;
-	color: var(--black) !important;
-	color-scheme: light !important;
+	background-color: var(--white);
+	color: var(--black);
+	color-scheme: light;
 }
 
 #right-sidebar-override * {
-	color: var(--black) !important;
+	color: var(--black);
 }
 
 #right-sidebar-override button {
-	color: var(--black) !important;
+	color: var(--black);
 }
 
 #right-sidebar-override .text-gray-500,
 #right-sidebar-override .text-gray-400,
 #right-sidebar-override .text-gray-600 {
-	color: var(--gray-9) !important;
+	color: var(--gray-9);
 	/* Slightly softer for secondary text, but still dark */
 }
 
 #right-sidebar-override details[open] {
-	background-color: var(--white) !important;
-	border: var(--border-size-1) solid var(--gray-3) !important;
+	background-color: var(--white);
+	border: var(--border-size-1) solid var(--gray-3);
 }
