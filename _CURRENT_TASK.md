@@ -9,28 +9,28 @@
     - [x] Cleanup deprecated explorer and graph files <!-- id: 1 -->
     - [x] Refactor navbar to static HTML <!-- id: 2 -->
     - [x] Verify site navigation <!-- id: 3 -->
-- [ ] Replace test docs with real documentation
-- [ ] Generate high-resolution screenshots/assets of the graph
-- [ ] Finalize the narrative ("Structural Information Engineering")
-- [ ] Publish
+- [ ] **CSS Lint Sprint** (New) <!-- id: 4 -->
+    - [ ] Review `briefs/_brief-css-lint-sprint.md` <!-- id: 5 -->
+    - [ ] Resolve `noImportantStyles` in `utilities.css` <!-- id: 6 -->
+    - [ ] Resolve `noImportantStyles` in `markdown.css` <!-- id: 7 -->
+    - [ ] Verify clean `bun run check` <!-- id: 8 -->
 
 
 ## Next task
 
 # Task: Build Resonance Engine (v1.0)
 
-refer to 
+**Status:** Pending
+**Prerequisites:** 
+- [ ] CSS Lint Sprint (id: 4) 
 
-- `briefs/A-brief-resonance-engine.md` 
-- `briefs/B-brief-configuration-engine.md`
-- `briefs/C-brief-experience-graph.md`  
+**Objective:** Create the standalone `resonance` binary for Meta-Cognitive Graph management.
+
+Refer to: 
+
+- `briefs/A*-E*.md` 
 
 for details
-
-
-
-**Status:** Pending
-**Objective:** Create the standalone `resonance` binary for Meta-Cognitive Graph management.
 
 ## Checklist
 - [ ] **Initialization & Config**
