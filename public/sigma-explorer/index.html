@@ -45,7 +45,32 @@
 
         <!-- 1. Navbar (Fixed Height) -->
         <header class="app-header">
-            <div x-data="navigation" x-html="view"></div>
+            <nav class="nav-wrapper">
+                <div style="display: flex; align-items: center; gap: 2rem; width: 100%;">
+                    <a href="/" class="nav-brand">PolyVis</a>
+                    
+                    <div class="nav-links" style="display: flex; gap: 1rem;">
+                        <a href="/" class="nav-item">
+                           <i data-lucide="home" style="width: var(--font-size-sm); height: var(--font-size-sm);"></i> HQ
+                        </a>
+                        <a href="/docs/" class="nav-item">
+                           <i data-lucide="book-open" style="width: var(--font-size-sm); height: var(--font-size-sm);"></i> Docs
+                        </a>
+                        <a href="/sigma-explorer/" class="nav-item active">
+                           <i data-lucide="layout-dashboard" style="width: var(--font-size-sm); height: var(--font-size-sm);"></i> Sigma Explorer
+                        </a>
+                         <a href="https://github.com/pjsvis/polyvis" target="_blank" class="nav-item">
+                           <i data-lucide="github" style="width: var(--font-size-sm); height: var(--font-size-sm);"></i> Source
+                        </a>
+                    </div>
+
+                    <div style="margin-left: auto;">
+                         <a href="#" id="nav-theme-toggle" onclick="window.toggleTheme(); return false;" class="nav-item">
+                            <i data-lucide="sun" style="width: var(--font-size-sm); height: var(--font-size-sm);"></i> Theme
+                         </a>
+                    </div>
+                </div>
+            </nav>
         </header>
 
         <!-- 2. Main Content (Fills remaining height) -->
@@ -426,6 +451,12 @@
         class="fixed p-2 text-xs font-bold rounded shadow-xl pointer-events-none max-w-xs bg-white text-black border border-gray-300"
         :style="`top: ${tooltip.y}px; left: ${tooltip.x}px; z-index: var(--z-tooltip);`" x-text="tooltip.text">
     </div>
+    <script>
+        // Initialize Lucide Icons
+        if (window.lucide) {
+            window.lucide.createIcons();
+        }
+    </script>
 </body>
 
 </html>

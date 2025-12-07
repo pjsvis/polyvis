@@ -1,17 +1,1 @@
-# Debrief: VS Code Style Code Blocks
-**Date:** 2025-11-29
-**Topic:** Styling, Aesthetics
-
-## Context
-The user requested a "stylish" look for code blocks, similar to VS Code or the "AntiGravity" aesthetic, moving away from the previous "Green Phosphor" style.
-
-## Change
-Updated `public/css/markdown.css`:
-1.  **`code`:** Changed background to `var(--surface-2)`, text color to `var(--color-brand)`, and added rounded corners.
-2.  **`pre`:** Changed background to `var(--surface-2)`, text color to `var(--text-1)`, added a subtle left border (`var(--border-base)`), and refined font sizing and line height.
-
-## Verification
--   **Visual Check:** Verified via screenshot that code blocks now resemble the clean, professional look of VS Code's markdown preview.
-
-## Status
-Complete.
+# Debrief: VS Code Style Code Blocks\n**Date:** 2025-11-29\n**Topic:** Styling, Aesthetics\n\n## Lessons Learned\n\n\n## Accomplishments\n\n\n## Problems\n\n## Context\nThe user requested a "stylish" look for code blocks, similar to VS Code or the "AntiGravity" aesthetic, moving away from the previous "Green Phosphor" style.\n\n## Change\nUpdated `public/css/markdown.css`:\n1.  **`code`:** Changed background to `var(--surface-2)`, text color to `var(--color-brand)`, and added rounded corners.\n2.  **`pre`:** Changed background to `var(--surface-2)`, text color to `var(--text-1)`, added a subtle left border (`var(--border-base)`), and refined font sizing and line height.\n\n## Verification\n-   **Visual Check:** Verified via screenshot that code blocks now resemble the clean, professional look of VS Code's markdown preview.\n\n## Status\nComplete.\n

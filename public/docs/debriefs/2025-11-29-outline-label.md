@@ -1,15 +1,1 @@
-# Debrief: Outline Label Cleanup
-**Date:** 2025-11-29
-**Topic:** UI/UX, Simplification
-
-## Context
-The user requested the removal of the "CURRENT DOCUMENT" label in the Outline tab, as it was redundant.
-
-## Change
-Removed the `<h4>` element containing "Current Document" from `public/docs/index.html`.
-
-## Verification
--   **Visual Check:** Verified via screenshot that the Outline tab now displays the document title directly, reducing visual noise.
-
-## Status
-Complete.
+# Debrief: Outline Label Cleanup\n**Date:** 2025-11-29\n**Topic:** UI/UX, Simplification\n\n## Lessons Learned\n\n\n## Accomplishments\n\n\n## Problems\n\n## Context\nThe user requested the removal of the "CURRENT DOCUMENT" label in the Outline tab, as it was redundant.\n\n## Change\nRemoved the `<h4>` element containing "Current Document" from `public/docs/index.html`.\n\n## Verification\n-   **Visual Check:** Verified via screenshot that the Outline tab now displays the document title directly, reducing visual noise.\n\n## Status\nComplete.\n

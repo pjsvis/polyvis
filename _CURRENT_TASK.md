@@ -5,6 +5,10 @@
 
 ## Checklist
 - [ ] Review `substack/substack-playbook-1.md` and `substack/substack-playbook-2.md`
+- [x] Refactor CSS Variables and Legacy Cleanup <!-- id: 0 -->
+    - [x] Cleanup deprecated explorer and graph files <!-- id: 1 -->
+    - [x] Refactor navbar to static HTML <!-- id: 2 -->
+    - [x] Verify site navigation <!-- id: 3 -->
 - [ ] Replace test docs with real documentation
 - [ ] Generate high-resolution screenshots/assets of the graph
 - [ ] Finalize the narrative ("Structural Information Engineering")
