@@ -1,6 +1,7 @@
 import { Database } from "bun:sqlite";
 import { join } from "path";
 import { existsSync, readFileSync } from "fs";
+import { lexer } from "marked";
 
 // --- Configuration ---
 const SETTINGS_PATH = join(import.meta.dir, "../polyvis.settings.json");
@@ -68,27 +69,80 @@ async function ingest() {
     insertNode.run("002-EXPERIENCE", "Experience Domain", "domain", "resonance", "structure", "The Dynamic Telemetry of the System.", "[]");
     insertEdge.run("002-EXPERIENCE", "000-GENESIS", "BELONGS_TO");
 
+// Helper: Extract Narrative based on Type
+    function extractNarrative(type: string, content: string): string {
+        const tokens = lexer(content);
+        let narrative = "";
+
+        if (type === "debrief") {
+            // Strategy: Look for "Lessons Learned" or "What Went Wrong" sections
+            let capturing = false;
+            for (const token of tokens) {
+                if (token.type === 'heading') {
+                    const text = token.text.toLowerCase();
+                    if (text.includes("lesson") || text.includes("wrong") || text.includes("fix")) {
+                        capturing = true;
+                        continue;
+                    }
+                    if (capturing) break; // Stop at next heading
+                }
+                
+                if (capturing && (token.type === 'paragraph' || token.type === 'list')) {
+                    narrative += (token.raw || "") + "\n";
+                }
+            }
+            
+            // Fallback: If no specific section found, take the "Context" or first paragraph
+            if (!narrative.trim()) {
+                 for (const token of tokens) {
+                    if (token.type === 'paragraph' && token.text.length > 50) {
+                         narrative = token.text;
+                         break;
+                    }
+                 }
+            }
+
+        } else {
+            // Playbooks: Summary of what it is for (First substantial paragraph or "Core Concepts")
+            for (const token of tokens) {
+                 if (token.type === 'paragraph' && token.text.length > 50 && !token.text.startsWith("Version")) {
+                     narrative = token.text;
+                     break;
+                 }
+            }
+        }
+
+        // Clean up markdown syntax for cleaner display (optional, but good for "definition" text)
+        // Simple strip of generic MD
+        return narrative.trim().slice(0, 500) + (narrative.length > 500 ? "..." : "");
+    }
+
+
     // --- Processing Loop ---
     for (const item of indexData) {
+        // Read content first to extract narrative
+        const filePath = join(ROOT_DIR, item.path);
+        let narrative = item.path; // Default to path
+
+        let content = "";
+        if (existsSync(filePath)) {
+            content = readFileSync(filePath, "utf-8");
+            narrative = extractNarrative(item.type, content) || item.path;
+        } else {
+            console.warn(`⚠️  File not found for scanning: ${filePath}`);
+        }
+
         // 1. Insert Node
-        // Mapping: label -> title, definition -> content mapping
-        insertNode.run(item.id, item.title, item.type, "resonance", "telemetry", item.path, "[]");
+        // Mapping: label -> title, definition -> extracted narrative
+        insertNode.run(item.id, item.title, item.type, "resonance", "telemetry", narrative, "[]");
         
         // Structural Link
         insertEdge.run(item.id, "002-EXPERIENCE", "BELONGS_TO");
         
         nodesAdded++;
 
-        // 2. Scan Content for Edges
-        // Read the actual markdown file
-        const filePath = join(ROOT_DIR, item.path);
- 
-        if (!existsSync(filePath)) {
-            console.warn(`⚠️  File not found for scanning: ${filePath}`);
-            continue;
-        }
+        if (!content) continue; 
 
-        const content = readFileSync(filePath, "utf-8");
 
         // A. Protocol Citations (OH-xxx, COG-xxx)
         const protocolRegex = /\b(OH-\d{3}|PHI-\d+|COG-\d+)\b/g;

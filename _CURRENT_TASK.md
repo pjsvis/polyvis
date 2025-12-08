@@ -3,10 +3,13 @@
 
 **Status:** Idle
 
-**Last Completed:** Experience Graph Tuning & Configuration Unification (2025-12-08)
+**Last Completed:** Experience Graph Narrative Extraction (2025-12-08)
 
 **Summary:**
-Successfully tuned and densified the Experience Graph. The system now features robust semantic linking, unified configuration, and polished graph interactions (centering, orphan pruning).
+- **Data Ingestion:** Updated `ingest_experience_graph.ts` to use `marked` for smart narrative extraction.
+    - **Debriefs:** Prioritizes "Lessons Learned" or "What Went Wrong" sections.
+    - **Playbooks:** Extracts introductory summaries / Core Concepts.
+- **Result:** Node Details sidebar now displays useful context instead of file paths.
 
 **Links:**
 - [Debrief: Experience Graph Tuning](debriefs/2025-12-08-experience-graph-tuning.md)
@@ -14,4 +17,3 @@ Successfully tuned and densified the Experience Graph. The system now features r
 
 **Next Potential Steps:**
 - [ ] **Resonance Engine:** Implement the `resonance` CLI tool.
-- [ ] **Content Enrichment:** Iterate on content with explicit links.
