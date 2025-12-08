@@ -54,3 +54,8 @@ Thumbs.db
 
 # Stakpak local files
 .stakpak
+
+# Resonance Engine
+resonance/node_modules
+resonance/dist
+.resonance
