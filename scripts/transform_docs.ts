@@ -9,7 +9,7 @@ const root = process.cwd();
 // --- Helpers ---
 function extractTitle(content: string, filename: string): string {
 	const match = content.match(/^#\s+(.+)$/m);
-	return match ? match[1].trim() : filename;
+	return match && match[1] ? match[1].trim() : filename;
 }
 
 // --- Transformation Loop ---

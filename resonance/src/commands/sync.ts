@@ -63,5 +63,5 @@ export async function syncCommand() {
 
 function extractTitle(content: string): string | null {
 	const match = content.match(/^#\s+(.+)$/m);
-	return match ? match[1].trim() : null;
+	return match && match[1] ? match[1].trim() : null;
 }

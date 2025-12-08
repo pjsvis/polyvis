@@ -45,11 +45,14 @@ console.log(`Database will be created at: ${dbPath}`);
 const db = new Database(dbPath);
 
 // Create schema if it doesn't exist.
+// Create schema if it doesn't exist.
 db.exec(`
   CREATE TABLE IF NOT EXISTS nodes (
     id TEXT PRIMARY KEY,
     label TEXT,
     type TEXT,
+    domain TEXT,     -- 'persona' | 'resonance' | 'system'
+    layer TEXT,      -- 'ontology' | 'telemetry'
     definition TEXT,
     external_refs TEXT
   );
@@ -66,7 +69,7 @@ db.exec(`
 
 // Use prepared statements for performance and security.
 const insertNode = db.prepare(
-	"INSERT OR REPLACE INTO nodes (id, label, type, definition, external_refs) VALUES (?, ?, ?, ?, ?)",
+	"INSERT OR REPLACE INTO nodes (id, label, type, domain, layer, definition, external_refs) VALUES (?, ?, ?, ?, ?, ?, ?)",
 );
 const insertEdge = db.prepare(
 	"INSERT OR IGNORE INTO edges (source, target, relation) VALUES (?, ?, ?)",
@@ -83,6 +86,13 @@ function parseAndInsertEdges(nodeId: string, tags: string[] = []): void {
 		}
 	}
 }
+
+// 0. Genesis Injection (The Big Bang)
+console.log("Injecting Genesis Structure...");
+insertNode.run("000-GENESIS", "PolyVis Prime", "root", "system", "structure", "The singular origin point of the PolyVis context.", "[]");
+
+insertNode.run("001-PERSONA", "Persona Domain", "domain", "persona", "structure", "The Static Ontology of the System.", "[]");
+insertEdge.run("001-PERSONA", "000-GENESIS", "BELONGS_TO");
 
 // 1. Ingest Lexicon (CL)
 try {
@@ -123,7 +133,8 @@ try {
 		]);
 		if (excludedIds.has(entry.id)) continue;
 
-		insertNode.run(entry.id, entry.title, entry.type, definition, externalRefs);
+		insertNode.run(entry.id, entry.title, entry.type, "persona", "ontology", definition, externalRefs);
+        insertEdge.run(entry.id, "001-PERSONA", "BELONGS_TO"); // Structural Link
 		parseAndInsertEdges(entry.id, entry.tags);
 	}
 } catch (error) {
@@ -158,7 +169,8 @@ try {
 				]);
 				if (excludedIds.has(entry.id)) continue;
 
-				insertNode.run(entry.id, term, "Directive", defn, "[]");
+				insertNode.run(entry.id, term, "Directive", "persona", "ontology", defn, "[]");
+                insertEdge.run(entry.id, "001-PERSONA", "BELONGS_TO"); // Structural Link
 				parseAndInsertEdges(entry.id, entry.tags);
 				directiveCount++;
 			}

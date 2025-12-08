@@ -113,8 +113,20 @@ export default () => ({
 		}
 	},
 
+	settings: null, // Store loaded settings
+
 	init() {
 		setTimeout(() => (this.loaded = true), 50);
+        
+        // Fetch Settings
+        fetch("/polyvis.settings.json")
+            .then(res => res.json())
+            .then(data => {
+                this.settings = data;
+                console.log("Settings Loaded:", this.settings);
+            })
+            .catch(err => console.error("Failed to load settings:", err));
+
 		this.initSqlJs();
 		this.$nextTick(() => {
 			if (window.lucide) window.lucide.createIcons();
@@ -168,8 +180,14 @@ export default () => ({
 				if (excludedIds.has(row.id)) continue;
 
                 // User Request: Fix visualization to ONLY show Persona graph for now.
-                // Explicitly exclude Experience types until structural migration is complete.
-                if (row.type === "playbook" || row.type === "debrief" || row.type === "protocol") continue;
+                // Explicitly exclude Experience types AND Structural types (Genesis/Domain roots).
+                if (
+                    row.type === "playbook" || 
+                    row.type === "debrief" || 
+                    row.type === "protocol" ||
+                    row.type === "root" ||
+                    row.type === "domain"
+                ) continue;
 
 				this.graph.addNode(row.id, {
 					// Schema Compatibility: Handle both legacy 'label' and new 'title'
@@ -497,13 +515,14 @@ export default () => ({
 			// Calculate communities if not already cached
 			if (!this.louvainCommunities) {
 				// User Request: Target ~7 communities (Miller's Law)
-				// Resolution > 1.0 produces smaller, more numerous communities.
-				// Resolution < 1.0 produces larger, fewer communities.
-				// We bump it to 1.1 to shift from [4-6] range to [6-8] range.
+                // We use the configured tuning value for the Persona graph.
+                const resolution = this.settings?.graph?.tuning?.louvain?.persona || 1.1;
+                console.log(`Using Louvain Resolution: ${resolution}`);
+
 				this.louvainCommunities = graphologyLibrary.communitiesLouvain(
 					this.graph,
 					{
-						resolution: 1.1,
+						resolution: resolution,
 					},
 				);
 

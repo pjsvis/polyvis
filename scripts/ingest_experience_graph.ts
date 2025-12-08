@@ -39,28 +39,33 @@ async function ingest() {
     console.log(`📥 Loading ${indexData.length} experience artifacts...`);
 
     // Prepare Statements
-    // Schema matches Drizzle definition: id, title, type, content, external_refs...
+    // Schema matches build_db.ts: id, label, type, domain, layer, definition, external_refs
     const insertNode = db.prepare(
-        `INSERT OR REPLACE INTO nodes (id, title, type, content, external_refs, domain, layer) 
-         VALUES (?, ?, ?, ?, ?, 'system', 'experience')`
+        `INSERT OR REPLACE INTO nodes (id, label, type, domain, layer, definition, external_refs) 
+         VALUES (?, ?, ?, ?, ?, ?, ?)`
     );
-    // Note: 'edges' table uses 'type' column
+    // Note: 'edges' table uses 'relation' column (fixed from 'type')
     const insertEdge = db.prepare(
-        "INSERT OR IGNORE INTO edges (source, target, type) VALUES (?, ?, ?)"
+        "INSERT OR IGNORE INTO edges (source, target, relation) VALUES (?, ?, ?)"
     );
 
     let nodesAdded = 0;
     let edgesAdded = 0;
 
+    // 0. Experience Domain Injection
+    console.log("Injecting Experience Domain Structure...");
+    insertNode.run("002-EXPERIENCE", "Experience Domain", "domain", "resonance", "structure", "The Dynamic Telemetry of the System.", "[]");
+    insertEdge.run("002-EXPERIENCE", "000-GENESIS", "BELONGS_TO");
+
     // --- Processing Loop ---
     for (const item of indexData) {
         // 1. Insert Node
-        // Mapping: label -> title, definition -> content
-        // definition is the relative path (for opening) + excerpt? 
-        // For now, let's just store the path in definition so UI can use it.
-        // Or better: Store a small excerpt? 
-        // Brief says: "definition: Relative path (for file opening)"
-        insertNode.run(item.id, item.title, item.type, item.path, "[]");
+        // Mapping: label -> title, definition -> content mapping
+        insertNode.run(item.id, item.title, item.type, "resonance", "telemetry", item.path, "[]");
+        
+        // Structural Link
+        insertEdge.run(item.id, "002-EXPERIENCE", "BELONGS_TO");
+        
         nodesAdded++;
 
         // 2. Scan Content for Edges
@@ -78,10 +83,6 @@ async function ingest() {
         const protocols = [...new Set(content.match(protocolRegex) || [])];
         
         for (const protoId of protocols) {
-            // Verify target exists to avoid dangling edges? 
-            // Graphology handles dangling edges fine usually, but cleaner if we check.
-            // For speed, we rely on INSERT OR IGNORE and foreign keys (if strict).
-            // SQlite defaults FKs off usually.
             insertEdge.run(item.id, protoId, "CITES");
             edgesAdded++;
         }
@@ -90,10 +91,12 @@ async function ingest() {
         const wikiRegex = /\[\[(.*?)\]\]/g;
         let match;
         while ((match = wikiRegex.exec(content)) !== null) {
+            if (!match[1]) continue;
             const linkTarget = match[1].trim();
             // Assuming linkTarget matches an ID (filename without ext)
             // If linkTarget contains pipe [[target|label]], split it
-            const cleanTarget = linkTarget.split("|")[0].trim().replace(/\.md$/, "");
+            const cleanTarget = linkTarget.split("|")[0]?.trim().replace(/\.md$/, "");
+            if (!cleanTarget) continue; // Safety check
             
             if (cleanTarget !== item.id) {
                  insertEdge.run(item.id, cleanTarget, "REFERENCES");

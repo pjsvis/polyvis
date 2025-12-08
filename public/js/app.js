@@ -5195,8 +5195,13 @@ var sigma_explorer_default = () => ({
       this.selectNode(nodeId);
     }
   },
+  settings: null,
   init() {
     setTimeout(() => this.loaded = true, 50);
+    fetch("/polyvis.settings.json").then((res) => res.json()).then((data2) => {
+      this.settings = data2;
+      console.log("Settings Loaded:", this.settings);
+    }).catch((err) => console.error("Failed to load settings:", err));
     this.initSqlJs();
     this.$nextTick(() => {
       if (window.lucide)
@@ -5242,7 +5247,7 @@ var sigma_explorer_default = () => ({
         const row = nodesStmt.getAsObject();
         if (excludedIds.has(row.id))
           continue;
-        if (row.type === "playbook" || row.type === "debrief" || row.type === "protocol")
+        if (row.type === "playbook" || row.type === "debrief" || row.type === "protocol" || row.type === "root" || row.type === "domain")
           continue;
         this.graph.addNode(row.id, {
           label: row.title || row.label || row.id,
@@ -5448,8 +5453,10 @@ var sigma_explorer_default = () => ({
       if (!graphologyLibrary.communitiesLouvain)
         return alert("Louvain library not loaded.");
       if (!this.louvainCommunities) {
+        const resolution = this.settings?.graph?.tuning?.louvain?.persona || 1.1;
+        console.log(`Using Louvain Resolution: ${resolution}`);
         this.louvainCommunities = graphologyLibrary.communitiesLouvain(this.graph, {
-          resolution: 1.1
+          resolution
         });
         this.louvainNames = {};
         const communityNodes = {};

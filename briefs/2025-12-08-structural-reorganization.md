@@ -89,7 +89,14 @@ We will codify these constants in the settings file to avoid magics strings in c
     "domains": {
       "persona": "persona",
       "experience": "resonance"
+    },
+    "tuning": {
+        "louvain": {
+            "persona": 1.1,
+            "experience": 1.0
+        }
     }
   }
 }
+
 ```
