@@ -111,7 +111,7 @@
 	--header-height: auto;
 	--footer-height: var(--size-10);
 	--width-wrapper: var(--size-content-3);
-	--width-home-box: var(--size-content-2);
+	--width-home-box: var(--size-content-3);
 
 	/* Spacing */
 	--app-padding: var(--size-4);
