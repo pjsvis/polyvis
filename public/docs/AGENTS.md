@@ -70,6 +70,9 @@ This document outlines the core operational protocols governing the actions of a
   2.  **Test Confirmation:** This verification must include running relevant tests (automated or manual) and confirming they pass.
   3.  **Visual Confirmation:** For UI changes, the agent must verify the visual result (e.g., via screenshot or user confirmation) before closing the task.
   4.  **Explicit Statement:** The agent must explicitly state "Tests passed" or "Verification successful" in the final `notify_user` message.
+  5.  **Regression Guarding:** When modifying core infrastructure (e.g., database schema, graph logic), the FIRST verification step is **"Baseline Preservation."** You must confirm that *existing* functionality remains unchanged BEFORE verifying the *new* feature.
+      *   *Constraint:* "First, do no harm."
+      *   *Action:* Explicitly state: "Baseline functionality verified: [Describe what was checked]."
 
 ## 9. SWP: Session Wrap-up Protocol
 
