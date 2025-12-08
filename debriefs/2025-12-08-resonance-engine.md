@@ -1,28 +1,32 @@
-# Debrief: Resonance Engine v1.0
+# Debrief: Resonance Engine v1.0 & Schema Unification
 
 **Date:** 2025-12-08
 **Participants:** User, Antigravity
 **Status:** Success
 
-## 1. Context
-The objective was to build a standalone CLI tool, `resonance`, to act as an "Operational Memory" manager. It needed to handle project scaffolding (`init`), playbook acquisition (`install` from Registry), and knowledge ingestion (`sync` to SQLite).
+## 1. Lessons Learned
+*   **Hybrid ORM Strategy:** Using Drizzle for schema definition (TypeScript types) while using Raw SQL for bulk ingestion operations yielded a **13x performance improvement** (116ms vs 8.7ms for 10k items).
+*   **Schema Drift Risks:** Initial attempts to load `resonance.db` failed because the file was created with an old schema. Deleting and recreating the artifacts is cleaner than migrating generated files.
+*   **Column Naming:** Synchronizing legacy schemas (`ctx.db` uses `label`) with new schemas (`resonance` uses `title`) requires explicit `ALTER TABLE RENAME` steps in migration scripts. Drizzle expects exact column name matches.
+*   **Round-Trip Verification:** The most effective test for a data pipeline is transforming Source -> DB -> Source and performing a "Deep Equal" check on the result.
 
-## 2. Actions Taken
-*   **Scaffolding:** Created `resonance/` directory with a Bun-based TypeScript project structure.
-*   **CLI Architecture:** Implemented a `commander`-based CLI with three core commands:
-    *   `init`: Scaffolds `.resonance/` and `resonance.lock.json`. Supports `--magic` for auto-discovery.
-    *   `install`: Fetches playbooks from `pjsvis/polyvis` GitHub repository. Updates lockfile.
-    *   `sync`: Scans `playbooks/` and `debriefs/`, ingesting them into `.resonance/resonance.db` (SQLite).
-*   **Registry Module:** Implemented a heuristic detector (`detector.ts`) that scans the project root for signatures (e.g., `bun.lock` -> `bun-native`, `biome.json` -> `biome-std`).
-*   **Graph Engine:** Implemented `ResonanceDB` wrapper around `bun:sqlite` to manage the knowledge graph schema (`nodes`, `edges`).
-*   **Compilation:** successfully compiled the tool into a single binary (`dist/resonance`) using `bun build --compile`.
+## 2. Accomplishments
+*   **Resonance Engine (v1.0):** Built the standalone CLI (`resonance`) with `init`, `install`, and `sync` commands.
+    *   **Magic Discovery:** Implemented heuristic scanning to auto-install Stack-appropriate playbooks.
+    *   **Single Binary:** Successfully compiled via `bun build --compile`.
+*   **Data Pipeline:**
+    *   **Intermediate Artifacts:** Defined a JSON format for decoupled ingestion.
+    *   **Round-Trip:** Implemented `transform -> load -> verify` pipeline that proves lossless data storage in SQLite.
+*   **Schema Unification:** 
+    *   Migrated the legacy `ctx.db` to add `domain`, `layer`, and `order_index` columns.
+    *   Standardized `ctx.db` and `resonance.db` using a shared Drizzle schema.
+*   **Documentation:** Created `docs/data-architecture.md` (with DOT diagrams) and `playbooks/schema-playbook.md`.
 
-## 3. Outcomes
-*   **Functional Binary:** The `resonance` binary is verified to run (`v1.1.0`) and execute commands.
-*   **Magic Discovery:** `init --magic` correctly identifies the project's stack (Bun, Biome) and installs relevant playbooks.
-*   **Knowledge Graph:** `sync` successfully parses and ingests 59 artifacts into the local SQLite database.
+## 3. Problems
+*   **Migration Mismatch:** The migration script initially failed because I renamed the column `relation` to `type` in the schema but tried to insert into `relation` in the Genesis injection step. Fixed by aligning SQL statements.
+*   **Load Failure:** The `load_db.ts` script failed initially because `CREATE TABLE IF NOT EXISTS` didn't update the existing (older) `resonance.db` file. We resolved this by deleting the stale artifact.
 
 ## 4. Next Steps
-*   **Integration:** Replace the legacy `scripts/build_experience.ts` with `resonance sync` (or integrate them).
-*   **MCP Server:** Implement the `serve` command to expose this graph to external agents via Model Context Protocol.
-*   **UI:** Embed a visualizer for the `resonance.db`.
+*   **MCP Server:** Implement `resonance serve` to expose the graph via Model Context Protocol.
+*   **Visualizer:** Integrate a frontend to explore the `resonance.db` graph.
+*   **Legacy Merge:** Fully switch `scripts/build_db.ts` to use the new Drizzle schema and `transform` logic.

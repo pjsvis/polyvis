@@ -1,0 +1,15 @@
+{
+  "paths": {
+    "database": {
+      "legacy": "scripts/ctx.db",
+      "resonance": ".resonance/resonance.db"
+    },
+    "sources": {
+      "docs": ["playbooks/", "debriefs/"],
+      "legacy": ["scripts/conceptual-lexicon-ref-v1.79.json", "scripts/cda-ref-v63.json"]
+    }
+  },
+  "schema": {
+    "version": "1.0.0"
+  }
+}
