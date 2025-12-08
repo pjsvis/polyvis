@@ -77,6 +77,21 @@ export class ResonanceDB {
 		});
 	}
 
+	updateNodeContent(id: string, content: string) {
+		const query = this.db.prepare(`
+            UPDATE nodes SET content = $content, updated_at = CURRENT_TIMESTAMP WHERE id = $id
+        `);
+		query.run({ $id: id, $content: content });
+	}
+
+    query(sql: string, params: any = {}) {
+        return this.db.query(sql).all(params);
+    }
+
+    getObject(id: string) {
+        return this.db.query("SELECT * FROM nodes WHERE id = $id").get({ $id: id });
+    }
+
 	close() {
 		this.db.close();
 	}

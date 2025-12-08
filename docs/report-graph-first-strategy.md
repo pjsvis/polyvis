@@ -119,7 +119,7 @@ Ingesting the data is merely the **Sieve** phase (gathering the "Stuff"). The **
 You noted that the standard interface is Cypher. Cypher is for **Engineers**. Agents are for **Explorers**.
 
 * **The Gap:** A user doesn't know how to write MATCH (n)-\[r\]-\>(m) WHERE r.weight \> 0.5 RETURN n.  
-* **The Bridge:** Your Agent acts as the **Smart Orchestrator**. The user says *"Analyze the bottlenecks,"* and the Agent translates that into a complex Graphology traversal script.  
+* **The Bridge:** Your Agent acts as the **Smart Orchestrator**. The user says *"Analyze the bottlenecks,"* and the Agent translates that into a complex Graphology traversal script, or queries the **Resonance MCP Interface** directly.
 * **Value:** This hides the complexity (Cypher/Hairball) behind a simplified intent, effectively lowering the **Input Activation Threshold** for complex analysis.
 
 ### **Conclusion: The "Next Step" is Recipe Design**
@@ -131,5 +131,5 @@ You stated that the "next step requires a bit of thought." That thought is the c
   * *The "Echo Chamber" Recipe* (Dense, isolated clusters).  
   * *The "Keystone" Recipe* (High centrality nodes).
 
-**Verdict:** Proceed. You are not building a database; you are building an **Automated Cartographer**.
+**Verdict:** Proceed. You are not building a database; you are building an **Automated Cartographer**. The MCP integration is the final mile that lets the AI "read" the map.
 

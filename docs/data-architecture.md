@@ -7,7 +7,9 @@
 
 The PolyVis data architecture is designed to capture both **Static Concepts** (Ontology) and **Temporal Experiences** (Playbooks/Debriefs) into a unified, graph-based "Operational Memory". It uses a "Hybrid ORM" approach where schemas are defined in TypeScript (Drizzle) for safety, but ingested via Raw SQL (Bun SQLite) for performance.
 
-### The Ingestion Pipeline
+It also includes an **Agent Interface** via the [Model Context Protocol (MCP)](https://modelcontextprotocol.io/), allowing external AI agents to query the graph directly.
+
+### The Ingestion & Access Pipeline
 
 ```dot
 digraph Pipeline {
@@ -40,12 +42,23 @@ digraph Pipeline {
 
     Ver [label="verify_integrity.ts\n(Round Trip Check)", style=dotted];
 
+    subgraph cluster_access {
+        label = "Stage 3: Access";
+        style = filled;
+        color = "#f3e6ff";
+        MCP [label="Resonance MCP\n(stdio)", shape=component];
+        Agent [label="AI Agent\n(Claude/IDE)", shape=ellipse, fillcolor="#e6f3ff"];
+    }
+
     MD -> Transformer;
     Transformer -> Artifact [label="Normalized"];
     Artifact -> Loader;
     Loader -> DB [label="Bulk Insert"];
     DB -> Ver;
     Artifact -> Ver [label="Compare"];
+    
+    DB -> MCP [label="Query (SQL)"];
+    MCP -> Agent [label="Context"];
 }
 ```
 

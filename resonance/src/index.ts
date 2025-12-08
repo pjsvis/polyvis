@@ -5,6 +5,7 @@ import { initCommand } from "./commands/init.js";
 import { installCommand } from "./commands/install.js";
 
 import { syncCommand } from "./commands/sync.js";
+import { serveCommand } from "./commands/serve.js";
 
 const program = new Command();
 
@@ -29,5 +30,10 @@ program
   .command("sync")
   .description("Ingest local artifacts into resonance.db")
   .action(syncCommand);
+
+program
+  .command("serve")
+  .description("Start MCP Server (Stdio)")
+  .action(serveCommand);
 
 program.parse();
