@@ -7,31 +7,10 @@
     "tags": []
   },
   {
-    "id": "reactive-styling-playbook",
-    "type": "playbook",
-    "title": "Reactive Styling Playbook",
-    "path": "playbooks/reactive-styling-playbook.md",
-    "tags": []
-  },
-  {
-    "id": "css-workflow-playbook",
-    "type": "playbook",
-    "title": "CSS Verification Workflow Playbook",
-    "path": "playbooks/css-workflow-playbook.md",
-    "tags": []
-  },
-  {
     "id": "problem-solving-playbook",
     "type": "playbook",
     "title": "Problem Solving Playbook",
     "path": "playbooks/problem-solving-playbook.md",
-    "tags": []
-  },
-  {
-    "id": "css-layout-playbook",
-    "type": "playbook",
-    "title": "Modern Layout Playbook",
-    "path": "playbooks/css-layout-playbook.md",
     "tags": []
   },
   {
@@ -70,13 +49,6 @@
     "tags": []
   },
   {
-    "id": "css-design-tokens-playbook",
-    "type": "playbook",
-    "title": "Design Tokens Playbook",
-    "path": "playbooks/css-design-tokens-playbook.md",
-    "tags": []
-  },
-  {
     "id": "development-workflow-playbook",
     "type": "playbook",
     "title": "Development Workflow Playbook",
@@ -91,17 +63,10 @@
     "tags": []
   },
   {
-    "id": "css-specificity-playbook",
+    "id": "css-master-playbook",
     "type": "playbook",
-    "title": "CSS Specificity & Theme Integration Playbook",
-    "path": "playbooks/css-specificity-playbook.md",
-    "tags": []
-  },
-  {
-    "id": "css-playbook",
-    "type": "playbook",
-    "title": "CSS Playbook",
-    "path": "playbooks/css-playbook.md",
+    "title": "CSS Master Playbook",
+    "path": "playbooks/css-master-playbook.md",
     "tags": []
   },
   {
@@ -130,34 +95,6 @@
     "type": "playbook",
     "title": "Marked.js Playbook",
     "path": "playbooks/marked-playbook.md",
-    "tags": []
-  },
-  {
-    "id": "css-zero-magic-playbook",
-    "type": "playbook",
-    "title": "css zero magic playbook",
-    "path": "playbooks/css-zero-magic-playbook.md",
-    "tags": []
-  },
-  {
-    "id": "css-nesting-playbook",
-    "type": "playbook",
-    "title": "PolyVis: CSS Nesting Playbook & Operational Standards",
-    "path": "playbooks/css-nesting-playbook.md",
-    "tags": []
-  },
-  {
-    "id": "css-defensive-playbook",
-    "type": "playbook",
-    "title": "Defensive CSS Playbook",
-    "path": "playbooks/css-defensive-playbook.md",
-    "tags": []
-  },
-  {
-    "id": "css-flexbox-playbook",
-    "type": "playbook",
-    "title": "Flexbox Playbook",
-    "path": "playbooks/css-flexbox-playbook.md",
     "tags": []
   },
   {
