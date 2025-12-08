@@ -5250,6 +5250,18 @@ var methods2 = {
         }
       }
     });
+    let droppedCount = 0;
+    const nodesToDrop = [];
+    this.graph.forEachNode((node) => {
+      if (this.graph.degree(node) === 0)
+        nodesToDrop.push(node);
+    });
+    nodesToDrop.forEach((node) => {
+      this.graph.dropNode(node);
+      droppedCount++;
+    });
+    if (droppedCount > 0)
+      console.log(`Pruned ${droppedCount} orphan nodes.`);
     const currentNodes = this.graph.order;
     const currentEdges = this.graph.size;
     this.status = `${this.activeDomain.toUpperCase()} Graph: ${currentNodes} Nodes, ${currentEdges} Edges.`;
@@ -5316,8 +5328,9 @@ var methods3 = {
       if (!graphologyLibrary.communitiesLouvain)
         return alert("Louvain library not loaded.");
       if (!this.louvainCommunities) {
-        const resolution = this.settings?.graph?.tuning?.louvain?.persona || 1.1;
-        console.log(`Using Louvain Resolution: ${resolution}`);
+        const domainKey = this.activeDomain === "experience" ? "experience" : "persona";
+        const resolution = this.settings?.graph?.tuning?.louvain?.[domainKey] || 1.1;
+        console.log(`Using Louvain Resolution (${domainKey}): ${resolution}`);
         this.louvainCommunities = graphologyLibrary.communitiesLouvain(this.graph, { resolution });
         this.louvainNames = {};
         const communityNodes = {};
@@ -5470,7 +5483,7 @@ var methods3 = {
       if (currentIndex === groups.length - 1) {
         this.activeLouvainGroup = null;
         if (this.renderer)
-          this.renderer.setSetting("labelRenderedSizeThreshold", 8);
+          this.renderer.setSetting("labelRenderedSizeThreshold", 5);
       } else {
         this.activeLouvainGroup = groups[currentIndex + 1];
         if (this.renderer)
@@ -5560,6 +5573,8 @@ var methods4 = {
       if (this.renderer)
         this.renderer.refresh();
     }
+    if (this.zoomReset)
+      this.zoomReset();
   },
   selectNode(nodeId) {
     if (!nodeId) {

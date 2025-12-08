@@ -38,6 +38,17 @@ async function ingest() {
 
     console.log(`📥 Loading ${indexData.length} experience artifacts...`);
 
+    // --- Cleanup: Remove existing Experience Data to prevent duplicates ---
+    console.log("Cleaning old Experience data...");
+    const expIds = indexData.map(n => `'${n.id}'`).join(",");
+    if (expIds.length > 0) {
+        db.run(`DELETE FROM edges WHERE source IN (${expIds}) OR target IN (${expIds})`);
+        db.run(`DELETE FROM nodes WHERE id IN (${expIds})`);
+        // Also remove the domain node itself to be safe, though it's structural
+        db.run(`DELETE FROM edges WHERE target = '002-EXPERIENCE'`); 
+        db.run(`DELETE FROM nodes WHERE id = '002-EXPERIENCE'`);
+    }
+
     // Prepare Statements
     // Schema matches build_db.ts: id, label, type, domain, layer, definition, external_refs
     const insertNode = db.prepare(
@@ -70,7 +81,8 @@ async function ingest() {
 
         // 2. Scan Content for Edges
         // Read the actual markdown file
-        const filePath = join(ROOT_DIR, "public/docs", item.path);
+        const filePath = join(ROOT_DIR, item.path);
+ 
         if (!existsSync(filePath)) {
             console.warn(`⚠️  File not found for scanning: ${filePath}`);
             continue;
@@ -93,16 +105,58 @@ async function ingest() {
         while ((match = wikiRegex.exec(content)) !== null) {
             if (!match[1]) continue;
             const linkTarget = match[1].trim();
-            // Assuming linkTarget matches an ID (filename without ext)
-            // If linkTarget contains pipe [[target|label]], split it
             const cleanTarget = linkTarget.split("|")[0]?.trim().replace(/\.md$/, "");
-            if (!cleanTarget) continue; // Safety check
+            if (!cleanTarget) continue;
             
             if (cleanTarget !== item.id) {
                  insertEdge.run(item.id, cleanTarget, "REFERENCES");
                  edgesAdded++;
             }
         }
+
+
+    // --- Stop Words Definition ---
+    const stopWords = new Set([
+        // Standard English
+        "the", "and", "that", "this", "with", "from", "into", "for", "are", "not", "which",
+        "what", "how", "why", "who", "when", "where", "can", "may", "will", "has", "have",
+        "had", "but", "all", "any", "one", "two", "use", "used", "using", "user", 
+        // Generics
+        "system", "data", "code", "node", "edge", "graph", "polyvis", "context", "concept",
+        "term", "define", "definition", "example", "principle", "heuristic", "directive",
+        "type", "value", "layer", "level", "core", "base",
+        // Experience Specific (High Frequency / Low Signal)
+        "playbook", "debrief", "session", "review", "update", "fix", "refactor", "create", 
+        "implement", "polish", "cleanup", "visualization", "engine", "styling", "styles",
+        "style", "issue", "problem", "solution", "work", "task", "brief", "protocol",
+        "doc", "docs", "documentation", "file", "files", "folder", "script", "scripts"
+    ]);
+
+    // C. Semantic Linking (Keyword Matching)
+    // Heuristic: If significant keywords from Other.Title appear in Item.Content -> LINK
+    for (const other of indexData) {
+        if (other.id === item.id) continue;
+        if (!other.title) continue;
+
+        // Extract Keywords from Title
+        const keywords = other.title
+            .split(/[\s-]+/)
+            .map(w => w.toLowerCase().replace(/[^a-z0-9]/g, ""))
+            .filter(w => w.length > 3 && !stopWords.has(w));
+
+        if (keywords.length === 0) continue;
+
+        // Check if ANY keyword is present (High Recall Strategy)
+        // Note: For Persona we check definitions. Here we check full content.
+        for (const keyword of keywords) {
+            const keywordRegex = new RegExp(`\\b${keyword}\\b`, 'i');
+            if (keywordRegex.test(content)) {
+                insertEdge.run(item.id, other.id, "MENTIONS");
+                edgesAdded++;
+                break; // One link per relationship is enough
+            }
+        }
+    }
     }
 
     console.log(`✅ Ingestion Complete.`);

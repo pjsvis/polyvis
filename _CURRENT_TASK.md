@@ -1,18 +1,17 @@
 
-# Current Task: Sigma Explorer Refactoring & Experience Graph Integration
+# Current Task: Awaiting Instructions
 
-**Status:** Completed
+**Status:** Idle
 
-**Objective:** Integrate Experience Graph data and refactor Sigma Explorer for modularity and performance.
+**Last Completed:** Experience Graph Tuning & Configuration Unification (2025-12-08)
 
-**Worklog:**
-- [x] Integrate `experience` CLI data into `ctx.db`.
-- [x] Implement structural nodes (`GENESIS`, `PERSONA`, `EXPERIENCE`).
-- [x] Refactor `sigma-explorer.js` into modular components (`index`, `data`, `graph`, `viz`, `interactions`).
-- [x] Implement strict Domain Filtering (Persona/Experience/Unified).
-- [x] Tune Louvain community detection and label visibility.
-- [x] Verify UI interactions (Sidebar, Search, Zoom).
+**Summary:**
+Successfully tuned and densified the Experience Graph. The system now features robust semantic linking, unified configuration, and polished graph interactions (centering, orphan pruning).
 
-**Next Steps:**
-- [ ] Begin "Resonance Engine" development (CLI tool).
-- [ ] Expand UI for deeper analysis of Experience data.
+**Links:**
+- [Debrief: Experience Graph Tuning](debriefs/2025-12-08-experience-graph-tuning.md)
+- [Debrief: Sigma Explorer Refactor](debriefs/2025-12-08-sigma-explorer-refactor.md)
+
+**Next Potential Steps:**
+- [ ] **Resonance Engine:** Implement the `resonance` CLI tool.
+- [ ] **Content Enrichment:** Iterate on content with explicit links.

@@ -13,11 +13,18 @@ const PUBLIC_DOCS_DIR = join(ROOT_DIR, "public", "docs");
 const PUBLIC_DATA_DIR = join(ROOT_DIR, "public", "data");
 const OUTPUT_FILE = join(PUBLIC_DATA_DIR, "experience.json");
 
-const SOURCES = [
-	{ kind: "dir", path: "playbooks", type: "playbook", dest: "playbooks" },
-	{ kind: "dir", path: "debriefs", type: "debrief", dest: "debriefs" },
-	{ kind: "file", path: "AGENTS.md", type: "protocol", dest: "" },
-];
+const SETTINGS_PATH = join(ROOT_DIR, "public/polyvis.settings.json");
+
+// Load Settings
+const settings = JSON.parse(readFileSync(SETTINGS_PATH, "utf-8"));
+const docSources = settings.paths.sources.docs;
+
+const SOURCES = docSources.map((s: any) => ({
+	kind: s.path.endsWith(".md") ? "file" : "dir",
+	path: s.path,
+	type: s.type,
+	dest: s.dest,
+}));
 
 // --- Types ---
 interface ExperienceNode {

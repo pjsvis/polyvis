@@ -205,3 +205,12 @@ This document outlines the core operational protocols governing the actions of a
         * *UI Interaction?* $\rightarrow$ Read `playbooks/alpinejs-playbook.md`.
         * *Graph Logic?* $\rightarrow$ Read `playbooks/graphology-playbook.md`.
     4.  **Confirmation:** The agent must explicitly state which Contexts have been initialized (e.g., *"Context Initialized: Loaded CSS & Alpine Playbooks"*).
+
+## 21. FLIP: File Length Integrity Protocol
+
+- **Principle:** Source files must remain small (target < 300 lines) to ensure AI agent comprehension, prevent context window overflows, and ensure safe refactoring. Monolithic files (> 500 lines) are a **critical failure state** that leads to "context blindness" and destructive hallucinations.
+- **Workflow:**
+    1.  **Monitor:** Actively monitor file length during development.
+    2.  **Trigger:** If a file approaches 300 lines, flag it for immediate refactoring.
+    3.  **Refactor:** Split logic into modular components (e.g., `data.js`, `ui.js`, `logic.js`) *before* adding new features.
+    4.  **Prohibition:** Do not attempt to "patch" a file that exceeds 500 lines using standard replacement tools. You **must** switch to a modular refactoring strategy immediately.

@@ -400,6 +400,14 @@
     "tags": []
   },
   {
+    "id": "2025-12-08-sigma-explorer-refactor",
+    "type": "debrief",
+    "title": "Debrief: Sigma Explorer Refactoring & Experience Graph Integration",
+    "path": "debriefs/2025-12-08-sigma-explorer-refactor.md",
+    "date": "2025-12-08",
+    "tags": []
+  },
+  {
     "id": "2025-11-26-02-debrief-open-props-and-debugging",
     "type": "debrief",
     "title": "Debrief: Open Props & Interaction Debugging",
@@ -453,6 +461,14 @@
     "title": "Debrief: Semantic Graph & Community Explorer",
     "path": "debriefs/2025-12-01-graph-explorer.md",
     "date": "2025-12-01",
+    "tags": []
+  },
+  {
+    "id": "2025-12-08-experience-graph-tuning",
+    "type": "debrief",
+    "title": "Debrief: Experience Graph Tuning & Densification",
+    "path": "debriefs/2025-12-08-experience-graph-tuning.md",
+    "date": "2025-12-08",
     "tags": []
   },
   {

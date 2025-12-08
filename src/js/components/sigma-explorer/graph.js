@@ -86,6 +86,21 @@ export const methods = {
             }
         });
 
+        // Prune Orphan Nodes (Degree 0)
+        let droppedCount = 0;
+        // Collect nodes to drop first to avoid mutation while iterating? 
+        // Graphology forEachNode is generally safe, but safest to collect then drop.
+        const nodesToDrop = [];
+        this.graph.forEachNode((node) => {
+            if (this.graph.degree(node) === 0) nodesToDrop.push(node);
+        });
+        nodesToDrop.forEach(node => {
+            this.graph.dropNode(node);
+            droppedCount++;
+        });
+        
+        if (droppedCount > 0) console.log(`Pruned ${droppedCount} orphan nodes.`);
+
 		const currentNodes = this.graph.order;
 		const currentEdges = this.graph.size;
 		this.status = `${this.activeDomain.toUpperCase()} Graph: ${currentNodes} Nodes, ${currentEdges} Edges.`;

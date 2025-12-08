@@ -83,6 +83,9 @@ export const methods = {
         } else {
              if (this.renderer) this.renderer.refresh();
         }
+
+        // Center the new graph
+        if (this.zoomReset) this.zoomReset();
     },
     
     selectNode(nodeId) {

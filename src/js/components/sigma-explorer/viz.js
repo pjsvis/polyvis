@@ -27,8 +27,9 @@ export const methods = {
             if (!graphologyLibrary.communitiesLouvain) return alert("Louvain library not loaded.");
             
             if (!this.louvainCommunities) {
-                const resolution = this.settings?.graph?.tuning?.louvain?.persona || 1.1;
-                console.log(`Using Louvain Resolution: ${resolution}`);
+                const domainKey = this.activeDomain === 'experience' ? 'experience' : 'persona';
+                const resolution = this.settings?.graph?.tuning?.louvain?.[domainKey] || 1.1;
+                console.log(`Using Louvain Resolution (${domainKey}): ${resolution}`);
 
                 this.louvainCommunities = graphologyLibrary.communitiesLouvain(this.graph, { resolution: resolution });
                 
@@ -187,7 +188,7 @@ export const methods = {
 			const currentIndex = groups.indexOf(this.activeLouvainGroup);
 			if (currentIndex === groups.length - 1) {
 				this.activeLouvainGroup = null; 
-				if (this.renderer) this.renderer.setSetting("labelRenderedSizeThreshold", 8);
+				if (this.renderer) this.renderer.setSetting("labelRenderedSizeThreshold", 5);
 			} else {
 				this.activeLouvainGroup = groups[currentIndex + 1];
 				if (this.renderer) this.renderer.setSetting("labelRenderedSizeThreshold", 4);
