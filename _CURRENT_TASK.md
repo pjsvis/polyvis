@@ -1,19 +1,19 @@
 
-# Current Task: Awaiting Instructions
+# Current Task: Schema Migration (Resonance Engine)
 
-**Status:** Idle
+**Status:** In Progress
+**Objective:** Migrate existing Drizzle schema to support Resonance (Vector) capabilities.
 
-**Last Completed:** Experience Graph Narrative Extraction (2025-12-08)
+**Components:**
+- **DB Engine:** Pure Bun + BLOBs (Validated).
+- **Core:** FastEmbed (Validated) - Solved native dep issues.
+- **Migration:** Add `embedding` (BLOB) and `content` (TEXT) to `nodes`.
 
-**Summary:**
-- **Data Ingestion:** Updated `ingest_experience_graph.ts` to use `marked` for smart narrative extraction.
-    - **Debriefs:** Prioritizes "Lessons Learned" or "What Went Wrong" sections.
-    - **Playbooks:** Extracts introductory summaries / Core Concepts.
-- **Result:** Node Details sidebar now displays useful context instead of file paths.
+**Plan:**
+1.  **Analyze:** `src/db/schema.ts` (Done).
+2.  **Draft Migration:** Create `src/db/migrations/0001_add_resonance_vectors.sql` (or similar Drizzle migration).
+3.  **Sync Command:** Implement `resonance sync` using the updated schema.
 
 **Links:**
-- [Debrief: Experience Graph Tuning](debriefs/2025-12-08-experience-graph-tuning.md)
-- [Debrief: Sigma Explorer Refactor](debriefs/2025-12-08-sigma-explorer-refactor.md)
-
-**Next Potential Steps:**
-- [ ] **Resonance Engine:** Implement the `resonance` CLI tool.
+- [Deep Research: Bun SQLite](docs/Bun-SQLite-and-Local-Embeddings.md)
+- [Brief: Resonance Hybrid Engine](briefs/F-resonance-hybrid-db-engine.md)
