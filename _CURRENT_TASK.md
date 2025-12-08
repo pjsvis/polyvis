@@ -8,9 +8,9 @@
 
 - [ ] Why are debriefs from November all H1 whereas debriefs from December are all ok. Probably a faulty ingestion pipeline, as we changed it recently
 - [ ] The debriefs ingestion pipelline should move the lessons-learend to before the accomplishments, and problems sections.
-- [ ]  The wiki-style feture in our docs page is not working correctly. Identify a page with a wiki link and invetigate.
+- [ ]  The wiki-style feture in our docs page is not working correctly. Identify a page with a wiki link and investigate.
 - [ ] The front page business-card is not working properly as a result of recent style changes. Fix it.
-- [ ]In sigma-explorer the ANALYSIS GUIDE text is dark on dark in light more, but ok in dark mode
+- [ ] In sigma-explorer the ANALYSIS GUIDE text is dark on dark in light more, but ok in dark mode
 - [ ] The POLYVIS string in the nav bar should be stronger
 - [ ] the sigma exploer text in the nav bar should not wrap
 - [ ] We should remove the source link from the navbar
