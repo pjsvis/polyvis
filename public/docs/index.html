@@ -72,7 +72,7 @@
         <!-- LEFT SIDEBAR: DIRECTORY & TOC -->
         <aside class="app-sidebar-left overflow-hidden md:block p-0 md:translate-x-0 relative"
             :class="{ 'translate-x-0': leftOpen, '-translate-x-full': !leftOpen, 'block': true, 'hidden': false }"
-            x-show="viewMode === 'browse' || leftOpen">
+            x-show="viewMode === 'browse' || viewMode === 'reference' || leftOpen">
             <div class="container-box docs-directory h-full flex flex-col"
                 style="overflow: hidden; height: 100%; padding: 0; border: none; background-color: var(--surface-1);">
 
