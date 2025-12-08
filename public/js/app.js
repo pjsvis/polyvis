@@ -5117,119 +5117,14 @@ var nav_default = () => ({
   }
 });
 
-// src/js/components/sigma-explorer.js
-var sigma_explorer_default = () => ({
-  status: "Initializing...",
-  graph: null,
-  renderer: null,
-  activeColorViz: null,
-  activeSizeViz: null,
-  layout: "forceatlas2",
-  showStats: false,
-  stats: { nodes: 0, edges: 0, density: 0, avgDegree: 0 },
-  leftOpen: true,
-  rightOpen: true,
-  selectedNode: null,
-  hoveredNode: null,
-  loaded: false,
-  debug: false,
-  clickBlock: false,
-  tooltip: { visible: false, text: "", x: 0, y: 0 },
-  activeLouvainGroup: null,
-  louvainCommunities: null,
-  searchQuery: "",
-  searchResults: [],
-  isSearchFocused: false,
-  showTooltip(event, text) {
-    const rect = event.currentTarget.getBoundingClientRect();
-    this.tooltip.text = text;
-    const sidebar = document.querySelector(".explorer-sidebar-left");
-    const sidebarWidth = sidebar ? sidebar.getBoundingClientRect().width : 280;
-    this.tooltip.x = Math.max(rect.right + 20, sidebarWidth + 10);
-    this.tooltip.y = rect.top;
-    this.tooltip.visible = true;
-  },
-  hideTooltip() {
-    this.tooltip.visible = false;
-  },
-  handleSearch() {
-    if (!this.graph)
-      return;
-    if (!this.searchQuery) {
-      const nodes = this.graph.mapNodes((id, attrs) => ({ id, ...attrs })).filter((n) => n.nodeType === "Core Concept").sort((a, b2) => b2.size - a.size).slice(0, 5);
-      this.searchResults = nodes;
-      return;
-    }
-    const query = this.searchQuery.toLowerCase();
-    const results = this.graph.mapNodes((id, attrs) => ({ id, ...attrs })).filter((n) => n.id.toLowerCase().includes(query) || n.label.toLowerCase().includes(query)).slice(0, 10);
-    this.searchResults = results;
-  },
-  selectSearchResult(nodeId) {
-    this.selectNode(nodeId);
-    this.searchResults = [];
-    this.isSearchFocused = false;
-  },
-  selectNode(nodeId) {
-    if (!this.graph.hasNode(nodeId))
-      return;
-    const attrs = this.graph.getNodeAttributes(nodeId);
-    this.selectedNode = { id: nodeId, ...attrs };
-    this.rightOpen = true;
-    this.$refs.analysisGuide.open = false;
-    this.renderer.refresh();
-  },
-  linkify(text) {
-    if (!text)
-      return "";
-    return text.replace(/\b([A-Z]{2,}-\d+|term-\d+)\b/g, (match) => {
-      if (this.graph && this.graph.hasNode(match)) {
-        return `<a href="#" class="internal-link" data-node-id="${match}">${match}</a>`;
-      }
-      return match;
-    });
-  },
-  handleContentClick(event) {
-    if (event.target.matches(".internal-link")) {
-      event.preventDefault();
-      const nodeId = event.target.dataset.nodeId;
-      this.selectNode(nodeId);
-    }
-  },
-  settings: null,
-  init() {
-    setTimeout(() => this.loaded = true, 50);
-    fetch("/polyvis.settings.json").then((res) => res.json()).then((data2) => {
-      this.settings = data2;
-      console.log("Settings Loaded:", this.settings);
-    }).catch((err) => console.error("Failed to load settings:", err));
-    this.initSqlJs();
-    this.$nextTick(() => {
-      if (window.lucide)
-        window.lucide.createIcons();
-    });
-  },
-  initSqlJs() {
-    initSqlJs({
-      locateFile: (file) => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/${file}`
-    }).then((SQL) => {
-      const xhr = new XMLHttpRequest;
-      xhr.open("GET", "/data/ctx.db", true);
-      xhr.responseType = "arraybuffer";
-      xhr.onload = (e) => {
-        if (xhr.status !== 200) {
-          this.status = `<span class="text-red-500">Error: ctx.db not found (Status ${xhr.status})</span>`;
-          return;
-        }
-        const uInt8Array = new Uint8Array(xhr.response);
-        const db = new SQL.Database(uInt8Array);
-        this.loadGraph(db);
-      };
-      xhr.send();
-    });
-  },
+// src/js/components/sigma-explorer/data.js
+var initialState = () => ({
+  masterData: { nodes: [], edges: [] }
+});
+var methods = {
   loadGraph(db) {
-    this.graph = new graphology.Graph;
     this.status = "Extracting Data...";
+    this.masterData = { nodes: [], edges: [] };
     try {
       const nodesStmt = db.prepare("SELECT * FROM nodes");
       const excludedIds = new Set([
@@ -5247,11 +5142,61 @@ var sigma_explorer_default = () => ({
         const row = nodesStmt.getAsObject();
         if (excludedIds.has(row.id))
           continue;
-        if (row.type === "playbook" || row.type === "debrief" || row.type === "protocol" || row.type === "root" || row.type === "domain")
-          continue;
+        this.masterData.nodes.push(row);
+      }
+    } catch (e) {
+      console.error("Node Error", e);
+    }
+    try {
+      const edgesStmt = db.prepare("SELECT * FROM edges");
+      while (edgesStmt.step()) {
+        const row = edgesStmt.getAsObject();
+        this.masterData.edges.push(row);
+      }
+    } catch (e) {
+      console.error("Edge Error", e);
+    }
+    if (this.constructGraph)
+      this.constructGraph();
+    if (this.initRenderer && this.$refs.sigmaContainer) {
+      this.initRenderer(this.$refs.sigmaContainer);
+    }
+  }
+};
+
+// src/js/components/sigma-explorer/graph.js
+var initialState2 = () => ({
+  graph: null,
+  layout: "forceatlas2",
+  layoutInstance: null
+});
+var methods2 = {
+  constructGraph() {
+    if (!this.graph)
+      this.graph = new graphology.Graph({ type: "directed" });
+    else
+      this.graph.clear();
+    const nodeCount = this.masterData.nodes.length;
+    console.log(`Constructing Graph for Domain: ${this.activeDomain} (Source: ${nodeCount} items)`);
+    this.masterData.nodes.forEach((row) => {
+      if (row.type === "root" || row.type === "domain")
+        return;
+      const isExperience = row.domain === "resonance" || row.type === "playbook" || row.type === "debrief" || row.type === "protocol";
+      const isPersona = row.domain === "persona" || !isExperience;
+      let include = false;
+      if (this.activeDomain === "persona" && isPersona)
+        include = true;
+      if (this.activeDomain === "experience" && isExperience)
+        include = true;
+      if (this.activeDomain === "unified")
+        include = true;
+      if (!include)
+        return;
+      if (!this.graph.hasNode(row.id)) {
         this.graph.addNode(row.id, {
           label: row.title || row.label || row.id,
           nodeType: row.type || "Unknown",
+          domain: row.domain || (isExperience ? "resonance" : "persona"),
           definition: row.content || row.definition || "",
           size: (() => {
             if (row.type === "Core Concept")
@@ -5289,153 +5234,71 @@ var sigma_explorer_default = () => ({
               hash = Math.imul(31, hash) + str.charCodeAt(i) | 0;
             return Math.abs(hash) % 1000 / 10;
           })(row.id + "y"),
-          external_refs: row.external_refs ? JSON.parse(row.external_refs) : [],
-          hidden: row.type === "playbook" || row.type === "debrief"
+          external_refs: row.external_refs ? JSON.parse(row.external_refs) : []
         });
       }
-    } catch (e) {
-      console.error("Node Error", e);
-    }
-    try {
-      const edgesStmt = db.prepare("SELECT * FROM edges");
-      while (edgesStmt.step()) {
-        const row = edgesStmt.getAsObject();
-        if (this.graph.hasNode(row.source) && this.graph.hasNode(row.target)) {
-          if (!this.graph.hasEdge(row.source, row.target)) {
-            this.graph.addEdge(row.source, row.target, {
-              type: "arrow",
-              label: row.relation,
-              size: 2,
-              color: getComputedStyle(document.documentElement).getPropertyValue("--graph-edge").trim() || "#ffffff"
-            });
-          }
+    });
+    this.masterData.edges.forEach((row) => {
+      if (this.graph.hasNode(row.source) && this.graph.hasNode(row.target)) {
+        if (!this.graph.hasEdge(row.source, row.target)) {
+          this.graph.addEdge(row.source, row.target, {
+            type: "arrow",
+            label: row.relation,
+            size: 2,
+            color: getComputedStyle(document.documentElement).getPropertyValue("--graph-edge").trim() || "#ffffff"
+          });
         }
       }
-    } catch (e) {
-      console.error("Edge Error", e);
-    }
-    const nodeCount = this.graph.order;
-    const edgeCount = this.graph.size;
-    this.status = `Graph Loaded: ${nodeCount} Nodes, ${edgeCount} Edges. Running Physics...`;
+    });
+    const currentNodes = this.graph.order;
+    const currentEdges = this.graph.size;
+    this.status = `${this.activeDomain.toUpperCase()} Graph: ${currentNodes} Nodes, ${currentEdges} Edges.`;
     this.runLayout("forceatlas2");
-    this.toggleColorViz("louvain");
-    this.toggleSizeViz("pagerank");
-    const container = this.$refs.sigmaContainer;
-    container.innerHTML = "";
-    this.renderer = new Sigma(this.graph, container, {
-      renderEdgeLabels: true,
-      nodeReducer: (node, data2) => {
-        if (this.selectedNode && node === this.selectedNode.id) {
-          return {
-            ...data2,
-            highlighted: true,
-            size: Math.max(data2.size, 25),
-            zIndex: 10,
-            label: data2.label
-          };
-        }
-        return data2;
-      },
-      labelRenderedSizeThreshold: 8,
-      zIndex: true
-    });
-    container.style.cursor = "grab";
-    this.renderer.on("downStage", () => {
-      container.style.cursor = "grabbing";
-    });
-    document.addEventListener("mouseup", () => {
-      if (this.renderer && this.renderer.getMouseCaptor()) {
-        this.renderer.getMouseCaptor().isMouseEnabled = true;
-      }
-      if (!this.hoveredNode) {
-        container.style.cursor = "grab";
-      }
-    });
-    try {
-      if (this.renderer.getMouseCaptor()) {
-        this.renderer.getMouseCaptor().isMouseWheelEnabled = false;
-      }
-    } catch (e) {}
-    container.addEventListener("wheel", (e) => e.stopPropagation(), true);
-    this.status = "Interactive Mode Active. Buttons to Zoom, Drag to Move.";
-    this.renderer.on("clickNode", ({ node }) => {
-      console.log(`[SigmaDebug] clickNode: ${node}`);
-      this.clickBlock = true;
-      console.log(`[SigmaDebug] clickBlock SET to true`);
-      setTimeout(() => {
-        this.clickBlock = false;
-        console.log(`[SigmaDebug] clickBlock RESET to false`);
-      }, 200);
-      const attrs = this.graph.getNodeAttributes(node);
-      this.selectNode(node);
-    });
-    this.renderer.on("clickStage", () => {
-      console.log(`[SigmaDebug] clickStage. Blocked? ${this.clickBlock}. Hovered? ${this.hoveredNode}`);
-      if (this.clickBlock) {
-        console.log(`[SigmaDebug] clickStage BLOCKED`);
-        return;
-      }
-      if (this.hoveredNode) {
-        console.log(`[SigmaDebug] clickStage FALLBACK to hoveredNode: ${this.hoveredNode}`);
-        this.selectNode(this.hoveredNode);
-        return;
-      }
-      console.log(`[SigmaDebug] clickStage DESELECTING`);
-      this.selectedNode = null;
-      this.graph.forEachNode((n) => {
-        this.graph.setNodeAttribute(n, "highlighted", false);
-        this.graph.setNodeAttribute(n, "zIndex", 1);
+    if (this.toggleColorViz)
+      this.toggleColorViz("louvain", true);
+    if (this.toggleSizeViz)
+      this.toggleSizeViz("pagerank");
+  },
+  runLayout(algorithm) {
+    if (!this.graph)
+      return;
+    this.layout = algorithm;
+    if (this.layoutInstance) {
+      this.layoutInstance.stop();
+      this.layoutInstance = null;
+    }
+    if (algorithm === "forceatlas2") {
+      if (!graphologyLibrary.layoutForceAtlas2)
+        return alert("ForceAtlas2 not loaded.");
+      graphologyLibrary.layoutForceAtlas2.assign(this.graph, {
+        iterations: 50,
+        settings: { gravity: 1 }
       });
-      if (this.renderer)
-        this.renderer.refresh();
-    });
-    container.addEventListener("mousedown", (e) => {
-      if (this.hoveredNode) {
-        console.log(`[SigmaDebug] Mousedown on Node ${this.hoveredNode} -> STOPPING PROPAGATION`);
-        e.stopPropagation();
-      }
-    }, true);
-    this.renderer.on("enterNode", ({ node }) => {
-      console.log(`[SigmaDebug] enterNode: ${node}`);
-      container.style.cursor = "pointer";
-      this.hoveredNode = node;
-    });
-    this.renderer.on("leaveNode", () => {
-      console.log(`[SigmaDebug] leaveNode`);
-      container.style.cursor = "";
-      this.hoveredNode = null;
-    });
-  },
-  zoomIn() {
-    if (!this.renderer)
-      return;
-    const camera = this.renderer.getCamera();
-    camera.animate({ ratio: camera.ratio / 1.5 });
-  },
-  zoomOut() {
-    if (!this.renderer)
-      return;
-    const camera = this.renderer.getCamera();
-    camera.animate({ ratio: camera.ratio * 1.5 });
-  },
-  zoomReset() {
-    if (!this.renderer)
-      return;
-    this.renderer.getCamera().animatedReset();
-  },
-  resetColors() {
-    this.graph.forEachNode((node, attributes) => {
-      if (attributes.originalColor)
-        this.graph.setNodeAttribute(node, "color", attributes.originalColor);
-    });
-  },
-  resetSizes() {
-    this.graph.forEachNode((node, attributes) => {
-      if (attributes.originalSize)
-        this.graph.setNodeAttribute(node, "size", attributes.originalSize);
-    });
-  },
-  toggleColorViz(type) {},
+    } else if (algorithm === "circular") {
+      if (!graphologyLibrary.layout)
+        return alert("Layout library not loaded.");
+      graphologyLibrary.layout.circle.assign(this.graph);
+    } else if (algorithm === "random") {
+      if (!graphologyLibrary.layout)
+        return alert("Layout library not loaded.");
+      graphologyLibrary.layout.random.assign(this.graph);
+    } else if (algorithm === "noverlap") {
+      if (!graphologyLibrary.layoutNoverlap)
+        return alert("Noverlap library not loaded.");
+      graphologyLibrary.layoutNoverlap.assign(this.graph);
+    }
+  }
+};
+
+// src/js/components/sigma-explorer/viz.js
+var initialState3 = () => ({
+  activeColorViz: "louvain",
+  activeSizeViz: "pagerank",
+  activeLouvainGroup: null,
+  louvainCommunities: null,
+  louvainNames: null
+});
+var methods3 = {
   toggleColorViz(type, force = false) {
     if (!force && this.activeColorViz === type && this.activeLouvainGroup === null) {
       this.resetColors();
@@ -5455,9 +5318,7 @@ var sigma_explorer_default = () => ({
       if (!this.louvainCommunities) {
         const resolution = this.settings?.graph?.tuning?.louvain?.persona || 1.1;
         console.log(`Using Louvain Resolution: ${resolution}`);
-        this.louvainCommunities = graphologyLibrary.communitiesLouvain(this.graph, {
-          resolution
-        });
+        this.louvainCommunities = graphologyLibrary.communitiesLouvain(this.graph, { resolution });
         this.louvainNames = {};
         const communityNodes = {};
         this.graph.forEachNode((node) => {
@@ -5490,22 +5351,7 @@ var sigma_explorer_default = () => ({
       });
       const rankMap = {};
       sortedGroupIds.forEach((id, index) => rankMap[id] = index);
-      const colors = [
-        "#e5484d",
-        "#f76b15",
-        "#f5d90a",
-        "#46a758",
-        "#00a2c7",
-        "#0090ff",
-        "#6e56cf",
-        "#d6409f",
-        "#99d52a",
-        "#12a594",
-        "#3e63dd",
-        "#a15c13",
-        "#8e4ec6",
-        "#3cb44b"
-      ];
+      const colors = ["#e5484d", "#f76b15", "#f5d90a", "#46a758", "#00a2c7", "#0090ff", "#6e56cf", "#d6409f", "#99d52a", "#12a594", "#3e63dd", "#a15c13", "#8e4ec6", "#3cb44b"];
       this.graph.forEachNode((node) => {
         const communityId = communities[node];
         const rank = rankMap[communityId];
@@ -5516,11 +5362,11 @@ var sigma_explorer_default = () => ({
           this.graph.setNodeAttribute(node, "color", colors[rank % colors.length]);
         }
       });
-      if (this.activeLouvainGroup === null && this.renderer) {
-        this.renderer.getCamera().animatedReset();
-        this.renderer.setSetting("labelRenderedSizeThreshold", 8);
-      } else if (this.renderer) {
+      if (this.activeLouvainGroup !== null && this.renderer) {
         this.renderer.setSetting("labelRenderedSizeThreshold", 2);
+      } else if (this.renderer) {
+        this.renderer.getCamera().animatedReset();
+        this.renderer.setSetting("labelRenderedSizeThreshold", 5);
       }
     } else if (type === "betweenness") {
       if (!graphologyLibrary.metrics)
@@ -5581,47 +5427,20 @@ var sigma_explorer_default = () => ({
     if (this.renderer)
       this.renderer.refresh();
   },
-  toggleStats() {
-    this.showStats = !this.showStats;
-    if (this.showStats && this.graph) {
-      this.stats.nodes = this.graph.order;
-      this.stats.edges = this.graph.size;
-      this.stats.density = graphologyLibrary.metrics.graph.density(this.graph).toFixed(4);
-      let totalDegree = 0;
-      this.graph.forEachNode((node) => {
-        totalDegree += this.graph.degree(node);
-      });
-      this.stats.avgDegree = (totalDegree / this.graph.order).toFixed(2);
-    }
-  },
-  runLayout(algorithm) {
+  resetColors() {
     if (!this.graph)
       return;
-    this.layout = algorithm;
-    if (this.layoutInstance) {
-      this.layoutInstance.stop();
-      this.layoutInstance = null;
-    }
-    if (algorithm === "forceatlas2") {
-      if (!graphologyLibrary.layoutForceAtlas2)
-        return alert("ForceAtlas2 not loaded.");
-      graphologyLibrary.layoutForceAtlas2.assign(this.graph, {
-        iterations: 50,
-        settings: { gravity: 1 }
-      });
-    } else if (algorithm === "circular") {
-      if (!graphologyLibrary.layout)
-        return alert("Layout library not loaded.");
-      graphologyLibrary.layout.circle.assign(this.graph);
-    } else if (algorithm === "random") {
-      if (!graphologyLibrary.layout)
-        return alert("Layout library not loaded.");
-      graphologyLibrary.layout.random.assign(this.graph);
-    } else if (algorithm === "noverlap") {
-      if (!graphologyLibrary.layoutNoverlap)
-        return alert("Noverlap library not loaded.");
-      graphologyLibrary.layoutNoverlap.assign(this.graph);
-    }
+    this.graph.forEachNode((node, attrs) => {
+      this.graph.setNodeAttribute(node, "color", attrs.originalColor || "#475569");
+      this.graph.setNodeAttribute(node, "hidden", false);
+    });
+  },
+  resetSizes() {
+    if (!this.graph)
+      return;
+    this.graph.forEachNode((node, attrs) => {
+      this.graph.setNodeAttribute(node, "size", attrs.originalSize || 6);
+    });
   },
   getLouvainGroups() {
     if (!this.louvainCommunities)
@@ -5630,26 +5449,8 @@ var sigma_explorer_default = () => ({
     Object.values(this.louvainCommunities).forEach((id) => {
       counts[id] = (counts[id] || 0) + 1;
     });
-    const colors = [
-      "#e5484d",
-      "#f76b15",
-      "#f5d90a",
-      "#46a758",
-      "#00a2c7",
-      "#0090ff",
-      "#6e56cf",
-      "#d6409f",
-      "#99d52a",
-      "#12a594",
-      "#3e63dd",
-      "#a15c13",
-      "#8e4ec6",
-      "#3cb44b"
-    ];
-    const sortedGroups = Object.keys(counts).map((id) => ({
-      id: parseInt(id),
-      count: counts[id]
-    })).sort((a, b2) => b2.count - a.count);
+    const colors = ["#e5484d", "#f76b15", "#f5d90a", "#46a758", "#00a2c7", "#0090ff", "#6e56cf", "#d6409f", "#99d52a", "#12a594", "#3e63dd", "#a15c13", "#8e4ec6", "#3cb44b"];
+    const sortedGroups = Object.keys(counts).map((id) => ({ id: parseInt(id), count: counts[id] })).sort((a, b2) => b2.count - a.count);
     return sortedGroups.map((group, index) => ({
       ...group,
       color: colors[index % colors.length],
@@ -5677,25 +5478,240 @@ var sigma_explorer_default = () => ({
       }
     }
     this.toggleColorViz("louvain");
-  },
-  showExperience: false,
-  toggleExperience() {
-    this.showExperience = !this.showExperience;
-    this.graph.forEachNode((node, attrs) => {
-      if (attrs.nodeType === "playbook" || attrs.nodeType === "debrief") {
-        this.graph.setNodeAttribute(node, "hidden", !this.showExperience);
-      }
+  }
+};
+
+// src/js/components/sigma-explorer/interactions.js
+var initialState4 = () => ({
+  renderer: null,
+  hoveredNode: null,
+  selectedNode: null,
+  searchQuery: "",
+  searchResults: [],
+  isSearchFocused: false,
+  showStats: false,
+  stats: { nodes: 0, edges: 0, density: 0, avgDegree: 0 },
+  tooltip: { visible: false, text: "", x: 0, y: 0 }
+});
+var methods4 = {
+  initRenderer(container) {
+    container.innerHTML = "";
+    this.renderer = new Sigma(this.graph, container, {
+      renderEdgeLabels: true,
+      nodeReducer: (node, data2) => {
+        if (this.selectedNode && node === this.selectedNode.id) {
+          return {
+            ...data2,
+            highlighted: true,
+            size: Math.max(data2.size, 25),
+            zIndex: 10,
+            label: data2.label
+          };
+        }
+        return data2;
+      },
+      labelRenderedSizeThreshold: 5,
+      zIndex: true
     });
+    container.style.cursor = "grab";
+    this.setupEventListeners(container);
+    this.status = "Interactive Mode Active. Buttons to Zoom, Drag to Move.";
+  },
+  setupEventListeners(container) {
+    this.renderer.on("downStage", () => {
+      container.style.cursor = "grabbing";
+    });
+    document.addEventListener("mouseup", () => {
+      if (this.renderer && this.renderer.getMouseCaptor()) {
+        this.renderer.getMouseCaptor().isMouseEnabled = true;
+      }
+      if (!this.hoveredNode)
+        container.style.cursor = "grab";
+    });
+    try {
+      if (this.renderer.getMouseCaptor())
+        this.renderer.getMouseCaptor().isMouseWheelEnabled = false;
+    } catch (e) {}
+    container.addEventListener("wheel", (e) => e.stopPropagation(), true);
+    this.renderer.on("clickNode", ({ node }) => {
+      this.selectNode(node);
+    });
+    this.renderer.on("enterNode", ({ node }) => {
+      container.style.cursor = "pointer";
+      this.hoveredNode = node;
+    });
+    this.renderer.on("leaveNode", () => {
+      container.style.cursor = "";
+      this.hoveredNode = null;
+    });
+  },
+  setDomain(domain) {
+    if (this.activeDomain === domain)
+      return;
+    this.activeDomain = domain;
+    console.log(`Switching Domain to: ${domain}`);
+    if (this.constructGraph)
+      this.constructGraph();
+    if (this.activeColorViz === "louvain") {
+      this.louvainCommunities = null;
+      if (this.toggleColorViz)
+        this.toggleColorViz("louvain", true);
+    } else {
+      if (this.renderer)
+        this.renderer.refresh();
+    }
+  },
+  selectNode(nodeId) {
+    if (!nodeId) {
+      this.selectedNode = null;
+      if (this.renderer)
+        this.renderer.refresh();
+      return;
+    }
+    const attr = this.graph.getNodeAttributes(nodeId);
+    this.selectedNode = {
+      id: nodeId,
+      ...attr
+    };
+    console.log("Selected Node:", this.selectedNode);
+    this.rightOpen = true;
     if (this.renderer)
       this.renderer.refresh();
+  },
+  handleSearch() {
+    if (!this.searchQuery) {
+      this.searchResults = [];
+      return;
+    }
+    const query = this.searchQuery.toLowerCase();
+    if (!this.graph)
+      return;
+    const results = [];
+    this.graph.forEachNode((node, attrs) => {
+      if (attrs.hidden)
+        return;
+      if (attrs.label.toLowerCase().includes(query) || node.toLowerCase().includes(query)) {
+        results.push({ id: node, label: attrs.label });
+      }
+    });
+    this.searchResults = results.slice(0, 10);
+  },
+  selectSearchResult(nodeId) {
+    this.selectNode(nodeId);
+    this.searchQuery = "";
+    this.searchResults = [];
+    if (this.renderer) {
+      const camera = this.renderer.getCamera();
+      const nodePos = this.renderer.getNodeDisplayData(nodeId);
+      if (nodePos) {
+        camera.animate({ x: nodePos.x, y: nodePos.y, ratio: 0.5, duration: 500 });
+      }
+    }
+  },
+  zoomIn() {
+    if (!this.renderer)
+      return;
+    const camera = this.renderer.getCamera();
+    camera.animate({ ratio: camera.ratio / 1.5 });
+  },
+  zoomOut() {
+    if (!this.renderer)
+      return;
+    const camera = this.renderer.getCamera();
+    camera.animate({ ratio: camera.ratio * 1.5 });
+  },
+  zoomReset() {
+    if (!this.renderer)
+      return;
+    this.renderer.getCamera().animatedReset();
+  },
+  toggleStats() {
+    this.showStats = !this.showStats;
+    if (this.showStats && this.graph && graphologyLibrary.metrics) {
+      this.stats.nodes = this.graph.order;
+      this.stats.edges = this.graph.size;
+      this.stats.density = graphologyLibrary.metrics.graph.density(this.graph).toFixed(4);
+      let totalDegree = 0;
+      this.graph.forEachNode((node) => {
+        totalDegree += this.graph.degree(node);
+      });
+      this.stats.avgDegree = (totalDegree / this.graph.order).toFixed(2);
+    }
+  },
+  showTooltip(event, text) {
+    this.tooltip.visible = true;
+    this.tooltip.text = text;
+    this.tooltip.x = event.clientX + 10;
+    this.tooltip.y = event.clientY + 10;
+  },
+  hideTooltip() {
+    this.tooltip.visible = false;
+  },
+  linkify(text) {
+    if (!text)
+      return "";
+    return text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" class="text-blue-600 hover:underline">$1</a>');
   }
-});
+};
+
+// src/js/components/sigma-explorer/index.js
+function sigmaApp() {
+  return {
+    status: "Initializing...",
+    error: null,
+    loaded: false,
+    debug: false,
+    activeDomain: "persona",
+    leftOpen: true,
+    rightOpen: false,
+    settings: null,
+    ...initialState(),
+    ...initialState2(),
+    ...initialState3(),
+    ...initialState4(),
+    ...methods,
+    ...methods2,
+    ...methods3,
+    ...methods4,
+    async init() {
+      try {
+        const response = await fetch("/polyvis.settings.json");
+        this.settings = await response.json();
+        console.log("Settings Loaded:", this.settings);
+      } catch (e) {
+        console.error("Failed to load settings:", e);
+      }
+      if (!this.$refs.sigmaContainer) {
+        console.error("Sigma Container not found in Ref");
+        return;
+      }
+      try {
+        const SQL = await initSqlJs({
+          locateFile: (file) => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/${file}`
+        });
+        const xhr = new XMLHttpRequest;
+        xhr.open("GET", "/data/ctx.db", true);
+        xhr.responseType = "arraybuffer";
+        xhr.onload = (e) => {
+          const uInt8Array = new Uint8Array(xhr.response);
+          const db = new SQL.Database(uInt8Array);
+          this.loadGraph(db);
+          this.loaded = true;
+        };
+        xhr.send();
+      } catch (e) {
+        console.error("DB Load Error", e);
+        this.status = "Failed to load Database.";
+      }
+    }
+  };
+}
 
 // src/js/app.js
 window.Alpine = module_default;
 module_default.data("navigation", nav_default);
 module_default.data("explorerApp", explorer_default);
-module_default.data("sigmaApp", sigma_explorer_default);
+module_default.data("sigmaApp", sigmaApp);
 module_default.data("graphApp", graph_default);
 module_default.data("docViewer", doc_viewer_default);
 module_default.start();

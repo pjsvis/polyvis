@@ -88,6 +88,12 @@
                 </div>
 
                 <!-- Sidebar Content -->
+                <!-- Active Domain Indicator -->
+                <div class="px-4 py-2 border-b flex flex-col items-center justify-center bg-gray-50/50" style="border-color: var(--border-base);">
+                    <div class="font-mono text-xxs font-bold uppercase text-gray-400">Current View</div>
+                    <div class="font-bold text-sm tracking-wide" style="color: var(--brand);" x-text="activeDomain.toUpperCase()"></div>
+                </div>
+
                 <div class="flex-grow overflow-y-auto p-4 space-y-4">
                     <!-- Analysis Group -->
                     <div>
@@ -180,15 +186,30 @@
 
                     <!-- Layers Group -->
                     
+                    <!-- Domain Switcher -->
                     <div>
-                        <div class="mb-2 font-mono text-xxs font-bold uppercase" style="color: var(--text-2);">Layers</div>
-                        <div class="space-y-2">
+                        <div class="mb-2 font-mono text-xxs font-bold uppercase" style="color: var(--text-2);">View Domain</div>
+                        <div class="space-y-1">
                              <button class="btn-structural w-full justify-start gap-1 text-xs"
-                                :class="{ 'active': showExperience }"
-                                @click="toggleExperience()"
-                                @mouseenter="showTooltip($event, 'Unhides Playbooks and Debriefs, showing the \'Operational Telemetry\' of the system.')"
+                                :class="{ 'active': activeDomain === 'persona' }"
+                                @click="setDomain('persona')"
+                                @mouseenter="showTooltip($event, 'Shows the core Concepts and Directives (Ontology).')"
                                 @mouseleave="hideTooltip()">
-                                <i data-lucide="layers" class="h-3 w-3"></i> Experience Layer
+                                <i data-lucide="brain" class="h-3 w-3"></i> Persona
+                            </button>
+                             <button class="btn-structural w-full justify-start gap-1 text-xs"
+                                :class="{ 'active': activeDomain === 'experience' }"
+                                @click="setDomain('experience')"
+                                @mouseenter="showTooltip($event, 'Shows the Playbooks, Debriefs, and Telemetry.')"
+                                @mouseleave="hideTooltip()">
+                                <i data-lucide="activity" class="h-3 w-3"></i> Experience
+                            </button>
+                             <button class="btn-structural w-full justify-start gap-1 text-xs"
+                                :class="{ 'active': activeDomain === 'unified' }"
+                                @click="setDomain('unified')"
+                                @mouseenter="showTooltip($event, 'Displays all nodes in a single unified graph.')"
+                                @mouseleave="hideTooltip()">
+                                <i data-lucide="git-merge" class="h-3 w-3"></i> Unified
                             </button>
                         </div>
                     </div>
