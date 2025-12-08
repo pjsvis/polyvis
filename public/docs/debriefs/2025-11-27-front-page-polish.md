@@ -1,4 +1,8 @@
-# Debrief: Front Page Polish & Navigation Fixes\n**Date:** 2025-11-27\n\n## Lessons Learned\n
+# Debrief: Front Page Polish & Navigation Fixes
+**Date:** 2025-11-27
+
+## Lessons Learned
+
 ### 1. The "Gremlins" of CSS
 -   **Issue:** Unexpected purple links and alignment issues persisted despite initial fixes.
 -   **Lesson:** Always check for global browser defaults or "brutalist" resets that might be overriding specific styles. The "Nuclear Option" (explicit global resets) was necessary here.
@@ -18,4 +22,19 @@
 ## Action Items
 -   [x] Update `scripts/dev.ts` (Done)
 -   [x] Hardcode Navbar (Done)
--   [ ] **Future:** Consider a lightweight static site generator or templating if the navbar needs to change frequently, to avoid manual updates across pages.\n\n## Accomplishments\n\n\n## Problems\n\n## Objectives\n-   Match the front page visual design to a reference image.\n-   Fix broken navigation links.\n-   Resolve server configuration issues preventing directory indexing.\n\n## Key Outcomes\n1.  **Visual Fidelity:** Achieved a high degree of match with the reference image using Open Props for harmonious spacing and colors.\n2.  **Robust Navigation:** Moved from a fragile Alpine.js navbar to a robust static HTML implementation.\n3.  **Improved DX:** The `bun run dev` script now automatically handles port conflicts and serves directory indices correctly.\n
+-   [ ] **Future:** Consider a lightweight static site generator or templating if the navbar needs to change frequently, to avoid manual updates across pages.
+
+## Accomplishments
+
+
+## Problems
+
+## Objectives
+-   Match the front page visual design to a reference image.
+-   Fix broken navigation links.
+-   Resolve server configuration issues preventing directory indexing.
+
+## Key Outcomes
+1.  **Visual Fidelity:** Achieved a high degree of match with the reference image using Open Props for harmonious spacing and colors.
+2.  **Robust Navigation:** Moved from a fragile Alpine.js navbar to a robust static HTML implementation.
+3.  **Improved DX:** The `bun run dev` script now automatically handles port conflicts and serves directory indices correctly.

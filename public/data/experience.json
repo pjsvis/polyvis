@@ -1,5 +1,12 @@
 [
   {
+    "id": "a11y-and-agent-affordance-playbook",
+    "type": "playbook",
+    "title": "Accessibility (A11y) & Agent Affordance Playbook",
+    "path": "playbooks/a11y-and-agent-affordance-playbook.md",
+    "tags": []
+  },
+  {
     "id": "reactive-styling-playbook",
     "type": "playbook",
     "title": "Reactive Styling Playbook",

@@ -5,6 +5,16 @@ tags: [graph, data, semantic-edges]
 
 # Debrief: Semantic Edge Generation
 
+
+## Lessons Learned
+
+- **Lesson 1:** **Labels vs. Usage:** Terms are rarely used with their full formal labels in natural text. "Conceptual Stuff" is referred to as "stuff". Keyword matching is essential for semantic linking.
+- **Lesson 2:** **Stop Words are Critical:** Without filtering "the", "and", "system", the graph would be a complete clique (everything connected to everything).
+
+## Next Steps
+
+- **Visual Filtering:** The user intends to "hide" these edges by setting their color to the background. This will require a frontend update to map `relation='semantic'` to a specific color variable.
+
 ## Accomplishments
 
 - **Implemented Semantic Edge Generation:** Modified `scripts/build_db.ts` to scan node definitions for keywords from other nodes.
@@ -18,12 +28,3 @@ tags: [graph, data, semantic-edges]
 
 - **Problem 1:** Initial exact matching yielded very few edges (48).
     - **Resolution:** Relaxed the matching to check for individual keywords (e.g., matching "Stuff" from "Conceptual Stuff"). This exploded the edge count to 3200.
-
-## Lessons Learned
-
-- **Lesson 1:** **Labels vs. Usage:** Terms are rarely used with their full formal labels in natural text. "Conceptual Stuff" is referred to as "stuff". Keyword matching is essential for semantic linking.
-- **Lesson 2:** **Stop Words are Critical:** Without filtering "the", "and", "system", the graph would be a complete clique (everything connected to everything).
-
-## Next Steps
-
-- **Visual Filtering:** The user intends to "hide" these edges by setting their color to the background. This will require a frontend update to map `relation='semantic'` to a specific color variable.

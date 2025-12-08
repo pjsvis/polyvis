@@ -5,6 +5,13 @@ tags: [theme, navigation, css, open-props, alpinejs]
 
 # Debrief: Theme and Navigation Refinements
 
+
+## Lessons Learned
+
+- **CSS Variables & Media Queries:** The `color-scheme` CSS property does *not* trigger `@media (prefers-color-scheme)` blocks. When implementing manual theme switching, you must manually override variables that rely on these media queries.
+- **Semantic Variables:** Hardcoded hex values ("nuclear fixes") are brittle and break theming. Always use semantic variables (e.g., `var(--surface-1)`, `var(--text-1)`) that can be redefined based on the theme context.
+- **Alpine.js & Dynamic Content:** When using `x-html` or dynamic template strings in Alpine.js, standard `addEventListener` calls in `init()` may fail because the elements don't exist yet. Global handlers or event delegation are safer approaches.
+
 ## Accomplishments
 
 - **Theme Switcher Implementation:** Successfully implemented a robust theme switcher (Light/Dark/System) in the main navbar.
@@ -23,9 +30,3 @@ tags: [theme, navigation, css, open-props, alpinejs]
     - *Resolution:* Exposed `toggleTheme` globally and used an inline `onclick` handler.
 - **Theme Application Failure:** Toggling the theme changed the `color-scheme` property but didn't update the colors.
     - *Resolution:* Discovered that Open Props variables rely on media queries, which aren't triggered by `color-scheme`. Implemented manual variable overrides for `[data-theme="dark"]`.
-
-## Lessons Learned
-
-- **CSS Variables & Media Queries:** The `color-scheme` CSS property does *not* trigger `@media (prefers-color-scheme)` blocks. When implementing manual theme switching, you must manually override variables that rely on these media queries.
-- **Semantic Variables:** Hardcoded hex values ("nuclear fixes") are brittle and break theming. Always use semantic variables (e.g., `var(--surface-1)`, `var(--text-1)`) that can be redefined based on the theme context.
-- **Alpine.js & Dynamic Content:** When using `x-html` or dynamic template strings in Alpine.js, standard `addEventListener` calls in `init()` may fail because the elements don't exist yet. Global handlers or event delegation are safer approaches.

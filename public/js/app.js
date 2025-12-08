@@ -4620,6 +4620,13 @@ var doc_viewer_default = () => ({
         }
         return match;
       });
+      html = html.replace(/\[\[(.*?)\]\]/g, (match, content) => {
+        const text = content.trim();
+        if (this.references[text]) {
+          return `<a href="#" class="wiki-ref" data-ref="${text}">${text}</a>`;
+        }
+        return `<span class="wiki-unresolved" title="Unresolved Link">[${text}]</span>`;
+      });
     }
     html = this.groupIntoCards(html);
     return html;

@@ -230,14 +230,25 @@ export default () => ({
 
 		// 2. Auto-Link Wiki References (Regex Post-Processing)
 		// Pattern: Matches OH-XXX, COG-XXX, TERM-XXX, etc.
-		// We only link if the ID exists in this.references
 		if (this.references) {
 			html = html.replace(/\b([A-Z]{2,}-\d+|[a-z]+-[a-z]+-\d+)\b/g, (match) => {
-				// Check exact match or case-insensitive match if needed
 				if (this.references[match]) {
 					return `<a href="#" class="wiki-ref" data-ref="${match}">${match}</a>`;
 				}
 				return match;
+			});
+
+			// NEW: Handle [[Wiki Internal Links]]
+			html = html.replace(/\[\[(.*?)\]\]/g, (match, content) => {
+				const text = content.trim();
+				// Case 1: [[ID]] matches reference
+				if (this.references[text]) {
+					return `<a href="#" class="wiki-ref" data-ref="${text}">${text}</a>`;
+				}
+				// Case 2: [[Filename.md]] matches doc
+				// Not implemented yet (needs Doc lookup), but we can try to guess or use internal-link logic
+				// For now, map [[Text]] to a search or placeholder if not a reference.
+				return `<span class="wiki-unresolved" title="Unresolved Link">[${text}]</span>`;
 			});
 		}
 

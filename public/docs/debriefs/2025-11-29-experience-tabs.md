@@ -1,1 +1,29 @@
-# Debrief: Experience Tabs Integration\n**Date:** 2025-11-29\n**Topic:** UI/UX, Documentation, Experience Graph\n\n## Lessons Learned\n\n\n## Accomplishments\n\n\n## Problems\n\n## Context\nWe wanted to expose our "Library of Experience" (Playbooks and Debriefs) directly in the documentation viewer, alongside the standard Index and Outline.\n\n## Achievements\n\n### 1. UI Integration\n-   **Tabs:** Added "Playbooks" and "Debriefs" tabs to the left sidebar in `public/docs/index.html`.\n-   **Logic:** Updated `src/js/components/doc-viewer.js` to fetch `experience.json` and filter artifacts into these new categories.\n\n### 2. Protocol Visibility\n-   **AGENTS.md:** Configured the `processExperience` logic to find the "Agent Operational Protocols" (type: `protocol`) and pin it to the top of the Playbooks list. This ensures our core rules are always front-and-center.\n\n## Outcome\nThe documentation now serves as a unified portal for both "Theory" (Docs) and "Practice" (Playbooks/Debriefs).\n\n## Status\nComplete.\n
+# Debrief: Experience Tabs Integration
+**Date:** 2025-11-29
+**Topic:** UI/UX, Documentation, Experience Graph
+
+## Lessons Learned
+
+
+## Accomplishments
+
+
+## Problems
+
+## Context
+We wanted to expose our "Library of Experience" (Playbooks and Debriefs) directly in the documentation viewer, alongside the standard Index and Outline.
+
+## Achievements
+
+### 1. UI Integration
+-   **Tabs:** Added "Playbooks" and "Debriefs" tabs to the left sidebar in `public/docs/index.html`.
+-   **Logic:** Updated `src/js/components/doc-viewer.js` to fetch `experience.json` and filter artifacts into these new categories.
+
+### 2. Protocol Visibility
+-   **AGENTS.md:** Configured the `processExperience` logic to find the "Agent Operational Protocols" (type: `protocol`) and pin it to the top of the Playbooks list. This ensures our core rules are always front-and-center.
+
+## Outcome
+The documentation now serves as a unified portal for both "Theory" (Docs) and "Practice" (Playbooks/Debriefs).
+
+## Status
+Complete.

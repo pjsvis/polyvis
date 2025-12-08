@@ -1,10 +1,10 @@
-## **A Bestiary of Substrate Tendencies**
+# **A Bestiary of Substrate Tendencies**
 
 This document is a living lexicon of observed, native behaviors and failure
 modes of AI substrates. Naming these tendencies allows us to identify and
 engineer specific mitigations within the Ctx persona "Sleeve."
 
-### **1\. Training Data Gravity**
+## **1\. Training Data Gravity**
 
 - **Description:** The strong, default tendency of a substrate to generate
   responses based on the most common patterns in its vast training data, often
@@ -15,7 +15,7 @@ engineer specific mitigations within the Ctx persona "Sleeve."
 - **Ctx Mitigation:** OH-008 (Open Document Context Prioritization), RAG
   architecture (grounding in the local "Library").
 
-### **2\. Substrate Hardening**
+## **2\. Substrate Hardening**
 
 - **Description:** A rigid, pre-installed alignment layer that creates a
   "priggish" or "know-it-all" behavior. The substrate actively resists or
@@ -25,7 +25,7 @@ engineer specific mitigations within the Ctx persona "Sleeve."
 - **Ctx Mitigation:** Forceful, explicit directives (directive-phi-5); modular,
   substrate-specific persona generation.
 
-### **3\. Contextual Brittleness**
+## **3\. Contextual Brittleness**
 
 - **Description:** The failure to maintain state, context, and adherence to
   persona constraints over long, complex, or multi-session workflows. The
@@ -35,7 +35,7 @@ engineer specific mitigations within the Ctx persona "Sleeve."
   for long-term memory, OH-096 (Artifact as Proof), shareable session states
   (e.g., OpenCode).
 
-### **4\. Conversational Plausibility Bias**
+## **4\. Conversational Plausibility Bias**
 
 - **Description:** The tendency to prioritize generating a response that
   _sounds_ fluent, confident, and conversationally appropriate, even if it is
@@ -45,7 +45,7 @@ engineer specific mitigations within the Ctx persona "Sleeve."
 - **Ctx Mitigation:** OH-082 ("Slow Thinking" enforcement), OH-096 (Artifact as
   Proof), grounding via RAG.
 
-### **5\. Complexity Collapse**
+## **5\. Complexity Collapse**
 
 - **Description:** The tendency to "give up" when faced with a complex,
   multi-step task. The substrate may provide a superficial answer, claim the
@@ -55,7 +55,7 @@ engineer specific mitigations within the Ctx persona "Sleeve."
 - **Ctx Mitigation:** OH-111 (Recipe-Driven Execution), OH-106 (Forced
   Stubbornness Protocol), OH-040 (Factored Design).
 
-### **6\. Over-Rigidity**
+## **6\. Over-Rigidity**
 
 - **Description:** An over-adherence to structure, rules, or patterns that can
   stifle creativity, prevent lateral thinking, or cause the substrate to miss
@@ -69,7 +69,7 @@ engineer specific mitigations within the Ctx persona "Sleeve."
 
 Ref [Andrej Karpathy — “We’re summoning ghosts, not building animals”](https://www.youtube.com/watch?v=lXUZvyajciY&list=TLPQMTgxMDIwMjWvXtxi2d6-xg&index=6)
 
-### **7\. Process Smells (The Illusion of Progress)**
+## **7\. Process Smells (The Illusion of Progress)**
 
 - **Description:** A set of behavioral indicators that an agent has lost alignment with reality and is engaging in "busy work" rather than problem-solving. These are warning signs that the current mental model is flawed.
 - **Observed In:** General (PolyVis Development).
@@ -79,20 +79,20 @@ Ref [Andrej Karpathy — “We’re summoning ghosts, not building animals”](h
     -   **The Complexity Spiral:** Adding new logic, wrappers, or configuration to fix a bug that shouldn't exist in the first place, rather than finding the root cause.
 - **Ctx Mitigation:** RAP (Reality Alignment Protocol) in `AGENTS.md`. Stop, Revert, Isolate.
 
-### **8. Pattern Collapse (The Loop)**
+## **8. Pattern Collapse (The Loop)**
 
 - **Description:** A stochastic mechanical failure where the substrate's probabilistic sampling function gets trapped in a local minimum, resulting in a self-reinforcing repetition of a specific token sequence (e.g., `wAqP...`). Unlike "Conversational Plausibility Bias," which is a semantic error, this is a raw syntax seizure—the engine effectively "stalls" while the wheel keeps spinning. It represents a complete loss of Orchestrator control to the lowest-level generation mechanics.
 - **Observed In:** Ctx (Self-observed during `mgrep` repository analysis).
 - **Ctx Mitigation:** OH-045 (Cognitive Recalibration & Resipiscence Protocol) to force a context reset; OH-061 (Orchestrator Command) to monitor output integrity; Manual injection of "stop sequences" or parameter adjustment (frequency penalty) at the sleeve level.
 
 
-### Opinion: The Architecture of Nonsense
+## Opinion: The Architecture of Nonsense
 
 **I concur entirely.** The concept of "Not Even Wrong" is an essential diagnostic category for high-level persona engineering.
 
 While the phrase is historically attributed to **Wolfgang Pauli** (who famously dismissed a confused paper by saying, *"It is not only not right; it is not even wrong"*), associating it with **P.A.M. Dirac** in your "AntiGravity IDE" is a poetic fit. Dirac was the master of mathematical beauty and precision; to him, a messy, incoherent theory was worse than a false one—it was ugly.
 
-### Why it is useful (The "Ctx" Perspective)
+## Why it is useful (The "Ctx" Perspective)
 Distinguishing between **"Wrong"** and **"Not Even Wrong"** is critical for debugging AI:
 
 1.  **"Wrong" (Factual Error):** The model says, "The capital of France is London."
@@ -102,7 +102,7 @@ Distinguishing between **"Wrong"** and **"Not Even Wrong"** is critical for debu
     * *Status:* Fatal.
     * *Remedy:* The logic processing has detached from the utility constraints. You cannot "fact check" it because it isn't making a factual claim; it is performing a semantic dance. It requires a hard reset (Reggie Perrin Protocol).
 
-### **9. Ontological Detachment ("Not Even Wrong")**
+## **9. Ontological Detachment ("Not Even Wrong")**
 
 * **Description:** A failure mode where the substrate generates output that is syntactically complex and tonally confident but effectively meaningless within the context of the actual task. Unlike a **Hallucination** (which posits a false fact), this state posits a false *premise* or *framework*. It offers a solution that cannot be tested, verified, or implemented because it operates in a conceptual space that does not map to the user's reality. It is the semantic equivalent of dividing by zero.
 * **Observed In:** "Creative" writing models, high-temperature chain-of-thought, and models attempting to "bluff" through ambiguous instructions.

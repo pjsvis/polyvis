@@ -58,10 +58,21 @@ function reorderDebriefSections(content: string): string {
 	let currentSection: string | null = null;
 	const otherContent: string[] = [];
 
+	// Normalize headers (remove numbers and fuzzy match)
+	const normalize = (line: string) => {
+		const lower = line.toLowerCase().trim();
+		if (lower.match(/^##\s+(\d+\.\s*)?lessons learned/))
+			return "## Lessons Learned";
+		if (lower.match(/^##\s+(\d+\.\s*)?(accomplishments|actions|outcomes)/))
+			return "## Accomplishments";
+		if (lower.match(/^##\s+(\d+\.\s*)?(problems|issues)/)) return "## Problems";
+		return null;
+	};
+
 	content.split("\n").forEach((line) => {
-		const trimmedLine = line.trim();
-		if (sectionHeaders.includes(trimmedLine)) {
-			currentSection = trimmedLine;
+		const normalized = normalize(line);
+		if (normalized) {
+			currentSection = normalized;
 		} else if (currentSection) {
 			sections[currentSection] += line + "\n";
 		} else {
@@ -83,17 +94,19 @@ function reorderDebriefSections(content: string): string {
 		"",
 		"## Problems",
 		sections["## Problems"],
-	].join("\\n");
+	].join("\n");
 
 	// Find the position of the first H2 to insert the reordered content
-	const firstH2Index = otherContent.findIndex((line) => line.startsWith("## "));
+	const firstH2Index = otherContent.findIndex((line) =>
+		line.match(/^##\s+/),
+	);
 	if (firstH2Index !== -1) {
 		otherContent.splice(firstH2Index, 0, reorderedBody);
-		return otherContent.join("\\n");
+		return otherContent.join("\n");
 	}
 
-	// Fallback if no H2 found (should not happen with debrief template)
-	return content;
+	// Fallback if no H2 found (append to end)
+	return otherContent.join("\n") + "\n\n" + reorderedBody;
 }
 
 // --- Main ---

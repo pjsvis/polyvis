@@ -5,6 +5,16 @@ tags: [graph, visualization, louvain, semantic-edges]
 
 # Debrief: Semantic Graph & Community Explorer
 
+
+## Lessons Learned
+
+- **Louvain Instability:** Removing even a single node can drastically change the community structure (count and composition) due to the iterative nature of the algorithm. Rank-based coloring is essential to mitigate the disorientation this causes.
+- **Camera Animation Risks:** Auto-centering the camera while simultaneously hiding/showing nodes caused race conditions in the Sigma renderer (disappearing labels). We reverted to manual zoom/pan for stability.
+
+## Next Steps
+
+- **Substack Launch:** The visualization is now "Camera Ready." The next session will focus on preparing the Substack post (`substack-playbook-1.md`) and generating assets from this new graph.
+
 ## Accomplishments
 
 ### 1. Semantic Edge Generation
@@ -25,11 +35,4 @@ tags: [graph, visualization, louvain, semantic-edges]
     - **Dynamic Filtering:** Clicking a community isolates it (hides other nodes) and lowers the label visibility threshold (from 8px to 4px) for better readability.
     - **"Show All" Reset:** A dedicated button to smoothly return to the full graph view.
 
-## Lessons Learned
-
-- **Louvain Instability:** Removing even a single node can drastically change the community structure (count and composition) due to the iterative nature of the algorithm. Rank-based coloring is essential to mitigate the disorientation this causes.
-- **Camera Animation Risks:** Auto-centering the camera while simultaneously hiding/showing nodes caused race conditions in the Sigma renderer (disappearing labels). We reverted to manual zoom/pan for stability.
-
-## Next Steps
-
-- **Substack Launch:** The visualization is now "Camera Ready." The next session will focus on preparing the Substack post (`substack-playbook-1.md`) and generating assets from this new graph.
+## Problems

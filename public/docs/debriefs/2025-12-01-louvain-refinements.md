@@ -5,6 +5,12 @@ tags: [louvain, database, sigma, visualization]
 
 # Debrief: Louvain Visualization Refinements & Database Recovery
 
+
+## Lessons Learned
+
+- **Generated Artifacts:** Always ensure generated artifacts like `ctx.db` are reproducible from source. This saved us today.
+- **Sigma.js Settings:** The `labelRenderedSizeThreshold` setting is a powerful tool for managing visual clutter dynamically based on the current filter state.
+
 ## Accomplishments
 
 - **Database Restoration:** Successfully restored the `ctx.db` database after it was accidentally deleted by the file manager. Re-ran the `scripts/build_db.ts` script to regenerate it from source JSONs.
@@ -17,8 +23,3 @@ tags: [louvain, database, sigma, visualization]
   - **Resolution:** Regenerated using the build script. Confirmed source files were safe.
 - **Graph Centering Race Condition:** There is a known race condition or conflict when trying to auto-center the graph while filtering nodes, causing visibility issues.
   - **Resolution:** Deferred for now. We are relying on manual zoom/pan.
-
-## Lessons Learned
-
-- **Generated Artifacts:** Always ensure generated artifacts like `ctx.db` are reproducible from source. This saved us today.
-- **Sigma.js Settings:** The `labelRenderedSizeThreshold` setting is a powerful tool for managing visual clutter dynamically based on the current filter state.

@@ -1,1 +1,37 @@
-# Debrief: Session Wrap-Up (RAP & Docs Cleanup)\n**Date:** 2025-11-29\n**Topic:** Process Improvements, Documentation, Cleanup\n\n## Lessons Learned\n\n\n## Accomplishments\n\n\n## Problems\n\n## Context\nFollowing the successful CSS isolation, we identified a need to formalize our "meta-cognitive" processes to prevent future "spinning." We also needed to tidy up the documentation system which had accumulated legacy files.\n\n## Achievements\n\n### 1. Process Engineering (Reality Alignment)\n-   **Problem:** Recognized the danger of "The Illusion of Progress" (editing code without observable results).\n-   **Solution:** Codified the **Reality Alignment Protocol (RAP)** in `AGENTS.md`.\n-   **Mechanism:** "Stop, Revert, Isolate" after 3 failed attempts.\n-   **Documentation:** Added "Process Smells" to `bestiary-of-substrate-tendencies.md`.\n\n### 2. Documentation Cleanup\n-   **Problem:** Multiple conflicting sources for the document list (`docs.js`, `index.json`, `index.html`).\n-   **Solution:** Established `public/index.json` as the Single Source of Truth.\n-   **Cleanup:** Deleted legacy `src/js/components/docs.js` and backup HTML files.\n-   **Verification:** Verified the "Bestiary" appears in the live docs.\n\n## Artifacts Updated\n-   `AGENTS.md` (Added RAP)\n-   `public/docs/bestiary-of-substrate-tendencies.md` (Added Process Smells)\n-   `public/index.json` (Updated doc list)\n-   `src/js/app.js` (Removed legacy imports)\n\n## Status\nThe codebase is clean, consistent, and documented.\n
+# Debrief: Session Wrap-Up (RAP & Docs Cleanup)
+**Date:** 2025-11-29
+**Topic:** Process Improvements, Documentation, Cleanup
+
+## Lessons Learned
+
+
+## Accomplishments
+
+
+## Problems
+
+## Context
+Following the successful CSS isolation, we identified a need to formalize our "meta-cognitive" processes to prevent future "spinning." We also needed to tidy up the documentation system which had accumulated legacy files.
+
+## Achievements
+
+### 1. Process Engineering (Reality Alignment)
+-   **Problem:** Recognized the danger of "The Illusion of Progress" (editing code without observable results).
+-   **Solution:** Codified the **Reality Alignment Protocol (RAP)** in `AGENTS.md`.
+-   **Mechanism:** "Stop, Revert, Isolate" after 3 failed attempts.
+-   **Documentation:** Added "Process Smells" to `bestiary-of-substrate-tendencies.md`.
+
+### 2. Documentation Cleanup
+-   **Problem:** Multiple conflicting sources for the document list (`docs.js`, `index.json`, `index.html`).
+-   **Solution:** Established `public/index.json` as the Single Source of Truth.
+-   **Cleanup:** Deleted legacy `src/js/components/docs.js` and backup HTML files.
+-   **Verification:** Verified the "Bestiary" appears in the live docs.
+
+## Artifacts Updated
+-   `AGENTS.md` (Added RAP)
+-   `public/docs/bestiary-of-substrate-tendencies.md` (Added Process Smells)
+-   `public/index.json` (Updated doc list)
+-   `src/js/app.js` (Removed legacy imports)
+
+## Status
+The codebase is clean, consistent, and documented.

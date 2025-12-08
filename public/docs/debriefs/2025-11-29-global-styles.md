@@ -1,1 +1,27 @@
-# Debrief: Global Markdown Styles\n**Date:** 2025-11-29\n**Topic:** CSS Architecture, Simplification\n\n## Lessons Learned\n\n\n## Accomplishments\n\n\n## Problems\n\n## Context\nThe user requested to style heading tags (`h1`, `h2`, etc.) directly instead of using a scoped `.prose` class, as the documentation viewer is the primary context for this content.\n\n## Change\nRefactored `public/css/markdown.css`:\n1.  Removed `.prose` prefix from all selectors.\n2.  Added styles for `h3` and `h4` using the new theme variables.\n3.  Ensured `code`, `pre`, `blockquote`, `table`, and lists are also styled globally.\n\n## Verification\n-   **Visual Check:** Verified via screenshot that the "Hi Fi CSS" document renders correctly with the new global styles.\n-   **Regression Check:** Confirmed that the sidebar navigation remains unaffected by these global changes.\n\n## Status\nComplete.\n
+# Debrief: Global Markdown Styles
+**Date:** 2025-11-29
+**Topic:** CSS Architecture, Simplification
+
+## Lessons Learned
+
+
+## Accomplishments
+
+
+## Problems
+
+## Context
+The user requested to style heading tags (`h1`, `h2`, etc.) directly instead of using a scoped `.prose` class, as the documentation viewer is the primary context for this content.
+
+## Change
+Refactored `public/css/markdown.css`:
+1.  Removed `.prose` prefix from all selectors.
+2.  Added styles for `h3` and `h4` using the new theme variables.
+3.  Ensured `code`, `pre`, `blockquote`, `table`, and lists are also styled globally.
+
+## Verification
+-   **Visual Check:** Verified via screenshot that the "Hi Fi CSS" document renders correctly with the new global styles.
+-   **Regression Check:** Confirmed that the sidebar navigation remains unaffected by these global changes.
+
+## Status
+Complete.
