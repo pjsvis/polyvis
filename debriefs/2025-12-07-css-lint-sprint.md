@@ -21,3 +21,8 @@ Following the legacy cleanup, the project carried a debt of ~250 CSS lint errors
 
 ## 4. Next Steps
 *   **QA & Polish:** Address the visual regressions and UI refinements identified in `_CURRENT_TASK.md` (Nav bar contrast, H1 headings in debriefs, Wiki-links).
+
+## 5. Lessons Learned
+*   **Biome CSS Suppression:** `/* biome-ignore */` comments are strict about placement. For multi-line properties (like gradients), the ignore comment must precede the property key, not reside inside the value block.
+*   **Specificity & Order:** The `noDescendingSpecificity` lint is a useful heuristic for detecting ordering bugs, but often flags valid "Generic vs Contextual" patterns. The fix is usually to strictly physically order rules by specificity (Low -> High) or move overrides to the absolute bottom of the file.
+*   **Zero Lint vs. Progressive Enhancement:** Modern CSS features (like `contrast-color()`) may not be recognized by current linters. A "Zero Lint" policy requires explicit suppression for these valid forward-looking patterns, rather than abandoning the feature.

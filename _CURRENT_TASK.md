@@ -14,6 +14,7 @@
 - [ ] The POLYVIS string in the nav bar should be stronger
 - [ ] the sigma exploer text in the nav bar should not wrap
 - [ ] We should remove the source link from the navbar
+- [ ] **Playbook Rationalization**: Consolidate the 10+ CSS playbooks into a single authoritative `playbooks/css-master-playbook.md` to improve agent context efficiency.
 - [ ] Document any other issues that need addressed
 
 

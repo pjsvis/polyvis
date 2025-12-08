@@ -19,3 +19,7 @@ The project contained deprecated directories (`public/explorer`, `public/graph`)
 ## 4. Next Steps
 *   **Lint Backlog:** Address the remaining ~250 lint errors (mostly CSS utility overrides).
 *   **Icon Initialization:** Ensure `lucide.createIcons()` is explicitly called in the new static page structure if not handled by `app.js`.
+
+## 5. Lessons Learned
+*   **Zero Magic = Explicit Responsibility:** Unravelling "magic" components (like an auto-initializing Alpine navbar) reveals hidden dependencies (like `lucide.createIcons`). When refactoring to static HTML, every interaction and initialization must be explicitly accounted for in the page script.
+*   **Legacy Code Rot:** "Out of sight, out of mind" applies to folders like `public/explorer`. Regular audits are necessary to identify code that is technically "active" (served) but effectively dead, as these accumulate lint debt without providing value.
