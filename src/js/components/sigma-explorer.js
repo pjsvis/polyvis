@@ -167,14 +167,36 @@ export default () => ({
 				const row = nodesStmt.getAsObject();
 				if (excludedIds.has(row.id)) continue;
 
+                // User Request: Fix visualization to ONLY show Persona graph for now.
+                // Explicitly exclude Experience types until structural migration is complete.
+                if (row.type === "playbook" || row.type === "debrief" || row.type === "protocol") continue;
+
 				this.graph.addNode(row.id, {
-					label: row.label,
+					// Schema Compatibility: Handle both legacy 'label' and new 'title'
+					label: row.title || row.label || row.id,
 					nodeType: row.type || "Unknown",
-					definition: row.definition || "",
-					size: row.type === "Core Concept" ? 20 : 6,
-					color: row.type === "Core Concept" ? "black" : "#475569",
-					originalSize: row.type === "Core Concept" ? 20 : 6,
+					definition: row.content || row.definition || "",
+					
+                    // Styling Logic
+                    size: (() => {
+                        if (row.type === "Core Concept") return 20;
+                        if (row.type === "playbook") return 12;
+                        if (row.type === "protocol") return 12;
+                        if (row.type === "debrief") return 8;
+                        return 6;
+                    })(),
+					
+                    color: (() => {
+                        if (row.type === "Core Concept") return "black";
+                        if (row.type === "playbook") return "#f97316"; // Orange
+                        if (row.type === "protocol") return "#a855f7"; // Purple
+                        if (row.type === "debrief") return "#3b82f6"; // Blue
+                        return "#475569"; // Slate
+                    })(),
+
+					originalSize: row.type === "Core Concept" ? 20 : 6, // Keep simple for reset
 					originalColor: row.type === "Core Concept" ? "black" : "#475569",
+					
 					// User Request: Deterministic Layout
 					// We use a hash of the ID to ensure the node always starts at the same position.
 					// This ensures ForceAtlas2 converges to the same shape every time.
@@ -191,6 +213,9 @@ export default () => ({
 						return (Math.abs(hash) % 1000) / 10; // 0-100
 					})(row.id + "y"),
 					external_refs: row.external_refs ? JSON.parse(row.external_refs) : [],
+                    
+                    // User Request: Hidden by default
+                    hidden: row.type === "playbook" || row.type === "debrief"
 				});
 			}
 		} catch (e) {
@@ -742,7 +767,8 @@ export default () => ({
 	},
 
 	cycleLouvainGroup() {
-		if (!this.louvainCommunities) return;
+		// ... existing logic ...
+        if (!this.louvainCommunities) return;
 
 		// Get unique groups
 		const groups = [...new Set(Object.values(this.louvainCommunities))].sort(
@@ -751,19 +777,16 @@ export default () => ({
 
 		if (this.activeLouvainGroup === null) {
 			this.activeLouvainGroup = groups[0];
-			// Filter Active: Show more labels
 			if (this.renderer)
 				this.renderer.setSetting("labelRenderedSizeThreshold", 4);
 		} else {
 			const currentIndex = groups.indexOf(this.activeLouvainGroup);
 			if (currentIndex === groups.length - 1) {
 				this.activeLouvainGroup = null; // Reset to show all
-				// Filter Inactive: Hide clutter
 				if (this.renderer)
 					this.renderer.setSetting("labelRenderedSizeThreshold", 8);
 			} else {
 				this.activeLouvainGroup = groups[currentIndex + 1];
-				// Filter Active: Show more labels
 				if (this.renderer)
 					this.renderer.setSetting("labelRenderedSizeThreshold", 4);
 			}
@@ -771,5 +794,24 @@ export default () => ({
 
 		// Re-apply visualization
 		this.toggleColorViz("louvain");
+	},
+
+    showExperience: false,
+
+    toggleExperience() {
+		this.showExperience = !this.showExperience;
+		this.graph.forEachNode((node, attrs) => {
+			if (attrs.nodeType === "playbook" || attrs.nodeType === "debrief") {
+				this.graph.setNodeAttribute(node, "hidden", !this.showExperience);
+			}
+		});
+        // We also need to re-apply Louvain colors if they are visible
+        // But simply unhiding them is enough because they have colors assigned.
+        // However, if Louvain is active, we might need to be careful not to override Louvain hidden logic?
+        // Brief says "Unhide... which should be hidden by default". 
+        // If we unhide them, Louvain filter might try to hide them again if they are not in the active group?
+        // Let's keep it simple: Accessing the "Experience Layer" is a global filter.
+        // If they are unhidden, they participate in the layout/viz.
+		if (this.renderer) this.renderer.refresh();
 	},
 });

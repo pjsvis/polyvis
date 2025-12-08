@@ -5242,12 +5242,34 @@ var sigma_explorer_default = () => ({
         const row = nodesStmt.getAsObject();
         if (excludedIds.has(row.id))
           continue;
+        if (row.type === "playbook" || row.type === "debrief" || row.type === "protocol")
+          continue;
         this.graph.addNode(row.id, {
-          label: row.label,
+          label: row.title || row.label || row.id,
           nodeType: row.type || "Unknown",
-          definition: row.definition || "",
-          size: row.type === "Core Concept" ? 20 : 6,
-          color: row.type === "Core Concept" ? "black" : "#475569",
+          definition: row.content || row.definition || "",
+          size: (() => {
+            if (row.type === "Core Concept")
+              return 20;
+            if (row.type === "playbook")
+              return 12;
+            if (row.type === "protocol")
+              return 12;
+            if (row.type === "debrief")
+              return 8;
+            return 6;
+          })(),
+          color: (() => {
+            if (row.type === "Core Concept")
+              return "black";
+            if (row.type === "playbook")
+              return "#f97316";
+            if (row.type === "protocol")
+              return "#a855f7";
+            if (row.type === "debrief")
+              return "#3b82f6";
+            return "#475569";
+          })(),
           originalSize: row.type === "Core Concept" ? 20 : 6,
           originalColor: row.type === "Core Concept" ? "black" : "#475569",
           x: ((str) => {
@@ -5262,7 +5284,8 @@ var sigma_explorer_default = () => ({
               hash = Math.imul(31, hash) + str.charCodeAt(i) | 0;
             return Math.abs(hash) % 1000 / 10;
           })(row.id + "y"),
-          external_refs: row.external_refs ? JSON.parse(row.external_refs) : []
+          external_refs: row.external_refs ? JSON.parse(row.external_refs) : [],
+          hidden: row.type === "playbook" || row.type === "debrief"
         });
       }
     } catch (e) {
@@ -5647,6 +5670,17 @@ var sigma_explorer_default = () => ({
       }
     }
     this.toggleColorViz("louvain");
+  },
+  showExperience: false,
+  toggleExperience() {
+    this.showExperience = !this.showExperience;
+    this.graph.forEachNode((node, attrs) => {
+      if (attrs.nodeType === "playbook" || attrs.nodeType === "debrief") {
+        this.graph.setNodeAttribute(node, "hidden", !this.showExperience);
+      }
+    });
+    if (this.renderer)
+      this.renderer.refresh();
   }
 });
 

@@ -42,6 +42,13 @@
     "tags": []
   },
   {
+    "id": "schema-playbook",
+    "type": "playbook",
+    "title": "Playbook: Hybrid Data Schema",
+    "path": "playbooks/schema-playbook.md",
+    "tags": []
+  },
+  {
     "id": "agent-experimentation-protocol",
     "type": "playbook",
     "title": "Agent Experimentation Protocol (The \"YOLO\" Mode)",
@@ -265,6 +272,14 @@
     "tags": []
   },
   {
+    "id": "2025-12-07-ui-polish-and-pipeline",
+    "type": "debrief",
+    "title": "Debrief: UI Polish & Pipeline Repairs",
+    "path": "debriefs/2025-12-07-ui-polish-and-pipeline.md",
+    "date": "2025-12-07",
+    "tags": []
+  },
+  {
     "id": "2025-11-29-tab-reorder",
     "type": "debrief",
     "title": "Debrief: Sidebar Tab Reordering",
@@ -321,6 +336,14 @@
     "tags": []
   },
   {
+    "id": "2025-12-08-fix-sidebar-visibility",
+    "type": "debrief",
+    "title": "Fix Sidebar Visibility in Reference Mode",
+    "path": "debriefs/2025-12-08-fix-sidebar-visibility.md",
+    "date": "2025-12-08",
+    "tags": []
+  },
+  {
     "id": "2025-11-29-indexing-experience",
     "type": "debrief",
     "title": "Debrief: Indexing Experience Artifacts",
@@ -358,6 +381,14 @@
     "title": "Debrief: CSS Refactoring & Layer Implementation",
     "path": "debriefs/2025-11-27-css-refactor.md",
     "date": "2025-11-27",
+    "tags": []
+  },
+  {
+    "id": "2025-12-08-resonance-engine",
+    "type": "debrief",
+    "title": "Debrief: Resonance Engine v1.0 & Schema Unification",
+    "path": "debriefs/2025-12-08-resonance-engine.md",
+    "date": "2025-12-08",
     "tags": []
   },
   {

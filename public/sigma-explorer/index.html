@@ -178,6 +178,21 @@
                         </div>
                     </div>
 
+                    <!-- Layers Group -->
+                    
+                    <div>
+                        <div class="mb-2 font-mono text-xxs font-bold uppercase" style="color: var(--text-2);">Layers</div>
+                        <div class="space-y-2">
+                             <button class="btn-structural w-full justify-start gap-1 text-xs"
+                                :class="{ 'active': showExperience }"
+                                @click="toggleExperience()"
+                                @mouseenter="showTooltip($event, 'Unhides Playbooks and Debriefs, showing the \'Operational Telemetry\' of the system.')"
+                                @mouseleave="hideTooltip()">
+                                <i data-lucide="layers" class="h-3 w-3"></i> Experience Layer
+                            </button>
+                        </div>
+                    </div>
+
                     <!-- Layout Group -->
                     <div>
                         <div class="mb-2 font-mono text-xxs font-bold uppercase" style="color: var(--text-2);">Layout</div>
