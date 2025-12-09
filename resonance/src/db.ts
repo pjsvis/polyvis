@@ -87,7 +87,7 @@ export class ResonanceDB {
             // Cast Uint8Array/Buffer to Float32Array view
             const vec = new Float32Array(raw.buffer, raw.byteOffset, raw.byteLength / 4);
             
-            const score = cosineSimilarity(queryVec, vec);
+            const score = dotProduct(queryVec, vec);
             results.push({ 
                 id: row.id, 
                 label: row.title || row.id, 
@@ -103,16 +103,13 @@ export class ResonanceDB {
     }
 }
 
-function cosineSimilarity(a: Float32Array, b: Float32Array): number {
-    let dot = 0;
-    let normA = 0;
-    let normB = 0;
-    const len = a.length;
-    for (let i = 0; i < len; i++) {
-        dot += a[i] * b[i];
-        normA += a[i] * a[i];
-        normB += b[i] * b[i];
+// FAFCAS Protocol: use Dot Product for normalized vectors
+// Source: playbooks/embeddings-and-fafcas-protocol-playbook.md
+export function dotProduct(a: Float32Array, b: Float32Array): number {
+    let sum = 0;
+    // Modern JS engines SIMD-optimize this loop automatically
+    for (let i = 0; i < a.length; i++) {
+        sum += a[i] * b[i];
     }
-    if (normA === 0 || normB === 0) return 0;
-    return dot / (Math.sqrt(normA) * Math.sqrt(normB));
+    return sum;
 }
