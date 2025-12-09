@@ -1,19 +1,21 @@
 
-# Current Task: Schema Migration (Resonance Engine)
+# Current Task: PAUSED (Resonance Engine)
 
-**Status:** In Progress
-**Objective:** Migrate existing Drizzle schema to support Resonance (Vector) capabilities.
+**Status:** Paused (Session Wrap-Up)
+**Next Session Goal:** Final Verification & Commit.
 
-**Components:**
-- **DB Engine:** Pure Bun + BLOBs (Validated).
-- **Core:** FastEmbed (Validated) - Solved native dep issues.
-- **Migration:** Add `embedding` (BLOB) and `content` (TEXT) to `nodes`.
+**State Check:**
+- [x] **Architecture:** Pure Bun (BLOBs) + FastEmbed.
+- [x] **Implementation:** `ResonanceDB` and `Embedder` created.
+- [x] **Migration:** `resonance.db` schema updated (embedding column added).
+- [x] **Verification:** `scripts/test_pure_bun.ts` passed.
 
-**Plan:**
-1.  **Analyze:** `src/db/schema.ts` (Done).
-2.  **Draft Migration:** Create `src/db/migrations/0001_add_resonance_vectors.sql` (or similar Drizzle migration).
-3.  **Sync Command:** Implement `resonance sync` using the updated schema.
+**Resume Protocol:**
+1.  Run `bun run scripts/test_pure_bun.ts` to confirm environment stability.
+2.  Review `implementation_plan.md`.
+3.  Commit changes to Git.
+4.  Proceed to **Phase 3: Ingestion Logic (`sync`)**.
 
 **Links:**
-- [Deep Research: Bun SQLite](docs/Bun-SQLite-and-Local-Embeddings.md)
-- [Brief: Resonance Hybrid Engine](briefs/F-resonance-hybrid-db-engine.md)
+- [Walkthrough: Pure Bun Implementation](walkthrough.md)
+- [Brief: Resonance Engine](briefs/F-resonance-hybrid-db-engine.md)

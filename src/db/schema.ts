@@ -1,4 +1,4 @@
-import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
+import { sqliteTable, text, integer, blob } from "drizzle-orm/sqlite-core";
 
 export const nodes = sqliteTable("nodes", {
 	id: text("id").primaryKey(),
@@ -16,6 +16,9 @@ export const nodes = sqliteTable("nodes", {
 	orderIndex: integer("order_index").default(0),
 	metadata: text("metadata"), // JSON string
 	externalRefs: text("external_refs"), // JSON string (Legacy compatibility)
+	
+	// Vector Search
+	embedding: blob("embedding", { mode: "buffer" }),
 });
 
 export const edges = sqliteTable("edges", {
