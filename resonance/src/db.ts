@@ -10,6 +10,7 @@ export interface Node {
     domain?: string;
     layer?: string;
     embedding?: Float32Array;
+    hash?: string;
 }
 
 export class ResonanceDB {
@@ -29,7 +30,8 @@ export class ResonanceDB {
                 content TEXT,
                 domain TEXT,
                 layer TEXT,
-                embedding BLOB
+                embedding BLOB,
+                hash TEXT
             );
             
             CREATE TABLE IF NOT EXISTS edges (
@@ -45,9 +47,16 @@ export class ResonanceDB {
     }
 
     insertNode(node: Node) {
+        // Ensure hash column exists (migration for existing DB)
+        try {
+            this.db.run("ALTER TABLE nodes ADD COLUMN hash TEXT");
+        } catch (e) {
+            // Column likely exists
+        }
+
         const stmt = this.db.prepare(`
-            INSERT OR REPLACE INTO nodes (id, type, title, content, domain, layer, embedding)
-            VALUES ($id, $type, $title, $content, $domain, $layer, $embedding)
+            INSERT OR REPLACE INTO nodes (id, type, title, content, domain, layer, embedding, hash)
+            VALUES ($id, $type, $title, $content, $domain, $layer, $embedding, $hash)
         `);
         
         stmt.run({
@@ -57,7 +66,8 @@ export class ResonanceDB {
             $content: node.content || null,
             $domain: node.domain || "knowledge",
             $layer: node.layer || "experience",
-            $embedding: node.embedding || null 
+            $embedding: node.embedding ? toFafcas(node.embedding) : null,
+            $hash: node.hash || null
         });
     }
 
@@ -112,4 +122,25 @@ export function dotProduct(a: Float32Array, b: Float32Array): number {
         sum += a[i] * b[i];
     }
     return sum;
+}
+
+// Source: playbooks/embeddings-and-fafcas-protocol-playbook.md
+export function toFafcas(vector: Float32Array): Uint8Array {
+    // 1. Calculate Magnitude (L2 Norm)
+    let sum = 0;
+    for (let i = 0; i < vector.length; i++) {
+        sum += vector[i] * vector[i];
+    }
+    const magnitude = Math.sqrt(sum);
+
+    // 2. Normalize (Divide by Magnitude)
+    // Optimization: If magnitude is 0, return zero vector
+    if (magnitude > 1e-6) {
+        for (let i = 0; i < vector.length; i++) {
+            vector[i] /= magnitude;
+        }
+    }
+
+    // 3. Serialize to Raw Bytes (FAFCAS Blob)
+    return new Uint8Array(vector.buffer, vector.byteOffset, vector.byteLength);
 }

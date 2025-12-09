@@ -55,6 +55,8 @@ async function main() {
     // 2. Scan Files
     const dirs = ["debriefs", "playbooks"];
     let totalProcessed = 0;
+    let skipped = 0;
+    let updated = 0;
 
     for (const dir of dirs) {
         if (totalProcessed >= LIMIT) break;
@@ -68,15 +70,29 @@ async function main() {
             if (totalProcessed >= LIMIT) break;
             
             const filename = basename(file);
-            console.log(`   Processing: ${filename}`);
-            
             const content = readFileSync(file, "utf-8");
+            
+            // Calculate Hash (Bun.hash returns a generic number, good enough for quick dirty check)
+            // For closer collision resistance we could use crypto.createHash, but for this scale Bun.hash is fast/fine.
+            // Wait, Bun.hash is fast. Let's use it.
+            const hash = Bun.hash(content).toString();
+            
+            // Check existing
+            const existing = db["db"].query("SELECT hash FROM nodes WHERE id = ?").get(filename) as { hash: string };
+            
+            if (existing && existing.hash === hash) {
+                console.log(`   ⏭️  Skipping (Unchanged): ${filename}`);
+                skipped++;
+                continue;
+            }
+
+            console.log(`   📝 Processing (Changed/New): ${filename}`);
             
             // Embed
             const vec = await Embedder.embed(content);
             
             // Insert Node
-            const id = filename; // Simple ID for now
+            const id = filename; 
             db.insertNode({
                 id: id,
                 type: dir === "debriefs" ? "debrief" : "playbook",
@@ -84,17 +100,21 @@ async function main() {
                 content: content,
                 domain: "knowledge",
                 layer: "experience",
-                embedding: vec
+                embedding: vec,
+                hash: hash
             });
             
             // Link EXPERIENCE -> Node
             db.insertEdge("EXPERIENCE", id, "contains");
             
             totalProcessed++;
+            updated++;
         }
     }
 
-    console.log(`✅ Sync Complete. Processed ${totalProcessed} files.`);
+    console.log(`✅ Sync Complete.`);
+    console.log(`   - Updated/Added: ${updated}`);
+    console.log(`   - Skipped:       ${skipped}`);
     db.close();
 }
 

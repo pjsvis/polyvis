@@ -9,8 +9,9 @@
 
 ## 2. Outcomes
 -   **Ingestion Pipeline:** Created `scripts/sync_resonance.ts`.
-    -   Successfully indexed **67 documents** (49 debriefs, 18 playbooks).
+    -   Successfully indexed **69 documents** (Debriefs + Playbooks).
     -   Created hierarchical structure: `GENESIS` -> `EXPERIENCE` -> [Files].
+    -   **Idempotent:** Implemented dirty-checking (via Content Hash) to skip processing unchanged files, ensuring efficient incremental updates.
 -   **Core Optimization:**
     -   Verified that `fastembed` produces normalized vectors (Magnitude ~1.0).
     -   Refactored `ResonanceDB` to use `dotProduct` instead of `cosineSimilarity`, reducing computational overhead (`sqrt`/`div`).
