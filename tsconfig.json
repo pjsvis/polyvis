@@ -25,5 +25,6 @@
 		"noUnusedLocals": false,
 		"noUnusedParameters": false,
 		"noPropertyAccessFromIndexSignature": false
-	}
+	},
+	"exclude": ["public/docs", "node_modules", "dist", ".resonance"]
 }

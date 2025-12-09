@@ -65,7 +65,11 @@ Always verify ingestion pipelines by reading the DB back into the original forma
 *   **Output:** `db.select()...` -> `reconstructed.json`
 *   **Check:** `assert.deepEqual(input, output)`
 
-## 3. Benchmarks
+### D. Implicit vs Explicit Data (ETL)
+**Principle:** Graph databases thrive on *connections*, not just entities.
+*   **Implicit:** Metadata tags like `[Implements: PHI-2]` or `[Guided_By: OH-058]`.
+*   **Explicit:** Graph Edges `(Node A) -[Implements]-> (Node B)`.
+*   **Rule:** Your Ingestion Pipeline (ETL) must explicitly parse these implicit tags and insert them as edges.
 
 ## 3. Benchmarks
 

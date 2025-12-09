@@ -36,10 +36,12 @@ container.addEventListener("mousedown", (e) => {
 -   The Capture phase happens *before* the Bubble phase (where most libraries listen).
 -   By stopping propagation here, you effectively "blind" the library to the event, giving you total control.
 
-### 3. Visual Feedback as Debugging
-**Principle:** If you can't see it, you can't debug it.
+### 3. Visual Feedback & "The UI is a Liar"
+**Principle:** If you can't see it, you can't debug it. But don't trust the UI blindly.
 -   **Cursors:** Changing the cursor (e.g., `grab` vs `grabbing`) is not just UX; it's a debug tool to confirm state changes.
 -   **Console Logs:** "Debug Mode" logging (e.g., `[SigmaDebug]`) is essential for tracing event order in real-time.
+-   **Default Open:** In visualization tools (graphs, trees), ALWAYS default to showing everything initially. Filtering logic (e.g., "hide orphans") often looks exactly like "failed data loading". Verify the data is there *before* you try to make it pretty.
+-   **Verify Backend First:** Never assume the UI reflects the true state of the database. Always use raw queries (SQLite CLI) or targeted test scripts (`test_roundtrip.ts`) to prove the data exists.
 
 ### 4. The "Strip-it-Back" Heuristic
 **Principle:** Complexity is often the bug itself. When a UI component is misbehaving (e.g., text scrunching, invisible items, layout shifts), the issue is frequently caused by conflicting "fancy" styles (truncation, transitions, calculated padding).

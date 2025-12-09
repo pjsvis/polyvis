@@ -52,7 +52,7 @@ export default function sigmaApp() {
                 });
                 
                 const xhr = new XMLHttpRequest();
-                xhr.open("GET", "/data/ctx.db", true);
+                xhr.open("GET", "/resonance.db", true);
                 xhr.responseType = "arraybuffer";
                 
                 xhr.onload = (e) => {

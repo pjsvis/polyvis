@@ -40,13 +40,13 @@ export default () => ({
 				`https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/${file}`,
 		}).then((SQL) => {
 			const xhr = new XMLHttpRequest();
-			xhr.open("GET", "/data/ctx.db", true);
+			xhr.open("GET", "/resonance.db", true);
 			xhr.responseType = "arraybuffer";
 
 			xhr.onload = (e) => {
 				const uInt8Array = new Uint8Array(xhr.response);
 				this.db = new SQL.Database(uInt8Array);
-				this.status = "Database Loaded. Ready.";
+				this.status = "Resonance DB Loaded. Ready.";
 				this.loading = false;
 
 				// Load default view if terms loaded
@@ -66,8 +66,9 @@ export default () => ({
 		this.searchTerm = term;
 
 		// A. Find the Core Node
+        // Schema Map: nodes.title -> label
 		let stmt = this.db.prepare(
-			"SELECT * FROM nodes WHERE id = ? OR label = ? LIMIT 1",
+			"SELECT id, title as label, type FROM nodes WHERE id = ? OR title = ? LIMIT 1",
 		);
 		stmt.bind([term, term]);
 
@@ -81,7 +82,7 @@ export default () => ({
 
 		if (!row) {
 			stmt = this.db.prepare(
-				"SELECT * FROM nodes WHERE id LIKE ? OR label LIKE ? LIMIT 1",
+				"SELECT id, title as label, type FROM nodes WHERE id LIKE ? OR title LIKE ? LIMIT 1",
 			);
 			stmt.bind([`%${term}%`, `%${term}%`]);
 			if (stmt.step()) row = stmt.getAsObject();
@@ -98,8 +99,9 @@ export default () => ({
 		}
 
 		// B. Find Neighbors
+        // Schema Map: edges.type -> relation, nodes.title -> label
 		const outStmt = this.db.prepare(
-			"SELECT n.*, e.relation FROM edges e JOIN nodes n ON e.target = n.id WHERE e.source = ?",
+			"SELECT n.id, n.title as label, n.type, e.type as relation FROM edges e JOIN nodes n ON e.target = n.id WHERE e.source = ?",
 		);
 		outStmt.bind([rootId]);
 		while (outStmt.step()) {
@@ -110,7 +112,7 @@ export default () => ({
 		outStmt.free();
 
 		const inStmt = this.db.prepare(
-			"SELECT n.*, e.relation FROM edges e JOIN nodes n ON e.source = n.id WHERE e.target = ?",
+			"SELECT n.id, n.title as label, n.type, e.type as relation FROM edges e JOIN nodes n ON e.source = n.id WHERE e.target = ?",
 		);
 		inStmt.bind([rootId]);
 		while (inStmt.step()) {

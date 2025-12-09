@@ -1,0 +1,56 @@
+
+import { ResonanceDB } from "../resonance/src/db";
+import { Embedder } from "../resonance/src/services/embedder";
+
+async function main() {
+    console.log("🔍 Verifying Unification...");
+    const db = new ResonanceDB();
+    
+    // 1. Check Counts
+    const counts = db["db"].query(`
+        SELECT type, COUNT(*) as count, domain 
+        FROM nodes 
+        GROUP BY type, domain
+    `).all();
+    
+    console.table(counts);
+    
+    // 2. Check AST Sections
+    const sectionStat = counts.find((c: any) => c.type === 'section') as any;
+    const sectionCount = sectionStat ? sectionStat.count : 0;
+    if (sectionCount > 0) {
+        console.log(`✅ AST Chunking Active: ${sectionCount} sections found.`);
+    } else {
+        console.error("❌ AST Chunking Failed: No sections found.");
+    }
+
+    // 3. Test Mixed Search
+    console.log("\n🧪 Running Mixed Vector Search ('simplicity')...");
+    const embedder = Embedder.getInstance();
+    const vec = await embedder.embed("simplicity and complexity"); // Search for known concept
+    
+    const results = db.findSimilar(vec, 10);
+    
+    console.log("   Top 10 Results:");
+    results.forEach(r => {
+        // Fetch type for display
+        const node = db["db"].query("SELECT type, domain FROM nodes WHERE id = ?").get(r.id) as any;
+        console.log(`   - [${node.domain}/${node.type}] ${r.label} (${r.score.toFixed(3)})`);
+    });
+
+    // Check if we have mixed domains
+    const domains = new Set(results.map(r => {
+        const node = db["db"].query("SELECT domain FROM nodes WHERE id = ?").get(r.id) as any;
+        return node.domain;
+    }));
+    
+    if (domains.has("persona") && domains.has("resonance")) {
+        console.log("\n✅ SUCCESS: Search returns both Lexicon (Persona) and Experience (Resonance).");
+    } else {
+        console.warn("\n⚠️ WARNING: Search did not return mixed domains. (Might be expected if query is too specific to one)");
+    }
+    
+    db.close();
+}
+
+main().catch(console.error);

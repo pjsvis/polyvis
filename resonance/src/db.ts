@@ -11,6 +11,7 @@ export interface Node {
     layer?: string;
     embedding?: Float32Array;
     hash?: string;
+    meta?: any; // JSON object for flexible metadata
 }
 
 export class ResonanceDB {
@@ -31,7 +32,8 @@ export class ResonanceDB {
                 domain TEXT,
                 layer TEXT,
                 embedding BLOB,
-                hash TEXT
+                hash TEXT,
+                meta TEXT
             );
             
             CREATE TABLE IF NOT EXISTS edges (
@@ -47,28 +49,37 @@ export class ResonanceDB {
     }
 
     insertNode(node: Node) {
-        // Ensure hash column exists (migration for existing DB)
-        try {
-            this.db.run("ALTER TABLE nodes ADD COLUMN hash TEXT");
-        } catch (e) {
-            // Column likely exists
-        }
+        // Ensure columns exist (migrations)
+        try { this.db.run("ALTER TABLE nodes ADD COLUMN hash TEXT"); } catch (e) {}
+        try { this.db.run("ALTER TABLE nodes ADD COLUMN meta TEXT"); } catch (e) {}
 
         const stmt = this.db.prepare(`
-            INSERT OR REPLACE INTO nodes (id, type, title, content, domain, layer, embedding, hash)
-            VALUES ($id, $type, $title, $content, $domain, $layer, $embedding, $hash)
+            INSERT OR REPLACE INTO nodes (id, type, title, content, domain, layer, embedding, hash, meta)
+            VALUES ($id, $type, $title, $content, $domain, $layer, $embedding, $hash, $meta)
         `);
         
-        stmt.run({
-            $id: node.id,
-            $type: node.type,
-            $title: node.label || null,
-            $content: node.content || null,
-            $domain: node.domain || "knowledge",
-            $layer: node.layer || "experience",
-            $embedding: node.embedding ? toFafcas(node.embedding) : null,
-            $hash: node.hash || null
-        });
+        try {
+            const blob = node.embedding ? toFafcas(node.embedding) : null;
+            
+            stmt.run({
+                $id: String(node.id),
+                $type: String(node.type),
+                $title: node.label ? String(node.label) : null,
+                $content: node.content ? String(node.content) : null,
+                $domain: String(node.domain || "knowledge"),
+                $layer: String(node.layer || "experience"),
+                $embedding: blob,
+                $hash: node.hash ? String(node.hash) : null,
+                $meta: node.meta ? JSON.stringify(node.meta) : null
+            });
+        } catch (err) {
+            console.error("❌ Failed to insert node:", { 
+                id: node.id, 
+                blobSize: node.embedding ? node.embedding.byteLength : 0,
+                blobType: node.embedding ? (node.embedding instanceof Float32Array ? 'F32' : 'Other') : 'Null'
+            });
+            throw err;
+        }
     }
 
     insertEdge(source: string, target: string, type: string = "related_to") {
@@ -108,6 +119,11 @@ export class ResonanceDB {
         return results.sort((a, b) => b.score - a.score).slice(0, limit);
     }
     
+    getNodeHash(id: string): string | null {
+        const row = this.db.prepare("SELECT hash FROM nodes WHERE id = ?").get(id) as any;
+        return row ? row.hash : null;
+    }
+    
     close() {
         this.db.close();
     }
@@ -119,7 +135,7 @@ export function dotProduct(a: Float32Array, b: Float32Array): number {
     let sum = 0;
     // Modern JS engines SIMD-optimize this loop automatically
     for (let i = 0; i < a.length; i++) {
-        sum += a[i] * b[i];
+        sum += (a[i] || 0) * (b[i] || 0);
     }
     return sum;
 }
@@ -129,7 +145,8 @@ export function toFafcas(vector: Float32Array): Uint8Array {
     // 1. Calculate Magnitude (L2 Norm)
     let sum = 0;
     for (let i = 0; i < vector.length; i++) {
-        sum += vector[i] * vector[i];
+        const val = vector[i] || 0;
+        sum += val * val;
     }
     const magnitude = Math.sqrt(sum);
 
@@ -137,7 +154,8 @@ export function toFafcas(vector: Float32Array): Uint8Array {
     // Optimization: If magnitude is 0, return zero vector
     if (magnitude > 1e-6) {
         for (let i = 0; i < vector.length; i++) {
-            vector[i] /= magnitude;
+            const val = vector[i] || 0;
+            vector[i] = val / magnitude;
         }
     }
 

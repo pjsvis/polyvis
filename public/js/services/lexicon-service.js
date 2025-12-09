@@ -10,7 +10,7 @@ window.LexiconService = {
 	config: {
 		wasmUrl:
 			"https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.wasm",
-		dbUrl: "/ctx.db",
+		dbUrl: "/resonance.db",
 	},
 
 	/**
@@ -44,7 +44,7 @@ window.LexiconService = {
 
 			// C. Mount the DB
 			this.db = new SQL.Database(new Uint8Array(buf));
-			console.log("[LexiconService] Database mounted successfully.");
+			console.log("[LexiconService] Resonance DB mounted successfully.");
 
 			return true;
 		} catch (err) {
@@ -65,14 +65,16 @@ window.LexiconService = {
 			return [];
 		}
 
-		// Handle "Empty Query" -> Return all (or limit to top 20 for speed)
-		let sql = "SELECT * FROM terms ORDER BY name ASC";
-		let params = [];
+		// Handle "Empty Query" -> Return all terms
+        // Unified Schema: table 'nodes', type='term'
+        // Mapping: title -> name, content -> definition
+		let sql = "SELECT title as name, content as definition, * FROM nodes WHERE type = 'term' ORDER BY title ASC";
+		let params = {};
 
 		// Handle "Specific Query"
 		if (query && query.trim().length > 0) {
 			sql =
-				"SELECT * FROM terms WHERE name LIKE $term OR definition LIKE $term ORDER BY name ASC";
+				"SELECT title as name, content as definition, * FROM nodes WHERE type = 'term' AND (title LIKE $term OR content LIKE $term) ORDER BY title ASC";
 			params = { $term: `%${query}%` };
 		}
 

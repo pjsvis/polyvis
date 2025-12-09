@@ -1,0 +1,11 @@
+{
+    "dbPath": ".resonance/resonance.db",
+    "ingestion": {
+        "directories": [
+            "debriefs",
+            "playbooks"
+        ],
+        "lexicon": "scripts/conceptual-lexicon-ref-v1.79.json",
+        "cda": "scripts/cda-ref-v63.json"
+    }
+}

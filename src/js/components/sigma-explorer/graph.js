@@ -38,23 +38,27 @@ export const methods = {
                     definition: row.content || row.definition || "",
                     
                     size: (() => {
-                        if (row.type === "Core Concept") return 20;
+                        if (row.type === "term" || row.type === "Core Concept") return 20;
                         if (row.type === "playbook") return 12;
                         if (row.type === "protocol") return 12;
+                        if (row.type === "directive") return 10;
                         if (row.type === "debrief") return 8;
+                        if (row.type === "section") return 4;
                         return 6;
                     })(),
                     
                     color: (() => {
-                        if (row.type === "Core Concept") return "black";
+                        if (row.type === "term" || row.type === "Core Concept") return "black";
                         if (row.type === "playbook") return "#f97316"; 
                         if (row.type === "protocol") return "#a855f7";
+                        if (row.type === "directive") return "#dc2626";
                         if (row.type === "debrief") return "#3b82f6";
+                        if (row.type === "section") return "#cbd5e1";
                         return "#475569";
                     })(),
 
-                    originalSize: row.type === "Core Concept" ? 20 : 6,
-                    originalColor: row.type === "Core Concept" ? "black" : "#475569",
+                    originalSize: (row.type === "term" || row.type === "Core Concept") ? 20 : 6,
+                    originalColor: (row.type === "term" || row.type === "Core Concept") ? "black" : "#475569",
                     
                     x: ((str) => {
                         let hash = 0;
@@ -78,7 +82,7 @@ export const methods = {
                 if (!this.graph.hasEdge(row.source, row.target)) {
                     this.graph.addEdge(row.source, row.target, {
                         type: "arrow",
-                        label: row.relation,
+                        label: row.type || row.relation,
                         size: 2,
                         color: getComputedStyle(document.documentElement).getPropertyValue("--graph-edge").trim() || "#ffffff",
                     });
@@ -86,20 +90,7 @@ export const methods = {
             }
         });
 
-        // Prune Orphan Nodes (Degree 0)
-        let droppedCount = 0;
-        // Collect nodes to drop first to avoid mutation while iterating? 
-        // Graphology forEachNode is generally safe, but safest to collect then drop.
-        const nodesToDrop = [];
-        this.graph.forEachNode((node) => {
-            if (this.graph.degree(node) === 0) nodesToDrop.push(node);
-        });
-        nodesToDrop.forEach(node => {
-            this.graph.dropNode(node);
-            droppedCount++;
-        });
-        
-        if (droppedCount > 0) console.log(`Pruned ${droppedCount} orphan nodes.`);
+
 
 		const currentNodes = this.graph.order;
 		const currentEdges = this.graph.size;

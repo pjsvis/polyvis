@@ -1,15 +1,18 @@
-# Current Task: PAUSED (Resonance Engine)
+# Current Task: The Unification Sprint (One Brain)
 
-**Status:** Paused (Session Wrap-Up)
-**Next Session Goal:** Final Verification & Commit.
+**Status:** COMPLETED
+**Goal:** Consolidate "Split Brain" (ctx.db vs resonance.db) into a Single Source of Truth.
 
-- [x] **Ingestion:** Debriefs & Playbooks synced (69 files).
-- [x] **Optimization:** FAFCAS (Dot Product) implemented.
+**Objectives:**
+1.  ✅ **Schema Upgrade:** Support Lexicon (JSON) + Experience (Markdown) in `nodes` table.
+2.  ✅ **Pipeline Unification:** Update `sync` to ingest JSON Lexicon.
+3.  ✅ **Legacy Kill:** Retire `ctx.db` and legacy scripts.
+4.  ✅ **AST Integration:** Implement Structural Chunking (Sections).
+5.  ✅ **UI Wiring:** Polyvis Frontend now fully powered by `resonance.db`.
 
-**Resume Protocol:**
-1.  **Archived:** Moved completed briefs (`F-hybrid-db`, `v2`, `pre-migration`, `C-experience-graph`) to `briefs/archive/`.
-2.  **Next Target:** `D-brief-resonance-mcp.md` (MCP Interface).
+**Reference:**
+- [Unification Brief](briefs/brief-unification-sprint.md)
+- [Implementation Plan (DONE)](implementation_plan.md)
 
-**Links:**
-- [Walkthrough: Pure Bun Implementation](walkthrough.md)
-- [Brief: Resonance Engine](briefs/F-resonance-hybrid-db-engine.md)
+**Outcome:**
+The system now runs on a single unified database (`resonance.db`) containing both the Conceptual Lexicon (Persona) and Experience Data (Resonance). The frontend (Polyvis) has been successfully re-wired to consume this new source of truth.

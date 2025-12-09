@@ -4789,12 +4789,12 @@ var explorer_default = () => ({
       locateFile: (file) => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/${file}`
     }).then((SQL) => {
       const xhr = new XMLHttpRequest;
-      xhr.open("GET", "/data/ctx.db", true);
+      xhr.open("GET", "/resonance.db", true);
       xhr.responseType = "arraybuffer";
       xhr.onload = (e) => {
         const uInt8Array = new Uint8Array(xhr.response);
         this.db = new SQL.Database(uInt8Array);
-        this.status = "Database Loaded. Ready.";
+        this.status = "Resonance DB Loaded. Ready.";
         this.loading = false;
         if (this.selectedTerm) {
           this.visualize(this.selectedTerm);
@@ -4808,7 +4808,7 @@ var explorer_default = () => ({
       return;
     this.selectedTerm = term;
     this.searchTerm = term;
-    let stmt = this.db.prepare("SELECT * FROM nodes WHERE id = ? OR label = ? LIMIT 1");
+    let stmt = this.db.prepare("SELECT id, title as label, type FROM nodes WHERE id = ? OR title = ? LIMIT 1");
     stmt.bind([term, term]);
     let rootId = null;
     const nodes = new Set;
@@ -4818,7 +4818,7 @@ var explorer_default = () => ({
       row = stmt.getAsObject();
     stmt.free();
     if (!row) {
-      stmt = this.db.prepare("SELECT * FROM nodes WHERE id LIKE ? OR label LIKE ? LIMIT 1");
+      stmt = this.db.prepare("SELECT id, title as label, type FROM nodes WHERE id LIKE ? OR title LIKE ? LIMIT 1");
       stmt.bind([`%${term}%`, `%${term}%`]);
       if (stmt.step())
         row = stmt.getAsObject();
@@ -4832,7 +4832,7 @@ var explorer_default = () => ({
       this.$refs.graphOutput.innerHTML = "";
       return;
     }
-    const outStmt = this.db.prepare("SELECT n.*, e.relation FROM edges e JOIN nodes n ON e.target = n.id WHERE e.source = ?");
+    const outStmt = this.db.prepare("SELECT n.id, n.title as label, n.type, e.type as relation FROM edges e JOIN nodes n ON e.target = n.id WHERE e.source = ?");
     outStmt.bind([rootId]);
     while (outStmt.step()) {
       const r = outStmt.getAsObject();
@@ -4840,7 +4840,7 @@ var explorer_default = () => ({
       edges.push({ from: rootId, to: r.id, label: r.relation });
     }
     outStmt.free();
-    const inStmt = this.db.prepare("SELECT n.*, e.relation FROM edges e JOIN nodes n ON e.source = n.id WHERE e.target = ?");
+    const inStmt = this.db.prepare("SELECT n.id, n.title as label, n.type, e.type as relation FROM edges e JOIN nodes n ON e.source = n.id WHERE e.target = ?");
     inStmt.bind([rootId]);
     while (inStmt.step()) {
       const r = inStmt.getAsObject();
@@ -5199,29 +5199,37 @@ var methods2 = {
           domain: row.domain || (isExperience ? "resonance" : "persona"),
           definition: row.content || row.definition || "",
           size: (() => {
-            if (row.type === "Core Concept")
+            if (row.type === "term" || row.type === "Core Concept")
               return 20;
             if (row.type === "playbook")
               return 12;
             if (row.type === "protocol")
               return 12;
+            if (row.type === "directive")
+              return 10;
             if (row.type === "debrief")
               return 8;
+            if (row.type === "section")
+              return 4;
             return 6;
           })(),
           color: (() => {
-            if (row.type === "Core Concept")
+            if (row.type === "term" || row.type === "Core Concept")
               return "black";
             if (row.type === "playbook")
               return "#f97316";
             if (row.type === "protocol")
               return "#a855f7";
+            if (row.type === "directive")
+              return "#dc2626";
             if (row.type === "debrief")
               return "#3b82f6";
+            if (row.type === "section")
+              return "#cbd5e1";
             return "#475569";
           })(),
-          originalSize: row.type === "Core Concept" ? 20 : 6,
-          originalColor: row.type === "Core Concept" ? "black" : "#475569",
+          originalSize: row.type === "term" || row.type === "Core Concept" ? 20 : 6,
+          originalColor: row.type === "term" || row.type === "Core Concept" ? "black" : "#475569",
           x: ((str) => {
             let hash = 0;
             for (let i = 0;i < str.length; i++)
@@ -5243,25 +5251,13 @@ var methods2 = {
         if (!this.graph.hasEdge(row.source, row.target)) {
           this.graph.addEdge(row.source, row.target, {
             type: "arrow",
-            label: row.relation,
+            label: row.type || row.relation,
             size: 2,
             color: getComputedStyle(document.documentElement).getPropertyValue("--graph-edge").trim() || "#ffffff"
           });
         }
       }
     });
-    let droppedCount = 0;
-    const nodesToDrop = [];
-    this.graph.forEachNode((node) => {
-      if (this.graph.degree(node) === 0)
-        nodesToDrop.push(node);
-    });
-    nodesToDrop.forEach((node) => {
-      this.graph.dropNode(node);
-      droppedCount++;
-    });
-    if (droppedCount > 0)
-      console.log(`Pruned ${droppedCount} orphan nodes.`);
     const currentNodes = this.graph.order;
     const currentEdges = this.graph.size;
     this.status = `${this.activeDomain.toUpperCase()} Graph: ${currentNodes} Nodes, ${currentEdges} Edges.`;
@@ -5705,7 +5701,7 @@ function sigmaApp() {
           locateFile: (file) => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/${file}`
         });
         const xhr = new XMLHttpRequest;
-        xhr.open("GET", "/data/ctx.db", true);
+        xhr.open("GET", "/resonance.db", true);
         xhr.responseType = "arraybuffer";
         xhr.onload = (e) => {
           const uInt8Array = new Uint8Array(xhr.response);
