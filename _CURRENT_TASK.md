@@ -1,5 +1,12 @@
 # Current Task: The Unification Sprint (One Brain)
 
+## dependency check
+
+- are we still using the fastembed package?
+- yes in:
+- embedder.ts and sync_resonance.ts
+- INVESTIGATE and REPORT 
+
 **Status:** COMPLETED
 **Goal:** Consolidate "Split Brain" (ctx.db vs resonance.db) into a Single Source of Truth.
 
