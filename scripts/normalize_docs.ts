@@ -49,8 +49,11 @@ async function main() {
             if (content !== normalized) {
                 console.log(`📝 Fixing ${file}`);
                 // Simple Diff Log
-                if (content.split('\n')[0] !== normalized.split('\n')[0]) {
-                     console.log(`   - Header Change: "${content.split('\n')[0].substring(0, 30)}..." -> "${normalized.split('\n')[0].substring(0, 30)}..."`);
+                const originalFirstLine = content.split('\n')[0] || "";
+                const normalizedFirstLine = normalized.split('\n')[0] || "";
+                
+                if (originalFirstLine !== normalizedFirstLine) {
+                     console.log(`   - Header Change: "${originalFirstLine.substring(0, 30)}..." -> "${normalizedFirstLine.substring(0, 30)}..."`);
                 }
                 
                 if (!DRY_RUN) {

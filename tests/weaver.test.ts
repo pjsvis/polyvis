@@ -26,8 +26,8 @@ describe("EdgeWeaver", () => {
         
         weaver.weave(sourceId, content);
         
-        expect(db.edges).toHaveLength(1);
-        expect(db.edges[0]).toEqual({
+        expect((db as any).edges).toHaveLength(1);
+        expect((db as any).edges[0]).toEqual({
             sourceId: "file-1#section-1",
             targetId: "term-circular-logic",
             type: "EXEMPLIFIES"
@@ -43,8 +43,8 @@ describe("EdgeWeaver", () => {
         
         weaver.weave(sourceId, content);
         
-        expect(db.edges).toHaveLength(1);
-        expect(db.edges[0]).toEqual({
+        expect((db as any).edges).toHaveLength(1);
+        expect((db as any).edges[0]).toEqual({
             sourceId: "file-1#section-2",
             targetId: "term-circular-logic", // Mapped to canonical ID
             type: "EXEMPLIFIES"
@@ -60,8 +60,8 @@ describe("EdgeWeaver", () => {
         
         weaver.weave(sourceId, content);
         
-        expect(db.edges).toHaveLength(1);
-        expect(db.edges[0]).toEqual({
+        expect((db as any).edges).toHaveLength(1);
+        expect((db as any).edges[0]).toEqual({
             sourceId: "file-1#section-3",
             targetId: "term-circular-logic",
             type: "CITES" // WikiLinks are Citations
@@ -78,14 +78,14 @@ describe("EdgeWeaver", () => {
         
         weaver.weave(sourceId, content);
         
-        expect(db.edges).toHaveLength(2);
+        expect((db as any).edges).toHaveLength(2);
         // Order isn't guaranteed by matchAll but usually sequential
-        expect(db.edges).toContainEqual({
+        expect((db as any).edges).toContainEqual({
             sourceId: "file-1#section-4",
             targetId: "term-michelle",
             type: "EXEMPLIFIES"
         });
-        expect(db.edges).toContainEqual({
+        expect((db as any).edges).toContainEqual({
             sourceId: "file-1#section-4",
             targetId: "term-circular-logic",
             type: "CITES"

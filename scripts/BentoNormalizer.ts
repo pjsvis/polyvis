@@ -10,7 +10,7 @@ export function fixHeadless(content: string, filename: string): string {
     let firstContentIndex = 0;
     if (lines[0]?.trim() === '---') {
         let i = 1;
-        while (i < lines.length && lines[i].trim() !== '---') {
+        while (i < lines.length && (lines[i]?.trim() ?? "") !== '---') {
             i++;
         }
         if (i < lines.length) {
@@ -82,7 +82,7 @@ export function flattenDeepNesting(content: string): string {
     return lines.map(line => {
         // Match H4 (#### ), H5 (##### ), H6 (###### )
         const match = line.match(/^(#{4,6})\s+(.+)$/);
-        if (match) {
+        if (match && match[2]) {
             // Convert to bold: "**Title**"
             return `**${match[2].trim()}**`;
         }

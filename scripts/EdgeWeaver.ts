@@ -42,7 +42,7 @@ export class EdgeWeaver {
         const matches = content.matchAll(/\btag-([\w-]+)/g);
         
         for (const match of matches) {
-            const tagStub = match[1].toLowerCase();
+            const tagStub = match[1]!.toLowerCase();
             
             // Check Lexicon (Persona Domain)
             const conceptId = this.lexicon.get(tagStub);
@@ -62,7 +62,8 @@ export class EdgeWeaver {
         const matches = content.matchAll(/\[\[(.*?)(?:\|.*?)?\]\]/g);
 
         for (const match of matches) {
-            const rawTarget = match[1].trim();
+            if (!match[1]) continue;
+            const rawTarget = match[1]!.trim();
             // In a real system, we'd look up the target ID. 
             // For now, we assume the target ID *is* the raw target or a simple transformation.
             // If the target is a filename, we might need path resolution.

@@ -3,7 +3,8 @@
     "ingestion": {
         "directories": [
             "debriefs",
-            "playbooks"
+            "playbooks",
+            "briefs"
         ],
         "lexicon": "scripts/conceptual-lexicon-ref-v1.79.json",
         "cda": "scripts/cda-ref-v63.json"
