@@ -1,6 +1,7 @@
 import { ResonanceDB } from "../resonance/src/db";
 import { Embedder } from "../resonance/src/services/embedder";
 import { BentoNormalizer } from "./BentoNormalizer"; // Integrated Normalizer
+import { EdgeWeaver } from "./EdgeWeaver";
 import { Glob } from "bun";
 import { join } from "path";
 import { parseArgs } from "util";
@@ -36,6 +37,9 @@ await embedder.embed("init");
 console.log(`📦 Resonance Engine Initialized: ${settings.dbPath}`);
 
 // --- 3a. Pipeline: CDA (Core Directive Array) ---
+// Note: We need to capture ALL lexicon items (Lexicon + CDA) into a single array for the Weaver.
+const allLexiconItems: any[] = [];
+
 if (settings.ingestion.cda) {
     const cdaPath = settings.ingestion.cda;
     console.log(`📜 Ingesting CDA: ${cdaPath}`);
@@ -52,6 +56,9 @@ if (settings.ingestion.cda) {
                      const textToEmbed = String(item.definition || item.title || item.term || item.id || "");
                      if (!textToEmbed || textToEmbed.trim() === "") continue;
                      
+                     // Add to Weaver Context
+                     allLexiconItems.push(item);
+
                      const vec = await embedder.embed(textToEmbed);
                      
                      db.insertNode({
@@ -68,7 +75,10 @@ if (settings.ingestion.cda) {
                          }
                      });
                      
-                     // Parse Edges from Tags
+                     // Parse Edges from Tags (Self-reference tags inside definitions)
+                     // Note: We create a temporary weaver just for this? 
+                     // Or just rely on the existing extractEdgesFromTags legacy for now?
+                     // Let's keep legacy for explicit [Rel:Target] tags inside this structured JSON.
                      extractEdgesFromTags(db, item.id, item.tags || []);
                      cdaCount++;
                 }
@@ -89,6 +99,9 @@ if (settings.ingestion.lexicon) {
     let termCount = 0;
     for (const term of lexicon) {
         
+        // Add to Weaver Context
+        allLexiconItems.push(term);
+
         const textToEmbed = String(term.definition || term.description || term.id || "");
         if (!textToEmbed || textToEmbed.trim() === "") continue;
         const vec = await embedder.embed(textToEmbed);
@@ -135,6 +148,11 @@ function extractEdgesFromTags(db: ResonanceDB, sourceId: string, tags: string[])
     }
 }
 
+// --- INITIALIZE EDGE WEAVER ---
+const weaver = new EdgeWeaver(db, allLexiconItems);
+console.log(`🕸️  Edge Weaver Initialized (${allLexiconItems.length} concepts)`);
+
+
 // --- 4. Pipeline B: Markdown Docs (Debriefs / Playbooks) ---
 for (const dir of settings.ingestion.directories) {
     const pattern = new Glob(`${dir}/**/*.md`);
@@ -179,6 +197,10 @@ for (const dir of settings.ingestion.directories) {
             hash: contentHash
         });
 
+        // --- WEAVE FILE LEVEL ---
+        // Some docs might have tags at top level? Unlikely with Bento, but harmless to check.
+        weaver.weave(fileNodeId, content);
+
         // AST Section Chunking (For Playbooks only)
         if (dir.includes("playbooks")) {
              // Simple Regex Splitting for H2 (## )
@@ -209,6 +231,9 @@ for (const dir of settings.ingestion.directories) {
                  
                  // Link File -> Section
                  db.insertEdge(fileNodeId, sectionId, "HAS_CHILD");
+
+                 // --- WEAVE SECTION LEVEL ---
+                 weaver.weave(sectionId, body);
              }
         }
         

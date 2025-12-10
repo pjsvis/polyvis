@@ -1,13 +1,13 @@
 # Current Task: Idle
 
 ## Status: WAITING
-**Last Completed:** Bento Box Protocol (Document Normalization)
+**Last Completed:** Edge Weaver Protocol
 **Date:** 2025-12-10
 
 **Recent Achievements:**
-- ✅ Implemented `BentoNormalizer` and `scripts/normalize_docs.ts`.
-- ✅ Normalized all documentation in `briefs`, `debriefs`, `playbooks`, and `public/docs`.
-- ✅ Integrated normalization into `sync_resonance.ts` pipeline.
-- ✅ Verified Graph integrity.
+- ✅ Implemented `EdgeWeaver` for semantic tag resolution.
+- ✅ Integrated Weaver into `sync_resonance.ts`.
+- ✅ Documented all scripts in `scripts/README.md`.
+- ✅ Verified Linkage Layer (Tags & WikiLinks).
 
 **Ready for next assignment.**
