@@ -49,7 +49,7 @@ This represents the `resonance sync` process defined in Briefs \#1, \#2, and \#3
 
 ```dot
 digraph IngestionPipeline {
-    rankdir=TB;
+    rankdir=LR;
     node [shape=box, style=filled, fillcolor="#f0f0f0", fontname="Arial"];
     
     subgraph cluster_0 {
@@ -79,14 +79,14 @@ digraph IngestionPipeline {
         label = "Weaving (Brief #2)";
         style=dashed;
         Weaver [label="Edge Weaver"];
-        GraphX [label="Resonance.db", shape=cylinder, fillcolor="#fff3cd"];
+        Graph [label="Resonance.db", shape=cylinder, fillcolor="#fff3cd"];
     }
 
     RawFile -> Linter -> CleanFile -> AST -> SectionNodes;
     SectionNodes -> Harvester -> Staging -> Ratification;
     Ratification -> Weaver;
     SectionNodes -> Weaver;
-    Weaver -> GraphX [label="Inserts Edges"];
+    Weaver -> Graph [label="Inserts Edges"];
 }
 ```
 
@@ -119,7 +119,7 @@ digraph AgentPattern {
         Script_Harvest [label="bun harvest-tags.ts"];
     }
 
-    GraphX [label="Persona DB\n(The Wisdom)", shape=cylinder, fillcolor="#fff3cd"];
+    Graph [label="Persona DB\n(The Wisdom)", shape=cylinder, fillcolor="#fff3cd"];
     Corpus [label="Experience DB\n(The Files)", shape=folder];
 
     User -> LLM [label="Command"];
@@ -127,13 +127,13 @@ digraph AgentPattern {
     Safety -> LLM [label="Injects"];
     
     LLM -> Script_Query [label="1. Ask for Definition"];
-    Script_Query -> GraphX [label="Read"];
-    GraphX -> LLM [label="Return Heuristics"];
+    Script_Query -> Graph [label="Read"];
+    Graph -> LLM [label="Return Heuristics"];
     
     LLM -> Corpus [label="2. Read/Write File"];
     
     LLM -> Script_Harvest [label="3. Wrap-Up (Scan Self)"];
-    Script_Harvest -> GraphX [label="Suggest New Tags"];
+    Script_Harvest -> Graph [label="Suggest New Tags"];
 }
 ```
 
