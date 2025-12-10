@@ -2,71 +2,52 @@
 
 **Status:** Execution-Ready
 **Context:** Resonance Engine / Unification Sprint
-**Objective:** To implement a deterministic "Linkage Layer" in `resonance.db`. This transforms the graph from a collection of isolated file nodes into a navigable knowledge network by systematically generating edges based on AST structure and Semantic Anchors.
+**Objective:** To implement a deterministic "Linkage Layer" in `resonance.db`. This transforms the graph into a navigable knowledge network by connecting **Experience** (Bento Boxes) to **Persona** (Concepts) via Semantic Tags.
 
-**Core Philosophy:** "The Warp and The Weft."
-* **The Warp (Structure):** Hard, undeniable hierarchical links (Parent/Child).
-* **The Weft (Association):** Soft, lateral links based on citations and shared concepts.
+**Core Philosophy:** "The Layered Weave."
+We do not just link files. We link **Particulars** (The Experience Domain) to **Universals** (The Persona Domain).
 
 ---
 
 ## 1. The Warp: Structural Edges (Vertical)
-These edges define the "Backbone" of the graph. They are derived strictly from the AST and File System.
+These edges define the backbone, derived strictly from the AST.
 
 **Logic:**
 1.  **Containment:** `File Node` $\to$ `CONTAINS` $\to$ `Section Node`.
-    * *Source:* The File ID (e.g., `css-playbook.md`).
-    * *Target:* The Section ID (e.g., `css-playbook#flexbox`).
-    * *Trigger:* Successful parsing of an H2 header during Ingestion.
 2.  **Origin:** `Debrief Node` $\to$ `GENERATED_BY` $\to$ `Project Node`.
-    * *Source:* `debriefs/2025-12-09.md`.
-    * *Target:* `000-GENESIS` or specific Project ID (from Frontmatter).
 
 ## 2. The Weft: Associative Edges (Lateral)
-These edges create the "Web" of meaning. They are derived from content scanning.
+These edges are derived from the **Semantic Tags** (`tag-`) harvested from the content.
 
 **Logic:**
-1.  **The WikiLink (Explicit Citation):**
+1.  **The Concept Link (Persona Domain):**
+    * *Scan:* Match Canonical Terms from `conceptual-lexicon.json` against the Section content.
+    * *Edge:* `Section Node` $\xrightarrow{\text{EXEMPLIFIES}}$ `Concept Node`.
+2.  **The Entity Link (Experience Domain):**
+    * *Scan:* Match Entities from `entity-index.json`.
+    * *Edge:* `Section Node` $\xrightarrow{\text{REFERENCES}}$ `Entity Node`.
+3.  **The Explicit Link (WikiLink):**
     * *Scan:* Regex `\[\[(.*?)\]\]`.
-    * *Action:* Find target node with matching `label` or `id`.
-    * *Edge:* `Source` $\to$ `CITES` $\to$ `Target`.
-    * *Constraint:* If target doesn't exist, log "Broken Link" warning (Audit).
-2.  **The Term Anchor (Implicit Citation):**
-    * *Pre-Req:* Load all `type: term` nodes from `resonance.db` into a Trie or Set.
-    * *Scan:* Check if `Section Node` content contains the exact string of a Term (e.g., "FAFCAS").
-    * *Edge:* `Section` $\to$ `MENTIONS` $\to$ `Term`.
-    * *Constraint:* Limit to 1 edge per term per section to avoid noise.
+    * *Edge:* `Source` $\xrightarrow{\text{CITES}}$ `Target`.
 
 ---
 
 ## 3. Implementation Plan (`src/commands/sync.ts`)
 
-We extend the `sync` pipeline with a dedicated **Weaving Phase**.
+**Phase 1: Node Ingestion**
+* Create File and Section Nodes.
 
-**Phase 1: Node Ingestion (The Warp)**
-* (Existing) Read Files $\to$ Create File Nodes.
-* (New) Parse AST $\to$ Create Section Nodes.
-* (New) Insert `CONTAINS` edges immediately.
-
-**Phase 2: Edge Weaving (The Weft)**
-* *After* all nodes are inserted (to ensure targets exist):
-    1.  **Load Constraints:** Fetch all `terms` and `file_ids` into memory.
-    2.  **Iterate:** Loop through every `Section Node`.
-    3.  **Scan:** Run the WikiLink and Term Matchers on the content.
-    4.  **Insert:** Bulk insert created edges into `edges` table.
-
-## 4. The "Louvain Test" (Verification)
-We verify success not by counting edges, but by inspecting **Clusters**.
-
-* **Success Indicator:** A "CSS Cluster" should form naturally.
-    * *Center:* Term `CSS`.
-    * *Orbit:* `css-playbook.md`, `debrief-css-refactor.md`, `Section: Flexbox`.
-    * *Why:* They all explicitly cite or mention "CSS".
-* **Failure Indicator:** A giant "Everything Cluster" (Over-linking) or zero clusters (Under-linking).
+**Phase 2: Edge Weaving**
+1.  **Load Context:** Load `conceptual-lexicon.json` and `entity-index.json` into memory.
+2.  **Iterate:** Loop through every `Section Node`.
+3.  **Resolve Tags:**
+    * Strip `tag-` prefixes from the raw text (handled by Harvester logic).
+    * Find matches in the Lexicon/Index.
+4.  **Create Edges:** Insert edges based on the target's Domain (Persona vs. Experience).
 
 ---
 
-## 5. Next Steps
-* [ ] Implement `src/services/edge-weaver.ts`.
-* [ ] Update `sync` command to call Weaver after Ingestion.
-* [ ] Run `resonance sync` and check Sigma Explorer.
+## 4. Success Criteria
+* [ ] A `tag-circular-logic` in a letter creates an `EXEMPLIFIES` edge to the Concept "Circular Logic."
+* [ ] A `tag-michelle-robertson` creates a `REFERENCES` edge to the Entity "Michelle Robertson."
+* [ ] No "Hairball" edges (links are specific to the Section, not the whole File).

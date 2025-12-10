@@ -1,72 +1,57 @@
-# Project Brief: The Bento Box Protocol (Document Normalization)
+# Project Brief: The Semantic Harvester (Scaffolding Protocol)
 
 **Status:** Execution-Ready
 **Context:** Resonance Engine / Unification Sprint
-**Objective:** To implement a "Normalization Layer" in the ingestion pipeline. This ensures all input documents (Debriefs/Playbooks) conform to a strict semantic hierarchy (The Bento Standard) *before* they are parsed into the Knowledge Graph.
+**Objective:** To implement a high-precision "Discovery Engine" that harvests emerging concepts using explicit **Semantic Tags** (`tag-token`). This operationalises the **"Air-Lock"** workflow to validate concepts, cluster them via embeddings, and route them to the correct Graph Domain.
 
-**Core Philosophy:** "Garbage In, Garbage Graph."
-If a document lacks structure (H2 Headers), it cannot be sliced into atomic "Knowledge Nodes." We must lint and normalize our prose just as we lint our code.
-
----
-
-## 1. The "Bento" Standard
-Every document must conform to this implicit schema to be considered "Resonance-Ready."
-
-**The Schema:**
-1.  **The Container (File):** Must have frontmatter and a filename that implies its ID.
-2.  **The Title (H1):** ONE and ONLY ONE H1 tag at the top. This defines the Document Label.
-3.  **The Box (H2):** The atomic unit of storage.
-    * *Constraint:* Content *must* live under an H2.
-    * *Reasoning:* An H2 represents a "Section Node" in the graph. Text floating outside an H2 is "Orphan Data."
-4.  **The Details (H3-H6):** Internal structure within a Box. These are indexed as part of the H2 Node, not as separate nodes.
+**Core Philosophy:** "Tag, You're It."
+We replace the cognitive burden of "defining" with the imperative action of "tagging." Agents and Users simply *flag* concepts in real-time (`tag-`), leaving the heavy lifting of definition for a dedicated "Gardening" phase.
 
 ---
 
-## 2. The Normalization Logic (`scripts/normalize_docs.ts`)
+## 1. The Strategy: Active Discovery
 
-We implement a "Linter & Fixer" script that runs before the AST Sieve.
+**The Token Standard:**
+* **Syntax:** `tag-{concept-name}` (e.g., `tag-circular-logic`, `tag-statutory-harm`).
+* **Constraint:** Use **Prefixes** (`tag-risk`) not Suffixes (`risk-tag`) for imperative clarity and visual scanning.
 
-**Heuristic A: The "Headless" Fix**
-* *Detection:* Document starts with text, no H1.
-* *Action:* Insert `# {Filename_Title_Case}` at line 0.
-* *Log:* "Auto-Fixed: Added Title to {file}."
+**The Bootstrap Protocol (Domain Seeding):**
+* Agents load a `domain-tags.md` file at session start.
+* **Directive:** "If you see evidence of these known domain concepts (e.g., Regulatory Breach), you MUST tag them. Do not invent new tags for known concepts."
 
-**Heuristic B: The "Shouting" Fix**
-* *Detection:* Document uses H1s for sections (multiple H1s).
-* *Action:* Demote all H1s (after the first one) to H2s.
-* *Log:* "Auto-Fixed: Demoted structure in {file}."
-
-**Heuristic C: The "Whispering" Fix**
-* *Detection:* Document has Title (H1) but jumps straight to H3s (no H2s).
-* *Action:* Promote H3s to H2s.
-* *Log:* "Auto-Fixed: Promoted structure in {file}."
-
-**Heuristic D: The "Blob" Rejection**
-* *Detection:* > 500 words of text with ZERO headers.
-* *Action:* **SKIP Ingestion.**
-* *Log:* "❌ REJECTED: {file} is unstructured blob. Please add headers."
+**The Double-Loop Protocol:**
+* **Action:** Agents run a "Wrap-Up" scan on their own output.
+* **Output:** Append a `metadata` block with `tag-` candidates discovered during the task.
 
 ---
 
-## 3. Integration Plan
+## 2. The Workflow: The "Air-Lock" Cycle
 
-**A. The Pipeline Update (`src/commands/sync.ts`)**
-1.  **Read File.**
-2.  **Run Normalizer:** `const cleanContent = normalize(rawContent);`
-3.  **Phase Check:** Hash `cleanContent` (not raw).
-4.  **AST Sieve:** Parse `cleanContent` into Nodes.
-5.  **Write:** Upsert to `resonance.db`.
+**Phase 1: Mutation (The Tag)**
+* User/Agent writes `tag-procedural-default` in a Bento Box.
+* State: **Scaffolding.**
 
-**B. The Verification Tool (Doc Viewer)**
-We verify the protocol visually using the existing `doc-viewer` component.
-* *Test:* Open the Doc Browser.
-* *Visual Check:* Does every document look like a "Bento Board" (Grid of Cards)?
-* *Fail State:* If a document looks like a single giant column of text, the Normalizer failed (or the document was rejected).
+**Phase 2: Harvesting (The Scout)**
+* **Tool:** `resonance harvest` (CLI).
+* **Logic:** Scans all files for `tag-[a-z-]+`.
+* **Output:** Collects unique, unknown tags into a buffer.
+
+**Phase 3: Curation (The Smart Garden)**
+* **Tool:** Embedding Model.
+* **Logic:** Clusters tags by semantic similarity.
+* **Output:** Populates `_staging.md` with organized clusters.
+
+**Phase 4: Ratification (The Sorting Hat)**
+* **Command:** `resonance promote`.
+* **Action:** User defines terms and routes them:
+    * **Persona Domain:** Universal Concepts $\to$ `conceptual-lexicon.json`.
+    * **Experience Domain:** Specific Entities $\to$ `entity-index.json`.
+* **Cleanup:** System strips the `tag-` prefix from the source text.
 
 ---
 
-## 4. Success Criteria
-* [ ] `scripts/normalize_docs.ts` exists and passes unit tests on "messy" markdown.
-* [ ] `resonance sync` logs "Auto-Fixed X files" during ingestion.
-* [ ] The Graph contains distinct **Section Nodes** (e.g., `CSS Playbook > Flexbox`) reachable via search.
-* [ ] Visual Inspection of `http://localhost:3000/docs` shows consistent Bento Layouts.
+## 3. Success Criteria
+* [ ] Worker agents successfully use `tag-` syntax.
+* [ ] `resonance harvest` identifies tags and clusters them in `_staging.md`.
+* [ ] The Promote CLI forces a Domain Decision (Persona vs. Experience).
+* [ ] The system successfully strips the `tag-` scaffolding after ratification.
