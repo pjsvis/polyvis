@@ -1,3 +1,5 @@
+# User Manual
+
 ### The Resonance Engine: A Field Guide for Operators
 
 **Version:** 1.0 (Hypothetical Draft)
@@ -41,7 +43,7 @@ Instead of stopping your work to define a complex idea, or worrying if a concept
 
 ### 3\. Examples in Action
 
-#### Example A: Drafting a Letter (Human Operator)
+**Example A: Drafting a Letter (Human Operator)**
 
 *Context: You are writing a response to a bank that keeps asking for the same document.*
 
@@ -50,7 +52,7 @@ Instead of stopping your work to define a complex idea, or worrying if a concept
 
   * **Result:** You didn't stop to define "Process Loop." You just tagged it. Later, the system will link this letter to the concept of *Recursive Bureaucracy*.
 
-#### Example B: Code Comments (Worker Agent)
+**Example B: Code Comments (Worker Agent)**
 
 *Context: You are writing a script to parse bank statements.*
 

@@ -31,7 +31,7 @@ Refine the Experience Graph visualization to achieve parity with the Persona gra
 ### 4. Finalization
 - [x] **Commit:** Save the tuned settings and code fixes.
 
-# Phase 2: Keyword Enrichment (Semantic Density)
+## Phase 2: Keyword Enrichment (Semantic Density)
 
 ## Objective
 Replicate the Persona Graph's keyword-based edge generation logic to densify the Experience Graph. The current internal linking is sparse because it relies on exact title matches or explicit Wikilinks, which are rare in the corpus.

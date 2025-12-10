@@ -49,7 +49,7 @@ await registerWithGemini(geminiCLI, {
 
 ### Query Operations
 
-#### `/graph:query`
+**`/graph:query`**
 Find nodes matching criteria.
 
 **Parameters:**
@@ -64,7 +64,7 @@ Find nodes matching criteria.
 /graph:query label="AI Safety"
 ```
 
-#### `/graph:neighbors`
+**`/graph:neighbors`**
 Get neighbors of a node.
 
 **Parameters:**
@@ -77,7 +77,7 @@ Get neighbors of a node.
 /graph:neighbors nodeId=concept-5 depth=2
 ```
 
-#### `/graph:stats`
+**`/graph:stats`**
 Get graph statistics.
 
 **Examples:**
@@ -87,7 +87,7 @@ Get graph statistics.
 
 ### Graph CRUD Operations
 
-#### `/graph:get-node`
+**`/graph:get-node`**
 Retrieve a single node by ID.
 
 **Parameters:**
@@ -98,7 +98,7 @@ Retrieve a single node by ID.
 /graph:get-node nodeId=directive-1
 ```
 
-#### `/graph:add-node`
+**`/graph:add-node`**
 Create a new node.
 
 **Parameters:**
@@ -113,7 +113,7 @@ Create a new node.
 /graph:add-node id=new-dir type=directive title="New Directive" description="A test"
 ```
 
-#### `/graph:delete-node`
+**`/graph:delete-node`**
 Delete a node and its edges.
 
 **Parameters:**
@@ -124,7 +124,7 @@ Delete a node and its edges.
 /graph:delete-node nodeId=test-1
 ```
 
-#### `/graph:add-edge`
+**`/graph:add-edge`**
 Create an edge between nodes.
 
 **Parameters:**
@@ -139,7 +139,7 @@ Create an edge between nodes.
 /graph:add-edge source=node-1 target=node-2 type=influences weight=0.8
 ```
 
-#### `/graph:delete-edge`
+**`/graph:delete-edge`**
 Delete an edge between nodes.
 
 **Parameters:**
@@ -153,7 +153,7 @@ Delete an edge between nodes.
 
 ### Analysis Operations
 
-#### `/graph:centrality`
+**`/graph:centrality`**
 Compute centrality metrics for a node.
 
 **Parameters:**
@@ -169,7 +169,7 @@ Compute centrality metrics for a node.
 - Betweenness centrality
 - Closeness centrality
 
-#### `/graph:top-nodes`
+**`/graph:top-nodes`**
 Get top central nodes.
 
 **Parameters:**
@@ -181,7 +181,7 @@ Get top central nodes.
 /graph:top-nodes limit=20
 ```
 
-#### `/graph:communities`
+**`/graph:communities`**
 Detect communities in the graph using Louvain algorithm.
 
 **Examples:**
@@ -194,7 +194,7 @@ Detect communities in the graph using Louvain algorithm.
 - Community count
 - Top communities with member nodes
 
-#### `/graph:clusters`
+**`/graph:clusters`**
 Get semantic clusters.
 
 **Parameters:**
@@ -206,7 +206,7 @@ Get semantic clusters.
 /graph:clusters minSize=5
 ```
 
-#### `/graph:neighborhood`
+**`/graph:neighborhood`**
 Get node neighborhood at specified depth.
 
 **Parameters:**
@@ -221,7 +221,7 @@ Get node neighborhood at specified depth.
 
 ### Vector Operations
 
-#### `/graph:vector-search`
+**`/graph:vector-search`**
 Semantic search using vector embeddings (placeholder).
 
 **Parameters:**

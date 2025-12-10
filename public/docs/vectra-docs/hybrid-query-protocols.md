@@ -925,13 +925,13 @@ test('search with multiple terms', () => {
 **Step 3: Verify performance**
 
 ```bash
-# Benchmark old vs new
+## Benchmark old vs new
 node benchmark/search-performance.js
 
-# Expected output:
-# OLD (LIKE): avg=75ms p95=120ms
-# NEW (keywords): avg=0.8ms p95=1.5ms
-# SPEEDUP: 94x faster
+## Expected output:
+## OLD (LIKE): avg=75ms p95=120ms
+## NEW (keywords): avg=0.8ms p95=1.5ms
+## SPEEDUP: 94x faster
 ```
 
 ---

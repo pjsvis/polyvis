@@ -5,12 +5,12 @@ This document is designed to test the rendering capabilities of the `markdown.cs
 ## 1. Typography
 
 ### Headings
-# Heading 1
+## Heading 1
 ## Heading 2
 ### Heading 3
-#### Heading 4
-##### Heading 5
-###### Heading 6
+**Heading 4**
+**Heading 5**
+**Heading 6**
 
 ### Paragraphs & Formatting
 This is a standard paragraph. It contains **bold text**, *italic text*, and ***bold italic text***. We can also do ~~strikethrough~~.
@@ -80,7 +80,7 @@ const Component = () => {
 ```
 
 ```python
-# Python Highlighting
+## Python Highlighting
 def hello_world():
     print("Hello World")
 ```

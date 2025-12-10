@@ -1,3 +1,5 @@
+#  Brief Resonance Summary
+
 ### Opinion: The "Resonance" Suite (Consolidated)
 
 **Verdict:** The addition of the **Registry** and **Auto-Discovery** logic significantly expands the scope of the original brief. To keep this manageable for the coding agent, we should treat this as a modular system.
@@ -15,7 +17,7 @@ Here is the **Amended Main Brief** (incorporating the new verbs) and the **New R
 *(Changes: Added `install`, `update`, `publish` commands; updated `init` logic to include auto-discovery.)*
 
 ```markdown
-# Project Brief: The Resonance Engine (v1.1)
+## Project Brief: The Resonance Engine (v1.1)
 
 **Objective:**
 To build a standalone CLI tool (`resonance`) that acts as an "Operational Memory" manager and "Knowledge Package Manager." It ingests artifacts into a local graph (`resonance.db`) and manages the acquisition of external Playbooks via a Registry.
@@ -33,7 +35,7 @@ To build a standalone CLI tool (`resonance`) that acts as an "Operational Memory
 
 ## 2. The `resonance` CLI Commands
 
-#### **A. `init` (Bootstrap & Discovery)**
+****A. `init` (Bootstrap & Discovery)****
 * **Action:** Scaffolds environment and performs "Magic" discovery.
 * **Flags:** `--magic` (Auto-detect stack and install playbooks).
 * **Logic:**
@@ -41,26 +43,26 @@ To build a standalone CLI tool (`resonance`) that acts as an "Operational Memory
     2.  **Heuristic Scan:** Check project for signature files (`bun.lockb`, `tailwind.config.js`).
     3.  **Auto-Install:** Fetch matching Playbooks from the Registry if `--magic` is used.
 
-#### **B. `install` (Acquisition)**
+****B. `install` (Acquisition)****
 * **Action:** Fetches specific playbooks from the Registry.
 * **Usage:** `resonance install css-zero-magic` or `resonance install --magic`.
 * **Logic:** Downloads Markdown files to `./playbooks/` and updates a lockfile/manifest.
 
-#### **C. `sync` (Ingestion)**
+****C. `sync` (Ingestion)****
 * **Action:** The core ETL pipeline (Markdown -> Graph).
 * **Logic:** Reads local files, parses frontmatter/regex, writes to `resonance.db`.
 
-#### **D. `audit` (Reporting)**
+****D. `audit` (Reporting)****
 * **Action:** Checks graph health and playbook currency.
 * **Logic:**
     * **Graph Check:** Identify "Open Loops" (Debriefs vs. Playbooks).
     * **Drift Check:** Compare local Playbook hashes against the Registry upstream.
 
-#### **E. `serve` (Interface)**
+****E. `serve` (Interface)****
 * **Action:** Spins up the Visualizer UI and **MCP Server**.
 * **Logic:** Starts Bun server; exposes Cognitive Tools to external agents.
 
-#### **F. `publish` (Sharing)**
+****F. `publish` (Sharing)****
 * **Action:** Pushes a local playbook to the Registry (for team sharing).
 * **Logic:** Git push or API call to the central playbook repository.
 
@@ -84,7 +86,7 @@ To build a standalone CLI tool (`resonance`) that acts as an "Operational Memory
 *(New: Details the specific logic for "npm for Wisdom" functionality.)*
 
 ````markdown
-# Project Brief: Resonance Registry Module
+## Project Brief: Resonance Registry Module
 
 **Objective:**
 Implement the "Package Manager" logic for Resonance, enabling the discovery, installation, and updating of Playbooks from a centralized repository.

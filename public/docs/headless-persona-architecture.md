@@ -1,3 +1,5 @@
+# Headless Persona Architecture
+
 ### **Position Paper: The Headless Persona Architecture**
 
 **De-coupling Cognition from Execution in AI Orchestration**  
@@ -32,19 +34,19 @@ This effectively treats the Persona as **Infrastructure**, not Performance.
 
 To support this, the Knowledge Graph is divided into two distinct but interconnected domains.
 
-#### **Layer 1: The Persona Domain (The Lens)**
+****Layer 1: The Persona Domain (The Lens)****
 
 * **Content:** Universals. Concepts, Heuristics, Mental Models, and Strategic Directives.  
 * **Example Node:** Concept: Procedural Default or Heuristic: Burden of Proof.  
 * **Function:** It defines *how to think*. It is the "Map Key."
 
-#### **Layer 2: The Experience Domain (The Territory)**
+****Layer 2: The Experience Domain (The Territory)****
 
 * **Content:** Particulars. Specific Artifacts, Entities, Projects, and Correspondence.  
 * **Example Node:** Artifact: Letter-Robertson-Nov20 or Entity: Michelle Robertson.  
 * **Function:** It records *what happened*. It is the "Terrain."
 
-#### **The "Weave" (The Connection)**
+****The "Weave" (The Connection)****
 
 The power of the system lies in the edges that connect these layers.
 

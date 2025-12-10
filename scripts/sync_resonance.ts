@@ -1,6 +1,6 @@
-
 import { ResonanceDB } from "../resonance/src/db";
 import { Embedder } from "../resonance/src/services/embedder";
+import { BentoNormalizer } from "./BentoNormalizer"; // Integrated Normalizer
 import { Glob } from "bun";
 import { join } from "path";
 import { parseArgs } from "util";
@@ -144,7 +144,15 @@ for (const dir of settings.ingestion.directories) {
     
     for await (const file of pattern.scan(".")) {
         // ... (Existing Dirty Check Logic) ...
-        const content = await Bun.file(file).text();
+        const rawContent = await Bun.file(file).text();
+        const filename = file.split('/').pop() || "";
+        
+        // --- BENTO BOX NORMALIZATION ---
+        // Ensure content conforms to standard (Single H1, no H4+)
+        // We use the normalizer even if the file on disk isn't perfectly clean yet,
+        // ensuring the Graph is always pristine.
+        const content = BentoNormalizer.normalize(rawContent, filename);
+
         const contentHash = Bun.hash(content).toString();
         const existingHash = db.getNodeHash(file);
         

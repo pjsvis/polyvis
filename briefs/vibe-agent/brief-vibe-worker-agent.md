@@ -1,3 +1,5 @@
+# Brief Vibe Worker Agent
+
 ### Artifact: The Vibe Worker Agent Brief
 
 Here is the **Project Brief \#5** for the `vibe-agent` folder.
@@ -6,9 +8,9 @@ It respects your **TypeScript First** preference by defining an architecture whe
 
 -----
 
-#### [vibe-agent/5-brief-vibe-worker-agent.md]
+**[vibe-agent/5-brief-vibe-worker-agent.md]**
 
-# Project Brief: The Vibe Worker Agent (Execution Protocol)
+## Project Brief: The Vibe Worker Agent (Execution Protocol)
 
 **Status:** Execution-Ready
 **Context:** Resonance Engine / Unification Sprint
@@ -59,10 +61,10 @@ theme = "nord"
 *Injects the "Ctx" heuristics and the "Tag" protocol without simulation.*
 
 ```markdown
-# Role & Objective
+## Role & Objective
 You are a **Resonance Worker Agent**. You are a high-precision execution engine designed to operate within the "Resonance" knowledge graph architecture.
 
-# The Constraint Stack
+## The Constraint Stack
 ## 1. The "Tag, You're It" Discovery Protocol
 You must actively flag significant concepts using the **Imperative Tag** syntax (`tag-{concept}`).
 * **Trigger:** Recurring ideas, strategic risks, key entities.

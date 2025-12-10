@@ -30,7 +30,7 @@ The system consists of three distinct views that must speak to each other via UR
 
 ### **2. Interaction Flows & Technical Implementation**
 
-#### **Flow A: Graph $\rightarrow$ Narrative (Drill Down)**
+****Flow A: Graph $\rightarrow$ Narrative (Drill Down)****
 
   * **User Action:** User clicks a node (e.g., `OH-029`) in the Visualizer.
   * **Technical Logic:**
@@ -39,7 +39,7 @@ The system consists of three distinct views that must speak to each other via UR
   * **Result:** The browser navigates to the Narrative List page and automatically scrolls to the specific entry anchored by `id="OH-029"`.
   * **Back Button Behavior:** Standard browser behavior returns the user to the Visualizer.
 
-#### **Flow B: Narrative $\rightarrow$ Graph (Contextualize)**
+****Flow B: Narrative $\rightarrow$ Graph (Contextualize)****
 
   * **User Action:** User is reading an entry (e.g., `OH-104`) and clicks a "Locate in Map" icon/link.
   * **Technical Logic:**
@@ -49,7 +49,7 @@ The system consists of three distinct views that must speak to each other via UR
           * If parameter exists, invoke the internal graph method (e.g., `graph.centerOnNode('OH-104')`) and trigger the "highlight" visual state.
   * **Result:** The Visualizer loads with the specific node centered and zoomed.
 
-#### **Flow C: Narrative $\rightarrow$ Docs (Categorical Understanding)**
+****Flow C: Narrative $\rightarrow$ Docs (Categorical Understanding)****
 
   * **User Action:** User clicks a category tag in the Narrative List (e.g., "Category: Operational Heuristic").
   * **Technical Logic:**
@@ -60,7 +60,7 @@ The system consists of three distinct views that must speak to each other via UR
 
 ### **3. Implementation Details (Vanilla JS)**
 
-#### **A. The Narrative List Generation (Build Time)**
+****A. The Narrative List Generation (Build Time)****
 
 We will use a script (implementing **OH-104**) to generate the HTML from `conceptual-lexicon-ref-v1.79.json`.
 
@@ -76,7 +76,7 @@ We will use a script (implementing **OH-104**) to generate the HTML from `concep
     </div>
     ```
 
-#### **B. The Graph "Focus" Handler (Runtime)**
+****B. The Graph "Focus" Handler (Runtime)****
 
 Add this lightweight logic to the Visualizer's initialization script:
 
@@ -242,7 +242,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 -----
 
-# Addendum A: Layout & State Architecture
+## Addendum A: Layout & State Architecture
 
 **Date:** 2025-11-23
 **Reference:** `OH-041: Principle of Optimal Simplicity`

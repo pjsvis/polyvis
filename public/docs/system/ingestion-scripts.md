@@ -45,9 +45,9 @@ bun run scripts/build_experience.ts
 To ensure all data is completely up-to-date, you should run both scripts. They can be run in any order.
 
 ```sh
-# First, rebuild the documentation files
+## First, rebuild the documentation files
 bun run scripts/build_experience.ts
 
-# Second, rebuild the SQLite database
+## Second, rebuild the SQLite database
 bun run scripts/build_db.ts
 ```

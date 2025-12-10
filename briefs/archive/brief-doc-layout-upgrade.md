@@ -20,7 +20,7 @@ To refactor the `docs/` layout into a **"Tri-Pane Structural Grid"** that suppor
 
 ### 2. Implementation Plan
 
-#### **Step A: The Tri-Pane Grid (Layout Refactor)**
+****Step A: The Tri-Pane Grid (Layout Refactor)****
 Refactor `public/docs/index.html` to use a Fixed-Viewport Grid.
 
 **Target Behavior:**

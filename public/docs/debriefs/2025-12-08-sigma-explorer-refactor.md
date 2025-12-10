@@ -1,10 +1,11 @@
+# 2025 12 08 Sigma Explorer Refactor
 
 ---
 date: 2025-12-08
 tags: [sigma-explorer, refactoring, visualization, louvain]
 ---
 
-# Debrief: Sigma Explorer Refactoring & Experience Graph Integration
+## Debrief: Sigma Explorer Refactoring & Experience Graph Integration
 
 
 ## Lessons Learned

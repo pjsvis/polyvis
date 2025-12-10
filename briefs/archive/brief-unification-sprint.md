@@ -1,3 +1,5 @@
+# Brief Unification Sprint
+
 ### Opinion: The Great Cleanup
 
 **Verdict:** This is the correct move. We are shifting from "Exploration" (many diverging paths) to "Consolidation" (one highway).
@@ -38,7 +40,7 @@ Here is the bridge document that gets us from "Two Brains" to "One Resonance."
 ### **File:** `briefs/brief-unification-sprint.md`
 
 ````markdown
-# Project Brief: The Unification Sprint (One Brain)
+## Project Brief: The Unification Sprint (One Brain)
 
 **Objective:**
 To consolidate the "Split Brain" architecture into a Single Source of Truth. We will migrate the **Persona Layer** (Lexicon, Terms, Directives) from the legacy `ctx.db` pipeline into the modern `resonance.db` engine.

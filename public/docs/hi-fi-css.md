@@ -3,13 +3,13 @@
 ## Playbook for a Rationalized Frontend
 
 
-#### **1. The Core Directive: Elimination of Magic Numbers**
+****1. The Core Directive: Elimination of Magic Numbers****
 The document identifies "Magic Numbers" (arbitrary values like `37px` or `#4a90e2`) as the primary vector for technical debt.
 * **The Rule:** No arbitrary values allowed in the codebase.
 * **The Replacement:** All values must derive from a "pre-rationalized" system of named constants (tokens).
 * **The Goal:** Move from visual maintenance ("whack-a-mole") to systemic consistency.
 
-#### **2. The Tripartite Stack Architecture**
+****2. The Tripartite Stack Architecture****
 The document proposes a unified stack where each component has a strictly "factored" role to enforce this directive:
 
 | Component | Role | Operational Function |
@@ -18,7 +18,7 @@ The document proposes a unified stack where each component has a strictly "facto
 | **Tailwind CSS** | **The API** | The utility-class interface used to *apply* the tokens to the DOM. **(The "How")** |
 | **Alpine.js** | **The State/Reactive Layer** | Manages the dynamic application of these tokens based on user interaction. **(The "When")** |
 
-#### **3. The Paradigm Shift: "Design Engineering"**
+****3. The Paradigm Shift: "Design Engineering"****
 The ultimate objective is to alter the developer mindset (and Agent instructions):
 * **From:** *Styling* (Subjective, ad-hoc, "looks about right").
 * **To:** *Design Engineering* (Objective, constrained, mathematically derived).
@@ -52,7 +52,7 @@ In this paradigm, the configuration lives inside the CSS file using the @theme d
 
 #### 
 
-#### **2.1.1 Implementation Strategy**
+****2.1.1 Implementation Strategy****
 
 The following configuration resets Tailwind's default spacing, color, and typography scales, mapping them explicitly to Open Props variables. This action forces the developer (or agent) to use the rationalized system; p-4 no longer yields an arbitrary 1rem, but rather var(--size-4), which is part of a relative, harmonious scale.
 
@@ -613,7 +613,7 @@ To satisfy the request for a distilled "css-playbook.md" for Coding Agents, the 
 
 By adhering to this architectural framework, the development stack transforms from a collection of "magic numbers" into a rationalized, maintainable, and mathematically consistent system.
 
-#### **Works cited**
+****Works cited****
 
 <div class="bibliography">
 

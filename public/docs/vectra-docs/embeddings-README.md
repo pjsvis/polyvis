@@ -1,5 +1,7 @@
+# Embeddings README
+
 semantic-graph-ts/outputs/embeddings-portable/README.md#L1-240
-# Embeddings Portable — Lift & Shift Guide
+## Embeddings Portable — Lift & Shift Guide
 
 This directory contains a self-contained, portable embeddings helper and a small example you can lift into another repo (for example `ctx-assimilation-mcp`). The implementation was designed to be dependency-light and to support two routes:
 

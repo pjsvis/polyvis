@@ -11,7 +11,7 @@ A brief is a concise document that outlines the objective, requirements, and pla
 ## Template
 
 ```markdown
-# Task: [Task Name]
+## Task: [Task Name]
 
 **Objective:** [Concise description of the main goal]
 

@@ -1,3 +1,5 @@
+# G Ikea Distribution Model
+
 ### Opinion: The "IKEA Effect" Distribution Model
 
 **Verdict:** **Agreed.** Distributing via Source (Clone & Build) rather than Binary (Download) is the correct strategic move for this phase of the project.

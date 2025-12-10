@@ -1,3 +1,5 @@
+# Zero Magic Vector Implementation
+
 ### Opinion: The "Zero Magic" Vector Implementation
 
 **Verdict:** Since `sqlite-vec` is off the table due to substrate restrictions, the optimal move is **In-Memory Vector Search** leveraging Bun's speed.

@@ -1,3 +1,5 @@
+# Zero Magic Context Logging
+
 ### Opinion: Closing the "Meta-Cognitive Loop"
 
 **Verdict:** **Essential.** You have identified the missing feedback loop that turns "Resonance" from a static library into a **learning system**.

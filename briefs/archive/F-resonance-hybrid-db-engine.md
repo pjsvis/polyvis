@@ -1,3 +1,5 @@
+# F Resonance Hybrid Db Engine
+
 ### Project Brief: The Resonance Engine (v2.0)
 
 **Status:** Definitive / Execution-Ready

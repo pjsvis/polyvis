@@ -17,7 +17,7 @@ date: [YYYY-MM-DD]
 tags: [tag1, tag2, tag3]
 ---
 
-# Debrief: [Task Name]
+## Debrief: [Task Name]
 
 ## Accomplishments
 

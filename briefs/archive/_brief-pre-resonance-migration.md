@@ -1,3 +1,5 @@
+#  Brief Pre Resonance Migration
+
 ### Project Brief: Schema Migration & Genesis (Pre-Resonance)
 
 **File:** `briefs/brief-schema-migration.md`

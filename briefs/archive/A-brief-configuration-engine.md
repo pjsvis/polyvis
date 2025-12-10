@@ -1,3 +1,5 @@
+# A Brief Configuration Engine
+
 Here is the implementation for **Step 1: The Configuration Engine**.
 
 This module leverages `zod` (already in your dependencies) to ensure strictly typed, runtime-validated configuration. It defaults gracefully, meaning the tool works "out of the box" even if the user provides a partial config.
