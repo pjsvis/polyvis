@@ -63,3 +63,28 @@ container.addEventListener("mousedown", (e) => {
     -   **Yes:** The component is fine. The bug is in the *integration* (e.g., build process, specificity clash, script conflict).
     -   **No:** The component is broken. Fix it here, where the feedback loop is fast.
 5.  **Re-integrate:** Once fixed in isolation, move it back to the main app. If it breaks again, you know exactly where to look (the integration point).
+
+---
+
+### 6. Alpine.js Method Binding Issue (2025-12-11)
+**Problem**: Methods imported via `Object.fromEntries` wrapping lose their ability to call each other, causing "this.methodName is not a function" errors.
+
+**Root Cause**: The wrapping pattern creates new function objects that break lexical scope connections between methods in the original object.
+
+**Solution**: Use direct import pattern `...Module.methods` instead of wrapping methods individually.
+
+**Prevention**: Apply the "Strip-it-Back Heuristic" before attempting complex method binding strategies. Always try the simplest approach first.
+
+**Example of Working Pattern**:
+```javascript
+// ❌ WRONG - breaks method connections:
+...Object.fromEntries(Object.entries(Viz.methods).map(([key, method]) => [key, function(...args) {...}]))
+
+// ✅ CORRECT - preserves method connections:
+...Viz.methods
+```
+
+**Lessons**: 
+- Alpine.js has architectural constraints around method import patterns
+- Complex wrapping solutions often create more problems than they solve
+- When debugging method binding issues, isolate the problem before making architectural changes
