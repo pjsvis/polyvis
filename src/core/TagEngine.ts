@@ -31,13 +31,18 @@ export class TagEngine {
         })
       });
 
-      const data = await response.json() as { response: string };
-      const json = JSON.parse(data.response);
+      const data = await response.json() as any;
+      
+      // Ollama's response format might vary or fail.
+      if (!data || !data.response) {
+          throw new Error(`Ollama response empty: ${JSON.stringify(data)}`);
+      }
 
+      const json = JSON.parse(data.response);
       return this.processRawTags(json);
     } catch (_) {
       // Fail silently for now, as TagEngine assumes a local LLM which might not be running
-      // console.warn("TagEngine Offline/Fail:", _);
+      console.warn("TagEngine Offline/Fail (make sure ollama is running):", _);
       return { hardTags: [], softTokens: [] };
     }
   }

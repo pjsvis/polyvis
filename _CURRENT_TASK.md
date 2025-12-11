@@ -1,34 +1,29 @@
-# Current Task: Pipeline Integration & Documentation
+# Current Task: Tagging & Safety Integration
 
 ## Status: IN_PROGRESS
 **Start Date:** 2025-12-11
 
 **Objective:**
-Formalize the "Factory" vs "Brain" architecture by building the **Bridge** (Ingestion Pipeline) and documenting the flow. Implement `ingest.ts` to populate `resonance.db` from Bento-Boxed files.
+Integrate `TagEngine` with the Bento CLI (`src/index.ts`) to enable auto-tagging of boxes via local LLM. Verify `MarkdownMasker` protections for "No-Fly Zones" (code blocks, tables).
 
 **Sub-Tasks:**
-1.  **Code Organization & Cleanup:**
-    - [x] Verify `src/core/EdgeWeaver.ts` allows usage by Bridge (done).
-    - [x] Verify `src/core/TagEngine.ts` is pure generation (done).
-    - [x] Ensure strict import boundaries (Src = Types Only from Resonance).
-2.  **The Bridge Script (`scripts/pipeline/ingest.ts`):**
-    - [x] Create `ingest.ts` scaffold.
-    - [x] Implement `LocusLedger` connection (readonly check).
-    - [x] Implement File Scanning (Glob).
-    - [x] Implement Delta Check (Hash comparison vs `resonance.db`).
-    - [x] Implement `Embedder` integration.
-    - [x] Implement Node Insertion & Linking (`EdgeWeaver`).
-3.  **Documentation:**
-    - [x] Create `docs/architecture/pipeline.md`.
-    - [x] Document "Factory -> Bridge -> Brain" flow.
-4.  **Verification:**
-    - [x] Run `ingest` for the first time.
-    - [x] Verify DB population via SQL query.
+1.  **Safety Verification (MarkdownMasker):**
+    - [x] Create `tests/fixtures/safety_test.md` with deep code blocks & tables.
+    - [x] Run `box` command.
+    - [x] Verify Code Blocks remain intact (no splitting inside).
+2.  **Tagging Integration (TagEngine):**
+    - [x] Add `--tag` flag to `src/index.ts`.
+    - [x] Integrate `TagEngine` into `runBoxCommand`.
+    - [x] Append generated tags to the "Locus Tag" comment or a new frontmatter/block.
+3.  **Refinement:**
+    - [x] Ensure TagEngine fails gracefully if Ollama is offline (already implemented, verify).
+    - [x] Update `src/index.ts` help.
 
 **Current Status**: `WAITING`
 
 **Next Steps**:
-- Execute `briefs/4-tagging-and-safety.md`.he next phase of the Resonance Engine or Polyvis Bento features as directed.
+- Await next brief or directive.
+- (Optional) Explore `tests/fixtures/tagged_test.md` results with a running LLM.he next phase of the Resonance Engine or Polyvis Bento features as directed.
 - Execute `briefs/4-tagging-and-safety.md`.
 
 **Recent Achievements:**

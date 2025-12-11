@@ -13,6 +13,7 @@ export interface BentoBox {
   content: string;
   tokenCount: number;
   isLeaf: boolean; // True if this box fits in the Seaman Constant
+  tags?: string[]; // Semantic tags
 }
 
 export class BentoBoxer {

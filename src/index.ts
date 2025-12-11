@@ -1,6 +1,7 @@
 import { parseArgs } from "util";
 import { LocusLedger } from "./data/LocusLedger";
 import { BentoBoxer, type BentoBox } from "./core/BentoBoxer";
+import { TagEngine } from "./core/TagEngine";
 
 // -- Configuration --
 const { values, positionals } = parseArgs({
@@ -8,19 +9,21 @@ const { values, positionals } = parseArgs({
   options: {
     file: { type: "string", short: "f" },
     output: { type: "string", short: "o" },
+    tag: { type: "boolean", short: "t" }
   },
   allowPositionals: true,
   strict: false
 });
 
-const CMD = (positionals[2] || "help") as string; // bun run src/index.ts [cmd]
+const CMD = (positionals[2] || "help") as string;
 const FILE_PATH = values.file as string | undefined;
 const OUT_PATH = values.output as string | undefined;
+const USE_TAGS = values.tag as boolean | undefined;
 
 // -- Main Execution --
 (async () => {
   try {
-    const ledger = new LocusLedger(); // Auto-initialises SQLite
+    const ledger = new LocusLedger(); 
     const boxer = new BentoBoxer(ledger);
 
     switch (CMD) {
@@ -42,14 +45,11 @@ const OUT_PATH = values.output as string | undefined;
 
 // -- Command Logic --
 
-/**
- * COMMAND: box
- * Reads raw markdown, applies Seaman-Sizing, injects Locus Tags, writes output.
- */
 async function runBoxCommand(boxer: BentoBoxer) {
   if (!FILE_PATH) throw new Error("Missing --file argument");
 
   console.log(`📦 Bento-Boxing file: ${FILE_PATH}...`);
+  if (USE_TAGS) console.log("   (Tagging Enabled - invoking local LLM)");
   
   const inputFile = Bun.file(FILE_PATH);
   if (!await inputFile.exists()) throw new Error(`File not found: ${FILE_PATH}`);
@@ -59,23 +59,30 @@ async function runBoxCommand(boxer: BentoBoxer) {
   // 1. Process
   const boxes = boxer.process(rawText);
 
-  // 2. Re-assemble with Locus Tags
+  // 2. Tagging (Optional)
+  if (USE_TAGS) {
+    const tagEngine = new TagEngine();
+    for (const box of boxes) {
+        // Tagging can be slow, log progress
+        process.stdout.write("."); 
+        const result = await tagEngine.generateTags(box.content);
+        box.tags = [...result.hardTags, ...result.softTokens];
+    }
+    console.log("\n"); // Clear progress line
+  }
+
+  // 3. Re-assemble with Locus Tags
   const outputText = boxes.map(assembleBox).join("\n\n");
 
-  // 3. Output
+  // 4. Output
   if (OUT_PATH) {
     await Bun.write(OUT_PATH, outputText);
     console.log(`✅ Written ${boxes.length} boxes to ${OUT_PATH}`);
   } else {
-    console.log(outputText); // Stdout pipeline support
+    console.log(outputText);
   }
 }
 
-/**
- * COMMAND: audit
- * Verifies that the 'boxed' file is semantically identical to the 'source' file
- * by stripping Locus tags and structural artifacts.
- */
 async function runAuditCommand() {
   if (!FILE_PATH || !OUT_PATH) throw new Error("Audit requires --file (Source) and --output (Boxed) to compare.");
 
@@ -90,19 +97,21 @@ async function runAuditCommand() {
   const sourceText = (await sourceFile.text()).trim();
   const boxedText = (await boxedFile.text()).trim();
 
-  // Strip Locus Tags: <!-- locus: ... -->
+  // Strip formatted comments
   const strippedBoxed = boxedText
     .replace(/<!-- locus:.*? -->/g, "")
+    .replace(/<!-- tags:.*? -->/g, "")
     .trim();
   
-  // Simple normalization for comparison (collapse whitespace)
+  // Simple normalization
   const normalize = (str: string) => str.replace(/\s+/g, " ");
 
   if (normalize(sourceText) === normalize(strippedBoxed)) {
     console.log("✅ AUDIT PASSED: Content is semantically identical.");
   } else {
+    // console.log("Source:", normalize(sourceText).slice(0, 100));
+    // console.log("Stripd:", normalize(strippedBoxed).slice(0, 100));
     console.error("⚠️ AUDIT FAILED: Content divergence detected.");
-    // In a real tool, we would diff the normalized strings here
     process.exit(1);
   }
 }
@@ -110,8 +119,15 @@ async function runAuditCommand() {
 // -- Helpers --
 
 function assembleBox(box: BentoBox): string {
-  // Inject Locus Tag as HTML Comment
-  return `<!-- locus:${box.locusId} -->\n${box.content}`;
+  let header = `<!-- locus:${box.locusId} -->`;
+  
+  if (box.tags && box.tags.length > 0) {
+      // Inject tags as a hidden comment so EdgeWeaver can find them 
+      // but they don't clutter the rendered view.
+      header += `\n<!-- tags: ${box.tags.join(", ")} -->`;
+  }
+  
+  return `${header}\n${box.content}`;
 }
 
 function printHelp() {
@@ -119,11 +135,11 @@ function printHelp() {
 Polyvis Bento-Boxer (CLI)
 -------------------------
 Usage:
-  bun run src/index.ts box --file <path> [--output <path>]
+  bun run src/index.ts box --file <path> [--output <path>] [--tag]
   bun run src/index.ts audit --file <source> --output <boxed>
 
 Commands:
-  box    Apply Seaman-sizing and tag generation.
+  box    Apply Seaman-sizing. Use --tag to auto-generate tags (requires Ollama).
   audit  Verify that the boxed content matches the source content.
   `);
 }
