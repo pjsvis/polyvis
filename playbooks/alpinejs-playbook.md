@@ -352,6 +352,64 @@ body.loaded {
 
 --------------------------------
 
+### Alpine.js Method Import Patterns (Critical: 2025-12-11)
+
+#### ❌ WRONG: Object.fromEntries Wrapping
+
+**Problem**: This pattern breaks method-to-method calls by isolating methods in individual function wrappers.
+
+```javascript
+// This breaks method connections:
+...Object.fromEntries(
+  Object.entries(Viz.methods).map(([key, method]) => [
+    key, 
+    function(...args) { 
+      // Ensure settings are available in method context
+      this.settings = this.settings || this._appSettings;
+      return method.apply(this, args); 
+    }
+  ])
+)
+```
+
+**Why it fails**: 
+- Creates new function objects that lose lexical scope connections
+- When `toggleColorViz` tries to call `this.resetColors()`, the wrapped function doesn't contain `resetColors`
+- Results in "this.resetColors is not a function" errors
+
+#### ✅ CORRECT: Direct Import
+
+```javascript
+// This preserves method connections:
+...Viz.methods
+```
+
+**Why it works**:
+- Original method references are spread directly
+- All methods maintain their shared lexical scope
+- Method-to-method calls work naturally as designed
+- No function wrapping that breaks connections
+
+#### Settings Access Pattern
+
+When using direct import, settings can be accessed through component state:
+
+```javascript
+// In Alpine component:
+this.settings = await loadSettings(); // Initialize in component state
+
+// In methods:
+const resolution = this.settings?.graph?.tuning?.louvain?.[domainKey] || 1.1;
+```
+
+#### Critical Rule
+
+**Never wrap individual methods in Alpine components if they need to call each other.** 
+
+If settings access is needed, initialize settings in the component state rather than wrapping methods.
+
+---
+
 ### Alpine.data for Shared Components
 
 **Pattern**: Use `Alpine.data` to create reusable, self-rendering components (like navigation bars) without a build step.
