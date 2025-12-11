@@ -1,6 +1,6 @@
 
-import { ResonanceDB } from "../resonance/src/db";
-import { Embedder } from "../resonance/src/services/embedder";
+import { ResonanceDB } from "@resonance/src/db";
+import { Embedder } from "@resonance/src/services/embedder";
 
 async function main() {
     console.log("🔍 Verifying Unification...");
@@ -15,6 +15,17 @@ async function main() {
     
     console.table(counts);
     
+    // 4. Check Aliases (using 'alias' rel)
+    const aliases = db["db"].query("SELECT * FROM edges WHERE type = 'alias'").all() as any[];
+    console.log(`   Aliases Found: ${aliases.length}`);
+
+    // 5. Check 'cites' edges (WikiLinks)
+    const cites = db["db"].query("SELECT * FROM edges WHERE type = 'CITES'").all() as any[];
+    console.log(`   Citations Found: ${cites.length}`);
+    if (cites.length > 0) {
+        console.log(`      Example: ${cites[0].source} -> ${cites[0].target}`);
+    }
+
     // 2. Check AST Sections
     const sectionStat = counts.find((c: any) => c.type === 'section') as any;
     const sectionCount = sectionStat ? sectionStat.count : 0;

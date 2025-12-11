@@ -1,7 +1,7 @@
-
 import { Glob } from "bun";
+import { join, basename } from "path";
 import { parseArgs } from "util";
-import { BentoNormalizer } from "./BentoNormalizer";
+import { BentoNormalizer } from "@src/core/BentoNormalizer";
 
 // Parse CLI args
 const { values } = parseArgs({

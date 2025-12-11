@@ -3,7 +3,33 @@
 ## Purpose
 To document the standard procedures for developing, building, and maintaining the Polyvis application.
 
-## 1. Development (Recommended)
+## 1. Code Organization & Standards
+
+### A. Directory Structure
+To maintain a clean and navigable codebase, we enforce a strict folder hierarchy for all source code and scripts.
+- **Micro-Architecture:** Do not dump all files into a single folder (e.g., `scripts/`). Instead, group them by domain or function:
+    -   `core/`: Shared layouts, classes, and types.
+    -   `pipeline/`: Data processing and ETL scripts.
+    -   `cli/`: User-facing command-line tools.
+    -   `verify/`: Integrity checks and debugging tools.
+- **Self-Documentation:** Every sub-directory **must** contain a `README.md` explaining:
+    -   The purpose of the folder.
+    -   Key files within it.
+    -   How to run or use the contents.
+
+### B. Import Policy (Strict)
+**Rule:** NO RELATIVE IMPORTS for files outside the current directory depth.
+Relative imports (e.g., `../../src/db`) are fragile and break during refactoring.
+
+**Standard:** Use Path Aliases defined in `tsconfig.json` and `package.json`.
+-   `@/*` -> Project Root (e.g., `@/polyvis.settings.json`)
+-   `@src/*` -> `src/` directory (e.g., `@src/types/artifact.js`)
+-   `@scripts/*` -> `scripts/` directory (e.g., `@scripts/core/EdgeWeaver.ts`)
+-   `@resonance/*` -> `resonance/` directory
+
+**Why?** This allows you to move files between folders without rewriting imports.
+
+## 2. Development (Recommended)
 The easiest way to work on the project is to use the unified development script. This starts both the CSS watcher and the local web server.
 
 ```bash

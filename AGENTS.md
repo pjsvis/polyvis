@@ -214,3 +214,17 @@ This document outlines the core operational protocols governing the actions of a
     2.  **Trigger:** If a file approaches 300 lines, flag it for immediate refactoring.
     3.  **Refactor:** Split logic into modular components (e.g., `data.js`, `ui.js`, `logic.js`) *before* adding new features.
     4.  **Prohibition:** Do not attempt to "patch" a file that exceeds 500 lines using standard replacement tools. You **must** switch to a modular refactoring strategy immediately.
+
+## 22. DWP: Development Workflow Protocol
+
+- **Principle:** All code changes and reorganizations must adhere to the standards defined in `playbooks/development-workflow-playbook.md`. This playbook is not a suggestion; it is the law for codebase structure and workflow.
+- **Workflow:**
+    1.  **Reference:** Before creating new files or restructuring folders, consult `playbooks/development-workflow-playbook.md`.
+    2.  **Organization:** Adhere to the strict folder hierarchy:
+        -   Group scripts by domain (`core`, `pipeline`, `cli`, `verify`).
+        -   Ensure every sub-directory has a `README.md`.
+    3.  **Imports:** **Strictly Prohibit Relative Imports** for files outside the current directory depth.
+        -   **Illegal:** `import { foo } from "../../src/db"`
+        -   **Mandatory:** `import { foo } from "@src/db"`
+        -   Use aliases (`@/`, `@src/`, `@scripts/`) for robustness.
+    4.  **Dev Cycle:** Use `bun run dev` as the unified development command.

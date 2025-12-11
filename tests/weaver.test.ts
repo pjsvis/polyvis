@@ -1,6 +1,6 @@
-import { describe, expect, test, mock } from "bun:test";
-import { EdgeWeaver } from "../scripts/EdgeWeaver";
-import { ResonanceDB } from "../resonance/src/db";
+import { describe, expect, test } from "bun:test";
+import { EdgeWeaver } from "@src/core/EdgeWeaver";
+import type { ResonanceDB } from "@resonance/src/db";
 
 // Mock ResonanceDB
 class MockDB {
@@ -18,16 +18,16 @@ describe("EdgeWeaver", () => {
     ];
 
     test("Weave 'tag-circular-logic' (Match by Slug)", () => {
-        const db = new MockDB() as unknown as ResonanceDB;
-        const weaver = new EdgeWeaver(db, lexiconItems);
+        const mockDb = new MockDB();
+        const weaver = new EdgeWeaver(mockDb as unknown as ResonanceDB, lexiconItems);
         
         const content = "This is a letter about tag-circular-logic and its effects.";
         const sourceId = "file-1#section-1";
         
         weaver.weave(sourceId, content);
         
-        expect((db as any).edges).toHaveLength(1);
-        expect((db as any).edges[0]).toEqual({
+        expect(mockDb.edges).toHaveLength(1);
+        expect(mockDb.edges[0]).toEqual({
             sourceId: "file-1#section-1",
             targetId: "term-circular-logic",
             type: "EXEMPLIFIES"
@@ -35,16 +35,16 @@ describe("EdgeWeaver", () => {
     });
     
     test("Weave 'tag-loops' (Match by Alias)", () => {
-        const db = new MockDB() as unknown as ResonanceDB;
-        const weaver = new EdgeWeaver(db, lexiconItems);
+        const mockDb = new MockDB();
+        const weaver = new EdgeWeaver(mockDb as unknown as ResonanceDB, lexiconItems);
         
         const content = "Avoid tag-loops in your thinking.";
         const sourceId = "file-1#section-2";
         
         weaver.weave(sourceId, content);
         
-        expect((db as any).edges).toHaveLength(1);
-        expect((db as any).edges[0]).toEqual({
+        expect(mockDb.edges).toHaveLength(1);
+        expect(mockDb.edges[0]).toEqual({
             sourceId: "file-1#section-2",
             targetId: "term-circular-logic", // Mapped to canonical ID
             type: "EXEMPLIFIES"
@@ -52,25 +52,25 @@ describe("EdgeWeaver", () => {
     });
 
     test("Weave '[[Circular Logic]]' (WikiLink to Concept)", () => {
-        const db = new MockDB() as unknown as ResonanceDB;
-        const weaver = new EdgeWeaver(db, lexiconItems);
+        const mockDb = new MockDB();
+        const weaver = new EdgeWeaver(mockDb as unknown as ResonanceDB, lexiconItems);
         
         const content = "See also [[Circular Logic]].";
         const sourceId = "file-1#section-3";
         
         weaver.weave(sourceId, content);
         
-        expect((db as any).edges).toHaveLength(1);
-        expect((db as any).edges[0]).toEqual({
+        expect(mockDb.edges).toHaveLength(1);
+        expect(mockDb.edges[0]).toEqual({
             sourceId: "file-1#section-3",
             targetId: "term-circular-logic",
             type: "CITES" // WikiLinks are Citations
         });
     });
     
-     test("Mixed Tags and Links", () => {
-        const db = new MockDB() as unknown as ResonanceDB;
-        const weaver = new EdgeWeaver(db, lexiconItems);
+    test("Mixed Tags and Links", () => {
+        const mockDb = new MockDB();
+        const weaver = new EdgeWeaver(mockDb as unknown as ResonanceDB, lexiconItems);
         
         // "Michelle Robertson" -> slug "michelle-robertson"
         const content = "A tag-michelle-robertson post regarding [[Circular Logic]].";
@@ -78,14 +78,19 @@ describe("EdgeWeaver", () => {
         
         weaver.weave(sourceId, content);
         
-        expect((db as any).edges).toHaveLength(2);
-        // Order isn't guaranteed by matchAll but usually sequential
-        expect((db as any).edges).toContainEqual({
+        expect(mockDb.edges).toHaveLength(2);
+        
+        // Sort or check for containment since order may vary
+        const exemplifies = mockDb.edges.find(e => e.type === "EXEMPLIFIES");
+        const cites = mockDb.edges.find(e => e.type === "CITES");
+
+        expect(exemplifies).toEqual({
             sourceId: "file-1#section-4",
             targetId: "term-michelle",
             type: "EXEMPLIFIES"
         });
-        expect((db as any).edges).toContainEqual({
+
+        expect(cites).toEqual({
             sourceId: "file-1#section-4",
             targetId: "term-circular-logic",
             type: "CITES"

@@ -28,7 +28,7 @@ digraph Pipeline {
         label = "Stage 1: Transform";
         style = filled;
         color = "#e6f3ff";
-        Transformer [label="transform_docs.ts\n(Logic)"];
+        Transformer [label="pipeline/transform_docs.ts\n(Logic)"];
         Artifact [label="Intermediate Artifact\n(JSON)", shape=folder, fillcolor="#fff3cd"];
     }
 
@@ -36,11 +36,11 @@ digraph Pipeline {
         label = "Stage 2: Load";
         style = filled;
         color = "#e6ffe6";
-        Loader [label="load_db.ts\n(Raw SQL)"];
+        Loader [label="pipeline/load_db.ts\n(Raw SQL)"];
         DB [label="Resonance DB\n(SQLite)", shape=cylinder, fillcolor="#d1e7dd"];
     }
 
-    Ver [label="verify_integrity.ts\n(Round Trip Check)", style=dotted];
+    Ver [label="verify/verify_integrity.ts\n(Round Trip Check)", style=dotted];
 
     subgraph cluster_access {
         label = "Stage 3: Access";

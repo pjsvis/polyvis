@@ -1,12 +1,12 @@
 import { Database } from "bun:sqlite";
 import { join } from "path";
-import settings from "../polyvis.settings.json";
+import settings from "@/polyvis.settings.json";
 
 // Migration Script for ctx.db
-const dbPath = join(process.cwd(), settings.paths.database.legacy); // scripts/ctx.db
+const dbPath = join(process.cwd(), settings.paths.database.legacy); // scripts/ctx.db // TODO: DEPRECATED ctx.db
 console.log(`Migrating Database: ${dbPath}`);
 
-const db = new Database(dbPath);
+const db = new Database(dbPath); // TODO: DEPRECATED usage
 
 const run = (label: string, sql: string) => {
 	try {

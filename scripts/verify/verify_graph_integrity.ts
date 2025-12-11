@@ -1,12 +1,10 @@
 import { Database } from "bun:sqlite";
 import { join } from "path";
 import { existsSync } from "fs";
-
-const SETTINGS_PATH = join(import.meta.dir, "../polyvis.settings.json");
-const settings = await Bun.file(SETTINGS_PATH).json();
+import settings from "@/polyvis.settings.json";
 
 // Resolve DB path relative to root
-const DB_PATH = join(import.meta.dir, "..", settings.paths.database.legacy);
+const DB_PATH = join(process.cwd(), settings.paths.database.legacy);
 
 if (!existsSync(DB_PATH)) {
     console.error(`❌ Database not found at: ${DB_PATH}`);

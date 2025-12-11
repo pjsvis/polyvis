@@ -1,6 +1,6 @@
 
 import { describe, expect, test } from "bun:test";
-import { Harvester } from "../scripts/Harvester";
+import { Harvester } from "@src/core/Harvester";
 
 describe("Harvester", () => {
    

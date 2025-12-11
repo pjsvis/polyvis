@@ -1,6 +1,5 @@
-
-import { ResonanceDB } from "../resonance/src/db";
-import { join } from "path";
+import { ResonanceDB } from "@resonance/src/db";
+import { nodes as schemaNodes } from "@src/db/schema.js";
 
 const db = new ResonanceDB();
 console.log("🔍 Verifying Ingestion...");

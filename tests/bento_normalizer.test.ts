@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { BentoNormalizer } from "../scripts/BentoNormalizer";
+import { BentoNormalizer } from "@src/core/BentoNormalizer";
 
 describe("BentoNormalizer", () => {
   test("Heuristic A: Fix Headless", () => {

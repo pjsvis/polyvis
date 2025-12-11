@@ -1,7 +1,8 @@
 import { Database } from "bun:sqlite";
 import { join } from "path";
-import settings from "../polyvis.settings.json";
-import type { IngestionArtifact } from "../src/types/artifact.js";
+import { nodes, edges } from "@src/db/schema.js";
+import settings from "@/polyvis.settings.json";
+import type { IngestionArtifact } from "@src/types/artifact.js";
 import assert from "assert";
 
 console.log("Starting Round-Trip Verification...");

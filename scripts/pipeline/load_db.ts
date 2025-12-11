@@ -1,10 +1,7 @@
 import { Database } from "bun:sqlite";
-import { drizzle } from "drizzle-orm/bun-sqlite";
-import { migrate } from "drizzle-orm/bun-sqlite/migrator";
 import { join } from "path";
-import { nodes } from "../src/db/schema.js";
-import settings from "../polyvis.settings.json";
-import type { IngestionArtifact } from "../src/types/artifact.js";
+import settings from "@/polyvis.settings.json";
+import type { IngestionArtifact } from "@src/types/artifact.js";
 
 // 1. Setup DB
 const dbPath = join(process.cwd(), settings.paths.database.resonance);
@@ -15,7 +12,6 @@ const dir = join(dbPath, "..");
 if (!require("fs").existsSync(dir)) require("fs").mkdirSync(dir, { recursive: true });
 
 const sqlite = new Database(dbPath);
-const db = drizzle(sqlite);
 
 // 2. Initialize Schema
 // Since we don't have migration artifacts for this new DB, we can use Drizzle Kit 'push' 

@@ -1,10 +1,14 @@
-import { Harvester } from "./Harvester";
+import { Glob } from "bun";
+import { Harvester } from "@src/core/Harvester";
 import { parseArgs } from "util";
 
+// Parse args
 const { values } = parseArgs({
   args: Bun.argv,
   options: {
-    verbose: { type: 'boolean' }
+    target: {
+      type: 'string',
+    },
   },
   strict: true,
   allowPositionals: true,
@@ -14,24 +18,43 @@ async function main() {
     console.log("🌾 Resonance Harvester: Scanning...");
 
     // 1. Load Known Terms
-    const settingsRaw = await Bun.file("resonance.settings.json").text();
-    const settings = JSON.parse(settingsRaw);
+    // Note: We need settings to know where to find things? 
+    // Or do we just scan what's passed?
+    // The previous implementation used 'resonance.settings.json'. Let's restore it.
+    
+    let settings: any = {};
+    try {
+        const settingsRaw = await Bun.file("resonance.settings.json").text();
+        settings = JSON.parse(settingsRaw);
+    } catch (e) {
+        console.warn("⚠️ Could not load resonance.settings.json, running in standalone mode.");
+        settings = { ingestion: { lexicon: null, directories: [] } };
+    }
     
     const knownIds = new Set<string>();
     
     // Load Lexicon
     if (settings.ingestion.lexicon) {
-        const lexRaw = await Bun.file(settings.ingestion.lexicon).text();
-        const lex = JSON.parse(lexRaw);
-        lex.forEach((t: any) => {
-            knownIds.add(t.id);
-            if (t.id.startsWith("term-")) knownIds.add(t.id.replace("term-", ""));
-        });
+        try {
+            const lexRaw = await Bun.file(settings.ingestion.lexicon).text();
+            const lex = JSON.parse(lexRaw);
+            lex.forEach((t: any) => {
+                knownIds.add(t.id);
+                if (t.id.startsWith("term-")) knownIds.add(t.id.replace("term-", ""));
+            });
+        } catch (e) {
+            console.warn(`⚠️ Could not load lexicon at ${settings.ingestion.lexicon}`);
+        }
     }
 
     // 2. Scan
     const harvester = new Harvester();
-    const scanDirs = settings.ingestion.directories; // ["briefs", "debriefs", "playbooks"]
+    // Use target arg OR settings directories OR default to 'docs'
+    const targetArg = values.target;
+    const scanDirs = targetArg ? [targetArg] : (settings.ingestion.directories.length > 0 ? settings.ingestion.directories : ["docs"]);
+    
+    console.log(`Scanning: ${scanDirs.join(", ")}`);
+    
     const allTags = await harvester.scan(scanDirs);
     
     console.log(`Found ${allTags.size} unique tags.`);

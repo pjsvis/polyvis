@@ -4,8 +4,7 @@ import { existsSync, readFileSync } from "fs";
 import { lexer } from "marked";
 
 // --- Configuration ---
-const SETTINGS_PATH = join(import.meta.dir, "../polyvis.settings.json");
-const ROOT_DIR = join(import.meta.dir, "..");
+import settings from "@/polyvis.settings.json";
 
 // Types for Experience Index
 interface ExperienceNode {
@@ -19,11 +18,12 @@ interface ExperienceNode {
 
 async function ingest() {
     console.log("🚀 Starting Experience Graph Ingestion...");
-
-    const settings = await Bun.file(SETTINGS_PATH).json();
-    const DB_PATH = join(ROOT_DIR, settings.paths.database.legacy);
+    
+    // We assume current working directory is project root
+    const ROOT_DIR = process.cwd();
+    const DB_PATH = join(ROOT_DIR, settings.paths.database.legacy); // TODO: DEPRECATED ctx.db (legacy)
     const EXP_INDEX_PATH = join(ROOT_DIR, "public/data/experience.json");
-    const PUBLIC_DB_PATH = join(ROOT_DIR, "public/data/ctx.db");
+    const PUBLIC_DB_PATH = join(ROOT_DIR, "public/data/ctx.db"); // TODO: DEPRECATED ctx.db
 
     if (!existsSync(DB_PATH)) {
         console.error(`❌ DB not found: ${DB_PATH}`);
@@ -155,17 +155,18 @@ async function ingest() {
 
         // B. WikiLinks [[filename]]
         const wikiRegex = /\[\[(.*?)\]\]/g;
-        let match;
-        while ((match = wikiRegex.exec(content)) !== null) {
-            if (!match[1]) continue;
-            const linkTarget = match[1].trim();
-            const cleanTarget = linkTarget.split("|")[0]?.trim().replace(/\.md$/, "");
-            if (!cleanTarget) continue;
-            
-            if (cleanTarget !== item.id) {
-                 insertEdge.run(item.id, cleanTarget, "REFERENCES");
-                 edgesAdded++;
+        let match = wikiRegex.exec(content);
+        
+        while (match !== null) {
+            if (match[1]) {
+                const linkTarget = match[1].trim();
+                const cleanTarget = linkTarget.split("|")[0]?.trim().replace(/\.md$/, "");
+                if (cleanTarget && cleanTarget !== item.id) {
+                     insertEdge.run(item.id, cleanTarget, "REFERENCES");
+                     edgesAdded++;
+                }
             }
+            match = wikiRegex.exec(content);
         }
 
 

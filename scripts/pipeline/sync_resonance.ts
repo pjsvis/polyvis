@@ -1,9 +1,9 @@
-import { ResonanceDB } from "../resonance/src/db";
-import { Embedder } from "../resonance/src/services/embedder";
-import { BentoNormalizer } from "./BentoNormalizer"; // Integrated Normalizer
-import { EdgeWeaver } from "./EdgeWeaver";
+import { ResonanceDB } from "@resonance/src/db";
+import { Embedder } from "@resonance/src/services/embedder";
+import { BentoNormalizer } from "@src/core/BentoNormalizer"; // Moved to Src
+import { EdgeWeaver } from "@src/core/EdgeWeaver"; // Moved to Src
 import { Glob } from "bun";
-import { join } from "path";
+import { join, normalize } from "path";
 import { parseArgs } from "util";
 
 // Parse args for fail-fast limit
@@ -38,7 +38,7 @@ console.log(`📦 Resonance Engine Initialized: ${settings.dbPath}`);
 
 // --- 3a. Pipeline: CDA (Core Directive Array) ---
 // Note: We need to capture ALL lexicon items (Lexicon + CDA) into a single array for the Weaver.
-const allLexiconItems: any[] = [];
+const allLexiconItems: unknown[] = [];
 
 if (settings.ingestion.cda) {
     const cdaPath = settings.ingestion.cda;
@@ -115,13 +115,13 @@ if (settings.ingestion.lexicon) {
             layer: "lexicon",
             embedding: vec,
             meta: {
-                aliases: term.aliases || [],
-                tags: term.tags || []
+                aliases: term?.aliases || [],
+                tags: term?.tags || []
             }
         });
 
         // Parse Edges from Tags
-        extractEdgesFromTags(db, term.id, term.tags || []);
+        extractEdgesFromTags(db, term.id, term?.tags || []);
         
         termCount++;
         if (termCount % 100 === 0) process.stdout.write(".");

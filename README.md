@@ -46,21 +46,29 @@ For detailed instructions on CSS development, database building, and running the
 
 ## Project Structure
 
+### 3. Detailed Documentation
+For a deep dive on the codebase organization, please see **[Project Structure](docs/project-structure.md)**.
+
+## Project Structure (High Level)
+
 ```
-├── public/              # The application's web root
-│   ├── explorer/        # The main graph explorer page
-│   │   └── index.html
-│   ├── data/            # Static data files for the frontend
-│   │   └── ctx.db
-│   └── terms.json       # Curated search terms for the UI
+├── public/              # Web Root (HTML, Static Data)
+│   ├── explorer/        # SigmaJS Graph Explorer
+│   └── data/            # SQLite Databases (ctx.db, resonance.db)
 │
-├── scripts/             # Build scripts for data processing
-│   ├── build_db.ts      # Script to build the SQLite database
-│   ├── extract_terms.ts # Script to generate the terms.json file
-│   └── *.json           # Source data files
+├── src/                 # Application Source Code
+│   ├── core/            # The Bento Box Kernel (Normalizer, Weaver)
+│   ├── config/          # Shared Configuration
+│   └── db/              # Database Schemas
 │
-├── .gitignore           # Specifies files to be ignored by Git
-├── LICENSE              # Project license (MIT)
+├── scripts/             # Data Pipeline & Tooling
+│   ├── pipeline/        # ETL Scripts (Sync, Load)
+│   ├── cli/             # Command Line Tools (Harvest)
+│   └── verify/          # Integrity Checks
+│
+├── docs/                # Project Documentation
+├── playbooks/           # Operational Protocols
+├── polyvis.settings.json # Central Configuration
 └── README.md            # This file
 ```
 

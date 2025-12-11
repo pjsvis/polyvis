@@ -1,5 +1,5 @@
 import { Glob } from "bun";
-import { Embedder } from "../resonance/src/services/embedder"; // Reuse existing embedder service
+import { Embedder } from "@resonance/src/services/embedder";
 
 export class Harvester {
     private embedder: Embedder;

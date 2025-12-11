@@ -5,10 +5,11 @@ import { join } from "path";
 console.log("Starting term extraction...");
 
 // --- Path Resolution ---
-// Use import.meta.dir to build reliable paths relative to the script's location.
-const scriptDir = import.meta.dir;
-const dbPath = join(scriptDir, "ctx.db");
-const publicDir = join(scriptDir, "..", "public"); // Assumes script is in /scripts, public is in /
+import settings from "@/polyvis.settings.json";
+
+// TODO: updating ctx.db path to be consistent with settings
+const dbPath = join(process.cwd(), settings.paths.database.legacy); 
+const publicDir = join(process.cwd(), "public");
 const outputPath = join(publicDir, "terms.json");
 
 // --- Pre-flight Checks ---

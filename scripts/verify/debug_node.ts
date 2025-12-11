@@ -5,11 +5,11 @@ console.log("--- Starting Node Connection Debugger ---");
 
 // --- Configuration ---
 const scriptDir = import.meta.dir;
-const dbPath = join(scriptDir, "ctx.db");
+const dbPath = join(scriptDir, "ctx.db"); // TODO: DEPRECATED ctx.db
 const searchTerm = "OH-106: Forced Stubbornness Protocol (FSP)"; // The problematic term
 
 // --- Database Connection ---
-const db = new Database(dbPath, { readonly: true });
+const db = new Database(dbPath, { readonly: true }); // TODO: DEPRECATED usage
 
 try {
 	// 1. Find the exact node ID for the given label
