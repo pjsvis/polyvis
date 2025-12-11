@@ -95,6 +95,56 @@ async function main() {
 		console.warn("⚠️  Lexicon bootstrap failed (skipping):", e);
 	}
 
+	// 0.5 Ingest CDA Directives and Edges (from enriched artifacts)
+	try {
+		const enrichedCdaPath = join(
+			process.cwd(),
+			".resonance",
+			"artifacts",
+			"cda-enriched.json",
+		);
+		const cdaFile = Bun.file(enrichedCdaPath);
+
+		if (await cdaFile.exists()) {
+			const enrichedCda = await cdaFile.json();
+			let directiveCount = 0;
+			let edgeCount = 0;
+
+			for (const entry of enrichedCda.entries) {
+				// Insert directive as node
+				db.insertNode({
+					id: entry.id,
+					type: "directive",
+					label: entry.title,
+					content: entry.definition,
+					domain: "persona",
+					layer: "directive",
+					meta: {
+						section: entry.section,
+						tags: entry.explicit_tags,
+					},
+				} as any);
+				directiveCount++;
+
+				// Create edges from validated relationships
+				for (const rel of entry.validated_relationships) {
+					db.insertEdge(entry.id, rel.target, rel.type);
+					edgeCount++;
+				}
+			}
+
+			console.log(
+				`📋 Ingested CDA: ${directiveCount} directives, ${edgeCount} edges`,
+			);
+		} else {
+			console.warn(
+				"⚠️  No enriched CDA found. Run: bun run scripts/transform/transform_cda.ts",
+			);
+		}
+	} catch (e) {
+		console.warn("⚠️  CDA ingestion failed (skipping):", e);
+	}
+
 	const weaver = new EdgeWeaver(db, lexicon);
 
 	// 1. Determine Sources

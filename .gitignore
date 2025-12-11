@@ -58,7 +58,12 @@ Thumbs.db
 # Resonance Engine
 resonance/node_modules
 resonance/dist
-.resonance
+
+# Resonance Generated Artifacts (not source code)
+.resonance/*.db
+.resonance/*.db-wal
+.resonance/*.db-shm
+.resonance/artifacts/
 
 # Fastembed cache
 local_cache/
@@ -66,6 +71,6 @@ local_cache/
 # Examples (not part of build)
 examples/
 
-# Scripts and tests (not subject to strict linting)
-scripts/
-tests/
+# Generated Reports (not source code)
+reports/ingestion-stats-*.md
+reports/test-*.md
