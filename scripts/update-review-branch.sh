@@ -28,3 +28,6 @@ git commit -m "Merge from $MAIN_BRANCH - cleaned for review"
 
 echo "Review branch updated successfully!"
 echo "Branch size: $(git ls-files | xargs du -ch | grep total)"
+
+# Push the review branch to origin
+git push origin review-under-100mb
