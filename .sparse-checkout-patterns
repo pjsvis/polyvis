@@ -1,0 +1,13 @@
+# Include code and docs
+/*
+!/.resonance/cache/
+!/local_cache/
+!/node_modules/
+!/public/resonance.db
+!/public/resonance.db-*
+!*.onnx
+!*.pt
+!*.pth
+!*.bin
+!*.gguf
+!*.safetensors
