@@ -59,3 +59,13 @@ Thumbs.db
 resonance/node_modules
 resonance/dist
 .resonance
+
+# Fastembed cache
+local_cache/
+
+# Examples (not part of build)
+examples/
+
+# Scripts and tests (not subject to strict linting)
+scripts/
+tests/

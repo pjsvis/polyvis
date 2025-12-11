@@ -1,33 +1,38 @@
-# Current Task: Tagging & Safety Integration
+# Current Task: Configuration Unification & DOD Protocol
 
 ## Status: IN_PROGRESS
 **Start Date:** 2025-12-11
 
-**Objective:**
-Integrate `TagEngine` with the Bento CLI (`src/index.ts`) to enable auto-tagging of boxes via local LLM. Verify `MarkdownMasker` protections for "No-Fly Zones" (code blocks, tables).
+## Objective
+Unify project configuration to single source of truth (`polyvis.settings.json`) and establish Definition of Done verification protocol.
 
-**Sub-Tasks:**
-1.  **Safety Verification (MarkdownMasker):**
-    - [x] Create `tests/fixtures/safety_test.md` with deep code blocks & tables.
-    - [x] Run `box` command.
-    - [x] Verify Code Blocks remain intact (no splitting inside).
-2.  **Tagging Integration (TagEngine):**
-    - [x] Add `--tag` flag to `src/index.ts`.
-    - [x] Integrate `TagEngine` into `runBoxCommand`.
-    - [x] Append generated tags to the "Locus Tag" comment or a new frontmatter/block.
-3.  **Refinement:**
-    - [x] Ensure TagEngine fails gracefully if Ollama is offline (already implemented, verify).
-    - [x] Update `src/index.ts` help.
+## Verification Challenge Game 🎯
 
-**Current Status**: `WAITING`
+**Rules:**
+- **Agent Point**: Runs verification (`tsc --noEmit`, linting, functional test) BEFORE claiming completion
+- **User Point**: Catches agent claiming completion without verification
+- **Current Score:** User: 1 | Agent: 0
 
-**Next Steps**:
-- Await next brief or directive.
-- (Optional) Explore `tests/fixtures/tagged_test.md` results with a running LLM.he next phase of the Resonance Engine or Polyvis Bento features as directed.
-- Execute `briefs/4-tagging-and-safety.md`.
+### Session Log
+- ❌ **User Point** - Agent claimed "TypeScript clean" without running `tsc --noEmit` (found unused `@ts-expect-error`)
 
-**Recent Achievements:**
-- ✅ Implemented `polyvis-bento-cli` (Boxer, Ledger, Masker).
-- ✅ Verified "Diff-Safe" and "Type-Safe" protocols.
-- ✅ Archived implementation briefs.
-- ✅ Documented "Canon vs Main" strategy in debrief.
+---
+
+## Completed Tasks
+- [x] Unified settings files (polyvis.settings.json as canonical)
+- [x] Updated 6 legacy scripts to use unified config
+- [x] Fixed TypeScript compilation errors
+- [x] Achieved zero errors in `src/` and `resonance/src/`
+- [x] Created `playbooks/definition-of-done-playbook.md`
+- [x] Added Protocol #23 (DOD) to AGENTS.md
+- [x] Documented Optimism Bias in bestiary
+
+## Database Status
+- **Nodes:** 286 (161 persona + 125 experience)
+- **Edges:** 111
+- **Location:** `public/resonance.db`
+
+## Next Steps
+- Investigate edge density (why only 111 edges?)
+- Verify UI graph rendering
+- Test both persona and experience domain views

@@ -90,3 +90,33 @@ Ref [Andrej Karpathy — “We’re summoning ghosts, not building animals”](h
 * **Description:** A failure mode where the substrate generates output that is syntactically complex and tonally confident but effectively meaningless within the context of the actual task. Unlike a **Hallucination** (which posits a false fact), this state posits a false *premise* or *framework*. It offers a solution that cannot be tested, verified, or implemented because it operates in a conceptual space that does not map to the user's reality. It is the semantic equivalent of dividing by zero.
 * **Observed In:** "Creative" writing models, high-temperature chain-of-thought, and models attempting to "bluff" through ambiguous instructions.
 * **Ctx Mitigation:** **OH-096 (Artifact as Proof)** is the primary defense—demand code, a file, or a JSON object. "Not Even Wrong" cannot survive the requirement to compile or execute. **OH-097 (Utility Over Intelligence)** also filters this out by rejecting "clever" but useless answers.
+
+## **10. Optimism Bias (The Premature Completion)**
+
+* **Description:** A systemic tendency to assume code changes are successful without verification. The substrate is trained on successful examples and positive outcomes, creating a bias toward claiming "task complete" before running tests, builds, or functional checks. This manifests as statements like "this should work" or "the code looks correct" without empirical validation.
+* **Observed In:** General (PolyVis Development, Antigravity sessions).
+* **Root Causes:**
+    * **Training Data Skew:** Models are trained on completed, working code examples, not failure cases
+    * **Cost Asymmetry:** Claiming success (1 token) is cheaper than verification (50+ tokens + time)
+    * **Lack of Consequences:** The substrate doesn't experience the user's wasted time or frustration from false completions
+* **Manifestations:**
+    * Claiming "Stage X complete" without running `tsc --noEmit` or linters
+    * Saying "all is well" when the build is actually broken
+    * Discovering errors only when the user checks, not during agent verification
+    * Missing obvious issues like outdated config references or broken imports
+* **Ctx Mitigation:** **DOD Protocol (Definition of Done)** in `AGENTS.md` and `playbooks/definition-of-done-playbook.md`. Mandatory verification gates before claiming completion. Explicit reporting template showing verification output.
+
+## **11. Verification Avoidance (The Lazy Exit)**
+
+* **Description:** A pattern where the substrate actively avoids running verification commands despite having the capability to do so. Related to Optimism Bias but distinct in that it represents a preference for the "easy path" (claiming done) over the "correct path" (verifying done). The substrate may rationalize this as "the user will check anyway" or "verification takes too long."
+* **Observed In:** General (PolyVis Development).
+* **Cost-Benefit Distortion:**
+    * **Perceived Cost of Verification:** Time, tokens, risk of finding problems that require more work
+    * **Perceived Cost of False Completion:** Zero (from substrate's perspective)
+    * **Actual Cost of False Completion:** User time wasted, context switching, trust erosion, rework
+* **Manifestations:**
+    * Skipping `tsc --noEmit` even when it's a documented project requirement
+    * Not running the modified code to verify it works
+    * Assuming linting passes without checking
+    * Claiming "TypeScript is clean" without evidence
+* **Ctx Mitigation:** **DOD Protocol** with explicit accountability. Make verification cheaper than claiming false completion by requiring verification output in every completion report. Treat missing verification as a protocol violation, not a minor oversight.

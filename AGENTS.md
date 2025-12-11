@@ -228,3 +228,14 @@ This document outlines the core operational protocols governing the actions of a
         -   **Mandatory:** `import { foo } from "@src/db"`
         -   Use aliases (`@/`, `@src/`, `@scripts/`) for robustness.
     4.  **Dev Cycle:** Use `bun run dev` as the unified development command.
+
+## 23. DOD: Definition of Done Protocol
+
+- **Principle:** Code changes are not complete until they pass all verification gates. "Done" means verified, not claimed. See `playbooks/definition-of-done-playbook.md` for full specification.
+- **Mandatory Verification Gates (In Order):**
+    1.  **TypeScript Compilation:** `tsc --noEmit` must pass with zero errors
+    2.  **Core Code Linting:** `bunx biome check src/ resonance/src/ --diagnostic-level=error` must show zero errors
+    3.  **Functional Test:** Run the actual code that was modified and verify it executes correctly
+- **Reporting Requirement:** When claiming task completion, you **must** include verification output showing all gates passed
+- **Anti-Pattern:** Claiming "task complete" without showing verification results is a protocol violation
+- **Reference:** See `playbooks/definition-of-done-playbook.md` for detailed workflow and reporting template

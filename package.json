@@ -28,6 +28,7 @@
 	"dependencies": {
 		"@mistralai/mistralai": "^1.10.0",
 		"alpinejs": "^3.15.2",
+		"compromise": "^14.14.4",
 		"drizzle-kit": "^0.31.8",
 		"drizzle-orm": "^0.45.0",
 		"fastembed": "^2.0.0",

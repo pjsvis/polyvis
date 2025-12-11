@@ -1,45 +1,47 @@
-import { Glob } from "bun";
-import { join, basename } from "path";
-import settings from "@/polyvis.settings.json";
 import type { IngestionArtifact } from "@src/types/artifact.js";
+import { Glob } from "bun";
+import { basename, join } from "path";
+import settings from "@/polyvis.settings.json";
 
 const artifacts: IngestionArtifact[] = [];
 const root = process.cwd();
 
 // --- Helpers ---
 function extractTitle(content: string, filename: string): string {
-    const match = content.match(/^#\s+(.+)$/m);
-    return match && match[1] ? match[1].trim() : filename;
+	const match = content.match(/^#\s+(.+)$/m);
+	return match && match[1] ? match[1].trim() : filename;
 }
 
 // --- Transformation Loop ---
 let orderCounter = 0;
 
-for (const sourceDirRelative of settings.paths.sources.docs) {
-    const sourceDir = join(root, sourceDirRelative);
-    console.log(`Scanning ${sourceDir}...`);
+for (const sourceDirRelative of settings.paths.sources.experience.directories) {
+	const sourceDir = join(root, sourceDirRelative);
+	console.log(`Scanning ${sourceDir}...`);
 
-    const glob = new Glob("*.md");
-    // Sort logic is implicit in file system usually, but better to be explicit 
-    // Array.from(glob.scanSync) gives unsorted?
-    const files = Array.from(glob.scanSync(sourceDir)).sort(); 
+	const glob = new Glob("*.md");
+	// Sort logic is implicit in file system usually, but better to be explicit
+	// Array.from(glob.scanSync) gives unsorted?
+	const files = Array.from(glob.scanSync(sourceDir)).sort();
 
-    for (const file of files) {
-        const fullPath = join(sourceDir, file);
-        const content = await Bun.file(fullPath).text();
-        const id = basename(file, ".md");
-        const type: "playbook" | "debrief" = sourceDirRelative.includes("playbooks") ? "playbook" : "debrief";
+	for (const file of files) {
+		const fullPath = join(sourceDir, file);
+		const content = await Bun.file(fullPath).text();
+		const id = basename(file, ".md");
+		const type: "playbook" | "debrief" = sourceDirRelative.includes("playbooks")
+			? "playbook"
+			: "debrief";
 
-        artifacts.push({
-            id,
-            type,
+		artifacts.push({
+			id,
+			type,
 			order_index: orderCounter++,
 			payload: {
 				title: extractTitle(content, id),
 				content: content,
 				domain: "knowledge",
 				layer: "experience",
-                metadata: { path: fullPath }
+				metadata: { path: fullPath },
 			},
 		});
 	}
@@ -48,7 +50,7 @@ for (const sourceDirRelative of settings.paths.sources.docs) {
 // --- Output ---
 const outDir = join(root, ".resonance", "artifacts");
 if (!require("fs").existsSync(outDir)) {
-    require("fs").mkdirSync(outDir, { recursive: true });
+	require("fs").mkdirSync(outDir, { recursive: true });
 }
 
 const outFile = join(outDir, "docs.json");

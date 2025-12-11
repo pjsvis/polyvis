@@ -1,23 +1,28 @@
 {
-  "paths": {
-    "database": {
-      "legacy": "scripts/ctx.db",
-      "resonance": ".resonance/resonance.db"
-    },
-    "sources": {
-      "docs": ["playbooks/", "debriefs/"],
-      "legacy": ["scripts/conceptual-lexicon-ref-v1.79.json", "scripts/cda-ref-v63.json"]
-    }
-  },
-  "graph": {
-    "tuning": {
-      "louvain": {
-        "persona": 1.1,
-        "experience": 1.0
-      }
-    }
-  },
-  "schema": {
-    "version": "1.0.0"
-  }
+	"paths": {
+		"database": {
+			"legacy": "scripts/ctx.db",
+			"resonance": "public/resonance.db"
+		},
+		"sources": {
+			"experience": {
+				"directories": ["debriefs", "playbooks", "briefs"]
+			},
+			"persona": {
+				"lexicon": "scripts/fixtures/conceptual-lexicon-ref-v1.79.json",
+				"cda": "scripts/fixtures/cda-ref-v63.json"
+			}
+		}
+	},
+	"graph": {
+		"tuning": {
+			"louvain": {
+				"persona": 1.1,
+				"experience": 1.0
+			}
+		}
+	},
+	"schema": {
+		"version": "1.0.0"
+	}
 }

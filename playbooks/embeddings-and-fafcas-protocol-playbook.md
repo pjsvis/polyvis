@@ -10,6 +10,9 @@ For the scale of a software project (< 100,000 nodes), the latency of a network 
 
 **The Rule:** If it fits in RAM, it lives in RAM.
 
+
+**Related Protocols:** [Domain Vocabulary Playbook](./domain-vocabulary-playbook.md)
+
 ---
 
 ## 2. The FAFCAS Protocol

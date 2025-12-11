@@ -66,9 +66,10 @@ window.LexiconService = {
 		}
 
 		// Handle "Empty Query" -> Return all terms
-        // Unified Schema: table 'nodes', type='term'
-        // Mapping: title -> name, content -> definition
-		let sql = "SELECT title as name, content as definition, * FROM nodes WHERE type = 'term' ORDER BY title ASC";
+		// Unified Schema: table 'nodes', type='term'
+		// Mapping: title -> name, content -> definition
+		let sql =
+			"SELECT title as name, content as definition, * FROM nodes WHERE type = 'term' ORDER BY title ASC";
 		let params = {};
 
 		// Handle "Specific Query"

@@ -336,9 +336,9 @@ await db.execute(`
         // Tooltip Configuration for Multi-line support
         const tooltipConfig = {
             callbacks: {
-                title: function(tooltipItems) {
+                title: (tooltipItems) => {
                     const item = tooltipItems[0];
-                    let label = item.chart.data.labels[item.dataIndex];
+                    const label = item.chart.data.labels[item.dataIndex];
                     if (Array.isArray(label)) {
                         return label.join(' ');
                     } else {

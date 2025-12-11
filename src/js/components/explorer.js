@@ -10,7 +10,9 @@ export default () => ({
 	debug: false,
 
 	init() {
-		setTimeout(() => (this.loaded = true), 50);
+		setTimeout(() => {
+			this.loaded = true;
+		}, 50);
 		this.$nextTick(() => {
 			if (window.lucide) window.lucide.createIcons();
 		});
@@ -66,7 +68,7 @@ export default () => ({
 		this.searchTerm = term;
 
 		// A. Find the Core Node
-        // Schema Map: nodes.title -> label
+		// Schema Map: nodes.title -> label
 		let stmt = this.db.prepare(
 			"SELECT id, title as label, type FROM nodes WHERE id = ? OR title = ? LIMIT 1",
 		);
@@ -99,7 +101,7 @@ export default () => ({
 		}
 
 		// B. Find Neighbors
-        // Schema Map: edges.type -> relation, nodes.title -> label
+		// Schema Map: edges.type -> relation, nodes.title -> label
 		const outStmt = this.db.prepare(
 			"SELECT n.id, n.title as label, n.type, e.type as relation FROM edges e JOIN nodes n ON e.target = n.id WHERE e.source = ?",
 		);

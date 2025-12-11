@@ -75,7 +75,9 @@ export default () => ({
 	},
 
 	init() {
-		setTimeout(() => (this.loaded = true), 50);
+		setTimeout(() => {
+			this.loaded = true;
+		}, 50);
 		this.$nextTick(() => {
 			if (window.lucide) window.lucide.createIcons();
 		});

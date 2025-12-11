@@ -8,7 +8,7 @@ console.log("Starting term extraction...");
 import settings from "@/polyvis.settings.json";
 
 // TODO: updating ctx.db path to be consistent with settings
-const dbPath = join(process.cwd(), settings.paths.database.legacy); 
+const dbPath = join(process.cwd(), settings.paths.database.legacy);
 const publicDir = join(process.cwd(), "public");
 const outputPath = join(publicDir, "terms.json");
 

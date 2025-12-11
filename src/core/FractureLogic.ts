@@ -5,7 +5,8 @@
 
 // 1. Priority A: Structural Pivot
 // "However,", "Therefore,", etc. at the start of a sentence or line.
-export const REGEX_PIVOT = /(?:^|\s)(?:However|Therefore|Nevertheless|Furthermore|Consequently|Thus|Hence)(?:,)/gi;
+export const REGEX_PIVOT =
+	/(?:^|\s)(?:However|Therefore|Nevertheless|Furthermore|Consequently|Thus|Hence)(?:,)/gi;
 
 // 2. Priority B: Enumeration
 // Numbered lists (1.), Lettered lists (a)), or bullet points (-, *)
