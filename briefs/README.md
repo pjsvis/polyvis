@@ -130,12 +130,56 @@ briefs/pending/
 **Active:**
 - Work in progress
 - In root `briefs/`
-- Paired with debrief
+- Paired with debrief (when executed)
 
 **Complete:**
 - Work finished
 - Debrief created
-- Move to `archive/`
+- **MUST archive immediately**
+
+**Archive:**
+- Moved to `archive/`
+- Paired with debrief linkage
+- Historical reference only
+
+---
+
+## Archive Policy
+
+**The briefs/ root should be LEAN:**
+
+**Goal:** Ideally 1-3 active briefs maximum
+
+**Reality:** "When ideas come thick and fast, the folder inexorably fills up"
+
+**Solution:** Regular archiving discipline
+
+### **Archive When:**
+✅ **Debrief exists** - Work is complete  
+✅ **Superseded** - Newer brief replaces it  
+✅ **Abandoned** - No longer relevant  
+
+### **Keep Active When:**
+⚠️ **In progress** - Currently executing  
+⚠️ **Next up** - Queued for immediate work  
+⚠️ **Reference** - Needed for current decisions  
+
+### **Archive Command:**
+```bash
+# Move completed brief to archive
+mv briefs/YYYY-MM-DD-topic.md briefs/archive/
+
+# Always preserve the date prefix!
+```
+
+### **Archive Review:**
+```bash
+# How many active briefs?
+ls -1 briefs/*.md | grep -v README | wc -l
+
+# Target: <5
+# Action if >5: Archive completed work
+```
 
 ---
 
