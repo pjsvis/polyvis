@@ -5268,7 +5268,6 @@ var methods2 = {
     const currentEdges = this.graph.size;
     this.status = `${this.activeDomain.toUpperCase()} Graph: ${currentNodes} Nodes, ${currentEdges} Edges.`;
     this.computeOrphanStats();
-    this.updateOrphanVisibility();
     if (this.updateStats)
       this.updateStats();
     this.runLayout("forceatlas2");
@@ -5276,15 +5275,27 @@ var methods2 = {
       this.toggleColorViz("louvain", true);
     if (this.toggleSizeViz)
       this.toggleSizeViz("pagerank");
+    this.updateOrphanVisibility();
   },
   setDomain(domain) {
     if (this.activeDomain === domain)
       return;
     this.activeDomain = domain;
+    console.log(`Switching Domain to: ${domain}`);
     const url = new URL(window.location);
     url.searchParams.set("domain", domain);
     window.history.pushState({}, "", url);
     this.constructGraph();
+    if (this.activeColorViz === "louvain") {
+      this.louvainCommunities = null;
+      if (this.toggleColorViz)
+        this.toggleColorViz("louvain", true);
+    } else {
+      if (this.renderer)
+        this.renderer.refresh();
+    }
+    if (this.zoomReset)
+      this.zoomReset();
   },
   toggleOrphans() {
     this.showOrphans = !this.showOrphans;
@@ -5411,24 +5422,6 @@ var methods3 = {
       container.style.cursor = "";
       this.hoveredNode = null;
     });
-  },
-  setDomain(domain) {
-    if (this.activeDomain === domain)
-      return;
-    this.activeDomain = domain;
-    console.log(`Switching Domain to: ${domain}`);
-    if (this.constructGraph)
-      this.constructGraph();
-    if (this.activeColorViz === "louvain") {
-      this.louvainCommunities = null;
-      if (this.toggleColorViz)
-        this.toggleColorViz("louvain", true);
-    } else {
-      if (this.renderer)
-        this.renderer.refresh();
-    }
-    if (this.zoomReset)
-      this.zoomReset();
   },
   selectNode(nodeId) {
     if (!nodeId) {
@@ -5661,6 +5654,8 @@ var methods4 = {
         this.graph.setNodeAttribute(node, "color", largestComponentSet.has(node) ? "#3cb44b" : "#cccccc");
       });
     }
+    if (this.updateOrphanVisibility)
+      this.updateOrphanVisibility();
     if (this.renderer)
       this.renderer.refresh();
   },

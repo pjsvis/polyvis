@@ -72,26 +72,6 @@ export const methods = {
 		});
 	},
 
-	setDomain(domain) {
-		if (this.activeDomain === domain) return;
-		this.activeDomain = domain;
-		console.log(`Switching Domain to: ${domain}`);
-
-		// Must Reconstruct Graph for proper Sigma behavior when nodes are removed/added
-		if (this.constructGraph) this.constructGraph();
-
-		// Refresh Louvain if active (to apply new resolution tuning)
-		if (this.activeColorViz === "louvain") {
-			this.louvainCommunities = null; // Force recalc
-			if (this.toggleColorViz) this.toggleColorViz("louvain", true);
-		} else {
-			if (this.renderer) this.renderer.refresh();
-		}
-
-		// Center the new graph
-		if (this.zoomReset) this.zoomReset();
-	},
-
 	selectNode(nodeId) {
 		if (!nodeId) {
 			this.selectedNode = null;

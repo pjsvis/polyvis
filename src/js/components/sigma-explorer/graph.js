@@ -113,7 +113,6 @@ export const methods = {
 
 		// Compute Stats & Visibility
 		this.computeOrphanStats();
-		this.updateOrphanVisibility();
 
 		// Update Stats Panel if active
 		if (this.updateStats) this.updateStats();
@@ -124,18 +123,34 @@ export const methods = {
 		// Apply Default Visualization
 		if (this.toggleColorViz) this.toggleColorViz("louvain", true);
 		if (this.toggleSizeViz) this.toggleSizeViz("pagerank");
+
+		// Apply Orphan Visibility Last (Overrides colors/visibility)
+		this.updateOrphanVisibility();
 	},
 
 	setDomain(domain) {
 		if (this.activeDomain === domain) return;
 		this.activeDomain = domain;
+		console.log(`Switching Domain to: ${domain}`);
 
 		// Update URL
 		const url = new URL(window.location);
 		url.searchParams.set("domain", domain);
 		window.history.pushState({}, "", url);
 
+		// Must Reconstruct Graph for proper Sigma behavior when nodes are removed/added
 		this.constructGraph();
+
+		// Refresh Louvain if active (to apply new resolution tuning)
+		if (this.activeColorViz === "louvain") {
+			this.louvainCommunities = null; // Force recalc
+			if (this.toggleColorViz) this.toggleColorViz("louvain", true);
+		} else {
+			if (this.renderer) this.renderer.refresh();
+		}
+
+		// Center the new graph
+		if (this.zoomReset) this.zoomReset();
 	},
 
 	toggleOrphans() {
