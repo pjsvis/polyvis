@@ -22,8 +22,8 @@
 	"graph": {
 		"tuning": {
 			"louvain": {
-				"persona": 1.1,
-				"experience": 1.0
+				"persona": 0.3,
+				"experience": 0.25
 			}
 		}
 	},
