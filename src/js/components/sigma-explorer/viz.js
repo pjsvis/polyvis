@@ -159,6 +159,7 @@ export const methods = {
 			});
 		}
 
+		if (this.updateOrphanVisibility) this.updateOrphanVisibility();
 		if (this.renderer) this.renderer.refresh();
 	},
 
