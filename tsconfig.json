@@ -35,6 +35,7 @@
 	},
 	"exclude": [
 		"public/docs",
+		"docs/webdocs",
 		"node_modules",
 		"dist",
 		".resonance",

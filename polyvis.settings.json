@@ -3,6 +3,12 @@
 		"database": {
 			"resonance": "public/resonance.db"
 		},
+		"docs": {
+			"root": "docs",
+			"webdocs": "docs/webdocs",
+			"architecture": "docs/architecture",
+			"public": "public/docs"
+		},
 		"sources": {
 			"experience": {
 				"directories": ["debriefs", "playbooks", "briefs"]

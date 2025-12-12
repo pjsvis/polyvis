@@ -259,7 +259,7 @@ async function main() {
 			if (entry.definition && entry.definition.length > 15) {
 				try {
 					// Search known documentation for semantic references
-					const docsPath = join(process.cwd(), "public/docs");
+					const docsPath = join(process.cwd(), settings.paths.docs.public);
 					
 					const matches = await semanticMatcher.findCandidates(
 						entry.definition, 

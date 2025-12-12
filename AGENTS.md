@@ -239,3 +239,28 @@ This document outlines the core operational protocols governing the actions of a
 - **Reporting Requirement:** When claiming task completion, you **must** include verification output showing all gates passed
 - **Anti-Pattern:** Claiming "task complete" without showing verification results is a protocol violation
 - **Reference:** See `playbooks/definition-of-done-playbook.md` for detailed workflow and reporting template
+
+## 24. CMP: Change Management Protocol
+
+- **Principle:** "Undocumented changes didn't happen." Every significant change must follow the Plan → Execute → Verify → Debrief cycle. Verification is proof, debrief is the permanent record.
+- **Workflow (MANDATORY for non-trivial changes):**
+    1.  **PLAN:** Document objective, current state, proposed changes, verification criteria, rollback plan
+    2.  **EXECUTE:** Make changes following the plan, document deviations immediately
+    3.  **VERIFY:** Run ALL verification criteria from plan, capture output, no exceptions
+    4.  **DEBRIEF:** Document what actually happened (reality, not plan), include verification proof
+- **Required For:**
+    - Schema changes
+    - File reorganization (>3 files)
+    - Configuration updates
+    - Capability additions/removals
+    - Database migrations
+    - API changes
+- **Debrief Requirements:**
+    - What was planned (link to brief/task)
+    - What actually happened (reality may differ)
+    - Verification results (copy-paste command output)
+    - Issues encountered and solutions
+    - Lessons learned
+    - Complete file modification list
+- **Red Flag:** Making changes on-the-fly without documenting plan or verification
+- **Reference:** See `playbooks/change-management-protocol.md` for full specification and templates
