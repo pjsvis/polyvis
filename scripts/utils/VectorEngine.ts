@@ -1,4 +1,4 @@
-import { Database, SQLQueryBindings } from "bun:sqlite";
+import { Database, type SQLQueryBindings } from "bun:sqlite";
 import settings from "@/polyvis.settings.json";
 import { join } from "path";
 
@@ -101,9 +101,11 @@ export class VectorEngine {
 		let normA = 0;
 		let normB = 0;
 		for (let i = 0; i < a.length; i++) {
-			dot += a[i] * b[i];
-			normA += a[i] * a[i];
-			normB += b[i] * b[i];
+			const aVal = a[i] ?? 0;
+			const bVal = b[i] ?? 0;
+			dot += aVal * bVal;
+			normA += aVal * aVal;
+			normB += bVal * bVal;
 		}
 		return dot / (Math.sqrt(normA) * Math.sqrt(normB));
 	}
