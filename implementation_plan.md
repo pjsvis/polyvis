@@ -1,57 +1,67 @@
-# Implementation Plan: The Unification Sprint (DONE)
+# Implementation Plan: Sigma Explorer UI Restoration
 
-**Goal:** Consolidate "Split Brain" (ctx.db vs resonance.db) into a Single Source of Truth (`resonance.db`).
+**Goal:** Restore the UI improvements (Domain Filtering, Orphan Handling, Visual Polish) that were reverted, but implement them correctly this time using the **Direct Method Import** pattern to prevent Alpine.js method binding errors.
 
 ## User Review Required
 > [!IMPORTANT]
-> This sprint involves **DESTRUCTIVE** actions: `scripts/build_db.ts` and `ctx.db` will be permanently retired. Ensure you have backups if needed (though `conceptual-lexicon.json` is the source of truth).
+> **Constraint Check:** This plan strictly enforces the "Direct Method Import" pattern (`...Viz.methods`) discovered in the `alpinejs-playbook.md`. We will NOT use `Object.fromEntries` wrapping.
 
 ## Proposed Changes
 
-### 1. Database Schema Upgrade
-**Target:** `resonance/src/db.ts`
-- **Modify `nodes` table:**
-    - Add `meta` column (JSON) for tags/aliases (needed for Terms).
-    - Ensure `domain` column distinguishes `persona` (Terms) vs `resonance` (Debriefs).
-    - Ensure `type` column supports `term`, `debrief`, `playbook`, `heuristic`.
+### Phase 1: Method Binding Foundation (Critical Path)
+**Target:** `src/js/components/sigma-explorer/graph.js`
 
-### 2. Unified Ingestion Pipeline
-**Target:** `scripts/sync_resonance.ts`
-- **Load `resonance.settings.json`:**
-    - Read `lexicon` path (e.g., `scripts/conceptual-lexicon-ref-v1.79.json`).
-- **Pipeline A (Lexicon / JSON):**
-    - Iterate through Lexicon items.
-    - Generate Embeddings for each Term.
-    - Insert as `domain: 'persona'`, `type: 'term'`.
-    - Populates `meta` with `aliases`.
-- **Pipeline B (Markdown - Enhanced):**
-    - **AST Chunking:** Instead of 1 Node per File, parse `playbooks/` sections (H2).
-    - Create Child Nodes: `id: playbook-file#section-slug`.
-    - Link `File -> HAS_CHILD -> Section`.
-- **Pipeline C (Edges):**
-    - Link `Debrief -> CITES -> Term` (using regex/AST analysis of `[[Term]]` or "Term Name").
+The root cause of previous failures was broken `this` context when methods tried to call each other. We will fix this foundation first.
 
-### 3. Verification & Cleanup
-- **Script:** `scripts/verify_unification.ts`
-    - Check count of Terms vs Docs.
-    - Verify Vector Search returns mixed results (Terms + Docs).
-- **Legacy Kill:**
-    - Delete `ctx.db` (file).
-    - Delete `scripts/build_data.ts` (if confirmed redundant).
+#### [MODIFY] `src/js/components/sigma-explorer/graph.js`
+- **Change:** Replace `...Object.fromEntries(...)` with `...Viz.methods`.
+- **Change:** Initialize `settings` in the `init()` method so it's available to all methods via `this.settings`.
+- **Verification:** Confirm `toggleColorViz()` can call `resetColors()` without error.
+
+### Phase 2: Domain Logic & Filtering
+**Target:** `src/js/components/sigma-explorer/graph.js` & `public/sigma-explorer/index.html`
+
+Once the foundation is solid, we re-introduce the domain capability.
+
+#### [MODIFY] `src/js/components/sigma-explorer/graph.js`
+- **Add State:** `currentDomain: 'persona'` (options: `persona`, `experience`, `unified`).
+- **Add Logic:** `updateGraphForDomain(domain)` method to filter nodes/edges based on the domain.
+- **Add Persistence:** sync state to URL params.
+
+#### [MODIFY] `public/sigma-explorer/index.html`
+- **Add UI:** Dropdown/Buttons for switching domains.
+
+### Phase 3: Orphan Node Handling
+**Target:** `src/js/components/sigma-explorer/graph.js` & `public/sigma-explorer/index.html`
+
+#### [MODIFY] `src/js/components/sigma-explorer/graph.js`
+- **Add State:** `showOrphans: false`.
+- **Add Logic:** `computeOrphans()` to identify nodes with degree 0.
+- **Add Visuals:** Color orphan nodes distinctly (e.g., Red/Orange) when shown.
+
+#### [MODIFY] `public/sigma-explorer/index.html`
+- **Add UI:** "Show/Hide Orphans" toggle button.
+- **Add Stats:** Display count of orphan nodes.
+
+### Phase 4: Visual Polish
+**Target:** `public/sigma-explorer/index.html`
+
+#### [MODIFY] `public/sigma-explorer/index.html`
+- **Fix:** "Analysis Guide" text color (ensure high contrast in dark/light modes).
+- **Fix:** Button active states (visual feedback for toggles).
 
 ## Verification Plan
 
-### Automated Tests
-```bash
-# 1. Run the Unified Sync
-bun run scripts/sync_resonance.ts
+### 1. Zero-Error Gate (New Protocol)
+- **Action:** Open Browser Console.
+- **Check:** Click "Persona" -> "Experience" -> "Unified".
+- **Pass Criteria:** ZERO red errors in the console. specifically looking for `this.methodName is not a function`.
 
-# 2. Verify Integirty
-bun run scripts/verify_unification.ts
+### 2. Visual Functional Test
+- **Domain Switch:** Graph updates to show different node sets (Persona ~185, Experience ~128).
+- **Orphan Toggle:** Clicking "Show Orphans" makes red nodes appear. Clicking again hides them.
+- **Layout:** Graph centers correctly after domain switch.
 
-# 3. Test Vector Search (Mixed Domain)
-bun run scripts/debug_search.ts "simplicity"
-# Expect:
-# - OH-041 (Heuristic)
-# - Playbook Section (Markdown)
-```
+### 3. Build Verification
+- `tsc --noEmit` (Must pass).
+- `bunx biome check` (Must pass).
