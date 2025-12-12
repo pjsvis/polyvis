@@ -2,6 +2,8 @@ export const initialState = () => ({
 	graph: null,
 	layout: "forceatlas2",
 	layoutInstance: null,
+	showOrphans: false,
+	orphanCount: 0,
 });
 
 export const methods = {
@@ -109,12 +111,64 @@ export const methods = {
 		const currentEdges = this.graph.size;
 		this.status = `${this.activeDomain.toUpperCase()} Graph: ${currentNodes} Nodes, ${currentEdges} Edges.`;
 
+		// Compute Stats & Visibility
+		this.computeOrphanStats();
+		this.updateOrphanVisibility();
+
+		// Update Stats Panel if active
+		if (this.updateStats) this.updateStats();
+
 		// Run Layout
 		this.runLayout("forceatlas2");
 
 		// Apply Default Visualization
 		if (this.toggleColorViz) this.toggleColorViz("louvain", true);
 		if (this.toggleSizeViz) this.toggleSizeViz("pagerank");
+	},
+
+	setDomain(domain) {
+		if (this.activeDomain === domain) return;
+		this.activeDomain = domain;
+
+		// Update URL
+		const url = new URL(window.location);
+		url.searchParams.set("domain", domain);
+		window.history.pushState({}, "", url);
+
+		this.constructGraph();
+	},
+
+	toggleOrphans() {
+		this.showOrphans = !this.showOrphans;
+		this.updateOrphanVisibility();
+	},
+
+	updateOrphanVisibility() {
+		if (!this.graph) return;
+
+		this.graph.forEachNode((node) => {
+			const degree = this.graph.degree(node);
+			if (degree === 0) {
+				if (this.showOrphans) {
+					this.graph.setNodeAttribute(node, "hidden", false);
+					this.graph.setNodeAttribute(node, "color", "#ef4444"); // Red for emphasis
+					// this.graph.setNodeAttribute(node, "size", 8);
+				} else {
+					this.graph.setNodeAttribute(node, "hidden", true);
+				}
+			}
+		});
+
+		if (this.renderer) this.renderer.refresh();
+	},
+
+	computeOrphanStats() {
+		if (!this.graph) return;
+		let count = 0;
+		this.graph.forEachNode((node) => {
+			if (this.graph.degree(node) === 0) count++;
+		});
+		this.orphanCount = count;
 	},
 
 	runLayout(algorithm) {

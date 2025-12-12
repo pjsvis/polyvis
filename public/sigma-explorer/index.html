@@ -233,10 +233,21 @@
                     <!-- Actions Group -->
                     <div>
                         <div class="mb-2 font-mono text-xxs font-bold uppercase" style="color: var(--text-2);">Actions</div>
-                        <button @click="toggleStats()" class="btn-structural w-full justify-start gap-1 text-xs"
-                            :class="{ 'active': showStats }">
-                            <i data-lucide="info" class="h-3 w-3"></i> Toggle Stats
-                        </button>
+                        <div class="space-y-1">
+                            <button @click="toggleOrphans()" class="btn-structural w-full justify-start gap-1 text-xs"
+                                :class="{ 'active': showOrphans }"
+                                @mouseenter="showTooltip($event, 'Show/Hide nodes with no connections.')"
+                                @mouseleave="hideTooltip()">
+                                <i data-lucide="ghost" class="h-3 w-3"></i>
+                                <span x-text="showOrphans ? 'Hide Orphans' : 'Show Orphans'"></span>
+                                <span x-show="orphanCount > 0" class="ml-auto text-xxs opacity-70"
+                                    x-text="'(' + orphanCount + ')'"></span>
+                            </button>
+                            <button @click="toggleStats()" class="btn-structural w-full justify-start gap-1 text-xs"
+                                :class="{ 'active': showStats }">
+                                <i data-lucide="info" class="h-3 w-3"></i> Toggle Stats
+                            </button>
+                        </div>
                     </div>
 
                     <!-- Help Group -->
@@ -321,6 +332,10 @@
                             class="font-bold"></span>
                         <span class="text-gray-500">Avg Deg:</span> <span x-text="stats.avgDegree"
                             class="font-bold"></span>
+                        <span class="text-gray-500">Orphans:</span> <span x-text="stats.orphans"
+                            class="font-bold text-red-500" x-show="stats.orphans > 0"></span>
+                        <span class="text-gray-500" x-show="stats.orphans === 0">Orphans:</span> <span x-text="stats.orphans"
+                            class="font-bold text-gray-400" x-show="stats.orphans === 0"></span>
                     </div>
                 </div>
 
@@ -368,7 +383,7 @@
                                 </span>
                             </summary>
 
-                            <div class="text-xs space-y-2 leading-relaxed font-mono mt-2" style="color: var(--gray-8);">
+                            <div class="text-xs space-y-2 leading-relaxed font-mono mt-2" style="color: var(--text-1);">
                                 <p><strong>Welcome to the Knowledge Graph.</strong></p>
                                 <p>This interactive map visualizes the relationships between key concepts.</p>
                                 <ul class="list-disc pl-4 space-y-1">
