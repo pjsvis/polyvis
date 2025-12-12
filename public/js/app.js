@@ -5172,7 +5172,9 @@ var methods = {
 var initialState2 = () => ({
   graph: null,
   layout: "forceatlas2",
-  layoutInstance: null
+  layoutInstance: null,
+  showOrphans: false,
+  orphanCount: 0
 });
 var methods2 = {
   constructGraph() {
@@ -5265,11 +5267,55 @@ var methods2 = {
     const currentNodes = this.graph.order;
     const currentEdges = this.graph.size;
     this.status = `${this.activeDomain.toUpperCase()} Graph: ${currentNodes} Nodes, ${currentEdges} Edges.`;
+    this.computeOrphanStats();
+    this.updateOrphanVisibility();
+    if (this.updateStats)
+      this.updateStats();
     this.runLayout("forceatlas2");
     if (this.toggleColorViz)
       this.toggleColorViz("louvain", true);
     if (this.toggleSizeViz)
       this.toggleSizeViz("pagerank");
+  },
+  setDomain(domain) {
+    if (this.activeDomain === domain)
+      return;
+    this.activeDomain = domain;
+    const url = new URL(window.location);
+    url.searchParams.set("domain", domain);
+    window.history.pushState({}, "", url);
+    this.constructGraph();
+  },
+  toggleOrphans() {
+    this.showOrphans = !this.showOrphans;
+    this.updateOrphanVisibility();
+  },
+  updateOrphanVisibility() {
+    if (!this.graph)
+      return;
+    this.graph.forEachNode((node) => {
+      const degree = this.graph.degree(node);
+      if (degree === 0) {
+        if (this.showOrphans) {
+          this.graph.setNodeAttribute(node, "hidden", false);
+          this.graph.setNodeAttribute(node, "color", "#ef4444");
+        } else {
+          this.graph.setNodeAttribute(node, "hidden", true);
+        }
+      }
+    });
+    if (this.renderer)
+      this.renderer.refresh();
+  },
+  computeOrphanStats() {
+    if (!this.graph)
+      return;
+    let count = 0;
+    this.graph.forEachNode((node) => {
+      if (this.graph.degree(node) === 0)
+        count++;
+    });
+    this.orphanCount = count;
   },
   runLayout(algorithm) {
     if (!this.graph)
@@ -5311,7 +5357,7 @@ var initialState3 = () => ({
   searchResults: [],
   isSearchFocused: false,
   showStats: false,
-  stats: { nodes: 0, edges: 0, density: 0, avgDegree: 0 },
+  stats: { nodes: 0, edges: 0, density: 0, avgDegree: 0, orphans: 0 },
   tooltip: { visible: false, text: "", x: 0, y: 0 }
 });
 var methods3 = {
@@ -5455,7 +5501,14 @@ var methods3 = {
   },
   toggleStats() {
     this.showStats = !this.showStats;
-    if (this.showStats && this.graph && graphologyLibrary.metrics) {
+    if (this.showStats) {
+      this.updateStats();
+    }
+  },
+  updateStats() {
+    if (!this.stats || !this.graph)
+      return;
+    if (graphologyLibrary.metrics) {
       this.stats.nodes = this.graph.order;
       this.stats.edges = this.graph.size;
       this.stats.density = graphologyLibrary.metrics.graph.density(this.graph).toFixed(4);
@@ -5464,6 +5517,7 @@ var methods3 = {
         totalDegree += this.graph.degree(node);
       });
       this.stats.avgDegree = (totalDegree / this.graph.order).toFixed(2);
+      this.stats.orphans = this.orphanCount || 0;
     }
   },
   showTooltip(event, text) {
