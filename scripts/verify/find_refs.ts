@@ -1,9 +1,9 @@
 import { Database } from "bun:sqlite";
 import { join } from "path";
+import settings from "@/polyvis.settings.json";
 
-const dbPath = join(import.meta.dir, "ctx.db");
-const db = new Database(dbPath); // TODO: DEPRECATED ctx.db - Replace with resonance.db
-
+const dbPath = join(process.cwd(), settings.paths.database.resonance);
+const db = new Database(dbPath);
 const query = db.prepare("SELECT id, label, definition FROM nodes");
 const nodes = query.all() as {
 	id: string;

@@ -91,13 +91,10 @@ We have moved from a "Regex-only" shop to a "Tiered Search" capability.
 -   **mgrep** shines at finding "Concepts". E.g. Querying *"Where is the logic for X?"* found relevant code across HTML and JS files even without shared variable names. It is a "Force Multiplier" for onboarding and discovery.
 
 ### 4. Alternative Local Options (Privacy Focused)
-For environments where `mgrep`'s cloud dependency is not feasible, and `bun:sqlite` lacks native vector extensions:
+For environments where `mgrep`'s cloud dependency is not feasible, we evaluated "Local-First" alternatives:
+-   **ChromaDB:** A lightweight embedding database optimized for local python/js workflows. Good for "building your own" mgrep.
+-   **Tantivy:** A Rust-based full-text search engine (like Lucene but faster) that supports vector search. Given our success with `ripgrep` (Rust), this is a strong architectural fit for future embedded search.
+-   **Qdrant (Local):** Can run as a Docker container or Python library. Very focused on performance.
 
--   **Pure Bun Vector Engine:** We implemented a custom "Zero Magic" solution:
-    -   **Embeddings:** Generated locally via **Ollama** (`nomic-embed-text`).
-    -   **Storage:** Stored as `BLOB` (Float32Array) in standard `resonance.db`.
-    -   **Search:** Brute-force `Float32Array` Cosine Similarity in JavaScript.
-    -   **Performance:** ~10ms search time for < 10k items. No extra database required.
-
-*Recommendation:* Use **Pure Bun Vector Engine** for all local semantic linking needs. It is dependency-free (besides Ollama) and keeps our architecture simple.
+*Recommendation:* Continue with `mgrep` for dev-tooling due to its zero-setup CLI UX. Explore **Chroma** or **Tantivy** if we need to embed semantic search *inside* the finished PolyVis application for end-users.
 

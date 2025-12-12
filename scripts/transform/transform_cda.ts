@@ -16,6 +16,7 @@ import type {
 	EnrichedLexiconConcept,
 	CandidateRelationship,
 } from "@resonance/src/types/enriched-cda";
+import { SemanticMatcher } from "../utils/SemanticMatcher";
 
 // Simple keyword extraction (can be enhanced later)
 function extractKeywords(text: string): string[] {
@@ -236,6 +237,11 @@ async function main() {
 	// Transform CDA
 	console.log("\n📋 Transforming CDA...");
 	const cdaEntries: EnrichedCdaEntry[] = [];
+	
+	// Initialize Semantic Matcher (mgrep wrapper)
+	const semanticMatcher = new SemanticMatcher();
+	console.log("   🤖 Initialized Semantic Matcher");
+    let totalSemanticRels = 0;
 
 	for (const section of cdaData.directives) {
 		for (const entry of section.entries) {
@@ -246,7 +252,49 @@ async function main() {
 			);
 			const keywordRels = matchKeywordsToConcepts(keywords, enrichedConcepts);
 
-			const candidateRels = [...explicitRels, ...keywordRels];
+			// Semantic Search Soft Links
+			const semanticRels: CandidateRelationship[] = [];
+			
+			// Only run if we have a meaty definition to search with
+			if (entry.definition && entry.definition.length > 15) {
+				try {
+					// Search known documentation for semantic references
+					const docsPath = join(process.cwd(), "public/docs");
+					
+					const matches = await semanticMatcher.findCandidates(
+						entry.definition, 
+						docsPath
+					);
+					
+					for (const match of matches) {
+						// Logic: If mgrep returns a match in the lexicon file, 
+						// we need to identify WHICH concept that line belongs to.
+						// Naive approach: Basic text proximity or line number mapping.
+						// Better approach for MVP: Check if the matched content *contains* a concept title.
+						
+						const relatedConcept = enrichedConcepts.find(c => 
+							match.content.toLowerCase().includes(c.title.toLowerCase())
+						);
+
+						if (relatedConcept) {
+							// Avoid dupes from keywords
+							if (!keywordRels.some(r => r.target === relatedConcept.id)) {
+								semanticRels.push({
+									type: "RELATED_TO",
+									target: relatedConcept.id,
+									confidence: 0.65, // Lower than keyword, but significant
+									source: "semantic_search"
+								});
+                                totalSemanticRels++;
+							}
+						}
+					}
+				} catch (e) {
+					// Fail silently to normal flow
+				}
+			}
+
+			const candidateRels = [...explicitRels, ...keywordRels, ...semanticRels];
 
 			// Auto-validate high-confidence relationships
 			const validatedRels = candidateRels
@@ -316,6 +364,11 @@ async function main() {
 	console.log(
 		`   ✅ ${enrichedCda.stats.total_validated_relationships} relationships validated`,
 	);
+
+	console.log(
+		`   ✅ ${enrichedCda.stats.total_validated_relationships} relationships validated`,
+	);
+    console.log(`   ✨ ${totalSemanticRels} SWL (Semantic Soft Links) discovered`);
 
 	// Write output
 	console.log("\n💾 Writing enriched artifacts...");

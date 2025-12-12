@@ -1,7 +1,6 @@
 {
 	"paths": {
 		"database": {
-			"legacy": "scripts/ctx.db",
 			"resonance": "public/resonance.db"
 		},
 		"sources": {

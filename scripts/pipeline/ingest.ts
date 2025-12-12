@@ -46,8 +46,9 @@ async function main() {
 	try {
 		const legacyPath = join(
 			process.cwd(),
-			settings.paths.sources.persona.lexicon,
+						settings.paths.sources.persona.lexicon,
 		);
+		// Note: Legacy variable name preserved for diff minimization, but path is live.
 		if (legacyPath) {
 			const file = Bun.file(legacyPath);
 			if (await file.exists()) {

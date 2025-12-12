@@ -7,8 +7,8 @@ console.log("Starting term extraction...");
 // --- Path Resolution ---
 import settings from "@/polyvis.settings.json";
 
-// TODO: updating ctx.db path to be consistent with settings
-const dbPath = join(process.cwd(), settings.paths.database.legacy);
+// Reading from Resonance DB
+const dbPath = join(process.cwd(), settings.paths.database.resonance);
 const publicDir = join(process.cwd(), "public");
 const outputPath = join(publicDir, "terms.json");
 
