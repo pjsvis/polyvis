@@ -194,7 +194,7 @@ This document outlines the core operational protocols governing the actions of a
     6.  **Prohibition:** Do not, under any circumstances, write the secret value directly into a script, log file, or any other artifact that could be committed.
 
 
-**20. OCIP: Operational Context Initialization Protocol**
+## 20. OCIP: Operational Context Initialization Protocol
 
 * **Principle:** To prevent "vibe coding" and ensure adherence to the project's specific architecture (e.g., "Zero Magic," "Alpine-First"), the agent must perform **Constraint Stacking** and **Context Initialization** before executing any task. Intelligence is not in the model's weights; it is in the project's Playbooks.
 * **Workflow:**
