@@ -7,6 +7,7 @@ import { join } from "path";
 import settings from "@/polyvis.settings.json";
 import { SemanticMatcher } from "../utils/SemanticMatcher";
 import type { EnrichedLexiconDocument } from "@resonance/src/types/enriched-cda";
+import { PipelineValidator } from "@scripts/utils/validator";
 
 // Types for Experience Index
 interface ExperienceNode {
@@ -41,6 +42,10 @@ async function ingest() {
 
 	const db = new Database(DB_PATH);
 	const indexData: ExperienceNode[] = await Bun.file(EXP_INDEX_PATH).json();
+
+	// Initialize Validator
+	const validator = new PipelineValidator();
+	validator.captureBaseline(db);
 
     // Load Enriched Lexicon for Cross-Layer Linking
     const lexPath = join(ROOT_DIR, ".resonance/artifacts/lexicon-enriched.json");
@@ -360,12 +365,25 @@ async function ingest() {
 	console.log(`   + Edges: ${edgesAdded}`);
     console.log(`   + Semantic Links: ${semanticEdges}`);
 
-	db.close();
+	// Validation
+	validator.expect({
+		files_to_process: indexData.length,
+		min_nodes_added: indexData.length, // At least 1 node per experience artifact
+		required_vector_coverage: "none", // This pipeline doesn't create vectors
+	});
+	
+	const report = validator.validate(db);
+	validator.printReport(report);
 
 	db.close();
 
     console.log(`📦 Database updated in place at ${DB_PATH}`);
 	console.log(`🎉 Done.`);
+
+	// Exit with error code if validation failed
+	if (!report.passed) {
+		process.exit(1);
+	}
 }
 
 ingest();
