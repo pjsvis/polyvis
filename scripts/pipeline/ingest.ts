@@ -7,6 +7,8 @@ import { Glob } from "bun";
 import { join } from "path";
 import { parseArgs } from "util";
 import settings from "@/polyvis.settings.json";
+import { PipelineValidator } from "@scripts/utils/validator";
+import { Database } from "bun:sqlite";
 
 // Types
 interface LexiconItem {
@@ -40,6 +42,11 @@ async function main() {
 	const db = new ResonanceDB(dbPath);
 	const embedder = Embedder.getInstance();
 	const tokenizer = TokenizerService.getInstance();
+
+	// Initialize Validator
+	const validator = new PipelineValidator();
+	const sqliteDb = new Database(dbPath);
+	validator.captureBaseline(sqliteDb);
 
 	// 0. Bootstrap Lexicon (for Weaver)
 	let lexicon: LexiconItem[] = [];
@@ -190,8 +197,6 @@ async function main() {
 	const charsPerSec = totalChars / durationSec;
 	const dbStats = db.getStats();
 
-	// Cleanup
-	db.close();
 	console.log(`🏁 Ingestion Complete.`);
 	console.log(`   Processed: ${processedCount} files.`);
 	console.log(
@@ -207,7 +212,24 @@ async function main() {
 	console.log(`   - Semantic Tagged: ${dbStats.semantic_tokens}`);
 	console.log("   ----------------------------------------");
 
+	// Validation
+	validator.expect({
+		files_to_process: processedCount,
+		min_nodes_added: processedCount, // At least 1 node per file
+		required_vector_coverage: "experience",
+	});
+	
+	const report = validator.validate(sqliteDb);
+	validator.printReport(report);
+
+	// Cleanup
+	sqliteDb.close();
 	db.close();
+
+	// Exit with error code if validation failed
+	if (!report.passed) {
+		process.exit(1);
+	}
 }
 
 main().catch(console.error);
