@@ -20,7 +20,6 @@ async function main() {
 	// 1. Load Known Terms
 	// Note: We need settings to know where to find things?
 	// Or do we just scan what's passed?
-	// The previous implementation used 'resonance.settings.json'. Let's restore it.
 
 	let settings: any = {};
 	try {

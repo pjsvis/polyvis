@@ -1,6 +1,6 @@
 import { Database } from "bun:sqlite";
 
-const db = new Database("public/data/ctx.db"); // TODO: DEPRECATED ctx.db - Replace with resonance.db
+const db = new Database("public/resonance.db");
 const query = db.query(
 	"SELECT * FROM edges WHERE source = 'bun-playbook' OR target = 'bun-playbook'",
 );

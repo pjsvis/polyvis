@@ -16,7 +16,7 @@ export interface CandidateRelationship {
 		| "ENABLES";
 	target: string; // Concept ID (e.g., "term-context-preservation")
 	confidence: number; // 0.0 - 1.0
-	source: "explicit_tag" | "keyword_match" | "semantic_similarity";
+	source: "explicit_tag" | "keyword_match" | "semantic_similarity" | "semantic_search";
 }
 
 export interface ValidatedRelationship {

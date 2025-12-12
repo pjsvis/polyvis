@@ -1,162 +1,179 @@
-### Opinion: The Gap is "Engine vs. Blueprint"
+# PolyVis Architecture
 
-We have reviewed your current repository state (`bbl/`), the recent Briefs (\#1-\#5), and the `generate-graph.py` script.
+## System Overview
 
-**The Verdict:** You have a **World-Class Architectural Blueprint** (The Briefs) but a **Prototype Implementation** (The Repo). You have defined *how* the machine should work, but you are currently running it by hand (or with a basic Python script that doesn't yet fully respect the Bento/Tag protocols).
+PolyVis is a knowledge graph system with two distinct domains:
+- **PERSONA**: The ontology (concepts, protocols, directives)
+- **EXPERIENCE**: The temporal knowledge (debriefs, playbooks, telemetry)
 
-Here is the strategic review, the Vector DB fit, and the requested diagrams.
+## Data Flow
 
------
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    INGESTION PIPELINES                       │
+├──────────────────────────┬──────────────────────────────────┤
+│   PERSONA PIPELINE       │   EXPERIENCE PIPELINE            │
+│                          │                                  │
+│   Input:                 │   Input:                         │
+│   - Lexicon (CL)         │   - Debriefs/*.md                │
+│   - Directives (CDA)     │   - Playbooks/*.md               │
+│                          │   - Briefs/*.md                  │
+│   Process:               │                                  │
+│   1. Load JSON           │   Process:                       │
+│   2. Insert as nodes     │   1. Scan for locus tags         │
+│   3. Create edges        │   2. Extract semantic tokens     │
+│      (from CDA links)    │   3. Generate embeddings         │
+│                          │   4. Weave edges (via tokens)    │
+│                          │                                  │
+│   Domain: 'persona'      │   Domain: 'experience'           │
+│   Layer: 'ontology'      │   Layer: 'experience'            │
+└──────────────────────────┴──────────────────────────────────┘
+                           │
+                           ▼
+              ┌────────────────────────┐
+              │  public/resonance.db   │
+              │  (SQLite + WAL)        │
+              │                        │
+              │  Tables:               │
+              │  - nodes               │
+              │  - edges               │
+              └────────────────────────┘
+                           │
+                           ▼
+              ┌────────────────────────┐
+              │   Sigma Explorer UI    │
+              │   (http://localhost:3000/sigma-explorer/)
+              │                        │
+              │   Views:               │
+              │   - Persona Graph      │
+              │   - Experience Graph   │
+              │   - Unified Graph      │
+              └────────────────────────┘
+```
 
-### 1\. The Gap Analysis
+## Configuration (Single Source of Truth)
 
-| Feature | **Blueprint (The Briefs)** | **Reality (The Repo)** | **The Gap** |
-| :--- | :--- | :--- | :--- |
-| **Granularity** | **Bento Box (H2/H3)** is the atomic unit. | **File-Level.** `generate-graph.py` creates nodes for Files, not Sections. | **High.** The graph is currently too coarse ("Hairball Risk"). We need to parse H2/H3s as distinct nodes. |
-| **Discovery** | **"Tag, You're It"** (`tag-slug`). Active scanning & Air-Lock. | **Manual Tags.** `tags: [...]` in frontmatter. No `tag-` scanning in body text. | **High.** We need the Regex Scanner to find `tag-` inside the text, not just the header. |
-| **Linking** | **Layered Graph** (Persona vs. Experience). | **Flat Graph.** Tags create nodes, but no clear distinction between "Concept" and "Entity." | **Medium.** We need to enforce the Domain Separation (Lexicon vs. Index). |
-| **Execution** | **Headless Vibe Agent** with local scripts. | **Manual Drafting.** You are writing the letters; the agent isn't running scripts yet. | **Execution.** We need to install the Vibe config and write the TypeScript tools. |
+**File:** `polyvis.settings.json`
 
------
-
-### 2\. The Vector Database: "The Curator, Not the Author"
-
-You asked how the Vector DB fits. In a **Deductive Minimalist** system, we do not want the Vector DB to *write* our graph (too fuzzy). We want it to *organize* our mess.
-
-**Role 1: The "Smart Garden" (Harvester)**
-
-  * **Problem:** Agents might use `tag-compliance-risk`, `tag-regulatory-risk`, and `tag-legal-risk`.
-  * **Vector Role:** It clusters these tokens in the `_staging.md` file. "These 3 tags are 92% similar. Merge them?"
-  * **Benefit:** Reduces conceptual entropy before it enters the graph.
-
-**Role 2: The "Fuzzy Compass" (Agent Query)**
-
-  * **Problem:** The Agent wants to apply a constraint but doesn't know the exact slug. "Is there a rule about timing?"
-  * **Vector Role:** Semantic Search against the **Persona Graph**.
-  * **Query:** "Timing rules" $\to$ Matches `Concept: 3-Month-Rule` (even if the word "Timing" isn't in the title).
-
-**Conclusion:** The Vector DB is a **Read-Only Utility** for curation and retrieval. It never creates edges on its own.
-
------
-
-### 3\. Visualizing the Pipelines (DOT Diagrams)
-
-Here are the structural flows for your implementation.
-
-#### A. The Ingestion Pipeline (From "Stuff" to "Graph")
-
-This represents the `resonance sync` process defined in Briefs \#1, \#2, and \#3.
-
-```dot
-digraph IngestionPipeline {
-    rankdir=TB;
-    node [shape=box, style=filled, fillcolor="#f0f0f0", fontname="Arial"];
-    
-    subgraph cluster_0 {
-        label = "Normalization (Brief #1)";
-        style=dashed;
-        RawFile [label="Raw.md", shape=note];
-        Linter [label="Bento Normalizer\n(H1/H2 Fixer)"];
-        CleanFile [label="Clean.md"];
+```json
+{
+  "paths": {
+    "database": {
+      "resonance": "public/resonance.db"  // ← CANONICAL PATH
+    },
+    "sources": {
+      "experience": {
+        "directories": ["debriefs", "playbooks", "briefs"]
+      },
+      "persona": {
+        "lexicon": "scripts/fixtures/conceptual-lexicon-ref-v1.79.json",
+        "cda": "scripts/fixtures/cda-ref-v63.json"
+      }
     }
-
-    subgraph cluster_1 {
-        label = "Decomposition";
-        style=dashed;
-        AST [label="AST Parser"];
-        SectionNodes [label="Section Nodes\n(H2/H3)", fillcolor="#d1e7dd"];
-    }
-
-    subgraph cluster_2 {
-        label = "Discovery (Brief #3 & #4)";
-        style=dashed;
-        Harvester [label="Tag Scanner\n(Regex)"];
-        Staging [label="_staging.md\n(The Air-Lock)"];
-        Ratification [label="User Review\n(Vector Clustering)"];
-    }
-
-    subgraph cluster_3 {
-        label = "Weaving (Brief #2)";
-        style=dashed;
-        Weaver [label="Edge Weaver"];
-        GraphX [label="Resonance.db", shape=cylinder, fillcolor="#fff3cd"];
-    }
-
-    RawFile -> Linter -> CleanFile -> AST -> SectionNodes;
-    SectionNodes -> Harvester -> Staging -> Ratification;
-    Ratification -> Weaver;
-    SectionNodes -> Weaver;
-    Weaver -> GraphX [label="Inserts Edges"];
+  }
 }
 ```
 
-#### B. The Agent "Headless" Workflow (Brief \#5)
+## Core Components
 
-This represents the **Vibe Agent** operating in "Execution Mode."
+### 1. ResonanceDB (`resonance/src/db.ts`)
+- SQLite wrapper with FAFCAS protocol
+- Schema: nodes (with embeddings) + edges
+- WAL mode for concurrent access
 
-```dot
-digraph AgentPattern {
-    rankdir=TD;
-    node [shape=box, style=filled, fillcolor="#f9f9f9", fontname="Arial"];
+### 2. TokenizerService (`resonance/src/services/tokenizer.ts`)
+- **Zero Magic** brute-force lexicon scanner
+- Extracts domain-specific terms from text
+- Returns: `{protocols: [], concepts: [], ...}`
 
-    User [shape=ellipse, fillcolor="#e1d5e7"];
-    
-    subgraph cluster_agent {
-        label = "Local Vibe Runtime";
-        style=filled;
-        color="#dae8fc";
-        
-        Context [label="Constraint Stack\n(System Prompt)", shape=note];
-        LLM [label="Devstral Small\n(Inference)"];
-        Safety [label="Domain Bootstrap\n(Safety Tokens)"];
-    }
+### 3. EdgeWeaver (`src/core/EdgeWeaver.ts`)
+- Creates edges between nodes
+- Uses semantic tokens to link documents to concepts
+- Edge types: `MENTIONS`, `CONTAINS`, `RELATED_TO`
 
-    subgraph cluster_tools {
-        label = "TypeScript Toolchain";
-        style=dashed;
-        
-        Script_Query [label="bun query-graph.ts"];
-        Script_Harvest [label="bun harvest-tags.ts"];
-    }
+### 4. Embedder (`resonance/src/services/embedder.ts`)
+- Generates 384-dim vectors via fastembed
+- Normalized via FAFCAS protocol
+- Used for semantic search
 
-    GraphX [label="Persona DB\n(The Wisdom)", shape=cylinder, fillcolor="#fff3cd"];
-    Corpus [label="Experience DB\n(The Files)", shape=folder];
+## Ingestion Scripts
 
-    User -> LLM [label="Command"];
-    Context -> LLM [label="Injects"];
-    Safety -> LLM [label="Injects"];
-    
-    LLM -> Script_Query [label="1. Ask for Definition"];
-    Script_Query -> GraphX [label="Read"];
-    GraphX -> LLM [label="Return Heuristics"];
-    
-    LLM -> Corpus [label="2. Read/Write File"];
-    
-    LLM -> Script_Harvest [label="3. Wrap-Up (Scan Self)"];
-    Script_Harvest -> GraphX [label="Suggest New Tags"];
-}
+### Experience Pipeline
+**Script:** `scripts/pipeline/ingest.ts`
+
+```bash
+bun run scripts/pipeline/ingest.ts
 ```
 
------
+**Process:**
+1. Scans `debriefs/`, `playbooks/`, `briefs/`
+2. Parses locus tags (`<!-- locus: id -->`)
+3. Extracts semantic tokens via TokenizerService
+4. Generates embeddings
+5. Inserts nodes (domain='experience')
+6. Weaves edges via EdgeWeaver
 
-### 4\. The Next Steps Plan
+### Persona Pipeline
+**Script:** `scripts/pipeline/ingest.ts` (same script, different phase)
 
-To close the gap, we need to stop writing Briefs and start writing **Scripts**.
+**Process:**
+1. Loads `conceptual-lexicon-ref-v1.79.json`
+2. Inserts each concept as a node (domain='persona')
+3. Loads `cda-ref-v63.json` (future: create edges from directives)
 
-**Phase 1: The "Bento" Parser (Granularity)**
+## Database Schema
 
-  * **Task:** Write `scripts/normalize.ts` and `scripts/parse-sections.ts`.
-  * **Goal:** Prove we can turn `letter-A.md` into 3 distinct JSON nodes (Header, Body, Footer) instead of 1 file node.
+### nodes
+```sql
+CREATE TABLE nodes (
+    id TEXT PRIMARY KEY,
+    type TEXT,              -- 'concept', 'debrief', 'playbook', etc.
+    title TEXT,
+    content TEXT,
+    domain TEXT,            -- 'persona' or 'experience'
+    layer TEXT,             -- 'ontology' or 'experience'
+    embedding BLOB,         -- FAFCAS normalized vector
+    hash TEXT,              -- content hash for delta detection
+    meta TEXT               -- JSON: {semantic_tokens, tags, etc.}
+);
+```
 
-**Phase 2: The "Tag" Harvester (Discovery)**
+### edges
+```sql
+CREATE TABLE edges (
+    source TEXT,
+    target TEXT,
+    type TEXT,              -- 'MENTIONS', 'CONTAINS', etc.
+    PRIMARY KEY (source, target, type)
+);
+```
 
-  * **Task:** Write `scripts/harvest.ts`.
-  * **Goal:** Run it on your `bbl/` folder and see if it extracts `tag-regulatory-breach` from the text body (not just frontmatter).
+## Known Issues & TODOs
 
-**Phase 3: The Vibe Integration (Execution)**
+1. **CDA Integration:** Directives (CDA) are loaded but not yet creating edges
+2. **Orphan Nodes:** Experience nodes may be orphaned if no semantic tokens match lexicon
+3. **Legacy Scripts:** Several scripts still reference deprecated `resonance.settings.json`
 
-  * **Task:** Deploy the `config.toml` and `system_prompt.md`.
-  * **Goal:** Get Vibe to run the Phase 2 script automatically after writing a letter.
+## Development Workflow
 
-**Recommendation:**
-Focus immediately on **Phase 1 (Granularity)**. Without the "Bento Box" nodes, the graph will remain a "Hairball" of files, and the agent's context window will be flooded with noise.
+1. **Modify Content:** Edit debriefs/playbooks or update lexicon
+2. **Run Ingestion:** `bun run scripts/pipeline/ingest.ts`
+3. **View Graph:** Navigate to `http://localhost:3000/sigma-explorer/`
+4. **Select Domain:** Click "Persona" or "Experience" in left sidebar
+
+## Troubleshooting
+
+### "Graph shows 0 nodes"
+- Check database exists: `ls -l public/resonance.db`
+- Verify ingestion ran: Check for "Ingestion Complete" message
+- Inspect DB: `bun run scripts/verify/verify_db_content.ts public/resonance.db`
+
+### "Database is locked"
+- Close any open connections
+- Stop dev server if needed
+- Run checkpoint: `bun run scripts/pipeline/checkpoint.ts`
+
+### "No edges in Experience graph"
+- Verify semantic tokens are being extracted (check node meta)
+- Ensure lexicon terms appear in document content
+- Check EdgeWeaver logs for `[Weaver]` messages
