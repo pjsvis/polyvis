@@ -59,7 +59,7 @@
 
 .app-sidebar-left {
 	grid-area: left;
-	border-right: var(--border-size-1) solid var(--gray-3);
+	border-right: var(--border-size-1) solid var(--border-base);
 	background-color: var(--accent);
 	overflow: hidden;
 	/* Sidebar itself doesn't scroll, children do */
@@ -106,7 +106,7 @@
 
 .app-sidebar-right {
 	grid-area: right;
-	border-left: var(--border-size-1) solid var(--gray-3);
+	border-left: var(--border-size-1) solid var(--border-base);
 	background-color: var(--accent);
 	overflow: hidden;
 	/* Sidebar itself doesn't scroll, children do */
