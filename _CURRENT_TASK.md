@@ -1,22 +1,18 @@
-# Current Task: Ingestion Pipeline Verification
+# Current Task: Rationalise Ingestion Pipelines
 
 ## Status: COMPLETE ✅
 **Start Date:** 2025-12-13
-**Completion Date:** 2025-12-13
+**ETA:** 0
 
 ## Objective
-Verify, document, and audit the architecture of the `PERSONA` and `EXPERIENCE` ingestion pipelines to ensure "Context Lake" separability.
+Unify `resonance`/`knowledge` domains into `experience` and implement "Narrative" vectorization.
 
 ## Outcomes
-- **Architecture Verified:** "Bifurcation" works. `persona`, `resonance` (structure), and `knowledge` (vectors) domains coexist in one DB.
-- **Documentation:** Created "Glass Box" documentation in `playbooks/ingestion-pipeline-playbook.md`.
-- **Tooling:** Created `scripts/verify/check_domains.ts` for domain separability auditing.
-- **Artifacts:** Full debrief in `debriefs/2025-12-13-ingestion-pipeline-verification.md`.
+- **Unified Domain:** `experience` (165 nodes).
+- **Narrative Vectors:** Active for playbooks/debriefs.
+- **Diagnostic:** `ask_context.ts` confirms retrieval.
 
 ## Verification Results
-- [x] Pipelines run successfully (with known idempotency warnings)
-- [x] Database contains distinct `persona`, `resonance`, and `knowledge` nodes
-- [x] Domain graphs are separable by SQL query
-
-## Next Steps
-- **Visualization:** Update the Sigma Graph Explorer to visualize these new domains securely (avoiding vector bloat).
+- [x] `tsc --noEmit` passed
+- [x] Domain unification verified
+- [x] Vector retrieval verified

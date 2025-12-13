@@ -216,7 +216,7 @@ async function main() {
 	validator.expect({
 		files_to_process: processedCount,
 		min_nodes_added: processedCount, // At least 1 node per file
-		required_vector_coverage: "experience",
+		required_vector_coverage: "experience", // Expect vectors in the experience domain
 	});
 	
 	const report = validator.validate(sqliteDb);
@@ -348,22 +348,32 @@ async function processBox(
 
 	console.log(`⚡️ [${id}] Ingesting (${content.length} chars)...`);
 
-	// 2. Embedding
-	// Only embed if content is sufficient?
-	const embedding = await embedder.embed(content);
+	// 2. Embedding Strategy: "Narrative Only"
+	// We only process expensive vectors for high-value content.
+    // Structural nodes (logs, etc) get into the graph but skip the vector store.
+    const narrativeFolders = ["playbooks", "debriefs", "knowledge", "briefs"];
+    const isNarrative = narrativeFolders.some(folder => sourcePath.includes(folder));
 
-	// 3. Insert Node
+	let embedding: Float32Array | undefined = undefined;
+    if (isNarrative && content.length > 50) {
+        embedding = await embedder.embed(content) || undefined; // Ensure undefined if null returned
+    }
+
+	// 3. Insert Node (Unified Domain)
 	const node = {
 		id: id,
 		type: type,
 		label: meta.title || sourcePath.split("/").pop(), // Fallback title
 		content: content,
-		domain: "knowledge", // Default
-		layer: "experience", // Default
-		embedding: embedding, // Float32Array
+		domain: "experience", // UNIFIED DOMAIN
+		layer: "note",        // Default layer for file-based content
+		embedding: embedding, // undefined if not narrative
 		hash: currentHash,
 		meta: { ...meta, source: sourcePath, semantic_tokens: tokens },
 	};
+
+    // TODO: Trigger Edge Generation (The Zipper)
+    // Scan content for [[references]] and link to 'persona' domain concepts.
 
 	db.insertNode(node);
 
