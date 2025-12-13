@@ -1,31 +1,24 @@
-# Current Task: Sigma Explorer UI Tweaks
+# Current Task: Bento Processor (Batch Mode)
 
 ## Status: COMPLETE ✅
-**Start Date:** 2025-12-11
+**Start Date:** 2025-12-12
 **Completion Date:** 2025-12-12
 
 ## Objective
-Improve Sigma Explorer UI to better visualize the PERSONA graph, handle orphan nodes, and provide better domain filtering and navigation.
+Scale the "Bento Boxing" prototype into a batch processing script that annotates all debriefs in `scratchpads/debriefs/`, with hierarchical support for H3s.
 
 ## Outcomes
-- **Method Binding Fixed:** Confirmed correct usage of direct method imports in `index.js`.
-- **Domain Filtering:** Consolidated `setDomain` logic into `graph.js` (URL + State + Graph Rebuild).
-- **Orphan Handling:** Implemented robust "Last Write Wins" logic for orphan visibility/coloring.
-- **Code Quality:** Zero linting errors in `src/js/components/sigma-explorer/`.
+- **Matryoshka Logic:** `scripts/lab/bento-processor.ts` now supports H2 containers and H3 atoms.
+- **Density Threshold:** H3s are only boxed if > 40 words.
+- **Linking:** Child boxes reference `parent-id`.
+- **Scale:** 302 semantic units generated from 48 files.
 
 ## Verification Results
-- [x] Zero console errors (Linted & Verified Code Structure)
-- [x] Domain filtering works smoothly (Logic consolidated)
-- [x] Orphan node handling works (Visual + Toggle priority enforced)
-- [x] All buttons show correct states and behavior
-- [x] UI styling displays correctly
-- [x] Stats reset properly between domains
-- [x] Community detection works with proper resolution
-
-## Lessons Learned
-- **Spread Operator Hazards:** Duplicate method names in spread modules can silently overwrite each other. Checked and fixed `setDomain` duplication.
-- **Layering Visualization:** "Overlay" features like Orphan highlighting must be applied *after* base visualizations (Louvain/PageRank) to persist.
+- [x] Batch processing works (48 files)
+- [x] H3 detection works
+- [x] Threshold logic works (Short H3s skipped)
+- [x] Parent linking works (`parent-id` injected)
 
 ## Next Steps
-- Monitor user feedback on the new "Show Orphans" behavior.
-- Consider adding "Community filtering" more explicitly in future.
+- **Ingestion:** Update `ingest_experience_graph.ts` to parse these new tags.
+- **Graph:** Visualize the hierarchy (H2 -> H3 edges).
