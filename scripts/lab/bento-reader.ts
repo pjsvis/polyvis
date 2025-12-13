@@ -11,7 +11,7 @@ const src = await file.text();
 const tokens = marked.lexer(src);
 
 // 2. Parse State Machine
-let currentBentoId = null;
+let currentBentoId: string | null = null;
 let buffer = '';
 let count = 0;
 
