@@ -12,7 +12,16 @@ The application is built with HTML, CSS, and [Alpine.js](https://alpinejs.dev/),
 - **Alpine.js Reactivity:** Uses [Alpine.js](https://alpinejs.dev/) for a lightweight, reactive UI without a complex build step.
 - **Alpine.js Reactivity:** Uses [Alpine.js](https://alpinejs.dev/) for a lightweight, reactive UI without a complex build step.
 - **Zero-Build Frontend:** Built with vanilla web technologies and Alpine.js for maximum simplicity and performance.
-- **Themable UI:** All design tokens (colors, dimensions) are centralized in `src/css/layers/theme.css` for easy customization.
+-   **Themable UI:** All design tokens (colors, dimensions) are centralized in `src/css/layers/theme.css` ("The Control Panel") for easy customization.
+-   **Semantic Styling:** No magic numbers. All styles use semantic variables (e.g., `--surface-panel`, `--border-base`) for consistent theming.
+
+## Design System (The Control Center)
+The application's visual design is strictly controlled by **`src/css/layers/theme.css`**. This file acts as a configuration panel for:
+-   **Dimensions:** Sidebar widths, header heights.
+-   **Colors:** Semantic mappings (e.g., `--surface-1`, `--brand`).
+-   **Spacing:** Global padding and gaps.
+
+**Protocol:** Always check and tweak `theme.css` before modifying component styles.
 
 ## Prerequisites
 
@@ -37,24 +46,35 @@ For detailed instructions on CSS development, database building, and running the
 
 ## Project Structure
 
+### 3. Detailed Documentation
+For a deep dive on the codebase organization, please see **[Project Structure](docs/webdocs/project-structure.md)**.
+
+## Project Structure (High Level)
+
 ```
-├── public/              # The application's web root
-│   ├── explorer/        # The main graph explorer page
-│   │   └── index.html
-│   ├── data/            # Static data files for the frontend
-│   │   └── ctx.db
-│   └── terms.json       # Curated search terms for the UI
+├── public/              # Web Root (HTML, Static Data)
+│   ├── explorer/        # Sigma.js Graph Explorer
+│   └── resonance.db     # SQLite Database (generated locally)
 │
-├── scripts/             # Build scripts for data processing
-│   ├── build_db.ts      # Script to build the SQLite database
-│   ├── extract_terms.ts # Script to generate the terms.json file
-│   └── *.json           # Source data files
+├── src/                 # Application Source Code
+│   ├── core/            # The Bento Box Kernel (Normalizer, Weaver)
+│   ├── config/          # Shared Configuration
+│   └── db/              # Database Schemas
 │
-├── .gitignore           # Specifies files to be ignored by Git
-├── LICENSE              # Project license (MIT)
+├── scripts/             # Data Pipeline & Tooling
+│   ├── pipeline/        # ETL Scripts (Sync, Load)
+│   ├── cli/             # Command Line Tools (Harvest)
+│   └── verify/          # Integrity Checks
+│
+├── docs/                # Project Documentation
+├── playbooks/           # Operational Protocols
+├── polyvis.settings.json # Central Configuration
 └── README.md            # This file
 ```
 
 ## Contributing
-
-Contributions are welcome. This project is licensed under the MIT License. Please feel free to open issues or submit pull requests.
+## Contribution Guidelines
+Please review `AGENTS.md` for our operational protocols, specifically:
+-   **EVP (Empirical Verification Protocol):** Use the browser to verify, don't guess.
+-   **GEP (Granular Execution Protocol):** One step at a time.
+ Please feel free to open issues or submit pull requests.

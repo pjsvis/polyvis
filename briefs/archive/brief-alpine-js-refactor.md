@@ -1,10 +1,12 @@
+# Brief Alpine Js Refactor
+
 This is the **Weaponised Happy Path** for the refactor. We are moving from "Imperative Spaghetti" (Vanilla JS) to "Declarative Reactive" (Alpine.js).
 
 This brief is designed to be handed directly to your coding agent (VS Code / Ctx-VS).
 
 ---
 
-# **Project Brief: Refactor UI to Alpine.js (Reactive "Thingification")**
+## **Project Brief: Refactor UI to Alpine.js (Reactive "Thingification")**
 
 Objective:  
 Refactor the existing public/index.html and associated scripts to replace "raw" vanilla JavaScript event handling (addEventListener, getElementById) with Alpine.js.  
@@ -22,14 +24,14 @@ Refactor the existing public/index.html and associated scripts to replace "raw" 
 
 ### **2\. Implementation Plan**
 
-#### **Step A: The "Service Layer" (The Data Wrapper)**
+****Step A: The "Service Layer" (The Data Wrapper)****
 
 Encapsulate the existing sql.js logic into a global object or function that returns a Promise.
 
 * *Current:* Loose functions mixed with DOM manipulation.  
 * *Target:* A clean API like window.LexiconService.search(term).
 
-#### **Step B: The "State Object" (Alpine x-data)**
+****Step B: The "State Object" (Alpine x-data)****
 
 Create a main Alpine component on the \<body\> or main container.
 
@@ -43,7 +45,7 @@ Create a main Alpine component on the \<body\> or main container.
   * performSearch(): Call the Service Layer, update results.  
   * clear(): Reset state.
 
-#### **Step C: The "View Layer" (HTML Refactor)**
+****Step C: The "View Layer" (HTML Refactor)****
 
 Strip all ID-based listeners and manual DOM updates.
 

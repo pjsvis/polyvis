@@ -3,11 +3,15 @@
 ## Purpose
 A debrief is a retrospective document created after the completion of a significant task or milestone. It captures what was done, what went wrong, and what was learned to improve future work.
 
+**Critical:** Debriefs are **MANDATORY** for all significant changes per the **Change Management Protocol (CMP)**. A debrief documents what actually happened, not what was planned. It includes verification proof that changes work as intended.
+
+**Reference:** See `playbooks/change-management-protocol.md` for the full Plan → Execute → Verify → Debrief cycle.
+
 ## File Naming
-- **Drafting:** You may create `DEBRIEF.md` in the project root for visibility during the session.
-- **Final Location:** `debriefs/` directory
-- **Final Name:** `YYYY-MM-DD-[slug].md` (e.g., `debriefs/2025-11-25-sidebar-refinements.md`)
-- **Requirement:** You **must** move the draft to the final location before finishing the session.
+- **Convention:** `YYYY-MM-DD-topic.md` (date first, always)
+- **Drafting:** You may create `debrief-topic-YYYY-MM-DD.md` in the project root for visibility during the session
+- **Final Location:** `debriefs/` directory (must be moved before session end)
+- **Enforcement:** Run `bun run scripts/maintenance/fix-debrief-names/index.ts` to verify/fix naming
 
 ## Template
 
@@ -17,7 +21,7 @@ date: [YYYY-MM-DD]
 tags: [tag1, tag2, tag3]
 ---
 
-# Debrief: [Task Name]
+## Debrief: [Task Name]
 
 ## Accomplishments
 

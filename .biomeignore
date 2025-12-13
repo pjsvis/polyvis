@@ -1,0 +1,9 @@
+**/*-bak.html
+**/*.bak
+public/layout-test.html
+public/test/
+public/js/
+public/css/app.css
+node_modules/
+dist/
+.DS_Store
