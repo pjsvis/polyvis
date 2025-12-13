@@ -2,7 +2,7 @@
 
 ## Current Score
 **USER:** 1
-**AGENT:** 0
+**AGENT:** 1
 
 ## Rules of the Game
 1.  **Agent Failure:** If the Agent declares a task "Complete" but immediate verification (e.g., `tsc`) fails, the User gains a point.
@@ -12,4 +12,5 @@
 ## Match History
 | Date | Winner | Reason |
 | :--- | :--- | :--- |
+| 2025-12-13 | **AGENT** | **Redemption:** Agent successfully unified domains and implemented narrative vectors. Crucially, Agent ran `tsc` *during* verification, caught errors, fixed them, and validated with `ask_context.ts` *before* declaring completion. |
 | 2025-12-13 | **USER** | **False Summit:** Agent declared "Ingestion Pipeline Verification" complete, but failed to run `tsc`, leaving broken build errors in `bento-processor.ts`. |
