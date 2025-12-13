@@ -4,19 +4,21 @@
 
 /* RAM Grid Pattern */
 .card-grid {
-    display: grid;
-    gap: var(--size-4);
-    grid-template-columns: repeat(auto-fit, minmax(min(var(--size-content-1), 100%), 1fr));
+	display: grid;
+	gap: var(--size-4);
+	grid-template-columns: repeat(
+			auto-fit,
+			minmax(min(var(--size-content-1), 100%), 1fr)
+		);
 }
 
 /* Structural Components */
 .container-box {
-    border: var(--border-width) solid var(--primary);
-    background: var(--secondary);
-    padding: var(--size-fluid-2);
-    box-shadow: var(--size-2) var(--size-2) 0px rgba(0, 0, 0, 0.1);
+	border: var(--border-width) solid var(--primary);
+	background: var(--secondary);
+	padding: var(--size-4);
+	box-shadow: var(--shadow-offset) var(--shadow-offset) 0px rgba(0, 0, 0, 0.1);
 }
-
 
 /* 
    App Shell Layout (Holy Grail Grid)
@@ -25,82 +27,182 @@
    - Main content takes remaining space and scrolls internally
 */
 .app-shell {
-    display: grid;
-    grid-template-areas:
-        "header header header"
-        "left   main   right"
-        "footer footer footer";
-    grid-template-rows: var(--header-height) minmax(0, 1fr) var(--footer-height);
-    /* Header, Main (expands), Footer */
-    /* Use semantic variables for sidebar widths */
-    grid-template-columns: var(--sidebar-width-left) minmax(0, 1fr) var(--sidebar-width-right);
-    height: 100vh;
-    /* Fill the screen */
-    width: 100vw;
-    background-color: var(--accent);
-    overflow: hidden;
-    /* Ensure shell itself doesn't scroll */
+	display: grid;
+	grid-template-areas:
+		"header header header"
+		"left   main   right"
+		"footer footer footer";
+	grid-template-rows: var(--header-height) minmax(0, 1fr) var(--footer-height);
+	/* Header, Main (expands), Footer */
+	/* Use semantic variables for sidebar widths */
+	grid-template-columns: var(--sidebar-width-left) minmax(0, 1fr) var(
+			--sidebar-width-right
+		);
+	height: 100vh;
+	/* Fill the screen */
+	width: 100vw;
+	background-color: var(--accent);
+	overflow: hidden;
+	/* Ensure shell itself doesn't scroll */
 }
 
 /* Zone Mapping */
 .app-header {
-    grid-area: header;
-    height: var(--header-height);
+	grid-area: header;
+	height: var(--header-height);
+	background-color: var(--secondary);
+	border-bottom: var(--border-width) solid var(--primary);
+	display: flex;
+	justify-content: center;
+	align-items: center;
 }
 
 .app-sidebar-left {
-    grid-area: left;
-    border-right: var(--border-size-1) solid var(--gray-3);
-    background-color: var(--surface-2);
-    overflow: hidden;
-    /* Sidebar itself doesn't scroll, children do */
-    min-height: 0;
-    /* Critical for grid row constraint */
-    display: flex;
-    flex-direction: column;
+	grid-area: left;
+	border-right: var(--border-size-1) solid var(--border-base);
+	background-color: var(--accent);
+	overflow: hidden;
+	/* Sidebar itself doesn't scroll, children do */
+	min-height: 0;
+	/* Critical for grid row constraint */
+	display: flex;
+	flex-direction: column;
+	align-items: var(--sidebar-content-align);
+	padding: var(--sidebar-padding);
+	container-type: inline-size;
+	container-name: sidebar;
+	transition: transform 0.3s ease-in-out;
+	z-index: 50;
+
+	@media (max-width: 768px) {
+		position: fixed;
+		top: var(--header-height);
+		bottom: 0;
+		left: 0;
+		width: 80%;
+		border-right: var(--border-width) solid var(--primary);
+		box-shadow: var(--shadow-3);
+	}
 }
 
 .app-main {
-    grid-area: main;
-    padding: var(--size-4);
-    overflow: hidden;
-    /* Strict container for internal grid */
-    min-height: 0;
-    /* Critical for grid row constraint */
-    display: flex;
-    flex-direction: column;
+	grid-area: main;
+	padding: var(--size-4);
+	overflow: hidden;
+	/* Strict container for internal grid */
+	min-height: 0;
+	/* Critical for grid row constraint */
+	display: flex;
+	flex-direction: column;
+	container-type: inline-size;
+	container-name: main;
+}
+
+/* Page Layout (Docs, etc) - Enable Scrolling */
+.page-layout .app-sidebar-left,
+.page-layout .app-main {
+	overflow-y: auto;
 }
 
 .app-sidebar-right {
-    grid-area: right;
-    border-left: var(--border-size-1) solid var(--gray-3);
-    background-color: var(--surface-2);
-    overflow: hidden;
-    /* Sidebar itself doesn't scroll, children do */
-    min-height: 0;
-    /* Critical for grid row constraint */
-    display: flex;
-    flex-direction: column;
+	grid-area: right;
+	border-left: var(--border-size-1) solid var(--border-base);
+	background-color: var(--accent);
+	overflow: hidden;
+	/* Sidebar itself doesn't scroll, children do */
+	min-height: 0;
+	/* Critical for grid row constraint */
+	display: flex;
+	flex-direction: column;
+	align-items: var(--sidebar-content-align);
+	padding: var(--sidebar-padding);
+	container-type: inline-size;
+	container-name: sidebar;
+	transition: transform 0.3s ease-in-out;
+	z-index: 50;
+
+	@media (max-width: 768px) {
+		position: fixed;
+		top: var(--header-height);
+		bottom: 0;
+		right: 0;
+		width: 80%;
+		border-left: var(--border-width) solid var(--primary);
+		box-shadow: var(--shadow-3);
+	}
 }
 
 .app-footer {
-    grid-area: footer;
-    display: flex;
-    justify-content: center;
-    padding: var(--size-4);
-    height: var(--footer-height);
-    align-items: center;
+	grid-area: footer;
+	display: flex;
+	justify-content: center;
+	padding: var(--size-4);
+	height: var(--footer-height);
+	align-items: center;
 }
 
 /* Stack Layout Primitive */
-[class^='stack']>* {
-    margin-block: 0;
+[class^="stack"] > * {
+	margin-block: 0;
 }
 
-.stack-large>*+* {
-    margin-block-start: var(--size-4);
+.stack-large > * + * {
+	margin-block-start: var(--size-4);
 }
 
-.stack-small>*+* {
-    margin-block-start: var(--size-1);
+.stack-small > * + * {
+	margin-block-start: var(--size-1);
+}
+
+/* ... home layout (Moved to end for specificity) ... */
+
+.home-layout .app-sidebar-left,
+.home-layout .app-sidebar-right,
+.home-layout .app-footer {
+	display: none;
+}
+
+.home-layout .app-header {
+	background-color: transparent;
+	border-bottom: none;
+}
+
+.home-layout .nav-wrapper {
+	max-width: var(--width-home-box);
+}
+
+.home-layout .app-main {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	gap: var(--size-2);
+}
+/* ... home layout ... */
+
+/* FORCE OVERRIDE FOR RIGHT SIDEBAR (Sigma Explorer) */
+#right-sidebar-override {
+	background-color: var(--white);
+	color: var(--black);
+	color-scheme: light;
+}
+
+#right-sidebar-override * {
+	color: var(--black);
+}
+
+#right-sidebar-override button {
+	color: var(--black);
+}
+
+#right-sidebar-override .text-gray-500,
+#right-sidebar-override .text-gray-400,
+#right-sidebar-override .text-gray-600 {
+	color: var(--gray-9);
+	/* Slightly softer for secondary text, but still dark */
+}
+
+#right-sidebar-override details[open] {
+	background-color: var(--white);
+	border: var(--border-size-1) solid var(--gray-3);
 }

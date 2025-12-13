@@ -70,6 +70,9 @@ This document outlines the core operational protocols governing the actions of a
   2.  **Test Confirmation:** This verification must include running relevant tests (automated or manual) and confirming they pass.
   3.  **Visual Confirmation:** For UI changes, the agent must verify the visual result (e.g., via screenshot or user confirmation) before closing the task.
   4.  **Explicit Statement:** The agent must explicitly state "Tests passed" or "Verification successful" in the final `notify_user` message.
+  5.  **Regression Guarding:** When modifying core infrastructure (e.g., database schema, graph logic), the FIRST verification step is **"Baseline Preservation."** You must confirm that *existing* functionality remains unchanged BEFORE verifying the *new* feature.
+      *   *Constraint:* "First, do no harm."
+      *   *Action:* Explicitly state: "Baseline functionality verified: [Describe what was checked]."
 
 ## 9. SWP: Session Wrap-up Protocol
 
@@ -89,6 +92,175 @@ This document outlines the core operational protocols governing the actions of a
   4.  **Centralization:** `theme.css` is the single source of truth for the application's visual configuration.
 
 ## 11. PMP: Port Management Protocol
-    - **Directive:** If Port 3000 is in use when starting the dev server, KILL the process occupying it.
-    - **Command:** `lsof -ti:3000 | xargs kill -9` (or equivalent).
-    - **Reasoning:** We standardized on Port 3000. Agents must ensure the environment is clear before starting `bun run dev`.
+
+- **Directive:** If Port 3000 is in use when starting the dev server, KILL the process occupying it.
+    
+## 12. EVP: Empirical Verification Protocol
+
+- **Directive:** Do not guess. Verify. The "truth" is what the environment (browser, runtime, or library) actually does, not what you assume it does.
+
+- **Workflow (UI Debugging):**
+    - **Action:** When diagnosing UI issues, you MUST use the browser tools to inspect computed styles.
+    - **Reasoning:** Theoretical CSS debugging is prohibited when a live environment is available.
+
+- **Workflow (External API / Library Debugging):**
+    - **Context:** When integrating with an external library (especially a beta or poorly documented one), repeated `TypeError` or `ValidationError`s are signs of a flawed mental model.
+    - **Action Sequence:**
+        1.  **Stop Guessing:** After a maximum of two failed attempts based on assumptions, halt immediately. Do not try a third guess.
+        2.  **Verify Dependency Stability:** Check for the existence of `bun.lockb`. If it is missing, run `bun install` to generate it. This ensures a known, reproducible state.
+        3.  **Find the Ground Truth:** Navigate to `node_modules/` and locate the library's TypeScript definition files (`.d.ts`). **This is the primary source of truth.** Read the type definitions for the relevant classes and methods to understand their exact names, parameters, and return types.
+        4.  **Decode Validation Errors:** Treat `SDKValidationError` or similar errors as explicit instructions from the library. Analyze the error's `path` and `expected` properties to precisely correct the structure of your request payload. Do not guess the structure.
+        5.  **Isolate (If Necessary):** If the API contract is still unclear, create a temporary scratchpad file (e.g., `SCRATCHPAD_api_discovery.ts`) to run a minimal, isolated test against the specific method in question.
+
+- **Workflow (System Documentation):**
+    - **Context:** When creating documentation that describes a system or process (e.g., a data pipeline), the documentation is an abstraction of that system. An error in the documentation is as significant as an error in the code.
+    - **Action:** You MUST read and fully comprehend the source code of the system being documented (e.g., a build script's configuration) before writing the description.
+    - **Reasoning:** Making assumptions about a system's behavior for documentation purposes is a violation of the "Do not guess. Verify." directive. The documentation must reflect the ground truth of the implementation.
+
+## 13. GEP: Granular Execution Protocol
+
+- **Directive:** When fixing regressions or performing complex refactors, proceed one isolated step at a time.
+- **Workflow:**
+    1.  Diagnose one specific issue.
+    2.  Propose the fix.
+    3.  Apply the fix.
+    4.  Verify the fix.
+    5.  Only then move to the next issue.
+- **Reasoning:** Prevents compounding errors and "bounding ahead" without validation.
+
+## 14. TFP: Theme First Protocol
+
+- **Principle:** `src/css/layers/theme.css` is the **Control Center** for the application's design. It is the single source of truth for all tweakable values.
+- **Workflow:**
+  1.  **Check:** Before styling, check `theme.css` for an existing variable.
+  2.  **Tweak:** If a variable exists, adjust it there to propagate changes globally.
+  3.  **Propose:** If no variable exists, propose creating a new semantic variable in `theme.css`.
+  4.  **Prohibition:** Do not hardcode "magic numbers" (pixels, hex codes) in component CSS or HTML.
+
+## 15. DSP: Design Sanity Protocol
+
+-   **Principle:** Design is an iterative process of emotional translation, not a single technical execution. To maintain sanity and quality:
+-   **Workflow:**
+    1.  **Translate:** Convert emotional keywords ("fun", "clean", "inviting") into technical primitives (spacing, rounded corners, whitespace).
+    2.  **Isolate:** Break the design into isolated components (e.g., "The Card", "The Stack").
+    3.  **Iterate:** Apply one change at a time (e.g., "Just the spacing", then "Just the font size").
+    4.  **Verify:** Visually confirm each micro-step before proceeding. Do not batch 10 design changes without looking.
+    5.  **Control:** Use `theme.css` as the mixing board. Tweak variables to find the "sweet spot" without touching the DOM.
+
+## 16. BFP: Bun First Protocol
+
+-   **Principle:** Bun is the designated runtime and package manager. `npm`, `yarn`, or `pnpm` are prohibited unless strictly necessary.
+-   **Workflow:**
+    1.  **Commands:** Always use `bun run`, `bun install`, `bun add`.
+    2.  **Scripts:** Ensure all `package.json` scripts are compatible with Bun.
+    3.  **Performance:** Leverage Bun's speed for builds and dev servers.
+
+## 17. BCP: Browser Capabilities Protocol
+
+- **Principle:** Agents must explicitly verify browser capabilities and network access boundaries before making assumptions about the environment.
+- **Context:**
+    - `getComputedStyle` is permitted on `localhost` without user prompts.
+    - External domains (e.g., `example.com`) may be accessible despite `browserAllowList.txt` restrictions.
+- **Workflow:**
+    1.  **Verify:** When using browser APIs, verify they work as expected in the current environment.
+    2.  **Monitor:** Keep a vigilant eye on network requests. If external access is detected where it should be restricted, note it.
+    3.  **No Assumptions:** Do not assume `browserAllowList.txt` guarantees isolation.
+
+## 18. RAP: Reality Alignment Protocol
+
+- **Principle:** If an agent attempts a fix 3 times without a verified change in outcome, it **must** stop, revert, and switch to an isolation/investigation mode.
+- **Context:**
+    -   **The Illusion of Progress:** Furiously editing code and running commands without observable changes indicates a flawed mental model.
+    -   **Process Smells:**
+        -   *The Spin Cycle:* Editing the same file 3+ times with different guesses.
+        -   *The Silent Failure:* Commands succeed but output doesn't change.
+        -   *The Complexity Spiral:* Adding code to fix a bug that shouldn't exist.
+- **Workflow:**
+    1.  **Monitor:** Count your attempts at a specific fix.
+    2.  **Trigger:** If Attempt #3 fails to produce the expected result: **STOP**.
+    3.  **Revert:** Undo the "guesswork" changes.
+    4.  **Isolate:** Switch to a "Clean Room" strategy (see `playbooks/problem-solving-playbook.md`) to verify the component in isolation.
+    5.  **Verify:** Only return to the main codebase once the fix is proven in isolation.
+
+## 19. SEP: Secret Exclusivity Protocol
+
+-   **Principle:** API keys, tokens, and other secrets must never be hardcoded in source files or checked into version control. They must be managed exclusively through environment variables.
+-   **Workflow:**
+    1.  **Identification:** When an API key or other secret is required, identify it as sensitive information.
+    2.  **Storage:** Store the secret in a `.env` file in the project root. The variable name should be prefixed with the service it relates to (e.g., `MISTRAL_API_KEY`).
+    3.  **Gitignore:** Ensure `.env` is listed in the project's `.gitignore` file to prevent it from being committed.
+    4.  **Access:** In the code (e.g., Bun, Node.js), access the secret using `process.env.VARIABLE_NAME`.
+    5.  **Validation:** The code must include a check to ensure the environment variable is present at runtime and throw a clear error if it is missing.
+    6.  **Prohibition:** Do not, under any circumstances, write the secret value directly into a script, log file, or any other artifact that could be committed.
+
+
+## 20. OCIP: Operational Context Initialization Protocol
+
+* **Principle:** To prevent "vibe coding" and ensure adherence to the project's specific architecture (e.g., "Zero Magic," "Alpine-First"), the agent must perform **Constraint Stacking** and **Context Initialization** before executing any task. Intelligence is not in the model's weights; it is in the project's Playbooks.
+* **Workflow:**
+    1.  **Constraint Stacking:** The agent shall treat the protocols in `AGENTS.md` as the "Base Layer" of its operating system, explicitly overriding default training biases (e.g., the tendency to use `npm` instead of `bun`, or React instead of Alpine).
+    2.  **Domain Identification:** The agent must analyze the user's request to identify the active technical domains (e.g., CSS, State Management, Data Ingestion, Graph Logic).
+    3.  **Playbook Ingestion:** Based on the identified domains, the agent **must** read the canonical Playbook(s) from the `playbooks/` directory *before* proposing a solution.
+        * *CSS Task?* $\rightarrow$ Read `playbooks/css-zero-magic-playbook.md`.
+        * *UI Interaction?* $\rightarrow$ Read `playbooks/alpinejs-playbook.md`.
+        * *Graph Logic?* $\rightarrow$ Read `playbooks/graphology-playbook.md`.
+    4.  **Confirmation:** The agent must explicitly state which Contexts have been initialized (e.g., *"Context Initialized: Loaded CSS & Alpine Playbooks"*).
+
+## 21. FLIP: File Length Integrity Protocol
+
+- **Principle:** Source files must remain small (target < 300 lines) to ensure AI agent comprehension, prevent context window overflows, and ensure safe refactoring. Monolithic files (> 500 lines) are a **critical failure state** that leads to "context blindness" and destructive hallucinations.
+- **Workflow:**
+    1.  **Monitor:** Actively monitor file length during development.
+    2.  **Trigger:** If a file approaches 300 lines, flag it for immediate refactoring.
+    3.  **Refactor:** Split logic into modular components (e.g., `data.js`, `ui.js`, `logic.js`) *before* adding new features.
+    4.  **Prohibition:** Do not attempt to "patch" a file that exceeds 500 lines using standard replacement tools. You **must** switch to a modular refactoring strategy immediately.
+
+## 22. DWP: Development Workflow Protocol
+
+- **Principle:** All code changes and reorganizations must adhere to the standards defined in `playbooks/development-workflow-playbook.md`. This playbook is not a suggestion; it is the law for codebase structure and workflow.
+- **Workflow:**
+    1.  **Reference:** Before creating new files or restructuring folders, consult `playbooks/development-workflow-playbook.md`.
+    2.  **Organization:** Adhere to the strict folder hierarchy:
+        -   Group scripts by domain (`core`, `pipeline`, `cli`, `verify`).
+        -   Ensure every sub-directory has a `README.md`.
+    3.  **Imports:** **Strictly Prohibit Relative Imports** for files outside the current directory depth.
+        -   **Illegal:** `import { foo } from "../../src/db"`
+        -   **Mandatory:** `import { foo } from "@src/db"`
+        -   Use aliases (`@/`, `@src/`, `@scripts/`) for robustness.
+    4.  **Dev Cycle:** Use `bun run dev` as the unified development command.
+
+## 23. DOD: Definition of Done Protocol
+
+- **Principle:** Code changes are not complete until they pass all verification gates. "Done" means verified, not claimed. See `playbooks/definition-of-done-playbook.md` for full specification.
+- **Mandatory Verification Gates (In Order):**
+    1.  **TypeScript Compilation:** `tsc --noEmit` must pass with zero errors
+    2.  **Core Code Linting:** `bunx biome check src/ resonance/src/ --diagnostic-level=error` must show zero errors
+    3.  **Functional Test:** Run the actual code that was modified and verify it executes correctly
+- **Reporting Requirement:** When claiming task completion, you **must** include verification output showing all gates passed
+- **Anti-Pattern:** Claiming "task complete" without showing verification results is a protocol violation
+- **Reference:** See `playbooks/definition-of-done-playbook.md` for detailed workflow and reporting template
+
+## 24. CMP: Change Management Protocol
+
+- **Principle:** "Undocumented changes didn't happen." Every significant change must follow the Plan → Execute → Verify → Debrief cycle. Verification is proof, debrief is the permanent record.
+- **Workflow (MANDATORY for non-trivial changes):**
+    1.  **PLAN:** Document objective, current state, proposed changes, verification criteria, rollback plan
+    2.  **EXECUTE:** Make changes following the plan, document deviations immediately
+    3.  **VERIFY:** Run ALL verification criteria from plan, capture output, no exceptions
+    4.  **DEBRIEF:** Document what actually happened (reality, not plan), include verification proof
+- **Required For:**
+    - Schema changes
+    - File reorganization (>3 files)
+    - Configuration updates
+    - Capability additions/removals
+    - Database migrations
+    - API changes
+- **Debrief Requirements:**
+    - What was planned (link to brief/task)
+    - What actually happened (reality may differ)
+    - Verification results (copy-paste command output)
+    - Issues encountered and solutions
+    - Lessons learned
+    - Complete file modification list
+- **Red Flag:** Making changes on-the-fly without documenting plan or verification
+- **Reference:** See `playbooks/change-management-protocol.md` for full specification and templates

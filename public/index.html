@@ -5,9 +5,18 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>PolyVis | Structural Information Engineering</title>
-  <script src="/components/nav.js"></script>
   <link rel="stylesheet" href="/css/app.css" />
   <script src="/js/app.js" defer></script>
+  <!-- Inline Theme Init to prevent FOUC -->
+  <script>
+    (() => {
+      const stored = localStorage.getItem('polyvis-theme');
+      if (stored) {
+        document.documentElement.setAttribute('data-theme', stored);
+      }
+    })();
+  </script>
+  <script type="module" src="/js/utils/theme.js"></script>
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
 </head>
@@ -16,12 +25,34 @@
   :class="{ 'loaded': loaded, 'layout-debug-mode': debug }" @keydown.window.shift.d="debug = !debug">
   <div class="app-shell">
     <header class="app-header">
-      <div x-data="navigation" x-html="view"></div>
+      <nav class="nav-wrapper">
+        <div style="display: flex; align-items: center; gap: 2rem; width: 100%; justify-content: space-between; white-space: nowrap;">
+          <a href="/" class="nav-brand" style="font-weight: 900; font-size: 1.25rem; letter-spacing: -0.02em;">POLYVIS</a>
+          <a href="#" id="nav-theme-toggle" onclick="window.toggleTheme(); return false;" class="nav-item">
+            <i data-lucide="sun" style="width: var(--font-size-sm); height: var(--font-size-sm);"></i>
+            Theme
+          </a>
+        </div>
+      </nav>
     </header>
 
     <aside class="app-sidebar-left"></aside>
 
     <main class="app-main">
+      <div class="home-nav">
+        <a href="/" class="nav-item">
+          <i data-lucide="home" style="width: var(--font-size-sm); height: var(--font-size-sm);"></i>
+          HQ
+        </a>
+        <a href="/docs/" class="nav-item">
+          <i data-lucide="book-open" style="width: var(--font-size-sm); height: var(--font-size-sm);"></i>
+          Docs
+        </a>
+        <a href="/sigma-explorer/" class="nav-item">
+          <i data-lucide="layout-dashboard" style="width: var(--font-size-sm); height: var(--font-size-sm);"></i>
+          Graph Explorer
+        </a>
+      </div>
       <div class="container-box home-box stack-large">
         <h1 class="home-title">PolyVis</h1>
         <div class="home-subtitle">Structural Information Engineering</div>
@@ -31,7 +62,7 @@
         </div>
 
         <div>
-          <a href="/graph/" class="btn-structural">Launch Graph Visualizer</a>
+          <a href="/sigma-explorer/" class="btn-structural">Launch Graph Explorer</a>
         </div>
 
         <div class="footer-text">
@@ -46,7 +77,13 @@
     <footer class="app-footer"></footer>
   </div>
 
-  <script src="/components/nav.js"></script>
+
+  <script>
+    // Initialize Lucide Icons
+    if (window.lucide) {
+      window.lucide.createIcons();
+    }
+  </script>
 </body>
 
 </html>
