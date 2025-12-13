@@ -1,24 +1,22 @@
-# Current Task: Bento Processor (Batch Mode)
+# Current Task: Ingestion Pipeline Verification
 
 ## Status: COMPLETE ✅
-**Start Date:** 2025-12-12
-**Completion Date:** 2025-12-12
+**Start Date:** 2025-12-13
+**Completion Date:** 2025-12-13
 
 ## Objective
-Scale the "Bento Boxing" prototype into a batch processing script that annotates all debriefs in `scratchpads/debriefs/`, with hierarchical support for H3s.
+Verify, document, and audit the architecture of the `PERSONA` and `EXPERIENCE` ingestion pipelines to ensure "Context Lake" separability.
 
 ## Outcomes
-- **Matryoshka Logic:** `scripts/lab/bento-processor.ts` now supports H2 containers and H3 atoms.
-- **Density Threshold:** H3s are only boxed if > 40 words.
-- **Linking:** Child boxes reference `parent-id`.
-- **Scale:** 302 semantic units generated from 48 files.
+- **Architecture Verified:** "Bifurcation" works. `persona`, `resonance` (structure), and `knowledge` (vectors) domains coexist in one DB.
+- **Documentation:** Created "Glass Box" documentation in `playbooks/ingestion-pipeline-playbook.md`.
+- **Tooling:** Created `scripts/verify/check_domains.ts` for domain separability auditing.
+- **Artifacts:** Full debrief in `debriefs/2025-12-13-ingestion-pipeline-verification.md`.
 
 ## Verification Results
-- [x] Batch processing works (48 files)
-- [x] H3 detection works
-- [x] Threshold logic works (Short H3s skipped)
-- [x] Parent linking works (`parent-id` injected)
+- [x] Pipelines run successfully (with known idempotency warnings)
+- [x] Database contains distinct `persona`, `resonance`, and `knowledge` nodes
+- [x] Domain graphs are separable by SQL query
 
 ## Next Steps
-- **Ingestion:** Update `ingest_experience_graph.ts` to parse these new tags.
-- **Graph:** Visualize the hierarchy (H2 -> H3 edges).
+- **Visualization:** Update the Sigma Graph Explorer to visualize these new domains securely (avoiding vector bloat).
