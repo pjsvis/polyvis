@@ -75,6 +75,31 @@ export function search(query: Float32Array, index: Array<{vec: Float32Array}>) {
     .map(item => ({ score: dotProduct(query, item.vec), item }))
     .sort((a, b) => b.score - a.score); // Descending
 }
-``` 
+```
+
+---
+
+## 4. The Architecture (Index vs Voice)
+
+### A. The Index (FastEmbed)
+*   **Role:** Static Knowledge Retrieval (Ingestion).
+*   **Tool:** `fastembed` (AllMiniLML6V2, ONNX).
+*   **Why:** 10ms generation time allows for rebuilding the entire graph (1000+ nodes) in seconds.
+*   **Status:** APPROVED.
+
+### B. The Voice (LLMClient)
+*   **Role:** Dynamic Reasoning & Synthesis (Query).
+*   **Tool:** `LLMClient` -> `Ollama` / `LM Studio`.
+*   **Why:** High-quality reasoning, even if slow (100ms+).
+*   **Status:** APPROVED.
+
+---
+
+## 5. The Thin Node Protocol (Storage)
+**Insight:** The Database is an Index, not a Warehouse.
+-   **Old Way:** Storing full file content (10k tokens) in `nodes.content`. Result: DB Bloat (10MB+).
+-   **New Way:** Store only a **Lead Summary** (500 chars).
+-   **Retrieval:** Use `meta.source` path to read full content from disk (Local-First) only when needed by The Voice.
+-   **Result:** Extreme compaction (-63% DB size) and faster traversals. 
 
 

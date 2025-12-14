@@ -1,21 +1,32 @@
+import { LLMClient } from "./LLMClient";
+
+interface TagResponse {
+	entities: string[];
+	concepts: string[];
+}
+
 export interface TagResult {
 	hardTags: string[]; // High confidence / Existing CL terms
 	softTokens: string[]; // Exploratory / New terms
 }
 
 export class TagEngine {
-	private model: string;
-	private endpoint: string;
+	private llm: LLMClient | null = null;
+	private static instance: TagEngine;
 
-	constructor(
-		model = "llama3.2",
-		endpoint = "http://localhost:11434/api/generate",
-	) {
-		this.model = model;
-		this.endpoint = endpoint;
+	private constructor() {}
+
+	public static async getInstance(): Promise<TagEngine> {
+		if (!TagEngine.instance) {
+			TagEngine.instance = new TagEngine();
+			TagEngine.instance.llm = await LLMClient.getInstance();
+		}
+		return TagEngine.instance;
 	}
 
 	public async generateTags(content: string): Promise<TagResult> {
+		if (!this.llm) throw new Error("TagEngine not initialized. Call getInstance().");
+
 		const prompt = `
       Analyze the text below. Extract 3-5 key entities (Proper Nouns) and 3-5 key abstract concepts.
       Output ONLY a JSON object: { "entities": [], "concepts": [] }.
@@ -24,36 +35,15 @@ export class TagEngine {
     `;
 
 		try {
-			const response = await fetch(this.endpoint, {
-				method: "POST",
-				body: JSON.stringify({
-					model: this.model,
-					prompt: prompt,
-					format: "json", // Ollama native JSON mode
-					stream: false,
-				}),
-			});
-
-			const data = (await response.json()) as any;
-
-			// Ollama's response format might vary or fail.
-			if (!data || !data.response) {
-				throw new Error(`Ollama response empty: ${JSON.stringify(data)}`);
-			}
-
-			const json = JSON.parse(data.response);
+			const json = await this.llm.generateJson<TagResponse>(prompt);
 			return this.processRawTags(json);
-		} catch (_) {
-			// Fail silently for now, as TagEngine assumes a local LLM which might not be running
-			console.warn("TagEngine Offline/Fail (make sure ollama is running):", _);
+		} catch (error) {
+			console.warn("TagEngine Generation Failed:", error);
 			return { hardTags: [], softTokens: [] };
 		}
 	}
 
-	private processRawTags(raw: {
-		entities: string[];
-		concepts: string[];
-	}): TagResult {
+	private processRawTags(raw: TagResponse): TagResult {
 		const normalize = (s: string) =>
 			`tag-${s.trim().toLowerCase().replace(/\s+/g, "-")}`;
 

@@ -62,7 +62,7 @@ async function runBoxCommand(boxer: BentoBoxer) {
 
 	// 2. Tagging (Optional)
 	if (USE_TAGS) {
-		const tagEngine = new TagEngine();
+		const tagEngine = await TagEngine.getInstance();
 		for (const box of boxes) {
 			// Tagging can be slow, log progress
 			process.stdout.write(".");

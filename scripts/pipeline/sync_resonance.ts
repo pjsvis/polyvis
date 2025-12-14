@@ -173,7 +173,7 @@ async function main() {
 	// --- INITIALIZE EDGE WEAVER ---
 	const weaver = new EdgeWeaver(db, allLexiconItems as { id: string; title?: string; aliases?: string[] }[]);
 	console.log(
-		`🕸️  Edge Weaver Initialized (${allLexiconItems.length} concepts)`,
+		`🕸️  Edge Weaver Initialized (${allLexiconItems?.length || 0} concepts)`,
 	);
 
 	// --- 4. Pipeline B: Markdown Docs (Debriefs / Playbooks) ---
@@ -204,12 +204,14 @@ async function main() {
 				console.log(`📝 Updating ${file}...`);
 			}
 
-			// Embed File Level
-			const vec = await embedder.embed(content);
+			// Embed File Level (LEAD SUMMARY ONLY)
+			// Strategy: The Vector represents the "Head" (Topic), not the "Body".
+			const leadSummary = content.slice(0, 1000); 
+			const vec = await embedder.embed(leadSummary);
 
-			const fileNodeId = file; // Path as ID
+			const fileNodeId = file;
 
-			// Extract Date from Filename (YYYY-MM-DD)
+			// Extract Date from Filename
 			const dateMatch = filename.match(/^(\d{4}-\d{2}-\d{2})/);
 			const created = dateMatch ? dateMatch[1] : null;
 
@@ -217,7 +219,10 @@ async function main() {
 				id: fileNodeId,
 				type: dir.includes("playbooks") ? "playbook" : "debrief",
 				label: file.split("/").pop(),
-				content: content,
+				// THIN NODE PROTOCOL:
+				// We store a minimal preview here. The full content lives on the filesystem.
+				// Future: UI should fetch raw markdown from `meta.source` on demand.
+				content: content.slice(0, 500) + "\n\n... [Content truncated. See Source File] ...", 
 				domain: "resonance",
 				layer: "experience",
 				embedding: vec,
@@ -277,7 +282,7 @@ async function main() {
 	// Linking sorted debriefs to establish the "Red Thread" of history.
 	console.log("🕰️  Running TimeWeaver...");
 	const debriefs = db.getNodesByType("debrief")
-		.filter(n => n.meta && n.meta.created)
+		.filter(n => n.meta?.created)
 		.sort((a, b) => (a.meta.created || "").localeCompare(b.meta.created || ""));
 
 	let prevDebriefId = null;

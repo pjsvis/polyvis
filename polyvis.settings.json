@@ -27,6 +27,21 @@
 			}
 		}
 	},
+	"llm": {
+		"active_provider": "ollama",
+		"providers": {
+			"ollama": { 
+				"baseUrl": "http://localhost:11434/v1", 
+				"model": "granite3.3:latest",
+				"apiKey": "ollama"
+			},
+			"lm-studio": { 
+				"baseUrl": "http://localhost:1234/v1", 
+				"model": "ibm/granite-4-h-tiny",
+				"apiKey": "lm-studio"
+			}
+		}
+	},
 	"schema": {
 		"version": "1.0.0"
 	}

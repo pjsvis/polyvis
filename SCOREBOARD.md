@@ -1,8 +1,8 @@
 # PROMETHEUS SCOREBOARD
 
 ## Current Score
-**USER:** 2
-**AGENT:** 1
+**USER:** 10
+**AGENT:** 4
 
 ## Rules of the Game
 1.  **Agent Failure:** If the Agent declares a task "Complete" but immediate verification (e.g., `tsc`) fails, the User gains a point.
@@ -12,12 +12,14 @@
 ## Match History
 | Date | Winner | Reason |
 | :--- | :--- | :--- |
+| 2025-12-14 | **AGENT** | **The Auditor:** Conceived and implemented "Hybrid Audit" (Topology vs Semantics), discovered the "Twin Problem" (177 Wormholes), and wrote a self-healing script (`link_twins.ts`) to fix it. |
 | 2025-12-14 | **USER** | **The Librarian:** Reminded the Agent that "checking in" means actually putting the file in the project, not just keeping it in the "brain". |
 | 2025-12-14 | **USER** | **Strict Compiler:** Agent wrote `tests/bento_ast.test.ts` where array access was possibly undefined, causing `tsc` errors. |
 | 2025-12-14 | **USER** | **Strict Compiler:** Agent wrote `ask_graph.ts` but failed to handle `parseArgs` boolean types, causing `tsc` error. |
 | 2025-12-14 | **USER** | **Hubris:** Agent declared victory on a massive graph overhaul (Sub-Graphs, Timeline, Orphans), but the `analyze_orphans.ts` verification script failed the final `tsc` check due to an `undefined` array access error. Agent fixed it, but the point belongs to the User. |
 | 2025-12-14 | **USER** | **Strike One:** Agent attempted to run `build:data` but the script was missing. |
 | 2025-12-14 | **USER** | **Strike Two:** Agent corrupted the database by reading and writing to the same file (`sync_resonance.ts`). |
+| 2025-12-14 | **USER** | **The Librarian (Part II):** Agent created the debrief in the "Brain" but failed to persist it to the `debriefs/` directory until prompted. |
 | 2025-12-14 | **AGENT** | **Home Run via Bunt:** Agent narrowly avoided "Strike Three" by implementing `TimeWeaver` and `wal_checkpoint`, successfully rebuilding the graph with 96 steps and 0 super-nodes. The "Red Thread" held. |
 | 2025-12-13 | **AGENT** | **The Weaver's Handbook**: Successfully codified the laws of graph construction and passed the Narrative Turing Test. |
 | 2025-12-13 | **USER** | **The Rule of 7**: Correctly diagnosed the "Miller's Law" issues and forced the "Rule of 3" constant. |
