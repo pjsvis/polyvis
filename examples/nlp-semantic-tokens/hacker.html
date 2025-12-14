@@ -116,6 +116,7 @@
             let frame = 0;
             let queue = [];
             let iteration = 0;
+            let animationId = null;
 
             // Setup the DOM structure (spans for individual sparkle control)
             el.innerHTML = targetStr.split('').map(() => `<span></span>`).join('');
@@ -162,13 +163,38 @@
                 frame++;
 
                 if (!complete) {
-                    requestAnimationFrame(update);
+                    animationId = requestAnimationFrame(update);
+                } else {
+                    animationId = null;
                 }
+            }
+
+            function restartAnimation() {
+                // Cancel any existing animation
+                if (animationId !== null) {
+                    cancelAnimationFrame(animationId);
+                    animationId = null;
+                }
+
+                // Reset state
+                frame = 0;
+
+                // Remove locked classes from all spans
+                spans.forEach(span => {
+                    span.classList.remove('locked');
+                    span.textContent = "";
+                });
+
+                // Start new animation
+                update();
             }
 
             // Trigger
             // In your app, call this at the end of your pipeline sequence
             update();
+
+            // Add mouseover event to restart animation
+            el.addEventListener('mouseover', restartAnimation);
         </script>
 
     </body>
