@@ -5,7 +5,7 @@ export class EdgeWeaver {
 	// Lexicon for lookups (Slug -> ID)
 	private lexicon: Map<string, string>;
 
-	constructor(db: ResonanceDB, context: any[] = []) {
+	constructor(db: ResonanceDB, context: { id: string; title?: string; aliases?: string[] }[] = []) {
 		this.db = db;
 		this.lexicon = new Map();
 
@@ -34,70 +34,42 @@ export class EdgeWeaver {
 	}
 
 	/**
-	 * Scans content for semantic tags and WikiLinks, creating edges in the DB.
-	 * @param sourceNodeId The ID of the node containing the text (e.g., Section or File)
+	 * STRICT MODE: Scans content ONLY for explicit semantic tags and WikiLinks.
+	 * No fuzzy token matching allowed.
+	 * 
+	 * @param sourceNodeId The ID of the node containing the text
 	 * @param content The text content to scan
-	 * @param tokens Optional semantic tokens extracted by tokenizer
 	 */
-	public weave(sourceNodeId: string, content: string, tokens?: any): void {
+	public weave(sourceNodeId: string, content: string): void {
 		this.processTags(sourceNodeId, content);
 		this.processWikiLinks(sourceNodeId, content);
-
-		if (tokens) {
-			this.processSemanticTokens(sourceNodeId, tokens);
-		}
-	}
-
-	private processSemanticTokens(sourceId: string, tokens: any): void {
-		const categories = [
-			"organizations",
-			"topics",
-			"protocols",
-			"concepts",
-			"people",
-			"places",
-		];
-
-		for (const cat of categories) {
-			if (!tokens[cat] || !Array.isArray(tokens[cat])) continue;
-
-			for (const token of tokens[cat]) {
-				const slug = this.slugify(token);
-				// 1. Check Lexicon (Prioritize explicit concepts)
-				const conceptId = this.lexicon.get(slug);
-
-				if (conceptId) {
-					this.db.insertEdge(sourceId, conceptId, "MENTIONS");
-				} else {
-					// 2. Future: Create implicit node?
-					// For now, implicit edges are skipped to avoid noise,
-					// unless we want to link nodes that share the same token.
-					// Let's rely on Lexicon for the "Through Line".
-				}
-
-				// Temporary: If it's a protocol (OH-XXX), force a link even if fuzzy
-				if (cat === "protocols" || token.match(/^(OH|PHI|OPM)-/)) {
-					// Attempt to link to the ID directly if it looks like an ID
-					const directId = token.toUpperCase(); // IDs are usually upper
-					// Check if this ID exists in DB? (Can't check easily without query)
-					// But we can optimistically adding edges if we trust the format
-				}
-			}
-		}
 	}
 
 	private processTags(sourceId: string, content: string): void {
-		// Match `tag-` followed by word chars or dashes
-		const matches = content.matchAll(/\btag-([\w-]+)/g);
+		// New Strict Syntax: [Tag: Value] or [Tag:Value]
+		// Legacy Syntax Support: tag-something (keeping for backward compat for now, or removing?)
+		// Brief says: "allow only WikiLinks, Tags"
+		// Let's support both explicit [Tag: ...] and the inline tag-slug for now to be safe.
+		
+		// 1. Explicit [Tag: Concept]
+		const explicitMatches = content.matchAll(/\[tag:\s*(.*?)\]/gi);
+		for (const match of explicitMatches) {
+			if (match[1]) {
+				const tagValue = match[1].trim();
+				const conceptId = this.lexicon.get(this.slugify(tagValue));
+				if (conceptId) {
+					this.db.insertEdge(sourceId, conceptId, "TAGGED_AS");
+				}
+			}
+		}
 
+		// 2. Legacy `tag-slug` (Deprecated but ubiquitous)
+		const matches = content.matchAll(/\btag-([\w-]+)/g);
 		for (const match of matches) {
 			if (match[1]) {
 				const tagStub = match[1].toLowerCase();
-
-				// Check Lexicon (Persona Domain)
 				const conceptId = this.lexicon.get(tagStub);
 				if (conceptId) {
-					// EDGE: Source -> EXEMPLIFIES -> Concept
 					this.db.insertEdge(sourceId, conceptId, "EXEMPLIFIES");
 				}
 			}
@@ -112,14 +84,17 @@ export class EdgeWeaver {
 			if (!match[1]) continue;
 			const rawTarget = match[1].trim();
 
-			// 1. Try Lexicon Lookup
+			// 1. Try Lexicon Lookup (Prioritize Concepts)
 			const conceptId = this.lexicon.get(this.slugify(rawTarget));
 			if (conceptId) {
 				this.db.insertEdge(sourceId, conceptId, "CITES");
+			} else {
+				// 2. Assume it's a file path or direct ID link 
+				// In strict mode, if it's not in the lexicon/nodes, we might create a "Ghost Edge" 
+				// or just ignore it. 
+				// For now, if we can't resolve it to an ID, we ignore it to prevent Orphans.
+				// (Orphan Rescue is a separate process).
 			}
-
-			// 2. Assume File Link (desire line)
-			// Skip for now
 		}
 	}
 

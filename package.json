@@ -35,6 +35,11 @@
 		"fastembed": "^2.0.0",
 		"glob": "^13.0.0",
 		"graphology-metrics": "^2.4.0",
-		"marked": "^17.0.1"
+		"marked": "^17.0.1",
+		"mdast-util-to-string": "^4.0.0",
+		"remark-gfm": "^4.0.1",
+		"remark-parse": "^11.0.0",
+		"remark-stringify": "^11.0.0",
+		"unified": "^11.0.5"
 	}
 }

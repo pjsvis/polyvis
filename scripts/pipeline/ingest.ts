@@ -396,7 +396,7 @@ async function processBox(
 	db.insertNode(node);
 
 	// 4. Weave Edges
-	weaver.weave(id, content, tokens);
+	weaver.weave(id, content);
 }
 
 function parseFrontmatter(text: string): Record<string, any> {

@@ -1,18 +1,24 @@
-# Current Task: Schema Verification & Composable Sub-Graphs
+# Current Task: Unified Semantic Layer Refactor
 
-## Status: COMPLETE ✅
-**Start Date:** 2025-12-14
-**ETA:** 0
+**Objective:** Transform the graph construction pipeline from probabilistic (Regex/Similarity) to deterministic (AST/Explicit).
 
-## Objective
-Enable graph filtering by Source Folder (Sub-Graphs) in Sigma Explorer.
+## Status: 🏗️ IN PROGRESS
+
+## Goals
+1.  **Precision (BentoBoxer):** Refactor document splitting to use AST (`remark`) instead of Regex to prevent semantic bleeding.
+2.  **Integrity (LouvainGate):** Implement "Degree Centrality Checks" to prevent "Graph Hairballs" (Super-nodes).
+3.  **Strict Mode (EdgeWeaver):** Disable fuzzy linking; rely solely on explicit `[[WikiLinks]]` and `[Tags]`.
+
+## Active Workstream
+- [ ] Refactor `src/core/BentoBoxer.ts` to use AST.
+- [ ] Implement `LouvainGate` in `resonance/src/db.ts`.
+- [ ] Verify graph modularity improvements.
+
+## Recent Context
+- Successfully completed "Contextual Analysis" (Hybrid RAG).
+- Cleared slate for architectural precision.
 
 ## Outcomes
-- **Sub-Graph Logic**: Nodes tagged with `subGraph` from `meta.source`.
-- **UI Update**: "Graph Composition" toggles replaced Domain Switcher.
-- **Node Truncation**: "Narrative Summary" view for large nodes.
-- **Adaptive Louvain**: Implemented "Rule of 7" (Dynamic Resolution Tuning).
-- **Edge Generation**: Implemented Timeline Linking (Red Thread) & Semantic Linking (Orphan Rescue).
 - **Terminology**: Adopted "Sub-Graphs" and "Misc" (renamed from Structures).
 - **Verification**: Walkthroughs created and manual verification passed.
 

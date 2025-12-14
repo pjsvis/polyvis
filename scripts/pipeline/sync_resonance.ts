@@ -158,7 +158,7 @@ async function main() {
 	}
 
 	// --- INITIALIZE EDGE WEAVER ---
-	const weaver = new EdgeWeaver(db, allLexiconItems);
+	const weaver = new EdgeWeaver(db, allLexiconItems as { id: string; title?: string; aliases?: string[] }[]);
 	console.log(
 		`🕸️  Edge Weaver Initialized (${allLexiconItems.length} concepts)`,
 	);

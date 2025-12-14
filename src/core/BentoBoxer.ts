@@ -1,139 +1,105 @@
-import { SEAMAN_CONSTANTS } from "../config/constants";
 import { LocusLedger } from "../data/LocusLedger";
-import {
-	REGEX_DIGRESSION,
-	REGEX_ENUMERATION,
-	REGEX_PIVOT,
-	REGEX_SENTENCE_BOUNDARY,
-} from "./FractureLogic";
-import { MarkdownMasker } from "./MarkdownMasker";
+
+import { unified } from "unified";
+import remarkParse from "remark-parse";
+import remarkStringify from "remark-stringify";
+import remarkGfm from "remark-gfm";
+
+// Define AST Types (Basic subset needed)
+interface Node {
+	type: string;
+	children?: Node[];
+	depth?: number; // For headings
+	value?: string;
+}
 
 export interface BentoBox {
 	locusId: string;
 	content: string;
 	tokenCount: number;
-	isLeaf: boolean; // True if this box fits in the Seaman Constant
-	tags?: string[]; // Semantic tags
+	isLeaf: boolean;
+	tags?: string[];
 }
 
 export class BentoBoxer {
 	private ledger: LocusLedger;
-	private masker: MarkdownMasker;
+	// private masker: MarkdownMasker; // Disabled for AST pass
+	private processor: any;
 
 	constructor(ledger: LocusLedger) {
 		this.ledger = ledger;
-		this.masker = new MarkdownMasker();
+		
+		// Initialize Unified Processor once
+		this.processor = unified()
+			.use(remarkParse)
+			.use(remarkGfm)
+			.use(remarkStringify, { bullet: "-", listItemIndent: "one" });
 	}
 
 	/**
-	 * The public entry point.
-	 * Recursively processes text and returns a flat array of valid Bento Boxes.
+	 * AST-based processing.
+	 * 1. Parse Markdown to AST.
+	 * 2. Traverse top-level nodes.
+	 * 3. Group nodes by Heading (H1/H2).
+	 * 4. Serialize groups back to Markdown.
 	 */
 	public process(text: string): BentoBox[] {
-		// 1. Reset Masker for new document
-		this.masker.reset();
+		if (!text.trim()) return [];
 
-		// 2. Protect No-Fly Zones
-		const cleanText = text.trim();
-		if (!cleanText) return [];
+		const tree = this.processor.parse(text);
+		const boxes: BentoBox[] = [];
 
-		const maskedText = this.masker.mask(cleanText);
+		let currentNodes: Node[] = [];
+		// let currentHeading: string | null = null; // Unused for now
 
-		// 3. Begin Recursive Boxing
-		return this.internalProcess(maskedText);
-	}
-
-	private internalProcess(text: string): BentoBox[] {
-		const tokenCount = this.countTokens(text);
-
-		// BASE CASE: The text fits within the Seaman Constant.
-		if (tokenCount <= SEAMAN_CONSTANTS.MAX_SIZE) {
-			// Unmask BEFORE generation of hash/ID and final content
-			// uniqueness relies on the ACTUAL content, not the masked content.
-			const unmaskedContent = this.masker.unmask(text);
-
-			const hash = LocusLedger.hashContent(unmaskedContent);
-			const id = this.ledger.getOrMintId(hash);
-
-			return [
-				{
-					locusId: id,
-					content: unmaskedContent,
-					tokenCount: tokenCount, // Count of tokens in the processing state (atomic boulders)
-					isLeaf: true,
-				},
-			];
+		// 2. Iterate through top-level children
+		for (const node of (tree.children as Node[])) {
+			// SPLIT ON: Heading 1 or 2
+			if (node.type === "heading" && (node.depth === 1 || node.depth === 2)) {
+				// If we have accumulated content, flush it.
+				if (currentNodes.length > 0) {
+					boxes.push(this.createBox(currentNodes));
+					currentNodes = [];
+				}
+				// Start new group with this heading
+				// currentHeading = mdastToString(node);
+				currentNodes.push(node);
+			} else {
+				// Accumulate (Paragraphs, Lists, etc.)
+				currentNodes.push(node);
+			}
 		}
 
-		// RECURSIVE STEP: The text is "Overweight".
-		// We must find a fracture plane and split.
-		const splitIndex = this.findFracturePlane(text);
+		// Flush remainder
+		if (currentNodes.length > 0) {
+			boxes.push(this.createBox(currentNodes));
+		}
 
-		// Safety: If no split is found, force median split.
-		const effectiveSplitIndex =
-			splitIndex !== -1 ? splitIndex : Math.floor(text.length / 2);
-
-		const [left, right] = this.splitText(text, effectiveSplitIndex);
-
-		return [...this.internalProcess(left), ...this.internalProcess(right)];
+		// 3. Fallback: If only 1 box and it's huge, maybe split by H3?
+		// For now, adhere to H1/H2 strictness.
+		return boxes;
 	}
 
-	/**
-	 * Identifies the optimal index to split the string.
-	 * Priority: Pivot > Enumeration > Digression > Sentence Boundary.
-	 * It searches near the middle of the text to ensure balanced trees.
-	 */
-	private findFracturePlane(text: string): number {
-		const midPoint = Math.floor(text.length / 2);
-		const searchWindow = Math.floor(text.length * 0.25); // Look +/- 25% from center
+	private createBox(nodes: Node[]): BentoBox {
+		// Serialize AST back to Markdown string
+		// Wrap in a root node for stringify
+		const root = { type: "root", children: nodes };
+		const content = this.processor.stringify(root).trim();
+		const tokenCount = this.countTokens(content);
+		
+		// Deterministic ID based on content
+		const hash = LocusLedger.hashContent(content);
+		const id = this.ledger.getOrMintId(hash);
 
-		// Helper to find regex match closest to midPoint
-		const findBestMatch = (regex: RegExp): number => {
-			let bestIndex = -1;
-			let minDistance = Infinity;
-
-			// Reset regex state
-			regex.lastIndex = 0;
-
-			let match = regex.exec(text);
-			while (match !== null) {
-				const dist = Math.abs(match.index - midPoint);
-				if (dist < minDistance && dist < searchWindow) {
-					minDistance = dist;
-					bestIndex = match.index;
-				}
-				match = regex.exec(text);
-			}
-			return bestIndex;
+		return {
+			locusId: id,
+			content: content,
+			tokenCount: tokenCount,
+			isLeaf: true, // AST-boxing implies semantic leafs
 		};
-
-		// 1. Priority A: Structural Pivot
-		const pivotIdx = findBestMatch(REGEX_PIVOT);
-		if (pivotIdx !== -1) return pivotIdx;
-
-		// 2. Priority B: Enumeration
-		const enumIdx = findBestMatch(REGEX_ENUMERATION);
-		if (enumIdx !== -1) return enumIdx;
-
-		// 3. Priority C: Digression
-		const digressionIdx = findBestMatch(REGEX_DIGRESSION);
-		if (digressionIdx !== -1) return digressionIdx;
-
-		// 4. Fallback: Sentence Boundary
-		// We just want the period closest to the middle
-		const sentenceIdx = findBestMatch(REGEX_SENTENCE_BOUNDARY);
-		return sentenceIdx !== -1 ? sentenceIdx + 1 : -1; // +1 to split AFTER the period
 	}
 
-	/**
-	 * Rudimentary token counter.
-	 * For the purpose of "Seaman-sizing", whitespace splitting is a sufficient proxy.
-	 */
 	private countTokens(text: string): number {
 		return text.split(/\s+/).length;
-	}
-
-	private splitText(text: string, index: number): [string, string] {
-		return [text.substring(0, index).trim(), text.substring(index).trim()];
 	}
 }

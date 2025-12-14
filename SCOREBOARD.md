@@ -13,6 +13,7 @@
 | Date | Winner | Reason |
 | :--- | :--- | :--- |
 | 2025-12-14 | **USER** | **The Librarian:** Reminded the Agent that "checking in" means actually putting the file in the project, not just keeping it in the "brain". |
+| 2025-12-14 | **USER** | **Strict Compiler:** Agent wrote `tests/bento_ast.test.ts` where array access was possibly undefined, causing `tsc` errors. |
 | 2025-12-14 | **USER** | **Strict Compiler:** Agent wrote `ask_graph.ts` but failed to handle `parseArgs` boolean types, causing `tsc` error. |
 | 2025-12-14 | **USER** | **Hubris:** Agent declared victory on a massive graph overhaul (Sub-Graphs, Timeline, Orphans), but the `analyze_orphans.ts` verification script failed the final `tsc` check due to an `undefined` array access error. Agent fixed it, but the point belongs to the User. |
 | 2025-12-13 | **AGENT** | **The Weaver's Handbook**: Successfully codified the laws of graph construction and passed the Narrative Turing Test. |
