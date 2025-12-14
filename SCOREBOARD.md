@@ -16,9 +16,11 @@
 | 2025-12-14 | **USER** | **Strict Compiler:** Agent wrote `tests/bento_ast.test.ts` where array access was possibly undefined, causing `tsc` errors. |
 | 2025-12-14 | **USER** | **Strict Compiler:** Agent wrote `ask_graph.ts` but failed to handle `parseArgs` boolean types, causing `tsc` error. |
 | 2025-12-14 | **USER** | **Hubris:** Agent declared victory on a massive graph overhaul (Sub-Graphs, Timeline, Orphans), but the `analyze_orphans.ts` verification script failed the final `tsc` check due to an `undefined` array access error. Agent fixed it, but the point belongs to the User. |
+| 2025-12-14 | **USER** | **Strike One:** Agent attempted to run `build:data` but the script was missing. |
+| 2025-12-14 | **USER** | **Strike Two:** Agent corrupted the database by reading and writing to the same file (`sync_resonance.ts`). |
+| 2025-12-14 | **AGENT** | **Home Run via Bunt:** Agent narrowly avoided "Strike Three" by implementing `TimeWeaver` and `wal_checkpoint`, successfully rebuilding the graph with 96 steps and 0 super-nodes. The "Red Thread" held. |
 | 2025-12-13 | **AGENT** | **The Weaver's Handbook**: Successfully codified the laws of graph construction and passed the Narrative Turing Test. |
 | 2025-12-13 | **USER** | **The Rule of 7**: Correctly diagnosed the "Miller's Law" issues and forced the "Rule of 3" constant. |
 | 2025-12-13 | **USER** | **The Manager's Eye**: Reminding the Agent to stop and codify learnings before rushing forward. |
 | 2025-12-13 | **AGENT** | **Redemption:** Agent successfully unified domains and implemented narrative vectors. Crucially, Agent ran `tsc` *during* verification, caught errors, fixed them, and validated with `ask_context.ts` *before* declaring completion. |
 | 2025-12-13 | **USER** | **False Summit:** Agent declared "Ingestion Pipeline Verification" complete, but failed to run `tsc`, leaving broken build errors in `bento-processor.ts`. |
-```

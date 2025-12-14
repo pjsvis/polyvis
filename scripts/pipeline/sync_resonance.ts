@@ -18,6 +18,19 @@ const { values } = parseArgs({
 	allowPositionals: true,
 });
 
+import { BentoBoxer } from "@src/core/BentoBoxer"; // Added
+import { LocusLedger } from "@src/data/LocusLedger"; // Added
+
+// Constants wrapper to avoid recreating expensive objects
+const Constants = {
+	ledger: new LocusLedger("bento_ledger.sqlite"),
+	get boxer() {
+		if (!this._boxer) this._boxer = new BentoBoxer(this.ledger);
+		return this._boxer;
+	},
+	_boxer: null as BentoBoxer | null,
+};
+
 const LIMIT = values.limit ? parseInt(values.limit) : Infinity;
 
 console.log(
@@ -196,6 +209,10 @@ async function main() {
 
 			const fileNodeId = file; // Path as ID
 
+			// Extract Date from Filename (YYYY-MM-DD)
+			const dateMatch = filename.match(/^(\d{4}-\d{2}-\d{2})/);
+			const created = dateMatch ? dateMatch[1] : null;
+
 			db.insertNode({
 				id: fileNodeId,
 				type: dir.includes("playbooks") ? "playbook" : "debrief",
@@ -205,6 +222,7 @@ async function main() {
 				layer: "experience",
 				embedding: vec,
 				hash: contentHash,
+				meta: { created: created, source: file }
 			});
 
 			// --- WEAVE FILE LEVEL ---
@@ -213,37 +231,39 @@ async function main() {
 
 			// AST Section Chunking (For Playbooks only)
 			if (dir.includes("playbooks")) {
-				// Simple Regex Splitting for H2 (## )
-				const sections = content.split(/^## /gm).slice(1); // Skip preamble
+				const boxes = Constants.boxer.process(content);
 
-				for (const section of sections) {
-					const lines = section.split("\n");
-					const firstLine = lines[0];
-					if (!firstLine) continue;
-					const title = firstLine.trim();
-					const body = lines.slice(1).join("\n").trim();
-
-					if (body.length < 10) continue; // Skip empty sections
-
-					const sectionId = `${fileNodeId}#${slugify(title)}`;
-					const sectionVec = await embedder.embed(title + "\n" + body);
+				for (const box of boxes) {
+					// Extract Title from content (first line usually)
+					const lines = box.content.split("\n");
+					const title = lines[0]?.replace(/^#+\s+/, "").trim() || "Untitled Section";
+					
+					// Skip empty or tiny sections handled by Fracture Logic, 
+					// but actually BentoBoxer guarantees semantic chunks.
+					
+					const sectionId = `${fileNodeId}#${slugify(title)}-${box.locusId.slice(0, 6)}`;
+					const sectionVec = await embedder.embed(box.content);
 
 					db.insertNode({
 						id: sectionId,
 						type: "section",
 						label: title,
-						content: body,
+						content: box.content,
 						domain: "resonance",
 						layer: "rule",
 						embedding: sectionVec,
-						meta: { parent: fileNodeId },
+						meta: { 
+							parent: fileNodeId,
+							box_id: box.locusId,
+							token_count: box.tokenCount
+						},
 					});
 
 					// Link File -> Section
 					db.insertEdge(fileNodeId, sectionId, "HAS_CHILD");
 
 					// --- WEAVE SECTION LEVEL ---
-					weaver.weave(sectionId, body);
+					weaver.weave(sectionId, box.content);
 				}
 			}
 
@@ -253,6 +273,25 @@ async function main() {
 		console.log(`✅ ${dir}: ${fileCount} files processed.`);
 	}
 
+	// --- 5. OPTIONAL: TimeWeaver (Restore Narrative) ---
+	// Linking sorted debriefs to establish the "Red Thread" of history.
+	console.log("🕰️  Running TimeWeaver...");
+	const debriefs = db.getNodesByType("debrief")
+		.filter(n => n.meta && n.meta.created)
+		.sort((a, b) => (a.meta.created || "").localeCompare(b.meta.created || ""));
+
+	let prevDebriefId = null;
+	let timeEdges = 0;
+	
+	for (const node of debriefs) {
+		if (prevDebriefId) {
+			db.insertEdge(prevDebriefId, node.id, "SUCCEEDS");
+			timeEdges++;
+		}
+		prevDebriefId = node.id;
+	}
+	console.log(`✅ TimeWeaver connected ${timeEdges} chronological steps.`);
+
 	function slugify(text: string) {
 		return text
 			.toLowerCase()
@@ -260,15 +299,23 @@ async function main() {
 			.replace(/^-|-$/g, "");
 	}
 
+	// Checkpoint WAL to ensure data is flushed to main file
+	db.checkpoint();
 	db.close();
 
-	// Copy to public for frontend
+	// Copy to public for frontend (Only if different)
 	const publicPath = join(process.cwd(), "public", "resonance.db");
-	console.log(`📋 Publishing to: ${publicPath}`);
-	await Bun.write(
-		publicPath,
-		await Bun.file(settings.paths.database.resonance).arrayBuffer(),
-	);
+	const sourcePath = normalize(settings.paths.database.resonance);
+	
+	if (normalize(publicPath) !== sourcePath) {
+		console.log(`📋 Publishing to: ${publicPath}`);
+		await Bun.write(
+			publicPath,
+			await Bun.file(sourcePath).arrayBuffer(),
+		);
+	} else {
+		console.log("📋 Database is already in public directory. Skipping copy.");
+	}
 
 	console.log("🚀 Unification Sync Complete.");
 }

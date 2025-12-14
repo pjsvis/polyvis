@@ -271,6 +271,10 @@ export class ResonanceDB {
 	close() {
 		this.db.close();
 	}
+
+	checkpoint() {
+		this.db.run("PRAGMA wal_checkpoint(TRUNCATE);");
+	}
 }
 
 // FAFCAS Protocol: use Dot Product for normalized vectors
