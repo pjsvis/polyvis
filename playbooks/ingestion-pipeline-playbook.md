@@ -31,4 +31,11 @@ The Experience pipeline is split into two layers to support the "Hot/Cold" archi
 *(To be populated during verification)*
 
 ## Common Issues & Fixes
-*(To be populated during verification)*
+-   **Duplicated Nodes:** Run `scripts/fix/link_twins.ts` to merge semantic twins.
+-   **Missing Embeddings:** Ensure `fastembed` is installed and `bun run scripts/pipeline/ingest.ts` completed "Layer B" processing.
+
+## Phase 2 Update: The Hybrid Bridge
+As of Phase 2, the pipeline supports a Hybrid Query model:
+1.  **Ingest:** `ingest.ts` calculates `384d` embeddings using `fastembed`.
+2.  **Storage:** Saved as blobs in `nodes.embedding` column.
+3.  **Query:** Client-side (SQL.js) or Server-side (Bun) uses `vec_dot` UDF to query.

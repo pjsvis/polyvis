@@ -186,3 +186,18 @@ applyPageRankSizes(this.graph);
 // 3. Render (Graph is already styled)
 this.renderer = new Sigma(this.graph, container, ...);
 ```
+
+## 7. The Ghost Graph (Semantic Layer)
+An ephemeral layer that visualizes vector similarities on demand.
+
+-   **Trigger**: User clicks "Find Similar" on a node.
+-   **Mechanism**:
+    1.  Client: Calls `findSimilar(nodeId)`.
+    2.  Database: Executes `vec_dot` UDF query against `embeddings` column.
+    3.  Graph: Adds temporary "Ghost Edges" (Gold color, `ghost: true`).
+-   **Context Policy**:
+    -   Ghost edges persist if re-clicking the *same* node (Contextual Navigation).
+    -   Ghost edges clear automatically when selecting a *new* node (Clean Slate).
+-   **Style**:
+    -   Color: `var(--color-ghost-edge)` (defined in `theme.css`).
+    -   Type: `arrow` (directed).
