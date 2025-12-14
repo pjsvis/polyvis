@@ -1,8 +1,19 @@
 export const initialState = () => ({
 	masterData: { nodes: [], edges: [] },
+	health: null, // Metrics from /api/health
 });
 
 export const methods = {
+	async fetchHealth() {
+		try {
+			const res = await fetch("/api/health");
+			if (res.ok) {
+				this.health = await res.json();
+			}
+		} catch (e) {
+			console.error("Health Fetch Error", e);
+		}
+	},
 	loadGraph(db) {
 		this.status = "Extracting Data...";
 		this.masterData = { nodes: [], edges: [] };
@@ -41,6 +52,47 @@ export const methods = {
 		} catch (e) {
 			console.error("Edge Error", e);
 		}
+
+		// 3. Post-Process: Enrich with Sub-Graph Tags
+		const discoveredSubGraphs = new Set();
+		this.masterData.nodes.forEach(node => {
+			let subGraph = "misc"; // Default fallback
+			
+			// A. Explicit Domain Check
+			if (node.domain === "persona") {
+				subGraph = "persona";
+			} 
+			// B. Folder Extraction from Source
+			else if (node.meta) {
+				try {
+					const meta = JSON.parse(node.meta);
+					if (meta.source) {
+						// Extract first folder after root or known folder names
+						// e.g. "polyvis/playbooks/foo.md" -> "playbooks"
+						// e.g. "debriefs/2025/foo.md" -> "debriefs"
+						const parts = meta.source.split('/');
+						
+						// Heuristic: Check for known folders
+						const knownFolders = ["playbooks", "debriefs", "briefs", "shards", "knowledge"];
+						for (const folder of knownFolders) {
+							if (meta.source.includes(folder)) {
+								subGraph = folder;
+								break;
+							}
+						}
+					}
+				} catch (e) {
+					// Invalid meta JSON, ignore
+				}
+			}
+			
+			node.subGraph = subGraph;
+			discoveredSubGraphs.add(subGraph);
+		});
+
+		// Update State with Discovered Graphs
+		this.availableSubGraphs = Array.from(discoveredSubGraphs).sort();
+		console.log("Discovered Sub-Graphs:", this.availableSubGraphs);
 
 		// Chain operations
 		if (this.constructGraph) this.constructGraph();

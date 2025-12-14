@@ -1,24 +1,26 @@
-# Current Task: Bento Processor (Batch Mode)
+# Current Task: Schema Verification & Composable Sub-Graphs
 
 ## Status: COMPLETE ✅
-**Start Date:** 2025-12-12
-**Completion Date:** 2025-12-12
+**Start Date:** 2025-12-14
+**ETA:** 0
 
 ## Objective
-Scale the "Bento Boxing" prototype into a batch processing script that annotates all debriefs in `scratchpads/debriefs/`, with hierarchical support for H3s.
+Enable graph filtering by Source Folder (Sub-Graphs) in Sigma Explorer.
 
 ## Outcomes
-- **Matryoshka Logic:** `scripts/lab/bento-processor.ts` now supports H2 containers and H3 atoms.
-- **Density Threshold:** H3s are only boxed if > 40 words.
-- **Linking:** Child boxes reference `parent-id`.
-- **Scale:** 302 semantic units generated from 48 files.
+- **Sub-Graph Logic**: Nodes tagged with `subGraph` from `meta.source`.
+- **UI Update**: "Graph Composition" toggles replaced Domain Switcher.
+- **Node Truncation**: "Narrative Summary" view for large nodes.
+- **Adaptive Louvain**: Implemented "Rule of 7" (Dynamic Resolution Tuning).
+- **Edge Generation**: Implemented Timeline Linking (Red Thread) & Semantic Linking (Orphan Rescue).
+- **Terminology**: Adopted "Sub-Graphs" and "Misc" (renamed from Structures).
+- **Verification**: Walkthroughs created and manual verification passed.
 
-## Verification Results
-- [x] Batch processing works (48 files)
-- [x] H3 detection works
-- [x] Threshold logic works (Short H3s skipped)
-- [x] Parent linking works (`parent-id` injected)
+## Artifacts
+- [Implementation Plan](file:///Users/petersmith/.gemini/antigravity/brain/58d80c52-4f7b-4947-8435-7c515d02d40f/implementation_plan.md)
+- [Walkthrough (Composability)](file:///Users/petersmith/.gemini/antigravity/brain/58d80c52-4f7b-4947-8435-7c515d02d40f/walkthrough.md)
+- [Walkthrough (Truncation)](file:///Users/petersmith/.gemini/antigravity/brain/58d80c52-4f7b-4947-8435-7c515d02d40f/walkthrough_details_truncation.md)
+- [Walkthrough (Adaptive Louvain)](file:///Users/petersmith/.gemini/antigravity/brain/58d80c52-4f7b-4947-8435-7c515d02d40f/walkthrough_adaptive_louvain.md)
+- [Aspirations](file:///Users/petersmith/.gemini/antigravity/brain/58d80c52-4f7b-4947-8435-7c515d02d40f/aspirations.md)
+- [Final Debrief](file:///Users/petersmith/.gemini/antigravity/brain/58d80c52-4f7b-4947-8435-7c515d02d40f/debrief_graph_ux_optimization.md)
 
-## Next Steps
-- **Ingestion:** Update `ingest_experience_graph.ts` to parse these new tags.
-- **Graph:** Visualize the hierarchy (H2 -> H3 edges).

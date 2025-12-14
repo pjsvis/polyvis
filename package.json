@@ -33,6 +33,7 @@
 		"drizzle-orm": "^0.45.0",
 		"fastembed": "^2.0.0",
 		"glob": "^13.0.0",
+		"graphology-metrics": "^2.4.0",
 		"marked": "^17.0.1"
 	}
 }
