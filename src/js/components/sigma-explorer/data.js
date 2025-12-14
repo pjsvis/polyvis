@@ -1,8 +1,19 @@
 export const initialState = () => ({
 	masterData: { nodes: [], edges: [] },
+	health: null, // Metrics from /api/health
 });
 
 export const methods = {
+	async fetchHealth() {
+		try {
+			const res = await fetch("/api/health");
+			if (res.ok) {
+				this.health = await res.json();
+			}
+		} catch (e) {
+			console.error("Health Fetch Error", e);
+		}
+	},
 	loadGraph(db) {
 		this.status = "Extracting Data...";
 		this.masterData = { nodes: [], edges: [] };

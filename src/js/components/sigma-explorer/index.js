@@ -42,6 +42,9 @@ export default function sigmaApp() {
 				console.error("Failed to load settings:", e);
 			}
 
+			// Load Health Metrics
+			this.fetchHealth();
+
 			// Load DB
 			if (!this.$refs.sigmaContainer) {
 				console.error("Sigma Container not found in Ref");

@@ -212,6 +212,24 @@ async function main() {
 	console.log(`   - Semantic Tagged: ${dbStats.semantic_tokens}`);
 	console.log("   ----------------------------------------");
 
+	// 4.5 Timeline Weaving (Chronological Edges)
+	// Links Debriefs: Dec 14 -> SUCCEEDS -> Dec 13
+	try {
+        const { TimelineWeaver } = await import("@src/core/TimelineWeaver");
+		TimelineWeaver.weave(db);
+	} catch (e) {
+		console.warn("⚠️ Timeline Weaver failed:", e);
+	}
+
+	// 4.6 Semantic Linking (Orphan Rescue)
+	// Links disconnected nodes to Concepts if similarity > 0.85
+	try {
+        const { SemanticWeaver } = await import("@src/core/SemanticWeaver");
+		SemanticWeaver.weave(db);
+	} catch (e) {
+		console.warn("⚠️ Semantic Weaver failed:", e);
+	}
+
 	// Validation
 	validator.expect({
 		files_to_process: processedCount,
