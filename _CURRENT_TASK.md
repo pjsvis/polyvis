@@ -1,33 +1,27 @@
-# Current Task: Unified Semantic Layer Refactor
+# Current Task: Phase 2 - The Bridge (Ghost Graph)
 
-**Objective:** Transform the graph construction pipeline from probabilistic (Regex/Similarity) to deterministic (AST/Explicit).
+**Objective:** Connect the Frontend to the Semantic Vector Layer to visualize hidden connections ("Ghost Edges") and stabilize the graph UX.
 
 ## Status: COMPLETE ✅
 
 ## Goals
-1.  **Precision (BentoBoxer):** Refactor document splitting to use AST (`remark`) instead of Regex to prevent semantic bleeding.
-2.  **Integrity (LouvainGate):** Implement "Degree Centrality Checks" to prevent "Graph Hairballs" (Super-nodes).
-3.  **Strict Mode (EdgeWeaver):** Disable fuzzy linking; rely solely on explicit `[[WikiLinks]]` and `[Tags]`.
+1.  **Ghost Graph (Vector Visualization):** Implement `vec_dot` UDF in browser SQLite to find similar nodes dynamically.
+2.  **Contextual Navigation:** Allow users to explore "Similar Nodes" without losing graph context.
+3.  **Stability (Non-Destructive Filter):** Refactor state management to hide nodes instead of destroying the graph.
 
 ## Outcomes
-- **BentoBoxer v2**: Implemented AST-based H1-H4 grouping with "Fracture Logic" (>300 tokens).
-- **Strict Weaving**: Removed fuzzy matching; enforced explicit WikiLinks/Tags.
-- **LouvainGate**: Implemented degree centrality check (>50) with Triadic Closure requirement.
-- **Verified**: Passed `tsc`, unit tests, and integrity checks.
-
-## Recent Context
-- Successfully completed "Contextual Analysis" (Hybrid RAG).
-- Cleared slate for architectural precision.
-
-## Outcomes
-- **Terminology**: Adopted "Sub-Graphs" and "Misc" (renamed from Structures).
-- **Verification**: Walkthroughs created and manual verification passed.
+-   **Find Similar Button**: Functional UI triggering vector search.
+-   **Ghost Edges**: Gold dashed lines visualize semantic proximity > 0.8.
+-   **Stable UX**: Graph no longer explodes/resets when filtering sub-graphs.
+-   **Hygienic State**: `health` check fixed, race conditions resolved.
+-   **Scoreboard**: User 10 - Agent 5.
 
 ## Artifacts
-- [Implementation Plan](file:///Users/petersmith/.gemini/antigravity/brain/58d80c52-4f7b-4947-8435-7c515d02d40f/implementation_plan.md)
-- [Walkthrough (Composability)](file:///Users/petersmith/.gemini/antigravity/brain/58d80c52-4f7b-4947-8435-7c515d02d40f/walkthrough.md)
-- [Walkthrough (Truncation)](file:///Users/petersmith/.gemini/antigravity/brain/58d80c52-4f7b-4947-8435-7c515d02d40f/walkthrough_details_truncation.md)
-- [Walkthrough (Adaptive Louvain)](file:///Users/petersmith/.gemini/antigravity/brain/58d80c52-4f7b-4947-8435-7c515d02d40f/walkthrough_adaptive_louvain.md)
-- [Aspirations](file:///Users/petersmith/.gemini/antigravity/brain/58d80c52-4f7b-4947-8435-7c515d02d40f/aspirations.md)
-- [Final Debrief](file:///Users/petersmith/.gemini/antigravity/brain/58d80c52-4f7b-4947-8435-7c515d02d40f/debrief_graph_ux_optimization.md)
+-   [Debrief (Wrap Up)](file:///Users/petersmith/Documents/GitHub/polyvis/debriefs/2025-12-14-wrap-up.md)
+-   [Implementation Plan](file:///Users/petersmith/.gemini/antigravity/brain/58d80c52-4f7b-4947-8435-7c515d02d40f/implementation_plan.md)
+-   [Sigma Playbook Update](file:///Users/petersmith/Documents/GitHub/polyvis/playbooks/sigma-playbook.md)
+
+## Next Steps
+-   **Phase 3: The Gardener**: Materializing Ghost Edges into permanent Markdown Links.
+
 
