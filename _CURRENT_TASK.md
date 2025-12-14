@@ -12,6 +12,7 @@ Enable graph filtering by Source Folder (Sub-Graphs) in Sigma Explorer.
 - **UI Update**: "Graph Composition" toggles replaced Domain Switcher.
 - **Node Truncation**: "Narrative Summary" view for large nodes.
 - **Adaptive Louvain**: Implemented "Rule of 7" (Dynamic Resolution Tuning).
+- **Edge Generation**: Implemented Timeline Linking (Red Thread) & Semantic Linking (Orphan Rescue).
 - **Terminology**: Adopted "Sub-Graphs" and "Misc" (renamed from Structures).
 - **Verification**: Walkthroughs created and manual verification passed.
 

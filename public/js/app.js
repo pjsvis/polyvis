@@ -5123,9 +5123,20 @@ var nav_default = () => ({
 
 // src/js/components/sigma-explorer/data.js
 var initialState = () => ({
-  masterData: { nodes: [], edges: [] }
+  masterData: { nodes: [], edges: [] },
+  health: null
 });
 var methods = {
+  async fetchHealth() {
+    try {
+      const res = await fetch("/api/health");
+      if (res.ok) {
+        this.health = await res.json();
+      }
+    } catch (e) {
+      console.error("Health Fetch Error", e);
+    }
+  },
   loadGraph(db) {
     this.status = "Extracting Data...";
     this.masterData = { nodes: [], edges: [] };
@@ -5833,6 +5844,7 @@ function sigmaApp() {
       } catch (e) {
         console.error("Failed to load settings:", e);
       }
+      this.fetchHealth();
       if (!this.$refs.sigmaContainer) {
         console.error("Sigma Container not found in Ref");
         return;
