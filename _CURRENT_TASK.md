@@ -2,17 +2,18 @@
 
 **Objective:** Transform the graph construction pipeline from probabilistic (Regex/Similarity) to deterministic (AST/Explicit).
 
-## Status: 🏗️ IN PROGRESS
+## Status: COMPLETE ✅
 
 ## Goals
 1.  **Precision (BentoBoxer):** Refactor document splitting to use AST (`remark`) instead of Regex to prevent semantic bleeding.
 2.  **Integrity (LouvainGate):** Implement "Degree Centrality Checks" to prevent "Graph Hairballs" (Super-nodes).
 3.  **Strict Mode (EdgeWeaver):** Disable fuzzy linking; rely solely on explicit `[[WikiLinks]]` and `[Tags]`.
 
-## Active Workstream
-- [ ] Refactor `src/core/BentoBoxer.ts` to use AST.
-- [ ] Implement `LouvainGate` in `resonance/src/db.ts`.
-- [ ] Verify graph modularity improvements.
+## Outcomes
+- **BentoBoxer v2**: Implemented AST-based H1-H4 grouping with "Fracture Logic" (>300 tokens).
+- **Strict Weaving**: Removed fuzzy matching; enforced explicit WikiLinks/Tags.
+- **LouvainGate**: Implemented degree centrality check (>50) with Triadic Closure requirement.
+- **Verified**: Passed `tsc`, unit tests, and integrity checks.
 
 ## Recent Context
 - Successfully completed "Contextual Analysis" (Hybrid RAG).

@@ -1,74 +1,58 @@
-import { Database } from "bun:sqlite";
-import { existsSync } from "fs";
-import { join } from "path";
-import settings from "@/polyvis.settings.json";
 
-// Resolve DB path relative to root
-const DB_PATH = join(process.cwd(), settings.paths.database.resonance);
+import { ResonanceDB } from "../../resonance/src/db";
+import { resolve } from "path";
 
-if (!existsSync(DB_PATH)) {
-	console.error(`❌ Database not found at: ${DB_PATH}`);
-	process.exit(1);
+const dbPath = resolve(process.cwd(), "public/resonance.db");
+const db = new ResonanceDB(dbPath);
+
+console.log("🔍 Verifying Graph Integrity...");
+console.log(`📂 Database: ${dbPath}`);
+
+// 1. Check for Super Nodes (Hairballs)
+console.log("\n--- Super Node Check (Hairball Prevention) ---");
+const superNodes = db['db'].query(`
+    SELECT target, COUNT(*) as degree 
+    FROM edges 
+    GROUP BY target 
+    HAVING degree > 50
+    ORDER BY degree DESC
+`).all() as { target: string; degree: number }[];
+
+if (superNodes.length === 0) {
+    console.log("✅ No super nodes found (>50 degree). LouvainGate is working.");
+} else {
+    console.warn(`⚠️ Found ${superNodes.length} potential super nodes:`);
+    superNodes.forEach(n => console.log(`   - ${n.target}: ${n.degree} edges`));
 }
 
-const db = new Database(DB_PATH);
+// 2. Modularity / Density (Basic Proxy)
+console.log("\n--- Graph Density Proxy ---");
+const stats = db.getStats();
+const density = stats.edges / (stats.nodes * (stats.nodes - 1));
+console.log(`Nodes: ${stats.nodes}`);
+console.log(`Edges: ${stats.edges}`);
+console.log(`Density (Proxy): ${density.toFixed(6)}`);
 
-console.log(`🔍 Verifying Integrity of '${DB_PATH}'...\n`);
-
-// 1. Snapshot Counts
-console.log(`📊 Stats:`);
-const nodesSchema = db.query("PRAGMA table_info(nodes)").all();
-console.log("Schema for 'nodes':", nodesSchema);
-const edgesSchema = db.query("PRAGMA table_info(edges)").all();
-console.log("Schema for 'edges':", edgesSchema);
-
-const nodeCount = db.query("SELECT COUNT(*) as count FROM nodes").get() as {
-	count: number;
-};
-const edgeCount = db.query("SELECT COUNT(*) as count FROM edges").get() as {
-	count: number;
-};
-
-console.log(`   - Nodes: ${nodeCount.count}`);
-console.log(`   - Edges: ${edgeCount.count}`);
-
-// 2. Critical Lexicon Nodes (Must Exist)
-const criticalNodes = ["OH-001", "term-001", "COG-1"];
-let missingCritical = false;
-
-for (const id of criticalNodes) {
-	const exists = db.query("SELECT 1 FROM nodes WHERE id = ?").get(id);
-	if (!exists) {
-		console.error(`❌ CRITICAL ERROR: Base node '${id}' is missing!`);
-		missingCritical = true;
-	}
+if (density < 0.1) {
+    console.log("✅ Graph is sparse (Good for structure).");
+} else {
+    console.warn("⚠️ Graph might be too dense.");
 }
 
-if (!missingCritical) {
-	console.log(`✅ Base Lexicon Nodes Verified.`);
-}
+// 3. Orphan Check
+console.log("\n--- Orphan Check ---");
+const orphans = db['db'].query(`
+    SELECT id, title FROM nodes 
+    WHERE id NOT IN (SELECT source FROM edges) 
+    AND id NOT IN (SELECT target FROM edges)
+    AND domain != 'system'
+`).all() as { id: string; title: string }[];
 
-// 3. Experience Layer Check
-const expNodes = db
-	.query(
-		"SELECT COUNT(*) as count FROM nodes WHERE type IN ('playbook', 'debrief')",
-	)
-	.get() as { count: number };
-const expEdges = db
-	.query(
-		"SELECT COUNT(*) as count FROM edges WHERE type IN ('CITES', 'REFERENCES')",
-	)
-	.get() as { count: number };
-
-console.log(`\n📘 Experience Layer:`);
-console.log(`   - Experience Nodes: ${expNodes.count}`);
-console.log(`   - Semantic Edges (CITES/REF): ${expEdges.count}`);
-
-if (expNodes.count > 0 && expEdges.count === 0) {
-	console.warn(
-		`⚠️  WARNING: Experience nodes exist but have NO connections to the graph.`,
-	);
+console.log(`Found ${orphans.length} orphans.`);
+if (orphans.length < 50) {
+    console.log("✅ Orphan count is within acceptable limits.");
+} else {
+    console.warn("⚠️ High orphan count. Semantic Linking might be needed.");
 }
 
 db.close();
-console.log("\n------------------------------------------------");

@@ -46,6 +46,51 @@ Final section.
         expect(boxes[2]!.content).toContain("> Blockquote");
     });
 
+    test("Splits content by deeper headers (H3/H4)", () => {
+        const input = `
+## Section 2
+### Subsection 2.1
+Content 2.1
+#### Deep Dive
+Content 2.1.1
+        `.trim();
+
+        const boxes = boxer.process(input);
+        
+        // H2 -> Box
+        // H3 -> Box
+        // H4 -> Box
+        // Total 3 boxes? 
+        // Logic: Recursively flattens ALL headers <= 4.
+        // If H3 follows H2 immediately, H2 box might be empty string? 
+        // No, current logic: "Start new group with this heading".
+        
+        // Expected:
+        // 1. ## Section 2
+        // 2. ### Subsection 2.1
+        // 3. #### Deep Dive
+        
+        expect(boxes.length).toBe(3);
+        expect(boxes[1]!.content).toContain("### Subsection 2.1");
+        expect(boxes[2]!.content).toContain("#### Deep Dive");
+    });
+
+    test("Fractures large content by Paragraphs", () => {
+        // Generate content > 300 words
+        const largeText = "word ".repeat(350);
+        const input = `
+# Giant Section
+${largeText}
+        `.trim();
+
+        const boxes = boxer.process(input);
+        
+        // Attempts to fracture the single H1 box.
+        // Should produce at least 2 boxes via paragraph chunking or fallback.
+        expect(boxes.length).toBeGreaterThan(1);
+        expect(boxes[0]!.tokenCount).toBeLessThan(350);
+    });
+
     test("Handles empty content gracefully", () => {
         const boxes = boxer.process("");
         expect(boxes.length).toBe(0);
