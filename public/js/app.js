@@ -5571,10 +5571,38 @@ var methods4 = {
       if (!graphologyLibrary.communitiesLouvain)
         return alert("Louvain library not loaded.");
       if (!this.louvainCommunities) {
-        const domainKey = this.activeDomain === "experience" ? "experience" : "persona";
-        const resolution = this.settings?.graph?.tuning?.louvain?.[domainKey] || 1.1;
-        console.log(`Using Louvain Resolution (${domainKey}): ${resolution}`);
-        this.louvainCommunities = graphologyLibrary.communitiesLouvain(this.graph, { resolution });
+        let resolution = 1;
+        let attempts = 0;
+        const maxAttempts = 3;
+        while (attempts < maxAttempts) {
+          attempts++;
+          this.louvainCommunities = graphologyLibrary.communitiesLouvain(this.graph, { resolution });
+          const uniqueCount = new Set(Object.values(this.louvainCommunities)).size;
+          console.log(`Adaptive Louvain #${attempts}: Res ${resolution.toFixed(1)} -> ${uniqueCount} communities`);
+          if (uniqueCount >= 3 && uniqueCount <= 7)
+            break;
+          if (uniqueCount > 7) {
+            resolution = Math.max(0.1, resolution - 0.3);
+          } else {
+            resolution += 0.5;
+          }
+        }
+        const counts2 = {};
+        Object.values(this.louvainCommunities).forEach((c) => {
+          counts2[c] = (counts2[c] || 0) + 1;
+        });
+        const sortedIds = Object.keys(counts2).sort((a, b2) => counts2[b2] - counts2[a]);
+        if (sortedIds.length > 7) {
+          const top6 = new Set(sortedIds.slice(0, 6));
+          const miscId = 999;
+          this.graph.forEachNode((node) => {
+            const originalComm = this.louvainCommunities[node];
+            if (!top6.has(String(originalComm))) {
+              this.louvainCommunities[node] = miscId;
+            }
+          });
+          console.log(`Force-merged ${sortedIds.length - 6} small communities into 'Misc'.`);
+        }
         this.louvainNames = {};
         const communityNodes = {};
         this.graph.forEachNode((node) => {
@@ -5584,6 +5612,10 @@ var methods4 = {
           communityNodes[comm].push(node);
         });
         Object.keys(communityNodes).forEach((commId) => {
+          if (commId === "999") {
+            this.louvainNames[commId] = "Misc / Others";
+            return;
+          }
           let maxDegree = -1;
           let hubNode = null;
           communityNodes[commId].forEach((node) => {

@@ -436,10 +436,28 @@
                                 <div>
                                     <div class="text-xxs uppercase font-bold tracking-wider mb-1"
                                         style="color: var(--text-2);">
-                                        Definition</div>
-                                    <div class="text-xs leading-relaxed font-mono" style="color: var(--text-2);"
-                                        x-html="linkify(selectedNode.definition || 'No definition available.')"
-                                        @click="handleContentClick($event)"></div>
+                                        Definition
+                                    </div>
+                                    
+                                    <!-- Collapsible Text Container -->
+                                    <div x-data="{ expanded: false, isLong: false }" 
+                                         x-init="isLong = $refs.content.innerText.length > 200">
+                                        
+                                        <div x-ref="content" 
+                                             class="text-xs leading-relaxed font-mono transition-all duration-300" 
+                                             style="color: var(--text-2);"
+                                             :class="expanded ? '' : 'line-clamp-4'"
+                                             x-html="linkify(selectedNode.definition || 'No definition available.')"
+                                             @click="handleContentClick($event)">
+                                        </div>
+
+                                        <button x-show="isLong" 
+                                                @click="expanded = !expanded" 
+                                                class="mt-1 text-xxs font-bold uppercase hover:underline focus:outline-none"
+                                                style="color: var(--brand);"
+                                                x-text="expanded ? 'Show Less' : 'Show More...'">
+                                        </button>
+                                    </div>
                                 </div>
 
                                 <div class="pt-4 border-t" style="border-color: var(--border-base);">
