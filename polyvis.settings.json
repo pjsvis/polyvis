@@ -1,8 +1,13 @@
 {
 	"paths": {
 		"database": {
-			"legacy": "scripts/ctx.db",
 			"resonance": "public/resonance.db"
+		},
+		"docs": {
+			"root": "docs",
+			"webdocs": "docs/webdocs",
+			"architecture": "docs/architecture",
+			"public": "public/docs"
 		},
 		"sources": {
 			"experience": {
@@ -17,8 +22,8 @@
 	"graph": {
 		"tuning": {
 			"louvain": {
-				"persona": 1.1,
-				"experience": 1.0
+				"persona": 0.3,
+				"experience": 0.25
 			}
 		}
 	},

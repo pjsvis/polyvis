@@ -112,3 +112,8 @@ examples/
 # Generated Reports (not source code)
 reports/ingestion-stats-*.md
 reports/test-*.md
+
+# Resonance Database (Generated Locally - Source JSON files are the source of truth)
+public/resonance.db
+public/resonance.db-wal
+public/resonance.db-shm

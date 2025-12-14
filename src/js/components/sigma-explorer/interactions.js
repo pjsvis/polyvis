@@ -6,7 +6,7 @@ export const initialState = () => ({
 	searchResults: [],
 	isSearchFocused: false,
 	showStats: false,
-	stats: { nodes: 0, edges: 0, density: 0, avgDegree: 0 },
+	stats: { nodes: 0, edges: 0, density: 0, avgDegree: 0, orphans: 0 },
 	tooltip: { visible: false, text: "", x: 0, y: 0 },
 });
 
@@ -70,26 +70,6 @@ export const methods = {
 			container.style.cursor = "";
 			this.hoveredNode = null;
 		});
-	},
-
-	setDomain(domain) {
-		if (this.activeDomain === domain) return;
-		this.activeDomain = domain;
-		console.log(`Switching Domain to: ${domain}`);
-
-		// Must Reconstruct Graph for proper Sigma behavior when nodes are removed/added
-		if (this.constructGraph) this.constructGraph();
-
-		// Refresh Louvain if active (to apply new resolution tuning)
-		if (this.activeColorViz === "louvain") {
-			this.louvainCommunities = null; // Force recalc
-			if (this.toggleColorViz) this.toggleColorViz("louvain", true);
-		} else {
-			if (this.renderer) this.renderer.refresh();
-		}
-
-		// Center the new graph
-		if (this.zoomReset) this.zoomReset();
 	},
 
 	selectNode(nodeId) {
@@ -176,7 +156,18 @@ export const methods = {
 
 	toggleStats() {
 		this.showStats = !this.showStats;
-		if (this.showStats && this.graph && graphologyLibrary.metrics) {
+		if (this.showStats) {
+			this.updateStats();
+		}
+	},
+
+	updateStats() {
+		if (!this.stats || !this.graph) return;
+
+		// If stats functionality isn't active/visible, we might not want to burn cycles,
+		// but providing live updates is generally better for UX.
+
+		if (graphologyLibrary.metrics) {
 			this.stats.nodes = this.graph.order;
 			this.stats.edges = this.graph.size;
 			this.stats.density = graphologyLibrary.metrics.graph
@@ -187,6 +178,7 @@ export const methods = {
 				totalDegree += this.graph.degree(node);
 			});
 			this.stats.avgDegree = (totalDegree / this.graph.order).toFixed(2);
+			this.stats.orphans = this.orphanCount || 0;
 		}
 	},
 

@@ -2,6 +2,8 @@ export const initialState = () => ({
 	graph: null,
 	layout: "forceatlas2",
 	layoutInstance: null,
+	showOrphans: false,
+	orphanCount: 0,
 });
 
 export const methods = {
@@ -19,27 +21,17 @@ export const methods = {
 			// 1. Genesis/Structure Filter
 			if (row.type === "root" || row.type === "domain") return;
 
-			// 2. Domain Filter
-			const isExperience =
-				row.domain === "resonance" ||
-				row.type === "playbook" ||
-				row.type === "debrief" ||
-				row.type === "protocol";
-			const isPersona = row.domain === "persona" || !isExperience;
-
-			let include = false;
-			if (this.activeDomain === "persona" && isPersona) include = true;
-			if (this.activeDomain === "experience" && isExperience) include = true;
-			if (this.activeDomain === "unified") include = true;
-
-			if (!include) return;
+			// 2. Sub-Graph Filter (Composability)
+			// A node is included if its assigned subGraph is in the active list.
+			if (!this.activeSubGraphs.includes(row.subGraph)) return;
 
 			// Add Node
 			if (!this.graph.hasNode(row.id)) {
 				this.graph.addNode(row.id, {
 					label: row.title || row.label || row.id,
 					nodeType: row.type || "Unknown",
-					domain: row.domain || (isExperience ? "resonance" : "persona"),
+					domain: row.domain,
+					subGraph: row.subGraph,
 					definition: row.content || row.definition || "",
 
 					size: (() => {
@@ -53,22 +45,23 @@ export const methods = {
 					})(),
 
 					color: (() => {
-						if (row.type === "term" || row.type === "Core Concept")
-							return "black";
-						if (row.type === "playbook") return "#f97316";
-						if (row.type === "protocol") return "#a855f7";
-						if (row.type === "directive") return "#dc2626";
-						if (row.type === "debrief") return "#3b82f6";
-						if (row.type === "section") return "#cbd5e1";
-						return "#475569";
+						// Persona / Ontology
+						if (row.subGraph === "persona") return "black";
+						
+						// Sub-Graph Colors
+						if (row.subGraph === "playbooks") return "#f97316"; // Orange
+						if (row.subGraph === "debriefs") return "#3b82f6";  // Blue
+						if (row.subGraph === "briefs") return "#22c55e";    // Green
+						if (row.subGraph === "knowledge") return "#ec4899"; // Pink
+						
+						// Fallbacks
+						if (row.type === "protocol") return "#a855f7"; // Purple
+						return "#475569"; // Slate
 					})(),
 
 					originalSize:
 						row.type === "term" || row.type === "Core Concept" ? 20 : 6,
-					originalColor:
-						row.type === "term" || row.type === "Core Concept"
-							? "black"
-							: "#475569",
+					originalColor: row.subGraph === "persona" ? "black" : "#475569",
 
 					x: ((str) => {
 						let hash = 0;
@@ -107,7 +100,13 @@ export const methods = {
 
 		const currentNodes = this.graph.order;
 		const currentEdges = this.graph.size;
-		this.status = `${this.activeDomain.toUpperCase()} Graph: ${currentNodes} Nodes, ${currentEdges} Edges.`;
+		this.status = `Graph Config: ${this.activeSubGraphs.join('+')} | ${currentNodes} Nodes, ${currentEdges} Edges.`;
+
+		// Compute Stats & Visibility
+		this.computeOrphanStats();
+
+		// Update Stats Panel if active
+		if (this.updateStats) this.updateStats();
 
 		// Run Layout
 		this.runLayout("forceatlas2");
@@ -115,6 +114,68 @@ export const methods = {
 		// Apply Default Visualization
 		if (this.toggleColorViz) this.toggleColorViz("louvain", true);
 		if (this.toggleSizeViz) this.toggleSizeViz("pagerank");
+
+		// Apply Orphan Visibility Last (Overrides colors/visibility)
+		this.updateOrphanVisibility();
+	},
+
+	toggleSubGraph(subGraph) {
+		if (this.activeSubGraphs.includes(subGraph)) {
+			// Remove it
+			this.activeSubGraphs = this.activeSubGraphs.filter(g => g !== subGraph);
+		} else {
+			// Add it
+			this.activeSubGraphs.push(subGraph);
+		}
+		
+		console.log("Active Sub-Graphs:", this.activeSubGraphs);
+
+		// Must Reconstruct Graph
+		this.constructGraph();
+
+		// Refresh Louvain if active
+		if (this.activeColorViz === "louvain") {
+			this.louvainCommunities = null; // Force recalc
+			if (this.toggleColorViz) this.toggleColorViz("louvain", true);
+		} else {
+			if (this.renderer) this.renderer.refresh();
+		}
+
+		// Center the new graph
+		if (this.zoomReset) this.zoomReset();
+	},
+
+	toggleOrphans() {
+		this.showOrphans = !this.showOrphans;
+		this.updateOrphanVisibility();
+	},
+
+	updateOrphanVisibility() {
+		if (!this.graph) return;
+
+		this.graph.forEachNode((node) => {
+			const degree = this.graph.degree(node);
+			if (degree === 0) {
+				if (this.showOrphans) {
+					this.graph.setNodeAttribute(node, "hidden", false);
+					this.graph.setNodeAttribute(node, "color", "#ef4444"); // Red for emphasis
+					// this.graph.setNodeAttribute(node, "size", 8);
+				} else {
+					this.graph.setNodeAttribute(node, "hidden", true);
+				}
+			}
+		});
+
+		if (this.renderer) this.renderer.refresh();
+	},
+
+	computeOrphanStats() {
+		if (!this.graph) return;
+		let count = 0;
+		this.graph.forEachNode((node) => {
+			if (this.graph.degree(node) === 0) count++;
+		});
+		this.orphanCount = count;
 	},
 
 	runLayout(algorithm) {

@@ -4,7 +4,7 @@ import { join } from "path";
 import settings from "@/polyvis.settings.json";
 
 // Resolve DB path relative to root
-const DB_PATH = join(process.cwd(), settings.paths.database.legacy);
+const DB_PATH = join(process.cwd(), settings.paths.database.resonance);
 
 if (!existsSync(DB_PATH)) {
 	console.error(`❌ Database not found at: ${DB_PATH}`);

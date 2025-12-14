@@ -47,14 +47,14 @@ For detailed instructions on CSS development, database building, and running the
 ## Project Structure
 
 ### 3. Detailed Documentation
-For a deep dive on the codebase organization, please see **[Project Structure](docs/project-structure.md)**.
+For a deep dive on the codebase organization, please see **[Project Structure](docs/webdocs/project-structure.md)**.
 
 ## Project Structure (High Level)
 
 ```
 ├── public/              # Web Root (HTML, Static Data)
-│   ├── explorer/        # SigmaJS Graph Explorer
-│   └── data/            # SQLite Databases (ctx.db, resonance.db)
+│   ├── explorer/        # Sigma.js Graph Explorer
+│   └── resonance.db     # SQLite Database (generated locally)
 │
 ├── src/                 # Application Source Code
 │   ├── core/            # The Bento Box Kernel (Normalizer, Weaver)

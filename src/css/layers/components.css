@@ -189,7 +189,7 @@
 .home-subtitle {
 	font-family: var(--font-sans);
 	font-size: var(--font-size-2);
-	color: var(--gray-6);
+	color: var(--text-2);
 	text-transform: uppercase;
 	/* letter-spacing removed */
 	border-bottom: var(--border-base) solid var(--primary);
@@ -204,15 +204,7 @@
 	font-size: var(--font-size-3);
 	font-weight: 300;
 	font-style: italic;
-	color: var(--gray-8);
-
-	@media (prefers-color-scheme: dark) {
-		color: var(--gray-4);
-	}
-
-	:root[data-theme="dark"] & {
-		color: var(--gray-4);
-	}
+	color: var(--text-1);
 }
 
 .btn-structural {

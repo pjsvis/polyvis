@@ -31,16 +31,54 @@ export const methods = {
 				return alert("Louvain library not loaded.");
 
 			if (!this.louvainCommunities) {
-				const domainKey =
-					this.activeDomain === "experience" ? "experience" : "persona";
-				const resolution =
-					this.settings?.graph?.tuning?.louvain?.[domainKey] || 1.1;
-				console.log(`Using Louvain Resolution (${domainKey}): ${resolution}`);
+				// ADAPTIVE LOUVAIN (Rule of 7 & Rule of 3)
+				// Goal: 3 to 7 communities.
+				// Max 3 attempts to prevent thrashing.
+				
+				let resolution = 1.0; // Start middle
+				let attempts = 0;
+				const maxAttempts = 3;
+				
+				while (attempts < maxAttempts) {
+					attempts++;
+					this.louvainCommunities = graphologyLibrary.communitiesLouvain(
+						this.graph,
+						{ resolution: resolution },
+					);
+					
+					const uniqueCount = new Set(Object.values(this.louvainCommunities)).size;
+					console.log(`Adaptive Louvain #${attempts}: Res ${resolution.toFixed(1)} -> ${uniqueCount} communities`);
 
-				this.louvainCommunities = graphologyLibrary.communitiesLouvain(
-					this.graph,
-					{ resolution: resolution },
-				);
+					if (uniqueCount >= 3 && uniqueCount <= 7) break; // Success
+					
+					// Tuning
+					if (uniqueCount > 7) {
+						resolution = Math.max(0.1, resolution - 0.3); // Coarser
+					} else {
+						resolution += 0.5; // Finer
+					}
+				}
+
+				// POST-PROCESS: Strict Enforcement (Visual Fallback)
+				// If we still have > 7, force merge the tail into "Misc"
+				const counts = {};
+				Object.values(this.louvainCommunities).forEach(c => {
+					counts[c] = (counts[c] || 0) + 1;
+				});
+				
+				const sortedIds = Object.keys(counts).sort((a,b) => counts[b] - counts[a]);
+				if (sortedIds.length > 7) {
+					const top6 = new Set(sortedIds.slice(0, 6)); // Keep top 6
+					const miscId = 999;
+					
+					this.graph.forEachNode(node => {
+						const originalComm = this.louvainCommunities[node];
+						if (!top6.has(String(originalComm))) {
+							this.louvainCommunities[node] = miscId;
+						}
+					});
+					console.log(`Force-merged ${sortedIds.length - 6} small communities into 'Misc'.`);
+				}
 
 				this.louvainNames = {};
 				const communityNodes = {};
@@ -51,6 +89,11 @@ export const methods = {
 				});
 
 				Object.keys(communityNodes).forEach((commId) => {
+					if (commId === "999") {
+						this.louvainNames[commId] = "Misc / Others";
+						return;
+					}
+					
 					let maxDegree = -1;
 					let hubNode = null;
 					communityNodes[commId].forEach((node) => {
@@ -159,6 +202,7 @@ export const methods = {
 			});
 		}
 
+		if (this.updateOrphanVisibility) this.updateOrphanVisibility();
 		if (this.renderer) this.renderer.refresh();
 	},
 

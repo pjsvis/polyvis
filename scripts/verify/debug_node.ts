@@ -4,12 +4,12 @@ import { join } from "path";
 console.log("--- Starting Node Connection Debugger ---");
 
 // --- Configuration ---
-const scriptDir = import.meta.dir;
-const dbPath = join(scriptDir, "ctx.db"); // TODO: DEPRECATED ctx.db
+import settings from "@/polyvis.settings.json";
+const dbPath = join(process.cwd(), settings.paths.database.resonance);
 const searchTerm = "OH-106: Forced Stubbornness Protocol (FSP)"; // The problematic term
 
 // --- Database Connection ---
-const db = new Database(dbPath, { readonly: true }); // TODO: DEPRECATED usage
+const db = new Database(dbPath, { readonly: true });
 
 try {
 	// 1. Find the exact node ID for the given label

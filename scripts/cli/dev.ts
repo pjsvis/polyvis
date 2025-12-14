@@ -47,7 +47,7 @@ console.log(`🌍 Starting Web Server at http://localhost:${PORT}...`);
 
 const server = Bun.serve({
 	port: PORT,
-	fetch(req) {
+	async fetch(req) {
 		const url = new URL(req.url);
 		let path = url.pathname;
 
@@ -58,6 +58,76 @@ const server = Bun.serve({
 
 		const filePath = join(PUBLIC_DIR, path);
 		const file = Bun.file(filePath);
+
+
+		// API: Graph Health Metrics
+		if (path === "/api/health") {
+            try {
+                // Import dependencies dynamically to avoid heavy startup
+                const { Database } = await import("bun:sqlite");
+                const settings = await import("../../polyvis.settings.json");
+
+                const db = new Database(settings.default.paths.database.resonance, { readonly: true });
+                
+                // 1. Basic Stats
+                const N = (db.query("SELECT COUNT(*) as c FROM nodes WHERE type != 'root' AND type != 'domain'").get() as any).c;
+                const E = (db.query("SELECT COUNT(*) as c FROM edges").get() as any).c;
+                const nodes = db.query("SELECT id FROM nodes WHERE type != 'root' AND type != 'domain'").all() as any[];
+                const edges = db.query("SELECT source, target FROM edges").all() as any[];
+                
+                db.close();
+
+                // 2. Metrics Calculation
+                const avgDegree = (2 * E) / N;
+                const maxEdges = (N * (N - 1)) / 2;
+                const density = maxEdges > 0 ? E / maxEdges : 0;
+
+                // 3. Components (BFS)
+                const adj = new Map<string, string[]>();
+                nodes.forEach(n => adj.set(n.id, []));
+                edges.forEach(e => {
+                    if (adj.has(e.source)) adj.get(e.source)?.push(e.target);
+                    if (adj.has(e.target)) adj.get(e.target)?.push(e.source);
+                });
+
+                const visited = new Set<string>();
+                let components = 0;
+                let giantCompSize = 0;
+
+                for (const node of nodes) {
+                    if (visited.has(node.id)) continue;
+                    let size = 0;
+                    const stack = [node.id];
+                    visited.add(node.id);
+                    while (stack.length > 0) {
+                        const curr = stack.pop()!;
+                        size++;
+                        const neighbors = adj.get(curr) || [];
+                        for (const neighbor of neighbors) {
+                            if (!visited.has(neighbor)) {
+                                visited.add(neighbor);
+                                stack.push(neighbor);
+                            }
+                        }
+                    }
+                    components++;
+                    if (size > giantCompSize) giantCompSize = size;
+                }
+
+                return new Response(JSON.stringify({
+                    nodes: N,
+                    edges: E,
+                    density: Number(density.toFixed(4)),
+                    avgDegree: Number(avgDegree.toFixed(2)),
+                    components: components,
+                    giantCompPercent: Number(((giantCompSize / N) * 100).toFixed(1))
+                }), { headers: { "Content-Type": "application/json" } });
+
+            } catch (e) {
+                console.error("API Health Error:", e);
+                return new Response(JSON.stringify({ error: "Failed to analyze graph" }), { status: 500 });
+            }
+        }
 
 		return file.exists().then(async (exists) => {
 			if (exists) {

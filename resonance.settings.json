@@ -1,9 +1,0 @@
-{
-	"note": "DEPRECATED: Use polyvis.settings.json as single source of truth",
-	"dbPath": "public/resonance.db",
-	"ingestion": {
-		"directories": ["debriefs", "playbooks", "briefs"],
-		"lexicon": "scripts/fixtures/conceptual-lexicon-ref-v1.79.json",
-		"cda": "scripts/fixtures/cda-ref-v63.json"
-	}
-}
