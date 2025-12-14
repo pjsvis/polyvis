@@ -69,7 +69,7 @@ resonance/dist
 local_cache/
 
 # Examples (not part of build)
-examples/
+#examples/
 
 # Generated Reports (not source code)
 reports/ingestion-stats-*.md
