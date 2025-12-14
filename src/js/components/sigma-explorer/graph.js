@@ -16,12 +16,11 @@ export const methods = {
 			`Constructing Graph for Domain: ${this.activeDomain} (Source: ${nodeCount} items)`,
 		);
 
-		// Filter and Add Nodes
+		// Add ALL Nodes (Filter dynamically later)
 		this.masterData.nodes.forEach((row) => {
-			// 1. Genesis/Structure Filter
 			if (row.type === "root" || row.type === "domain") return;
 
-			// 2. Sub-Graph Filter (Composability)
+            // Add NodeSub-Graph Filter (Composability)
 			// A node is included if its assigned subGraph is in the active list.
 			if (!this.activeSubGraphs.includes(row.subGraph)) return;
 

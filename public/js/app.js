@@ -5124,7 +5124,15 @@ var nav_default = () => ({
 // src/js/components/sigma-explorer/data.js
 var initialState = () => ({
   masterData: { nodes: [], edges: [] },
-  health: null
+  health: {
+    nodes: 0,
+    edges: 0,
+    density: 0,
+    avgDegree: 0,
+    components: 0,
+    giantCompPercent: 0
+  },
+  db: null
 });
 var methods = {
   async fetchHealth() {
@@ -5139,6 +5147,7 @@ var methods = {
   },
   loadGraph(db) {
     this.status = "Extracting Data...";
+    this.db = db;
     this.masterData = { nodes: [], edges: [] };
     try {
       const nodesStmt = db.prepare("SELECT * FROM nodes");
@@ -5195,6 +5204,7 @@ var methods = {
       discoveredSubGraphs.add(subGraph);
     });
     this.availableSubGraphs = Array.from(discoveredSubGraphs).sort();
+    this.activeSubGraphs = [...this.availableSubGraphs];
     console.log("Discovered Sub-Graphs:", this.availableSubGraphs);
     if (this.constructGraph)
       this.constructGraph();
@@ -5396,7 +5406,9 @@ var initialState3 = () => ({
   isSearchFocused: false,
   showStats: false,
   stats: { nodes: 0, edges: 0, density: 0, avgDegree: 0, orphans: 0 },
-  tooltip: { visible: false, text: "", x: 0, y: 0 }
+  tooltip: { visible: false, text: "", x: 0, y: 0 },
+  ghostEdges: [],
+  similarNodes: []
 });
 var methods3 = {
   initRenderer(container) {
@@ -5453,9 +5465,16 @@ var methods3 = {
   selectNode(nodeId) {
     if (!nodeId) {
       this.selectedNode = null;
+      if (this.clearGhostEdges)
+        this.clearGhostEdges();
       if (this.renderer)
         this.renderer.refresh();
       return;
+    }
+    if (this.clearGhostEdges) {
+      if (!this.selectedNode || this.selectedNode.id !== nodeId) {
+        this.clearGhostEdges();
+      }
     }
     const attr = this.graph.getNodeAttributes(nodeId);
     this.selectedNode = {
@@ -5553,6 +5572,73 @@ var methods3 = {
     if (!text)
       return "";
     return text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" class="text-blue-600 hover:underline">$1</a>');
+  },
+  async findSimilar(nodeId) {
+    if (!this.db) {
+      console.error("No Database instance available.");
+      return;
+    }
+    console.log(`\uD83D\uDD0E Finding neighbors for ${nodeId}...`);
+    if (this.clearGhostEdges)
+      this.clearGhostEdges();
+    try {
+      const result = this.db.exec("SELECT embedding FROM nodes WHERE id = ?", [nodeId]);
+      if (!result.length || !result[0].values.length)
+        return;
+      const embedding = result[0].values[0][0];
+      if (!embedding) {
+        alert("No embedding found for this node.");
+        return;
+      }
+      const query = `
+                SELECT id, vec_dot(embedding, ?) as score 
+                FROM nodes 
+                WHERE id != ? 
+                ORDER BY score DESC 
+                LIMIT 5
+            `;
+      const searchRes = this.db.exec(query, [embedding, nodeId]);
+      if (!searchRes.length)
+        return;
+      const neighbors = searchRes[0].values;
+      neighbors.forEach(([targetId, score]) => {
+        if (this.graph.hasNode(targetId)) {
+          if (!this.graph.hasEdge(nodeId, targetId) && !this.graph.hasEdge(targetId, nodeId)) {
+            const edgeId = this.graph.addEdge(nodeId, targetId, {
+              type: "arrow",
+              label: `Similarity: ${score.toFixed(2)}`,
+              size: 3,
+              color: getComputedStyle(document.documentElement).getPropertyValue("--color-ghost-edge").trim() || "#FFD700",
+              ghost: true
+            });
+            this.ghostEdges.push(edgeId);
+          }
+        }
+      });
+      this.similarNodes = neighbors.map(([id, score]) => ({
+        id,
+        score: score.toFixed(2),
+        label: this.graph.hasNode(id) ? this.graph.getNodeAttribute(id, "label") : id
+      }));
+      console.log(`✨ Added ${this.ghostEdges.length} ghost edges.`);
+      if (this.renderer)
+        this.renderer.refresh();
+    } catch (e) {
+      console.error("Vector Search Failed", e);
+    }
+  },
+  clearGhostEdges() {
+    if (!this.graph)
+      return;
+    this.ghostEdges.forEach((edgeId) => {
+      if (this.graph.hasEdge(edgeId)) {
+        this.graph.dropEdge(edgeId);
+      }
+    });
+    this.ghostEdges = [];
+    this.similarNodes = [];
+    if (this.renderer)
+      this.renderer.refresh();
   }
 };
 
@@ -5816,6 +5902,25 @@ var methods4 = {
   }
 };
 
+// src/js/utils/math.js
+function dotProduct(a, b2) {
+  if (!a || !b2)
+    return 0;
+  let vecA = a;
+  let vecB = b2;
+  if (typeof a === "string")
+    vecA = JSON.parse(a);
+  if (typeof b2 === "string")
+    vecB = JSON.parse(b2);
+  if (vecA.length !== vecB.length)
+    return 0;
+  let dot = 0;
+  for (let i = 0;i < vecA.length; i++) {
+    dot += vecA[i] * vecB[i];
+  }
+  return dot;
+}
+
 // src/js/components/sigma-explorer/index.js
 function sigmaApp() {
   return {
@@ -5859,6 +5964,8 @@ function sigmaApp() {
         xhr.onload = (e) => {
           const uInt8Array = new Uint8Array(xhr.response);
           const db = new SQL.Database(uInt8Array);
+          db.create_function("vec_dot", dotProduct);
+          console.log("✅ UDF 'vec_dot' registered.");
           this.loadGraph(db);
           this.loaded = true;
         };

@@ -1,6 +1,14 @@
 export const initialState = () => ({
 	masterData: { nodes: [], edges: [] },
-	health: null, // Metrics from /api/health
+	health: {
+        nodes: 0,
+        edges: 0,
+        density: 0,
+        avgDegree: 0,
+        components: 0,
+        giantCompPercent: 0
+    }, 
+    db: null,     // SQLite Instance
 });
 
 export const methods = {
@@ -16,6 +24,7 @@ export const methods = {
 	},
 	loadGraph(db) {
 		this.status = "Extracting Data...";
+        this.db = db; // Store for UDF queries
 		this.masterData = { nodes: [], edges: [] };
 
 		// Query Nodes
@@ -92,6 +101,8 @@ export const methods = {
 
 		// Update State with Discovered Graphs
 		this.availableSubGraphs = Array.from(discoveredSubGraphs).sort();
+        // DEFAULT: Show ALL Sub-Graphs initially
+        this.activeSubGraphs = [...this.availableSubGraphs];
 		console.log("Discovered Sub-Graphs:", this.availableSubGraphs);
 
 		// Chain operations

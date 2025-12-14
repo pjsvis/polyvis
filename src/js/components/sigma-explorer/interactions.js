@@ -8,6 +8,8 @@ export const initialState = () => ({
 	showStats: false,
 	stats: { nodes: 0, edges: 0, density: 0, avgDegree: 0, orphans: 0 },
 	tooltip: { visible: false, text: "", x: 0, y: 0 },
+    ghostEdges: [], // Track added semantic links
+    similarNodes: [], // Track similar node data for UI list
 });
 
 export const methods = {
@@ -75,9 +77,17 @@ export const methods = {
 	selectNode(nodeId) {
 		if (!nodeId) {
 			this.selectedNode = null;
+            if (this.clearGhostEdges) this.clearGhostEdges(); // Clear ghosts on deselect
 			if (this.renderer) this.renderer.refresh();
 			return;
 		}
+
+        // Clear previous ghosts ONLY if context changes (New Node)
+        if (this.clearGhostEdges) {
+            if (!this.selectedNode || this.selectedNode.id !== nodeId) {
+                 this.clearGhostEdges();
+            }
+        }
 
 		const attr = this.graph.getNodeAttributes(nodeId);
 		this.selectedNode = {
@@ -198,6 +208,88 @@ export const methods = {
 		return text.replace(
 			/\[([^\]]+)\]\(([^)]+)\)/g,
 			'<a href="$2" target="_blank" class="text-blue-600 hover:underline">$1</a>',
-		);
+						);
 	},
+
+    // Phase 2: Ghost Graph (Vector Search)
+    async findSimilar(nodeId) {
+        if (!this.db) {
+            console.error("No Database instance available.");
+            return;
+        }
+
+        console.log(`🔎 Finding neighbors for ${nodeId}...`);
+        
+        // 1. Clear previous ghosts
+        if (this.clearGhostEdges) this.clearGhostEdges();
+
+        try {
+            // 2. Get Source Vector
+            const result = this.db.exec("SELECT embedding FROM nodes WHERE id = ?", [nodeId]);
+            if (!result.length || !result[0].values.length) return;
+            
+            const embedding = result[0].values[0][0];
+            if (!embedding) {
+                alert("No embedding found for this node.");
+                return;
+            }
+
+            // 3. Vector Search (UDF)
+            // Note: sql.js exec returns [{columns, values}]
+            const query = `
+                SELECT id, vec_dot(embedding, ?) as score 
+                FROM nodes 
+                WHERE id != ? 
+                ORDER BY score DESC 
+                LIMIT 5
+            `;
+            
+            const searchRes = this.db.exec(query, [embedding, nodeId]);
+            if (!searchRes.length) return;
+
+            const neighbors = searchRes[0].values; // [[id, score], ...]
+            
+            // 4. Draw Ghost Edges
+            neighbors.forEach( ([targetId, score]) => {
+                if (this.graph.hasNode(targetId)) {
+                    // Check if edge already exists
+                    if (!this.graph.hasEdge(nodeId, targetId) && !this.graph.hasEdge(targetId, nodeId)) {
+                         const edgeId = this.graph.addEdge(nodeId, targetId, {
+                             type: "arrow",
+                             label: `Similarity: ${(score).toFixed(2)}`,
+                             size: 3,
+                             color: getComputedStyle(document.documentElement).getPropertyValue('--color-ghost-edge').trim() || "#FFD700",
+                             ghost: true
+                         });
+                         this.ghostEdges.push(edgeId);
+                    }
+                }
+            });
+            
+            // 5. Update UI List
+            this.similarNodes = neighbors.map(([id, score]) => ({
+                id,
+                score: score.toFixed(2),
+                label: this.graph.hasNode(id) ? this.graph.getNodeAttribute(id, "label") : id
+            }));
+
+            console.log(`✨ Added ${this.ghostEdges.length} ghost edges.`);
+            if (this.renderer) this.renderer.refresh();
+
+        } catch(e) {
+            console.error("Vector Search Failed", e);
+        }
+    },
+
+    clearGhostEdges() {
+        if (!this.graph) return;
+        this.ghostEdges.forEach(edgeId => {
+            if (this.graph.hasEdge(edgeId)) {
+                this.graph.dropEdge(edgeId);
+            }
+        });
+        this.ghostEdges = [];
+        this.similarNodes = [];
+        if (this.renderer) this.renderer.refresh();
+    }
 };

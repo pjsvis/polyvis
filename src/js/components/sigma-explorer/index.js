@@ -2,6 +2,7 @@ import * as Data from "./data.js";
 import * as Graph from "./graph.js";
 import * as Interactions from "./interactions.js";
 import * as Viz from "./viz.js";
+import { dotProduct } from "../../utils/math.js";
 
 export default function sigmaApp() {
 	return {
@@ -66,6 +67,11 @@ export default function sigmaApp() {
 				xhr.onload = (e) => {
 					const uInt8Array = new Uint8Array(xhr.response);
 					const db = new SQL.Database(uInt8Array);
+                    
+                    // 1. INJECT UDF (Vector Math)
+                    db.create_function("vec_dot", dotProduct);
+                    console.log("✅ UDF 'vec_dot' registered.");
+
 					this.loadGraph(db);
 					this.loaded = true;
 				};

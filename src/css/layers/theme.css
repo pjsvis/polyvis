@@ -159,6 +159,9 @@
 	/* ALIASES / COMPATIBILITY */
 	--surface-panel: var(--surface-2);
 	--surface-panel-fg: var(--surface-2-fg);
+
+    /* SEMANTIC GRAPH COLORS */
+    --color-ghost-edge: #FFD700; /* Gold */
 }
 
 /* 
