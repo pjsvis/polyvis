@@ -21,27 +21,17 @@ export const methods = {
 			// 1. Genesis/Structure Filter
 			if (row.type === "root" || row.type === "domain") return;
 
-			// 2. Domain Filter
-			const isExperience =
-				row.domain === "resonance" ||
-				row.type === "playbook" ||
-				row.type === "debrief" ||
-				row.type === "protocol";
-			const isPersona = row.domain === "persona" || !isExperience;
-
-			let include = false;
-			if (this.activeDomain === "persona" && isPersona) include = true;
-			if (this.activeDomain === "experience" && isExperience) include = true;
-			if (this.activeDomain === "unified") include = true;
-
-			if (!include) return;
+			// 2. Sub-Graph Filter (Composability)
+			// A node is included if its assigned subGraph is in the active list.
+			if (!this.activeSubGraphs.includes(row.subGraph)) return;
 
 			// Add Node
 			if (!this.graph.hasNode(row.id)) {
 				this.graph.addNode(row.id, {
 					label: row.title || row.label || row.id,
 					nodeType: row.type || "Unknown",
-					domain: row.domain || (isExperience ? "resonance" : "persona"),
+					domain: row.domain,
+					subGraph: row.subGraph,
 					definition: row.content || row.definition || "",
 
 					size: (() => {
@@ -55,22 +45,23 @@ export const methods = {
 					})(),
 
 					color: (() => {
-						if (row.type === "term" || row.type === "Core Concept")
-							return "black";
-						if (row.type === "playbook") return "#f97316";
-						if (row.type === "protocol") return "#a855f7";
-						if (row.type === "directive") return "#dc2626";
-						if (row.type === "debrief") return "#3b82f6";
-						if (row.type === "section") return "#cbd5e1";
-						return "#475569";
+						// Persona / Ontology
+						if (row.subGraph === "persona") return "black";
+						
+						// Sub-Graph Colors
+						if (row.subGraph === "playbooks") return "#f97316"; // Orange
+						if (row.subGraph === "debriefs") return "#3b82f6";  // Blue
+						if (row.subGraph === "briefs") return "#22c55e";    // Green
+						if (row.subGraph === "knowledge") return "#ec4899"; // Pink
+						
+						// Fallbacks
+						if (row.type === "protocol") return "#a855f7"; // Purple
+						return "#475569"; // Slate
 					})(),
 
 					originalSize:
 						row.type === "term" || row.type === "Core Concept" ? 20 : 6,
-					originalColor:
-						row.type === "term" || row.type === "Core Concept"
-							? "black"
-							: "#475569",
+					originalColor: row.subGraph === "persona" ? "black" : "#475569",
 
 					x: ((str) => {
 						let hash = 0;
@@ -109,7 +100,7 @@ export const methods = {
 
 		const currentNodes = this.graph.order;
 		const currentEdges = this.graph.size;
-		this.status = `${this.activeDomain.toUpperCase()} Graph: ${currentNodes} Nodes, ${currentEdges} Edges.`;
+		this.status = `Graph Config: ${this.activeSubGraphs.join('+')} | ${currentNodes} Nodes, ${currentEdges} Edges.`;
 
 		// Compute Stats & Visibility
 		this.computeOrphanStats();
@@ -128,20 +119,21 @@ export const methods = {
 		this.updateOrphanVisibility();
 	},
 
-	setDomain(domain) {
-		if (this.activeDomain === domain) return;
-		this.activeDomain = domain;
-		console.log(`Switching Domain to: ${domain}`);
+	toggleSubGraph(subGraph) {
+		if (this.activeSubGraphs.includes(subGraph)) {
+			// Remove it
+			this.activeSubGraphs = this.activeSubGraphs.filter(g => g !== subGraph);
+		} else {
+			// Add it
+			this.activeSubGraphs.push(subGraph);
+		}
+		
+		console.log("Active Sub-Graphs:", this.activeSubGraphs);
 
-		// Update URL
-		const url = new URL(window.location);
-		url.searchParams.set("domain", domain);
-		window.history.pushState({}, "", url);
-
-		// Must Reconstruct Graph for proper Sigma behavior when nodes are removed/added
+		// Must Reconstruct Graph
 		this.constructGraph();
 
-		// Refresh Louvain if active (to apply new resolution tuning)
+		// Refresh Louvain if active
 		if (this.activeColorViz === "louvain") {
 			this.louvainCommunities = null; // Force recalc
 			if (this.toggleColorViz) this.toggleColorViz("louvain", true);

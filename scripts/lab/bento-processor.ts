@@ -1,4 +1,4 @@
-import { marked } from 'marked';
+import { marked, type Token } from 'marked';
 import { createHash } from 'crypto';
 import { readdir } from 'node:fs/promises';
 import { join } from 'node:path';
@@ -10,17 +10,19 @@ const WORD_THRESHOLD = 40; // Minimum words to graduate an H3 to a Box
 console.log(`🏭 BENTO PROCESSOR: Batch processing ${TARGET_DIR} (H2 + Large H3s)...`);
 
 // Helper: Measure the content size of a section
-function measureSection(tokens: marked.Token[], startIndex: number, depth: number): number {
+function measureSection(tokens: Token[], startIndex: number, depth: number): number {
     let wordCount = 0;
     for (let i = startIndex + 1; i < tokens.length; i++) {
         const t = tokens[i];
+        if (!t) continue;
+        
         // Stop if we hit a header of same or higher level
         if (t.type === 'heading' && t.depth <= depth) {
             break;
         }
         // Count words in text-bearing tokens
         if ('text' in t) {
-            wordCount += t.text.split(/\s+/).length;
+            wordCount += (t.text || '').split(/\s+/).length;
         }
     }
     return wordCount;
@@ -44,6 +46,7 @@ async function processFile(filePath: string) {
     
     for (let i = 0; i < tokens.length; i++) {
         const token = tokens[i];
+        if (!token) continue;
         
         // H2 Logic (The Container)
         if (token.type === 'heading' && token.depth === 2) {

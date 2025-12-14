@@ -5123,9 +5123,20 @@ var nav_default = () => ({
 
 // src/js/components/sigma-explorer/data.js
 var initialState = () => ({
-  masterData: { nodes: [], edges: [] }
+  masterData: { nodes: [], edges: [] },
+  health: null
 });
 var methods = {
+  async fetchHealth() {
+    try {
+      const res = await fetch("/api/health");
+      if (res.ok) {
+        this.health = await res.json();
+      }
+    } catch (e) {
+      console.error("Health Fetch Error", e);
+    }
+  },
   loadGraph(db) {
     this.status = "Extracting Data...";
     this.masterData = { nodes: [], edges: [] };
@@ -5160,6 +5171,31 @@ var methods = {
     } catch (e) {
       console.error("Edge Error", e);
     }
+    const discoveredSubGraphs = new Set;
+    this.masterData.nodes.forEach((node) => {
+      let subGraph = "misc";
+      if (node.domain === "persona") {
+        subGraph = "persona";
+      } else if (node.meta) {
+        try {
+          const meta = JSON.parse(node.meta);
+          if (meta.source) {
+            const parts = meta.source.split("/");
+            const knownFolders = ["playbooks", "debriefs", "briefs", "shards", "knowledge"];
+            for (const folder of knownFolders) {
+              if (meta.source.includes(folder)) {
+                subGraph = folder;
+                break;
+              }
+            }
+          }
+        } catch (e) {}
+      }
+      node.subGraph = subGraph;
+      discoveredSubGraphs.add(subGraph);
+    });
+    this.availableSubGraphs = Array.from(discoveredSubGraphs).sort();
+    console.log("Discovered Sub-Graphs:", this.availableSubGraphs);
     if (this.constructGraph)
       this.constructGraph();
     if (this.initRenderer && this.$refs.sigmaContainer) {
@@ -5187,22 +5223,14 @@ var methods2 = {
     this.masterData.nodes.forEach((row) => {
       if (row.type === "root" || row.type === "domain")
         return;
-      const isExperience = row.domain === "resonance" || row.type === "playbook" || row.type === "debrief" || row.type === "protocol";
-      const isPersona = row.domain === "persona" || !isExperience;
-      let include = false;
-      if (this.activeDomain === "persona" && isPersona)
-        include = true;
-      if (this.activeDomain === "experience" && isExperience)
-        include = true;
-      if (this.activeDomain === "unified")
-        include = true;
-      if (!include)
+      if (!this.activeSubGraphs.includes(row.subGraph))
         return;
       if (!this.graph.hasNode(row.id)) {
         this.graph.addNode(row.id, {
           label: row.title || row.label || row.id,
           nodeType: row.type || "Unknown",
-          domain: row.domain || (isExperience ? "resonance" : "persona"),
+          domain: row.domain,
+          subGraph: row.subGraph,
           definition: row.content || row.definition || "",
           size: (() => {
             if (row.type === "term" || row.type === "Core Concept")
@@ -5220,22 +5248,22 @@ var methods2 = {
             return 6;
           })(),
           color: (() => {
-            if (row.type === "term" || row.type === "Core Concept")
+            if (row.subGraph === "persona")
               return "black";
-            if (row.type === "playbook")
+            if (row.subGraph === "playbooks")
               return "#f97316";
+            if (row.subGraph === "debriefs")
+              return "#3b82f6";
+            if (row.subGraph === "briefs")
+              return "#22c55e";
+            if (row.subGraph === "knowledge")
+              return "#ec4899";
             if (row.type === "protocol")
               return "#a855f7";
-            if (row.type === "directive")
-              return "#dc2626";
-            if (row.type === "debrief")
-              return "#3b82f6";
-            if (row.type === "section")
-              return "#cbd5e1";
             return "#475569";
           })(),
           originalSize: row.type === "term" || row.type === "Core Concept" ? 20 : 6,
-          originalColor: row.type === "term" || row.type === "Core Concept" ? "black" : "#475569",
+          originalColor: row.subGraph === "persona" ? "black" : "#475569",
           x: ((str) => {
             let hash = 0;
             for (let i = 0;i < str.length; i++)
@@ -5266,7 +5294,7 @@ var methods2 = {
     });
     const currentNodes = this.graph.order;
     const currentEdges = this.graph.size;
-    this.status = `${this.activeDomain.toUpperCase()} Graph: ${currentNodes} Nodes, ${currentEdges} Edges.`;
+    this.status = `Graph Config: ${this.activeSubGraphs.join("+")} | ${currentNodes} Nodes, ${currentEdges} Edges.`;
     this.computeOrphanStats();
     if (this.updateStats)
       this.updateStats();
@@ -5277,14 +5305,13 @@ var methods2 = {
       this.toggleSizeViz("pagerank");
     this.updateOrphanVisibility();
   },
-  setDomain(domain) {
-    if (this.activeDomain === domain)
-      return;
-    this.activeDomain = domain;
-    console.log(`Switching Domain to: ${domain}`);
-    const url = new URL(window.location);
-    url.searchParams.set("domain", domain);
-    window.history.pushState({}, "", url);
+  toggleSubGraph(subGraph) {
+    if (this.activeSubGraphs.includes(subGraph)) {
+      this.activeSubGraphs = this.activeSubGraphs.filter((g) => g !== subGraph);
+    } else {
+      this.activeSubGraphs.push(subGraph);
+    }
+    console.log("Active Sub-Graphs:", this.activeSubGraphs);
     this.constructGraph();
     if (this.activeColorViz === "louvain") {
       this.louvainCommunities = null;
@@ -5555,10 +5582,38 @@ var methods4 = {
       if (!graphologyLibrary.communitiesLouvain)
         return alert("Louvain library not loaded.");
       if (!this.louvainCommunities) {
-        const domainKey = this.activeDomain === "experience" ? "experience" : "persona";
-        const resolution = this.settings?.graph?.tuning?.louvain?.[domainKey] || 1.1;
-        console.log(`Using Louvain Resolution (${domainKey}): ${resolution}`);
-        this.louvainCommunities = graphologyLibrary.communitiesLouvain(this.graph, { resolution });
+        let resolution = 1;
+        let attempts = 0;
+        const maxAttempts = 3;
+        while (attempts < maxAttempts) {
+          attempts++;
+          this.louvainCommunities = graphologyLibrary.communitiesLouvain(this.graph, { resolution });
+          const uniqueCount = new Set(Object.values(this.louvainCommunities)).size;
+          console.log(`Adaptive Louvain #${attempts}: Res ${resolution.toFixed(1)} -> ${uniqueCount} communities`);
+          if (uniqueCount >= 3 && uniqueCount <= 7)
+            break;
+          if (uniqueCount > 7) {
+            resolution = Math.max(0.1, resolution - 0.3);
+          } else {
+            resolution += 0.5;
+          }
+        }
+        const counts2 = {};
+        Object.values(this.louvainCommunities).forEach((c) => {
+          counts2[c] = (counts2[c] || 0) + 1;
+        });
+        const sortedIds = Object.keys(counts2).sort((a, b2) => counts2[b2] - counts2[a]);
+        if (sortedIds.length > 7) {
+          const top6 = new Set(sortedIds.slice(0, 6));
+          const miscId = 999;
+          this.graph.forEachNode((node) => {
+            const originalComm = this.louvainCommunities[node];
+            if (!top6.has(String(originalComm))) {
+              this.louvainCommunities[node] = miscId;
+            }
+          });
+          console.log(`Force-merged ${sortedIds.length - 6} small communities into 'Misc'.`);
+        }
         this.louvainNames = {};
         const communityNodes = {};
         this.graph.forEachNode((node) => {
@@ -5568,6 +5623,10 @@ var methods4 = {
           communityNodes[comm].push(node);
         });
         Object.keys(communityNodes).forEach((commId) => {
+          if (commId === "999") {
+            this.louvainNames[commId] = "Misc / Others";
+            return;
+          }
           let maxDegree = -1;
           let hubNode = null;
           communityNodes[commId].forEach((node) => {
@@ -5764,7 +5823,8 @@ function sigmaApp() {
     error: null,
     loaded: false,
     debug: false,
-    activeDomain: "persona",
+    activeSubGraphs: ["persona"],
+    availableSubGraphs: [],
     leftOpen: true,
     rightOpen: false,
     settings: null,
@@ -5784,6 +5844,7 @@ function sigmaApp() {
       } catch (e) {
         console.error("Failed to load settings:", e);
       }
+      this.fetchHealth();
       if (!this.$refs.sigmaContainer) {
         console.error("Sigma Container not found in Ref");
         return;

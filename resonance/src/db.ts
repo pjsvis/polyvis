@@ -176,6 +176,21 @@ export class ResonanceDB {
 		};
 	}
 
+	getNodesByType(type: string): Node[] {
+		const sql = "SELECT * FROM nodes WHERE type = ?";
+		const rows = this.db.query(sql).all(type) as any[];
+		return rows.map((row) => ({
+			id: row.id,
+			type: row.type,
+			label: row.title,
+			content: row.content,
+			domain: row.domain,
+			layer: row.layer,
+			hash: row.hash,
+			meta: row.meta ? JSON.parse(row.meta) : {},
+		}));
+	}
+
 	/**
 	 * Full-Text Search using FTS5
 	 * @param query - Search query (supports FTS5 syntax: AND, OR, NOT, phrases)

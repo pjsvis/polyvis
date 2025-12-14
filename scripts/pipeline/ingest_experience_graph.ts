@@ -97,7 +97,7 @@ async function ingest() {
 		"002-EXPERIENCE",
 		"Experience Domain",
 		"domain",
-		"resonance",
+		"experience", // Unified Domain
 		"structure",
 		"The Dynamic Telemetry of the System.",
 		"[]",
@@ -184,8 +184,8 @@ async function ingest() {
 			item.id,
 			item.title,
 			item.type,
-			"resonance",
-			"telemetry",
+			"experience", // Unified Domain
+			"structure",  // Layer: Structure/Telemetry
 			narrative,
 			"[]",
 		);
