@@ -5,10 +5,18 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
         <style>
-            @import url('https://fonts.googleapis.com/css2?family=Space+Mono&display=swap');
+        /* Import a techy monospace font */
+        @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@700&display=swap');
+        
+:root {
+    --polyvis-text:'::POLYVIS::'
+--polyvis-font-size:1rem;
+--stuff-color: #445566;
+--thing-color:#EEFFFF;
 
+}
             body {
-              background-color: #000;
+              background: #050505;
               color: #0f0; /* Classic Matrix Green */
               display: flex;
               flex-direction: column;
@@ -18,22 +26,9 @@
               margin: 0;
             }
 
-            .matrix-text {
-              font-family: 'Space Mono', monospace;
-              font-size: 3rem;
-              padding: 0.5rem 1rem;
-              cursor: pointer;
-              text-transform: uppercase;
-            }
-
-            /* Import a techy monospace font */
-            @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@700&display=swap');
-
-            body { background: #050505; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
-
             .scramble-text {
                 font-family: 'Space Mono', monospace;
-                font-size: 4rem;
+                font-size: var(--polyvis-font-size);
                 font-weight: 700;
                 color: #445566; /* The "Stuff" color (dim, unstructured) */
                 letter-spacing: 0.2rem;
@@ -62,53 +57,11 @@
             <div id="polyvis-terminal" class="scramble-text"></div>
         </div>
 
-
-        <h1 class="matrix-text" data-value="...::POLYVIS::...">...::POLYVIS::...</h1>
-
-        <div class="matrix-text" data-value="MOUNTING NEURAL LATTICE...">MOUNTING NEURAL LATTICE...</div>
-
-         <div class="matrix-text" data-value="retrieving neural data...">retrieving neural data...</div>
-
-
         <script>
 
-            // Authentic Half-Width Katakana + Latin + Numbers
-            const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789ｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜﾝ";
-
-            function runScrambleEffect(element) {
-                let iteration = 0;
-                const targetText = element.dataset.value;
-
-                clearInterval(element.interval);
-
-                element.interval = setInterval(() => {
-                    element.innerText = targetText
-                        .split("")
-                        .map((letter, index) => {
-                            if (index < iteration) {
-                                return targetText[index];
-                            }
-                            // Randomly pick from the Katakana set
-                            return letters[Math.floor(Math.random() * letters.length)];
-                        })
-                        .join("");
-
-                    if (iteration >= targetText.length) {
-                        clearInterval(element.interval);
-                    }
-
-                    iteration += 1 / 3;
-                }, 50); // Slightly slower (50ms) to let the glyphs shine
-            }
-
-            document.querySelectorAll(".matrix-text").forEach((element) => {
-                runScrambleEffect(element);
-                element.onmouseover = () => runScrambleEffect(element);
-            });
-
-            //======================
+        
             const el = document.getElementById('polyvis-terminal');
-            const targetStr = "::POLYVIS::";
+            const targetStr = "::POLYVIS::    ";
             // A mix of Katakana, Greek, and tech symbols
             const chars = "ｦｧｨｩｪｫｬｭｮｯｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜﾝΞΦΨΩΣΠ0123456789";
 
