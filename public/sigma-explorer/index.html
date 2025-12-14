@@ -88,11 +88,7 @@
                 </div>
 
                 <!-- Sidebar Content -->
-                <!-- Active Domain Indicator -->
-                <div class="px-4 py-2 border-b flex flex-col items-center justify-center bg-[var(--surface-2)]" style="border-color: var(--border-base);">
-                    <div class="font-mono text-xxs font-bold uppercase text-gray-400">Current View</div>
-                    <div class="font-bold text-sm tracking-wide" style="color: var(--brand);" x-text="activeDomain.toUpperCase()"></div>
-                </div>
+
 
                 <div class="flex-grow overflow-y-auto p-4 space-y-4">
                     <!-- Analysis Group -->
@@ -186,31 +182,32 @@
 
                     <!-- Layers Group -->
                     
-                    <!-- Domain Switcher -->
+                    <!-- Sub-Graph Composer -->
                     <div>
-                        <div class="mb-2 font-mono text-xxs font-bold uppercase" style="color: var(--text-2);">View Domain</div>
+                        <div class="mb-2 font-mono text-xxs font-bold uppercase" style="color: var(--text-2);">Graph Composition</div>
                         <div class="space-y-1">
-                             <button class="btn-structural w-full justify-start gap-1 text-xs"
-                                :class="{ 'active': activeDomain === 'persona' }"
-                                @click="setDomain('persona')"
-                                @mouseenter="showTooltip($event, 'Shows the core Concepts and Directives (Ontology).')"
-                                @mouseleave="hideTooltip()">
-                                <i data-lucide="brain" class="h-3 w-3"></i> Persona
-                            </button>
-                             <button class="btn-structural w-full justify-start gap-1 text-xs"
-                                :class="{ 'active': activeDomain === 'experience' }"
-                                @click="setDomain('experience')"
-                                @mouseenter="showTooltip($event, 'Shows the Playbooks, Debriefs, and Telemetry.')"
-                                @mouseleave="hideTooltip()">
-                                <i data-lucide="activity" class="h-3 w-3"></i> Experience
-                            </button>
-                             <button class="btn-structural w-full justify-start gap-1 text-xs"
-                                :class="{ 'active': activeDomain === 'unified' }"
-                                @click="setDomain('unified')"
-                                @mouseenter="showTooltip($event, 'Displays all nodes in a single unified graph.')"
-                                @mouseleave="hideTooltip()">
-                                <i data-lucide="git-merge" class="h-3 w-3"></i> Unified
-                            </button>
+                            <!-- Dynamic List of Available Sub-Graphs -->
+                            <template x-for="subGraph in availableSubGraphs" :key="subGraph">
+                                <button class="btn-structural w-full justify-start gap-2 text-xs"
+                                    :class="{ 'active': activeSubGraphs.includes(subGraph) }"
+                                    @click="toggleSubGraph(subGraph)"
+                                    @mouseenter="showTooltip($event, 'Toggle visibility of the ' + subGraph + ' graph layer.')"
+                                    @mouseleave="hideTooltip()">
+                                    
+                                    <!-- Checkbox State Indicator -->
+                                    <div class="w-3 h-3 border rounded flex items-center justify-center transition-colors"
+                                         :class="activeSubGraphs.includes(subGraph) ? 'bg-black border-black text-white' : 'border-gray-400 bg-transparent'">
+                                        <i x-show="activeSubGraphs.includes(subGraph)" data-lucide="check" class="w-2 h-2"></i>
+                                    </div>
+
+                                    <!-- Label -->
+                                    <span class="capitalize" x-text="subGraph"></span>
+                                </button>
+                            </template>
+
+                            <div x-show="availableSubGraphs.length === 0" class="text-xs text-gray-400 px-2 italic">
+                                Exploring data...
+                            </div>
                         </div>
                     </div>
 

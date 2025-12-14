@@ -10,7 +10,12 @@ export default function sigmaApp() {
 		error: null,
 		loaded: false,
 		debug: false,
-		activeDomain: "persona",
+		
+		// Sub-Graph State (Composability)
+		activeSubGraphs: ["persona"], // Default start
+		availableSubGraphs: [],       // Discovered from data
+		
+		// Legacy / View State
 		leftOpen: true,
 		rightOpen: false,
 		settings: null,
