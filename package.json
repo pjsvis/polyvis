@@ -20,7 +20,8 @@
 		"build:data": "bun run scripts/build_data.ts && bun run scripts/build_experience.ts",
 		"check": "biome check .",
 		"format": "biome format --write .",
-		"lint": "biome lint ."
+		"lint": "biome lint .",
+		"update-review-branch": "sh scripts/maintenance/update_review_branch.sh"
 	},
 	"peerDependencies": {
 		"typescript": "^5"
