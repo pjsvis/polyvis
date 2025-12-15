@@ -101,7 +101,7 @@
                                     <button class="w-full max-w-[220px]"
                                         :class="{ 'active': activeColorViz === 'louvain' }"
                                         @click="toggleColorViz('louvain')"
-                                        :aria-pressed="activeColorViz === 'louvain' ? 'true' : 'false'"
+                                        :aria-pressed="activeColorViz === 'louvain'"
                                         @mouseenter="showTooltip($event, 'Detects communities (clusters) and colors nodes to show group membership.')"
                                         @mouseleave="hideTooltip()">
                                         <div class="flex items-center gap-2">
@@ -144,7 +144,7 @@
                                 <button class=" w-full max-w-[220px]"
                                     :class="{ 'active': activeSizeViz === 'pagerank' }"
                                     @click="toggleSizeViz('pagerank')"
-                                    :aria-pressed="activeSizeViz === 'pagerank' ? 'true' : 'false'"
+                                    :aria-pressed="activeSizeViz === 'pagerank'"
                                     @mouseenter="showTooltip($event, 'Sizes nodes based on their influence. Larger nodes are more \'important\'.')"
                                     @mouseleave="hideTooltip()">
                                     <div class="flex items-center gap-2">
@@ -159,7 +159,7 @@
                                 <button class=" w-full max-w-[220px]"
                                     :class="{ 'active': activeSizeViz === 'degree' }"
                                     @click="toggleSizeViz('degree')"
-                                    :aria-pressed="activeSizeViz === 'degree' ? 'true' : 'false'"
+                                    :aria-pressed="activeSizeViz === 'degree'"
                                     @mouseenter="showTooltip($event, 'Sizes nodes by connection count. Larger nodes have more direct connections.')"
                                     @mouseleave="hideTooltip()">
                                     <div class="flex items-center gap-2">
@@ -174,7 +174,7 @@
                                 <button class="flex w-full max-w-[220px] items-center justify-between gap-2 rounded border border-transparent px-3 py-2 text-xs font-medium text-[var(--text-2)] transition-colors hover:bg-[var(--surface-hover)] hover:text-[var(--text-1)]"
                                     :class="{ 'bg-[var(--surface-2)] border-[var(--border-base)] font-bold text-[var(--primary)]': activeColorViz === 'betweenness' }"
                                     @click="toggleColorViz('betweenness')"
-                                    :aria-pressed="activeColorViz === 'betweenness' ? 'true' : 'false'"
+                                    :aria-pressed="activeColorViz === 'betweenness'"
                                     @mouseenter="showTooltip($event, 'Colors nodes based on \'bridging\' score. Redder nodes lie on more shortest paths.')"
                                     @mouseleave="hideTooltip()">
                                     <div class="flex items-center gap-2">
@@ -189,7 +189,7 @@
                                 <button class="flex w-full max-w-[220px] items-center justify-between gap-2 rounded border border-transparent px-3 py-2 text-xs font-medium text-[var(--text-2)] transition-colors hover:bg-[var(--surface-hover)] hover:text-[var(--text-1)]"
                                     :class="{ 'bg-[var(--surface-2)] border-[var(--border-base)] font-bold text-[var(--primary)]': activeColorViz === 'components' }"
                                     @click="toggleColorViz('components')"
-                                    :aria-pressed="activeColorViz === 'components' ? 'true' : 'false'"
+                                    :aria-pressed="activeColorViz === 'components'"
                                     @mouseenter="showTooltip($event, 'Highlights the largest connected group of nodes in Green.')"
                                     @mouseleave="hideTooltip()">
                                     <div class="flex items-center gap-2">
@@ -269,7 +269,7 @@
                             <button @click="toggleOrphans()"
                                 class="w-full max-w-[220px]"
                                 :class="{ 'active': showOrphans }"
-                                :aria-pressed="showOrphans ? 'true' : 'false'"
+                                :aria-pressed="showOrphans"
                                 @mouseenter="showTooltip($event, 'Show/Hide nodes with no connections.')"
                                 @mouseleave="hideTooltip()">
                                 <div class="flex items-center gap-2">
@@ -285,7 +285,7 @@
                             <button @click="toggleStats()"
                                 class="w-full max-w-[220px]"
                                 :class="{ 'active': showStats }"
-                                :aria-pressed="showStats ? 'true' : 'false'"></button>
+                                :aria-pressed="showStats">
                                 <div class="flex items-center gap-2">
                                     <i data-lucide="info" class="h-3 w-3"></i> <span>Toggle Stats</span>
                                 </div>

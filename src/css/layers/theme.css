@@ -44,6 +44,17 @@
 	--font-size-h4: var(--font-size-base);
 	--font-size-xxs: 0.625rem;
 
+	/* RADII */
+	--radius-component: var(--radius-2);
+
+	/* BREAKPOINTS */
+	--breakpoint-sm: 640px;
+	--breakpoint-md: 768px;
+	--breakpoint-lg: 1024px;
+
+	/* MOBILE LAYOUT */
+	--sidebar-mobile-width: 80%;
+
 	/* MISC */
 	--width-stats: 200px;
 	--z-tooltip: 100;
@@ -164,20 +175,25 @@
 	--toc-indent: var(--size-4);
 	--scroll-offset: var(--size-5);
 
-	/* SCROLLBAR */
+	/* ========================================
+	   SCROLLBAR STYLING
+	   ======================================== */
+
 	--scrollthumb-color: oklch(88% 0 0);
 	--scrollthumb-hover-color: oklch(80% 0 0);
 
-	/* LEGACY ALIASES (to be migrated) */
+	/* Legacy compatibility - migrate away from these */
 	--gray-2: var(--surface-3);
 	--gray-8: var(--surface-3);
 	--gray-9: var(--text-2);
 	--color-brand: var(--primary);
 
-	/* ALIASES / COMPATIBILITY */
+	/* ========================================
+	   LEGACY ALIASES (DEPRECATED - MIGRATE AWAY)
+	   ======================================== */
+
 	--surface-panel: var(--surface-2);
 	--surface-panel-fg: var(--surface-2-fg);
-	/* Semantic Colors */
 	--surface-hover: var(--surface-3);
 	/* SEMANTIC GRAPH COLORS */
 	--color-ghost-edge: #ffd700; /* Gold */

@@ -1,18 +1,23 @@
 /* Utilities */
-.stack-large > * + * {
-	margin-top: var(--size-6);
-}
+/* ========================================
+   UTILITY CLASSES
+   ======================================== */
+
+/* NOTE: .stack-large is defined in layout.css (the canonical location) */
 
 .status-dot {
 	height: var(--size-2);
 	width: var(--size-2);
-	background-color: var(--green-5);
+	background-color: var(--primary);
 	border-radius: var(--radius-round);
 	display: inline-block;
 	margin-right: var(--size-1);
 }
 
-/* Debug Layout Utility */
+/* ========================================
+   DEBUG UTILITIES
+   ======================================== */
+
 .layout-debug-mode * {
 	/* biome-ignore lint/complexity/noImportantStyles: Debug utility requires overrides */
 	outline: var(--border-size-1) dashed rgba(255, 0, 0, 0.3) !important;

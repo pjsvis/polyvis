@@ -1,240 +1,6 @@
-.badge {
-	width: fit-content;
-	margin-inline: auto;
-}
-
-/* Base Button Styling - Applied to all buttons automatically */
-button {
-	/* Layout Essentials */
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	gap: var(--size-2);
-	padding: var(--size-2) var(--size-3);
-
-	/* Typography */
-	font-family: var(--font-mono);
-	font-size: var(--font-size-sm);
-	font-weight: 500;
-	text-transform: uppercase;
-	text-decoration: none;
-	letter-spacing: 0.025em;
-
-	/* Visual Definition */
-	background-color: var(--surface-1);
-	border: 1px solid var(--border-base);
-	border-radius: var(--radius-component);
-	color: var(--text-2);
-	box-shadow: var(--shadow-sm);
-	transition: all 0.15s ease;
-	cursor: pointer;
-
-	/* States */
-	&:hover {
-		color: var(--text-1);
-		background-color: var(--surface-hover);
-		border-color: var(--primary);
-		box-shadow: var(--shadow-md);
-		transform: translateY(-1px);
-	}
-
-	&:active,
-	&.active {
-		color: var(--primary);
-		font-weight: bold;
-		background-color: var(--surface-2);
-		border-color: var(--primary);
-		box-shadow: var(--shadow-sm);
-		transform: translateY(0);
-	}
-
-	&:focus-visible {
-		outline: 2px solid var(--primary);
-		outline-offset: 2px;
-	}
-}
-
-/* Button Variants - Override base styles when needed */
-.btn-square {
-	aspect-ratio: 1;
-	padding: var(--size-1);
-	font-size: var(--font-size-xxs);
-	min-width: auto;
-	width: auto;
-}
-
-.btn-small {
-	padding: var(--size-1) var(--size-2);
-	font-size: var(--font-size-xxs);
-}
-
-.btn-sidebar {
-	padding: var(--size-1);
-	border-radius: 0;
-	position: absolute;
-
-	&.absolute.left-0 {
-		border-radius: 0 var(--radius-component) var(--radius-component) 0;
-	}
-
-	&.absolute.right-0 {
-		border-radius: var(--radius-component) 0 0 var(--radius-component);
-	}
-}
-
-.btn-close {
-	padding: var(--size-1);
-	min-width: auto;
-	width: auto;
-}
-
-.btn-text {
-	background-color: transparent;
-	border: none;
-	box-shadow: none;
-	color: var(--primary);
-	text-transform: none;
-	font-weight: bold;
-	font-size: var(--font-size-xxs);
-	padding: 0;
-	min-width: auto;
-
-	&:hover {
-		background-color: transparent;
-		box-shadow: none;
-		text-decoration: underline;
-		transform: none;
-	}
-}
-
-.btn-search {
-	text-align: left;
-	text-transform: none;
-	font-weight: normal;
-	font-family: var(--font-sans);
-	justify-content: flex-start;
-	padding: var(--size-2) var(--size-3);
-	border-radius: 0;
-	border: none;
-	border-bottom: 1px solid var(--border-base);
-
-	&:hover {
-		border-bottom-color: var(--primary);
-		transform: none;
-		box-shadow: none;
-	}
-
-	&:last-child {
-		border-bottom: none;
-	}
-}
-
-.btn-ghost {
-	background-color: var(--color-ghost-edge);
-	color: oklch(100% 0 0);
-	border-color: oklch(0% 0 0 / 0.1);
-	font-weight: bold;
-	text-transform: none;
-
-	&:hover {
-		background-color: oklch(from var(--color-ghost-edge) calc(l + 0.1) c h);
-		transform: none;
-	}
-}
-
-.btn-similar {
-	text-align: left;
-	text-transform: none;
-	font-weight: normal;
-	font-family: var(--font-sans);
-	justify-content: space-between;
-	padding: var(--size-1) var(--size-2);
-	font-size: var(--font-size-xs);
-	border-radius: var(--radius-component);
-	border: none;
-	box-shadow: none;
-
-	&:hover {
-		background-color: var(--surface-3);
-		transform: none;
-		box-shadow: none;
-	}
-}
-
-.structural-input {
-	font-family: var(--font-mono);
-	font-size: var(--font-size-sm);
-	border: var(--border-base) solid var(--primary);
-	border-radius: 0;
-	box-shadow: inset var(--size-1) var(--size-1) 0px 0px rgba(0, 0, 0, 0.05);
-
-	&:focus {
-		outline: none;
-		border-color: var(--primary);
-		box-shadow: inset var(--size-1) var(--size-1) 0px 0px rgba(0, 0, 0, 0.1);
-	}
-}
-
-.search-input {
-	width: 100%;
-	font-family: var(--font-mono);
-	font-size: var(--font-size-xl);
-	border: none;
-	border-bottom: var(--border-size-2) solid var(--primary);
-	padding: var(--size-4);
-	background: transparent;
-
-	&:focus {
-		outline: none;
-		border-bottom: var(--size-1) solid var(--primary);
-	}
-}
-
-/* Navigation */
-.nav-wrapper {
-	width: 100%;
-	max-width: var(--width-wrapper);
-	margin: 0 auto;
-	padding: var(--size-2) var(--size-4);
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	background-color: transparent;
-	/* Instruction #4 */
-}
-
-.nav-links {
-	display: flex;
-	gap: var(--size-6);
-}
-
-.nav-item {
-	font-family: var(--font-mono);
-	font-size: var(--font-size-sm);
-	text-transform: uppercase;
-	text-decoration: none;
-	color: var(--text-2);
-	display: flex;
-	align-items: center;
-	gap: var(--size-2);
-
-	&:hover,
-	&.active {
-		text-decoration: underline;
-		color: var(--text-1);
-	}
-
-	&.active {
-		font-weight: bold;
-	}
-}
-
-.home-nav {
-	display: flex;
-	gap: var(--size-6);
-	flex-wrap: wrap;
-	justify-content: center;
-}
+/* ========================================
+   MISCELLANEOUS COMPONENTS
+   ======================================== */
 
 /* Sidenotes */
 .sidenote {
@@ -256,7 +22,6 @@ button {
 	margin-bottom: var(--size-2);
 	color: var(--primary);
 	font-size: var(--font-size-xs);
-	/* letter-spacing removed */
 }
 
 /* Internal Links */
@@ -276,6 +41,10 @@ button {
 		border-bottom: none;
 	}
 }
+
+/* ========================================
+   HOME PAGE COMPONENTS
+   ======================================== */
 
 .home-box {
 	text-align: center;
@@ -297,14 +66,11 @@ button {
 	}
 }
 
-/* .home-box::after removed for cleaner look */
-
 .home-title {
 	font-family: var(--font-mono);
 	font-size: var(--font-size-6);
 	font-weight: 900;
 	text-transform: uppercase;
-	/* letter-spacing removed */
 	margin: 0;
 	line-height: 1;
 }
@@ -314,9 +80,7 @@ button {
 	font-size: var(--font-size-2);
 	color: var(--text-2);
 	text-transform: uppercase;
-	/* letter-spacing removed */
 	border-bottom: var(--border-base) solid var(--primary);
-	/* Instruction #3 */
 	padding-bottom: var(--size-4);
 	display: inline-block;
 	font-weight: 700;
@@ -336,10 +100,12 @@ button {
 	color: var(--primary);
 	opacity: 0.7;
 	text-transform: uppercase;
-	/* letter-spacing removed */
 }
 
-/* Docs Sidebar Links */
+/* ========================================
+   DOCS SIDEBAR COMPONENTS
+   ======================================== */
+
 .doc-link {
 	display: block;
 	padding: var(--size-3) var(--size-4);
@@ -353,18 +119,12 @@ button {
 	&:hover {
 		background-color: var(--surface-hover);
 		color: var(--text-1);
-		/* Fallback */
-
 		padding-left: var(--size-5);
-		/* Slight nudge effect */
 	}
 
 	&.active {
-		background-color: var(--color-brand);
-		color: var(--gray-0);
-		/* Fallback */
-
-		/* Modern Standard */
+		background-color: var(--primary);
+		color: var(--text-1);
 		font-weight: bold;
 	}
 }
@@ -377,28 +137,20 @@ button {
 	padding: 0;
 	margin-top: var(--size-4);
 	margin-left: auto;
-	/* Align to RHS */
 	width: 90%;
-	/* Breathing room */
 	flex-grow: 1;
-	/* Fill remaining height */
 	display: flex;
 	flex-direction: column;
 	overflow: hidden;
-	/* Contain list */
 }
 
 .docs-directory-right {
 	padding: 0;
 	margin-top: var(--size-4);
 	margin-right: auto;
-	/* Align to LHS (closer to content) */
 	width: 90%;
-	/* Breathing room */
 	flex-grow: 1;
-	/* Fill remaining height */
 	display: flex;
 	flex-direction: column;
 	overflow: hidden;
-	/* Contain list */
 }

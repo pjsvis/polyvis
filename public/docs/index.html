@@ -82,8 +82,8 @@
                     <button @click="navTab = 'index'"
                         class="flex-1 min-w-[60px] py-3 text-[10px] font-bold uppercase tracking-wider text-center border-b-2 transition-colors whitespace-nowrap"
                         :style="{
-                        borderColor: navTab === 'index' ? 'var(--color-brand)' : 'transparent',
-                        color: navTab === 'index' ? 'var(--color-brand)' : 'var(--text-2)',
+                        borderColor: navTab === 'index' ? 'var(--primary)' : 'transparent',
+                        color: navTab === 'index' ? 'var(--primary)' : 'var(--text-2)',
                         backgroundColor: navTab === 'index' ? 'var(--surface-1)' : 'transparent'
                     }">
                         Index
@@ -91,8 +91,8 @@
                     <button @click="navTab = 'debriefs'"
                         class="flex-1 min-w-[60px] py-3 text-[10px] font-bold uppercase tracking-wider text-center border-b-2 transition-colors whitespace-nowrap"
                         :style="{
-                        borderColor: navTab === 'debriefs' ? 'var(--color-brand)' : 'transparent',
-                        color: navTab === 'debriefs' ? 'var(--color-brand)' : 'var(--text-2)',
+                        borderColor: navTab === 'debriefs' ? 'var(--primary)' : 'transparent',
+                        color: navTab === 'debriefs' ? 'var(--primary)' : 'var(--text-2)',
                         backgroundColor: navTab === 'debriefs' ? 'var(--surface-1)' : 'transparent'
                     }">
                         Debriefs
@@ -100,8 +100,8 @@
                     <button @click="navTab = 'playbooks'"
                         class="flex-1 min-w-[60px] py-3 text-[10px] font-bold uppercase tracking-wider text-center border-b-2 transition-colors whitespace-nowrap"
                         :style="{
-                        borderColor: navTab === 'playbooks' ? 'var(--color-brand)' : 'transparent',
-                        color: navTab === 'playbooks' ? 'var(--color-brand)' : 'var(--text-2)',
+                        borderColor: navTab === 'playbooks' ? 'var(--primary)' : 'transparent',
+                        color: navTab === 'playbooks' ? 'var(--primary)' : 'var(--text-2)',
                         backgroundColor: navTab === 'playbooks' ? 'var(--surface-1)' : 'transparent'
                     }">
                         Playbooks
@@ -120,7 +120,7 @@
                         <a href="#" @click.prevent="loadMain(doc.file)"
                             class="doc-link block px-4 py-2 text-sm rounded transition-colors" :style="{
                        backgroundColor: activeDoc === doc.file ? 'var(--surface-2)' : 'transparent',
-                       color: activeDoc === doc.file ? 'var(--color-brand)' : 'var(--text-1)',
+                       color: activeDoc === doc.file ? 'var(--primary)' : 'var(--text-1)',
                        fontWeight: activeDoc === doc.file ? 'bold' : 'normal'
                    }" class="hover:bg-[var(--surface-hover)]">
                             <span x-text="doc.title || doc.file"></span>
@@ -138,7 +138,7 @@
                         <a href="#" @click.prevent="loadMain(book.path)"
                             class="doc-link block px-4 py-3 text-sm rounded transition-colors mb-2" :style="{
                        backgroundColor: activeDoc === book.path ? 'var(--surface-2)' : 'var(--surface-1)',
-                       color: activeDoc === book.path ? 'var(--color-brand)' : 'var(--text-1)',
+                       color: activeDoc === book.path ? 'var(--primary)' : 'var(--text-1)',
                        border: '1px solid var(--border-base)'
                    }" class="hover:bg-[var(--surface-hover)]">
                             <div class="font-bold mb-1" x-text="book.title"></div>
@@ -157,7 +157,7 @@
                         <a href="#" @click.prevent="loadMain(debrief.path)"
                             class="doc-link block px-4 py-3 text-sm rounded transition-colors mb-2" :style="{
                        backgroundColor: activeDoc === debrief.path ? 'var(--surface-2)' : 'var(--surface-1)',
-                       color: activeDoc === debrief.path ? 'var(--color-brand)' : 'var(--text-1)',
+                       color: activeDoc === debrief.path ? 'var(--primary)' : 'var(--text-1)',
                        border: '1px solid var(--border-base)'
                    }" class="hover:bg-[var(--surface-hover)]">
                             <div class="font-bold mb-1" x-text="debrief.title"></div>
@@ -202,7 +202,7 @@
                         x-text="contentRef ? 'Reference' : 'Outline'"></h3>
                     <button x-show="contentRef" @click="goBack()"
                         class="flex items-center gap-1 text-xs font-bold px-2 py-1 rounded hover:bg-gray-200 transition-colors"
-                        style="color: var(--color-brand);">
+                        style="color: var(--primary);">
                         <i data-lucide="arrow-left" class="w-3 h-3"></i> Back
                     </button>
                 </div>

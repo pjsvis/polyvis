@@ -1,0 +1,32 @@
+/* ========================================
+   FORM INPUT STYLES
+   ======================================== */
+
+.structural-input {
+	font-family: var(--font-mono);
+	font-size: var(--font-size-sm);
+	border: var(--border-base) solid var(--primary);
+	border-radius: 0;
+	box-shadow: inset var(--size-1) var(--size-1) 0px 0px oklch(0% 0 0 / 0.05);
+
+	&:focus {
+		outline: none;
+		border-color: var(--primary);
+		box-shadow: inset var(--size-1) var(--size-1) 0px 0px oklch(0% 0 0 / 0.1);
+	}
+}
+
+.search-input {
+	width: 100%;
+	font-family: var(--font-mono);
+	font-size: var(--font-size-xl);
+	border: none;
+	border-bottom: var(--border-size-2) solid var(--primary);
+	padding: var(--size-4);
+	background: transparent;
+
+	&:focus {
+		outline: none;
+		border-bottom: var(--size-1) solid var(--primary);
+	}
+}

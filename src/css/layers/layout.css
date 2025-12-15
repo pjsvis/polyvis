@@ -2,6 +2,10 @@
  * LAYOUT UTILITIES 
  */
 
+/* ========================================
+   LAYOUT PATTERNS
+   ======================================== */
+
 /* RAM Grid Pattern */
 .card-grid {
 	display: grid;
@@ -12,12 +16,15 @@
 		);
 }
 
-/* Structural Components */
+/* ========================================
+   STRUCTURAL COMPONENTS
+   ======================================== */
+
 .container-box {
 	border: var(--border-width) solid var(--primary);
-	background: var(--secondary);
+	background: var(--surface-2);
 	padding: var(--size-4);
-	box-shadow: var(--shadow-offset) var(--shadow-offset) 0px rgba(0, 0, 0, 0.1);
+	box-shadow: var(--shadow-sm);
 }
 
 /* 
@@ -79,7 +86,7 @@
 		top: var(--header-height);
 		bottom: 0;
 		left: 0;
-		width: 80%;
+		width: var(--sidebar-mobile-width);
 		border-right: var(--border-width) solid var(--primary);
 		box-shadow: var(--shadow-3);
 	}
@@ -126,7 +133,7 @@
 		top: var(--header-height);
 		bottom: 0;
 		right: 0;
-		width: 80%;
+		width: var(--sidebar-mobile-width);
 		border-left: var(--border-width) solid var(--primary);
 		box-shadow: var(--shadow-3);
 	}
@@ -180,29 +187,28 @@
 }
 /* ... home layout ... */
 
-/* FORCE OVERRIDE FOR RIGHT SIDEBAR (Sigma Explorer) */
-#right-sidebar-override {
-	background-color: var(--white);
-	color: var(--black);
+/* Light-forced sidebar panel (for contexts requiring light mode) */
+.sidebar-panel-light {
+	background-color: var(--surface-1);
+	color: var(--text-1);
 	color-scheme: light;
-}
 
-#right-sidebar-override * {
-	color: var(--black);
-}
+	& * {
+		color: var(--text-1);
+	}
 
-#right-sidebar-override button {
-	color: var(--black);
-}
+	& button {
+		color: var(--text-1);
+	}
 
-#right-sidebar-override .text-gray-500,
-#right-sidebar-override .text-gray-400,
-#right-sidebar-override .text-gray-600 {
-	color: var(--gray-9);
-	/* Slightly softer for secondary text, but still dark */
-}
+	& .text-gray-500,
+	& .text-gray-400,
+	& .text-gray-600 {
+		color: var(--text-2);
+	}
 
-#right-sidebar-override details[open] {
-	background-color: var(--white);
-	border: var(--border-size-1) solid var(--gray-3);
+	& details[open] {
+		background-color: var(--surface-1);
+		border: var(--border-width) solid var(--border-base);
+	}
 }

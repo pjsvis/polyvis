@@ -1,0 +1,47 @@
+/* ========================================
+   NAVIGATION STYLES
+   ======================================== */
+
+.nav-wrapper {
+	width: 100%;
+	max-width: var(--width-wrapper);
+	margin: 0 auto;
+	padding: var(--size-2) var(--size-4);
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	background-color: transparent;
+}
+
+.nav-links {
+	display: flex;
+	gap: var(--size-6);
+}
+
+.nav-item {
+	font-family: var(--font-mono);
+	font-size: var(--font-size-sm);
+	text-transform: uppercase;
+	text-decoration: none;
+	color: var(--text-2);
+	display: flex;
+	align-items: center;
+	gap: var(--size-2);
+
+	&:hover,
+	&.active {
+		text-decoration: underline;
+		color: var(--text-1);
+	}
+
+	&.active {
+		font-weight: bold;
+	}
+}
+
+.home-nav {
+	display: flex;
+	gap: var(--size-6);
+	flex-wrap: wrap;
+	justify-content: center;
+}

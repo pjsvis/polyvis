@@ -1,13 +1,13 @@
-/* 
- * DEFENSIVE CSS & BASE STYLES
- */
+/* ========================================
+   BASE STYLES & RESETS
+   ======================================== */
 
 html {
 	scrollbar-gutter: stable both-edges;
 	height: 100%;
 	overflow: hidden;
 	/* Strict app-shell behavior */
-	background-color: var(--accent);
+	background-color: var(--surface-1);
 	color-scheme: light dark;
 }
 
