@@ -5407,8 +5407,11 @@ var initialState3 = () => ({
   showStats: false,
   stats: { nodes: 0, edges: 0, density: 0, avgDegree: 0, orphans: 0 },
   tooltip: { visible: false, text: "", x: 0, y: 0 },
+  stats: { nodes: 0, edges: 0, density: 0, avgDegree: 0, orphans: 0 },
+  tooltip: { visible: false, text: "", x: 0, y: 0 },
   ghostEdges: [],
-  similarNodes: []
+  similarNodes: [],
+  vectorCache: new Map
 });
 var methods3 = {
   initRenderer(container) {
@@ -5908,6 +5911,12 @@ function dotProduct(a, b2) {
     return 0;
   let vecA = a;
   let vecB = b2;
+  if (a instanceof Uint8Array) {
+    vecA = new Float32Array(a.buffer, a.byteOffset, a.byteLength / 4);
+  }
+  if (b2 instanceof Uint8Array) {
+    vecB = new Float32Array(b2.buffer, b2.byteOffset, b2.byteLength / 4);
+  }
   if (typeof a === "string")
     vecA = JSON.parse(a);
   if (typeof b2 === "string")

@@ -8,8 +8,11 @@ export const initialState = () => ({
 	showStats: false,
 	stats: { nodes: 0, edges: 0, density: 0, avgDegree: 0, orphans: 0 },
 	tooltip: { visible: false, text: "", x: 0, y: 0 },
+	stats: { nodes: 0, edges: 0, density: 0, avgDegree: 0, orphans: 0 },
+	tooltip: { visible: false, text: "", x: 0, y: 0 },
     ghostEdges: [], // Track added semantic links
     similarNodes: [], // Track similar node data for UI list
+    vectorCache: new Map(), // Cache for parsed vectors
 });
 
 export const methods = {

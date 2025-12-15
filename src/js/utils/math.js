@@ -1,13 +1,18 @@
 export function dotProduct(a, b) {
     if (!a || !b) return 0;
     
-    // Handle JSON parsing if necessary (SQLite returns JSON strings or blobs sometimes)
-    // But typically via bun:sqlite it might be a FloatWrapper or typed array.
-    // In sql.js (browser), it's often a Uint8Array or Array.
-    
     let vecA = a;
     let vecB = b;
 
+    // Handle SQL.js BLOB (Uint8Array) -> Float32Array
+    if (a instanceof Uint8Array) {
+        vecA = new Float32Array(a.buffer, a.byteOffset, a.byteLength / 4);
+    }
+    if (b instanceof Uint8Array) {
+        vecB = new Float32Array(b.buffer, b.byteOffset, b.byteLength / 4);
+    }
+    
+    // Handle JSON strings (fallback)
     if (typeof a === 'string') vecA = JSON.parse(a);
     if (typeof b === 'string') vecB = JSON.parse(b);
 
