@@ -5407,10 +5407,10 @@ var initialState3 = () => ({
   showStats: false,
   stats: { nodes: 0, edges: 0, density: 0, avgDegree: 0, orphans: 0 },
   tooltip: { visible: false, text: "", x: 0, y: 0 },
-  stats: { nodes: 0, edges: 0, density: 0, avgDegree: 0, orphans: 0 },
-  tooltip: { visible: false, text: "", x: 0, y: 0 },
   ghostEdges: [],
   similarNodes: [],
+  searchComplete: false,
+  hasSimilarNodes: false,
   vectorCache: new Map
 });
 var methods3 = {
@@ -5584,13 +5584,17 @@ var methods3 = {
     console.log(`\uD83D\uDD0E Finding neighbors for ${nodeId}...`);
     if (this.clearGhostEdges)
       this.clearGhostEdges();
+    this.searchComplete = false;
+    this.hasSimilarNodes = false;
     try {
       const result = this.db.exec("SELECT embedding FROM nodes WHERE id = ?", [nodeId]);
       if (!result.length || !result[0].values.length)
         return;
       const embedding = result[0].values[0][0];
       if (!embedding) {
-        alert("No embedding found for this node.");
+        console.warn("No embedding found for this node.");
+        this.searchComplete = true;
+        this.hasSimilarNodes = false;
         return;
       }
       const query = `
@@ -5601,8 +5605,11 @@ var methods3 = {
                 LIMIT 5
             `;
       const searchRes = this.db.exec(query, [embedding, nodeId]);
-      if (!searchRes.length)
+      if (!searchRes.length) {
+        this.searchComplete = true;
+        this.hasSimilarNodes = false;
         return;
+      }
       const neighbors = searchRes[0].values;
       neighbors.forEach(([targetId, score]) => {
         if (this.graph.hasNode(targetId)) {
@@ -5623,11 +5630,15 @@ var methods3 = {
         score: score.toFixed(2),
         label: this.graph.hasNode(id) ? this.graph.getNodeAttribute(id, "label") : id
       }));
+      this.searchComplete = true;
+      this.hasSimilarNodes = this.similarNodes.length > 0;
       console.log(`✨ Added ${this.ghostEdges.length} ghost edges.`);
       if (this.renderer)
         this.renderer.refresh();
     } catch (e) {
       console.error("Vector Search Failed", e);
+      this.searchComplete = true;
+      this.hasSimilarNodes = false;
     }
   },
   clearGhostEdges() {
@@ -5639,7 +5650,10 @@ var methods3 = {
       }
     });
     this.ghostEdges = [];
+    this.ghostEdges = [];
     this.similarNodes = [];
+    this.searchComplete = false;
+    this.hasSimilarNodes = false;
     if (this.renderer)
       this.renderer.refresh();
   }

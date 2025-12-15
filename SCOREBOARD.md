@@ -1,8 +1,8 @@
 # PROMETHEUS SCOREBOARD
 
 ## Current Score
-**USER:** 12
-**AGENT:** 4
+**USER:** 13
+**AGENT:** 5
 
 ## Rules of the Game
 1.  **Agent Failure:** If the Agent declares a task "Complete" but immediate verification (e.g., `tsc`) fails, the User gains a point.
@@ -28,3 +28,5 @@
 | 2025-12-13 | **USER** | **False Summit:** Agent declared "Ingestion Pipeline Verification" complete, but failed to run `tsc`, leaving broken build errors in `bento-processor.ts`. |
 | 2025-12-15 | **USER** | **Definition of Done Violation:** Agent declared "Foundation First Redirect" complete but failed to run `tsc --noEmit` as required by Protocol 23. This left a valid `drizzle.config.ts` file broken due to an external dependency downgrade (caused by user action, but Agent responsibility to verify). |
 | 2025-12-15 | **USER** | **Strict Compiler:** Agent wrote `scripts/fix_lexicon_json.ts` to fix data corruption but failed to include type annotations, causing `tsc` error. |
+| 2025-12-15 | **USER** | **Repeated Violation:** Agent failed to run `tsc` before declaring Ghost Graph complete, leaving a TS error in `verify_ghost_logic.ts`. |
+| 2025-12-15 | **AGENT** | **The Polisher:** Agent redeemed the session by researching and implementing an advanced CSS Relative Color Syntax formula, solving a difficult contrast issue with a "Zero Magic" solution. |

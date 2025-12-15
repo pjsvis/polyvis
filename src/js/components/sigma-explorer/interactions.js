@@ -8,10 +8,10 @@ export const initialState = () => ({
 	showStats: false,
 	stats: { nodes: 0, edges: 0, density: 0, avgDegree: 0, orphans: 0 },
 	tooltip: { visible: false, text: "", x: 0, y: 0 },
-	stats: { nodes: 0, edges: 0, density: 0, avgDegree: 0, orphans: 0 },
-	tooltip: { visible: false, text: "", x: 0, y: 0 },
     ghostEdges: [], // Track added semantic links
     similarNodes: [], // Track similar node data for UI list
+    searchComplete: false, // Track if a search has been run for the current node
+    hasSimilarNodes: false, // Track if search yielded results
     vectorCache: new Map(), // Cache for parsed vectors
 });
 
@@ -225,6 +225,10 @@ export const methods = {
         
         // 1. Clear previous ghosts
         if (this.clearGhostEdges) this.clearGhostEdges();
+        
+        // Reset Search State
+        this.searchComplete = false;
+        this.hasSimilarNodes = false;
 
         try {
             // 2. Get Source Vector
@@ -233,7 +237,9 @@ export const methods = {
             
             const embedding = result[0].values[0][0];
             if (!embedding) {
-                alert("No embedding found for this node.");
+                console.warn("No embedding found for this node.");
+                this.searchComplete = true;
+                this.hasSimilarNodes = false;
                 return;
             }
 
@@ -248,7 +254,11 @@ export const methods = {
             `;
             
             const searchRes = this.db.exec(query, [embedding, nodeId]);
-            if (!searchRes.length) return;
+            if (!searchRes.length) {
+                this.searchComplete = true;
+                this.hasSimilarNodes = false;
+                return;
+            }
 
             const neighbors = searchRes[0].values; // [[id, score], ...]
             
@@ -276,11 +286,16 @@ export const methods = {
                 label: this.graph.hasNode(id) ? this.graph.getNodeAttribute(id, "label") : id
             }));
 
+            this.searchComplete = true;
+            this.hasSimilarNodes = this.similarNodes.length > 0;
+
             console.log(`✨ Added ${this.ghostEdges.length} ghost edges.`);
             if (this.renderer) this.renderer.refresh();
 
         } catch(e) {
             console.error("Vector Search Failed", e);
+            this.searchComplete = true;
+            this.hasSimilarNodes = false;
         }
     },
 
@@ -292,7 +307,10 @@ export const methods = {
             }
         });
         this.ghostEdges = [];
+        this.ghostEdges = [];
         this.similarNodes = [];
+        this.searchComplete = false;
+        this.hasSimilarNodes = false;
         if (this.renderer) this.renderer.refresh();
     }
 };

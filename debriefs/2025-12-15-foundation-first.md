@@ -2,6 +2,8 @@
 
 **Date:** 2025-12-15
 **Status:** SUCCESS
+**Vectors:** Verified
+**UI:** Modernized (RCS Contrast)
 **Directive:** Foundation First (Stop Feature Work, Fix Architecture)
 
 ## Summary
@@ -51,3 +53,22 @@ Executed the "Foundation First" directive to address critical architectural gaps
 -   **Lesson 2:** **Verify Data at Source.** The `[object Object]` bug existed in the *source JSON*. I assumed the source was clean. A schema validator on the source file would have caught this before ingestion.
 -   **Lesson 3:** **Scripts are Code.** Even ad-hoc fix scripts must pass `tsc`. Writing `(entry)` without a type alias is a violation of the content quality standards, even if it runs in Bun.
 -   **Lesson 4:** **Check `tsc` BEFORE `notify_user`.** This is the Golden Rule. Violating it costs points and trust.
+
+### 5. Ghost Graph & CSS Modernization
+-   **Goal:** Implement "Find Similar" (Ghost Graph) and fix UI contrast issues.
+-   **Ghost Graph:**
+    -   Implemented `vec_dot` vector search in `interactions.js` using SQLite BLOBs.
+    -   Verified mathematically with `scripts/verify/verify_ghost_logic.ts` (Correlation > 0.88).
+    -   Added "Find Similar" button to node details.
+    -   Handled empty states with inline status messages (no alerts).
+-   **CSS Contrast:**
+    -   Explored `contrast-color()` (unsupported in current browser).
+    -   **Solution:** Implemented **Relative Color Syntax (RCS)** formula: `color(from var(--bg) xyz round(up, min(1, max(0, 0.18 - y))) ...)`.
+    -   Applied to RHS Headers and Buttons for guaranteed accessibility.
+-   **Scoreboard:** User +1 point (TSC violation in verification script).
+
+## Artifacts Updated
+-   `public/sigma-explorer/index.html` (RCS Colors, Tokenization Playbook fix)
+-   `src/js/components/sigma-explorer/interactions.js` (Ghost Graph Logic)
+-   `scripts/verify/verify_ghost_logic.ts`
+

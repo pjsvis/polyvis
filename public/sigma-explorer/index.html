@@ -416,9 +416,9 @@
                         x-transition:enter-end="opacity-100 translate-y-0">
 
                         <div class="flex items-center justify-between pb-2">
-                            <div class="text-xs uppercase font-bold tracking-wider" style="color: var(--text-2);">Node
+                            <div class="text-xs uppercase font-bold tracking-wider" style="color: color(from var(--surface-1) xyz round(up, min(1, max(0, 0.18 - y))) round(up, min(1, max(0, 0.18 - y))) round(up, min(1, max(0, 0.18 - y))));">Node
                                 Data</div>
-                            <button @click="selectedNode = null" style="color: var(--text-2);"
+                            <button @click="selectedNode = null" style="color: color(from var(--surface-1) xyz round(up, min(1, max(0, 0.18 - y))) round(up, min(1, max(0, 0.18 - y))) round(up, min(1, max(0, 0.18 - y))));"
                                 class="hover:text-gray-600">
                                 <i data-lucide="x" class="w-3 h-3"></i>
                             </button>
@@ -428,7 +428,7 @@
                             <div class="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
                                 <div>
                                     <div class="text-xxs uppercase font-bold tracking-wider mb-1"
-                                        style="color: var(--text-2);">
+                                        style="color: color(from var(--surface-1) xyz round(up, min(1, max(0, 0.18 - y))) round(up, min(1, max(0, 0.18 - y))) round(up, min(1, max(0, 0.18 - y))));">
                                         Label
                                     </div>
                                     <div class="text-sm font-bold" style="color: var(--text-1);"
@@ -437,7 +437,7 @@
 
                                 <div>
                                     <div class="text-xxs uppercase font-bold tracking-wider mb-1"
-                                        style="color: var(--text-2);">Type
+                                        style="color: color(from var(--surface-1) xyz round(up, min(1, max(0, 0.18 - y))) round(up, min(1, max(0, 0.18 - y))) round(up, min(1, max(0, 0.18 - y))));">Type
                                     </div>
                                     <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium"
                                         style="background-color: var(--surface-3); color: var(--text-1);"
@@ -446,18 +446,27 @@
 
                                 <div>
                                     <div class="text-xxs uppercase font-bold tracking-wider mb-1"
-                                        style="color: var(--text-2);">
+                                        style="color: color(from var(--surface-1) xyz round(up, min(1, max(0, 0.18 - y))) round(up, min(1, max(0, 0.18 - y))) round(up, min(1, max(0, 0.18 - y))));">
                                         Definition
                                     </div>
                                     
                                     <!-- Collapsible Text Container -->
                                     <div x-data="{ expanded: false, isLong: false }" 
-                                         x-init="isLong = $refs.content.innerText.length > 200">
+                                         x-effect="
+                                             if (selectedNode) {
+                                                // Reset state on node change
+                                                expanded = false;
+                                                // Yield to let x-html render
+                                                setTimeout(() => {
+                                                     isLong = $refs.content.scrollHeight > 80; // approx 4 lines
+                                                }, 50);
+                                             }
+                                         ">
                                         
                                         <div x-ref="content" 
-                                             class="text-xs leading-relaxed font-mono transition-all duration-300" 
-                                             style="color: var(--text-2);"
-                                             :class="expanded ? '' : 'line-clamp-4'"
+                                             class="text-xs leading-relaxed font-mono transition-all duration-300 overflow-hidden" 
+                                             style="color: color(from var(--surface-1) xyz round(up, min(1, max(0, 0.18 - y))) round(up, min(1, max(0, 0.18 - y))) round(up, min(1, max(0, 0.18 - y)))); display: -webkit-box; -webkit-box-orient: vertical;"
+                                             :style="expanded ? 'display: block;' : '-webkit-line-clamp: 4 !important; display: -webkit-box !important;'"
                                              x-html="linkify(selectedNode.definition || 'No definition available.')"
                                              @click="handleContentClick($event)">
                                         </div>
@@ -474,8 +483,8 @@
                                 <div class="pt-4 border-t" style="border-color: var(--border-base);">
                                     <!-- Find Similar (Ghost Graph) -->
                                     <button @click="findSimilar(selectedNode.id)" 
-                                            class="w-full text-xs font-bold py-2 rounded flex items-center justify-center gap-2 mb-4 hover:opacity-90 transition-opacity text-black"
-                                            style="background-color: var(--color-ghost-edge); border: 1px solid rgba(0,0,0,0.1);"
+                                            class="w-full text-xs font-bold py-2 rounded flex items-center justify-center gap-2 mb-4 hover:opacity-90 transition-opacity"
+                                            style="background-color: var(--color-ghost-edge); color: color(from var(--color-ghost-edge) xyz round(up, min(1, max(0, 0.18 - y))) round(up, min(1, max(0, 0.18 - y))) round(up, min(1, max(0, 0.18 - y)))); border: 1px solid rgba(0,0,0,0.1);"
                                             aria-label="Find Similar Nodes">
                                         <i data-lucide="sparkles" class="w-3 h-3"></i>
                                         FIND SIMILAR
@@ -483,7 +492,7 @@
 
                                     <!-- Similar Nodes List -->
                                     <div x-show="similarNodes.length > 0" class="mb-4 space-y-1">
-                                        <div class="text-xxs uppercase font-bold tracking-wider mb-1" style="color: var(--text-2);">Similar Concepts</div>
+                                        <div class="text-xxs uppercase font-bold tracking-wider mb-1" style="color: color(from var(--surface-1) xyz round(up, min(1, max(0, 0.18 - y))) round(up, min(1, max(0, 0.18 - y))) round(up, min(1, max(0, 0.18 - y))));">Similar Concepts</div>
                                         <template x-for="sim in similarNodes" :key="sim.id">
                                             <button @click="selectNode(sim.id); runLayout('forceatlas2')" 
                                                     class="w-full text-left flex items-center justify-between text-xs p-1.5 rounded hover:bg-[var(--surface-3)] group transition-colors">
@@ -491,19 +500,26 @@
                                                      <div class="w-1.5 h-1.5 rounded-full" style="background-color: var(--color-ghost-edge);"></div>
                                                      <span class="truncate font-mono" style="color: var(--text-1);" x-text="sim.label"></span>
                                                 </div>
-                                                <span class="text-xxs font-bold opacity-60" style="color: var(--text-2);" x-text="sim.score"></span>
+                                                <span class="text-xxs font-bold opacity-60" style="color: color(from var(--surface-1) xyz round(up, min(1, max(0, 0.18 - y))) round(up, min(1, max(0, 0.18 - y))) round(up, min(1, max(0, 0.18 - y))));" x-text="sim.score"></span>
                                             </button>
                                         </template>
+                                    </div>
+                                    
+                                    <!-- Empty State Message -->
+                                    <div x-show="searchComplete && !hasSimilarNodes" 
+                                         class="mb-4 text-xs italic text-center p-2 rounded" 
+                                         style="background-color: var(--surface-3); color: color(from var(--surface-3) xyz round(up, min(1, max(0, 0.18 - y))) round(up, min(1, max(0, 0.18 - y))) round(up, min(1, max(0, 0.18 - y))));">
+                                        No similar concepts found.
                                     </div>
 
                                     <div class="grid grid-cols-2 gap-2 text-xs">
                                         <div>
-                                            <span style="color: var(--text-2);">Degree:</span>
+                                            <span style="color: color(from var(--surface-1) xyz round(up, min(1, max(0, 0.18 - y))) round(up, min(1, max(0, 0.18 - y))) round(up, min(1, max(0, 0.18 - y))));">Degree:</span>
                                             <span class="font-mono ml-1"
                                                 x-text="graph ? graph.degree(selectedNode.id) : 0"></span>
                                         </div>
                                         <div>
-                                            <span style="color: var(--text-2);">ID:</span>
+                                            <span style="color: color(from var(--surface-1) xyz round(up, min(1, max(0, 0.18 - y))) round(up, min(1, max(0, 0.18 - y))) round(up, min(1, max(0, 0.18 - y))));">ID:</span>
                                             <span class="font-mono ml-1 truncate" x-text="selectedNode.id"></span>
                                         </div>
                                     </div>
@@ -514,7 +530,7 @@
                             <template x-if="selectedNode.external_refs && selectedNode.external_refs.length > 0">
                                 <div class="pt-4 border-t" style="border-color: var(--border-base);">
                                     <div class="text-xxs uppercase font-bold tracking-wider mb-2"
-                                        style="color: var(--text-2);">
+                                        style="color: color(from var(--surface-1) xyz round(up, min(1, max(0, 0.18 - y))) round(up, min(1, max(0, 0.18 - y))) round(up, min(1, max(0, 0.18 - y))));">
                                         External References</div>
                                     <div class="space-y-2">
                                         <template x-for="ref in selectedNode.external_refs" :key="ref.url">
@@ -522,8 +538,8 @@
                                                 class="flex items-center justify-between p-2 rounded border hover:bg-[var(--surface-3)] transition-colors group">
                                                 <div class="flex items-center gap-2">
                                                     <i data-lucide="external-link" class="w-3 h-3"
-                                                        style="color: var(--text-2);"></i>
-                                                    <span class="text-xs font-mono" style="color: var(--text-2);"
+                                                        style="color: color(from var(--surface-1) xyz round(up, min(1, max(0, 0.18 - y))) round(up, min(1, max(0, 0.18 - y))) round(up, min(1, max(0, 0.18 - y))));"></i>
+                                                    <span class="text-xs font-mono" style="color: color(from var(--surface-1) xyz round(up, min(1, max(0, 0.18 - y))) round(up, min(1, max(0, 0.18 - y))) round(up, min(1, max(0, 0.18 - y))));"
                                                         x-text="ref.label"></span>
                                                 </div>
                                                 <span class="text-xxs uppercase px-1.5 py-0.5 rounded"
