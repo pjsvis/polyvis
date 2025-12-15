@@ -29,7 +29,7 @@ export class ResonanceSync {
         console.log("🧠 Loading Embedding Model (FastEmbed)...");
         await embedder.embed("init");
 
-        console.log(`📦 Resonance Engine Initialized: ${settings.dbPath}`);
+        console.log(`📦 Resonance Engine Initialized: ${settings.paths.database.resonance}`);
 
         const allLexiconItems: unknown[] = [];
 
@@ -54,6 +54,16 @@ export class ResonanceSync {
 
         // --- 5. TimeWeaver ---
         this.runTimeWeaver(db);
+
+        // Stats
+        const stats = db.getStats();
+        console.log(`   ----------------------------------------`);
+        console.log(`   Database Stats:`);
+        console.log(`   - Nodes: ${stats.nodes}`);
+        console.log(`   - Vectors: ${stats.vectors}`);
+        console.log(`   - Edges: ${stats.edges}`);
+        console.log(`   - DB Size: ${(stats.db_size_bytes / 1024 / 1024).toFixed(2)} MB`);
+        console.log(`   ----------------------------------------`);
 
         // Checkpoint
         db.checkpoint();

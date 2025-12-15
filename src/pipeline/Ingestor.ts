@@ -233,6 +233,7 @@ export class Ingestor {
         console.log(`   - Vectors: ${stats.vectors}`);
         console.log(`   - Edges: ${stats.edges}`);
         console.log(`   - Semantic Tagged: ${stats.semantic_tokens}`);
+        console.log(`   - DB Size: ${(stats.db_size_bytes / 1024 / 1024).toFixed(2)} MB`);
         console.log("   ----------------------------------------");
     }
 

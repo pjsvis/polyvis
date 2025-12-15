@@ -177,6 +177,9 @@ export class ResonanceDB {
 			edges: edgesCount,
 			vectors: vectorsCount,
 			semantic_tokens: semanticTokensCount,
+			db_size_bytes:
+				(this.db.query("PRAGMA page_count").get() as any).page_count *
+				(this.db.query("PRAGMA page_size").get() as any).page_size,
 		};
 	}
 
