@@ -1,14 +1,15 @@
-# Current Task: MCP Server Integration
+# Current Task: MCP Capability Verification
 
-**Objective:** Enable "Chat with your Graph" by exposing PolyVis as an MCP Server.
+**Objective:** Verify 100% functionality of the MCP Server tools (Green Bingo Card).
 
-## Status: Done
+## Status: Verification Pending Reboot
 
 ## Checklist
-- [x] **Implement:** Create `src/mcp/index.ts` with core capabilities.
-- [x] **Tools:** `search`, `read`, `explore`, `list`, `inject`.
-- [x] **Config:** Configure `mcp_config.json` with correct startup command.
-- [x] **Verify:** Test connection and tool execution.
+- [x] **Consolidate:** Resonance engine consolidated and schema hardened.
+- [x] **Diagnostic:** `scripts/verify/mcp_matrix.ts` confirms code logic works (PASS).
+- [x] **Instrument:** `src/mcp/index.ts` updated to expose runtime errors.
+- [ ] **Verify:** Restart MCP Server and confirm `search_documents` works.
 
 ## Next
-- [ ] Reboot IDE to utilize the new 'polyvis' MCP server.
+- [ ] **ACTION:** Reboot IDE to reload the MCP server with updated code.
+- [ ] Run `search_documents` tool to confirm fix.

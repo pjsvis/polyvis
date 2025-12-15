@@ -111,6 +111,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
             const limit = Number(args?.limit || 20);
             
             const candidates = new Map<string, { id: string, score: number, preview: string, source: string }>();
+            const errors: string[] = [];
 
             // 1. Vector Search (Semantic)
             try {
@@ -123,17 +124,16 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
                          source: "vector"
                      });
                 }
-            } catch (e) {
-                console.error("Vector Search Failed (skipping):", e);
+            } catch (e: any) {
+                const msg = `Vector Search Failed: ${e.message}`;
+                console.error(msg);
+                errors.push(msg);
             }
 
             // 2. FTS Search (Keyword)
             try {
                 const ftsResults = db.searchText(query, limit);
                 for (const r of ftsResults) {
-                    // Boost FTS score to be comparable to Cosine Sim (0-1 range approx)
-                    // BM25 is unbound, so we normalize arbitrarily or just use as-is.
-                    // Simple fusion logic: If exists, bump score. If new, add.
                     const existing = candidates.get(r.id);
                     if (existing) {
                         existing.score += 0.2; // Boost on match
@@ -141,14 +141,16 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
                     } else {
                         candidates.set(r.id, {
                             id: r.id,
-                            score: 0.5, // Arbitrary base score for keyword only
+                            score: 0.5,
                             preview: r.snippet || r.title,
                             source: "keyword"
                         });
                     }
                 }
-            } catch (e) {
-                console.error("FTS Search Failed:", e);
+            } catch (e: any) {
+                const msg = `FTS Search Failed: ${e.message}`;
+                console.error(msg);
+                errors.push(msg);
             }
             
             // 3. Sort & Format
@@ -161,6 +163,13 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
                     source: r.source,
                     preview: r.preview
                 }));
+
+            if (results.length === 0 && errors.length > 0) {
+                 return {
+                    content: [{ type: "text", text: `Search returned no results. Errors encountered:\n${errors.join("\n")}` }],
+                    isError: true, // Mark as error to highlight
+                };
+            }
 
             return {
                 content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
