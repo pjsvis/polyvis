@@ -1,5 +1,5 @@
-import { Embedder } from "@resonance/src/services/embedder";
-import { ResonanceDB } from "@resonance/src/db";
+import { Embedder } from "@src/resonance/services/embedder";
+import { ResonanceDB } from "@src/resonance/db";
 import { LLMClient } from "@src/core/LLMClient";
 import settings from "@/polyvis.settings.json";
 import { join } from "path";

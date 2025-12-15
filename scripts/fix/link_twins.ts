@@ -1,4 +1,4 @@
-import { ResonanceDB } from "@resonance/src/db";
+import { ResonanceDB } from "@src/resonance/db";
 import { join } from "path";
 import { readdirSync, readFileSync } from "fs";
 import settings from "@/polyvis.settings.json";

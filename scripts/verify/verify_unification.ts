@@ -1,5 +1,5 @@
-import { ResonanceDB } from "@resonance/src/db";
-import { Embedder } from "@resonance/src/services/embedder";
+import { ResonanceDB } from "@src/resonance/db";
+import { Embedder } from "@src/resonance/services/embedder";
 
 async function main() {
 	console.log("🔍 Verifying Unification...");

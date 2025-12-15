@@ -1,6 +1,6 @@
-
-import { ResonanceDB } from "../../resonance/src/db";
-import { VectorEngine } from "../../src/core/VectorEngine";
+import { ResonanceDB } from "@src/resonance/db";
+import { Ingestor } from "@src/pipeline/Ingestor";
+import { VectorEngine } from "@src/core/VectorEngine";
 import { $ } from "bun";
 import { join } from "path";
 
@@ -20,14 +20,9 @@ async function run() {
 
     // --- PHASE 2: INGEST ---
     console.log("\n⚙️  [2/5] Running Ingestion Pipeline...");
-    // Run build:data (ingest + sync)
-    // We suppress output for cleanliness but check exit code
-    const proc = Bun.spawn(["bun", "run", "build:data"], { stdout: "ignore", stderr: "inherit" });
-    const exitCode = await proc.exited;
-    if (exitCode !== 0) {
-        console.warn("⚠️ Ingestion exited with code", exitCode, "(Likely Validation Warning), proceeding...");
-    }
-    console.log("   ✅ Ingestion Complete (or Warning).");
+    const ingestor = new Ingestor(dbPath);
+    await ingestor.run();
+    console.log("   ✅ Ingestion Complete.");
 
     // --- PHASE 3: VERIFY EXISTENCE ---
     console.log("\n🔍 [3/5] Verifying Search...");

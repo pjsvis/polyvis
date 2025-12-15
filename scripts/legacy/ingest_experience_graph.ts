@@ -8,7 +8,7 @@ import settings from "@/polyvis.settings.json";
 import { SemanticMatcher } from "@src/core/SemanticMatcher";
 import { EdgeWeaver } from "@src/core/EdgeWeaver";
 import { PipelineValidator } from "@src/utils/validator";
-import type { EnrichedLexiconDocument } from "@resonance/src/types/enriched-cda";
+import type { EnrichedLexiconDocument } from "@src/resonance/types/enriched-cda";
 
 // Types for Experience Index
 interface ExperienceNode {

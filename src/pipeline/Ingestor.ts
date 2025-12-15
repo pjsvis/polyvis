@@ -1,6 +1,6 @@
-import { ResonanceDB } from "@resonance/src/db";
-import { Embedder } from "@resonance/src/services/embedder";
-import { TokenizerService } from "@resonance/src/services/tokenizer";
+import { ResonanceDB } from "@src/resonance/db";
+import { Embedder } from "@src/resonance/services/embedder";
+import { TokenizerService } from "@src/resonance/services/tokenizer";
 import { EdgeWeaver } from "@src/core/EdgeWeaver";
 import { LocusLedger } from "@src/data/LocusLedger";
 import { Glob } from "bun";
@@ -143,16 +143,12 @@ export class Ingestor {
     
     private async loadLexiconFromDB(): Promise<LexiconItem[]> {
         console.log("🧠 Loading Lexicon from Database...");
-        // Fetch all concepts/terms to seed the Weaver
-        const rows = this.db.getRawDb().query("SELECT id, title, meta FROM nodes WHERE type IN ('concept', 'term')").all() as any[];
-        const lexicon = rows.map(r => {
-            const meta = JSON.parse(r.meta || "{}");
-            return {
-                id: r.id,
-                title: r.title || r.label, // Handle schema variance
-                aliases: meta.aliases || []
-            };
-        });
+        const rawLexicon = this.db.getLexicon();
+        const lexicon: LexiconItem[] = rawLexicon.map((item: any) => ({
+            id: item.id,
+            title: item.label,
+            aliases: item.aliases || []
+        }));
         this.tokenizer.loadLexicon(lexicon);
         return lexicon;
     }

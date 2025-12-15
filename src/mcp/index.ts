@@ -7,7 +7,7 @@ import {
     ReadResourceRequestSchema
 } from "@modelcontextprotocol/sdk/types.js";
 
-import { ResonanceDB } from "@resonance/src/db";
+import { ResonanceDB } from "@src/resonance/db";
 import { VectorEngine } from "@src/core/VectorEngine";
 
 // 1. Initialize Server

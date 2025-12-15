@@ -15,7 +15,7 @@ import type {
 	EnrichedLexiconDocument,
 	EnrichedLexiconConcept,
 	CandidateRelationship,
-} from "@resonance/src/types/enriched-cda";
+} from "@src/resonance/types/enriched-cda";
 import { SemanticMatcher } from "@src/core/SemanticMatcher";
 
 // Simple keyword extraction (can be enhanced later)

@@ -1,4 +1,4 @@
-import { TokenizerService } from "../../resonance/src/services/tokenizer";
+import { TokenizerService } from "@src/resonance/services/tokenizer";
 // Mock Lexicon
 const lexicon = [
 	{

@@ -29,7 +29,7 @@
 		"paths": {
 			"@src/*": ["./src/*"],
 			"@scripts/*": ["./scripts/*"],
-			"@resonance/*": ["./resonance/*"],
+			"@resonance/*": ["./src/resonance/*"],
 			"@/*": ["./*"]
 		}
 	},

@@ -1,4 +1,4 @@
-import { ResonanceDB } from "@resonance/src/db";
+import { ResonanceDB } from "@src/resonance/db";
 
 export class SemanticWeaver {
 	static weave(db: ResonanceDB) {
@@ -7,7 +7,7 @@ export class SemanticWeaver {
 		// 1. Identify Orphans (Nodes with no edges AND available embedding)
 		// Query: ID not in source AND not in target
 		// Note: This matches the verification script logic but optimized for DB operation
-		const orphans = db['db'].query(`
+		const orphans = db.getRawDb().query(`
             SELECT n.id, n.embedding, n.title
             FROM nodes n
             LEFT JOIN edges e1 ON n.id = e1.source

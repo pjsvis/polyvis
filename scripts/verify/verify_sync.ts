@@ -1,4 +1,4 @@
-import { ResonanceDB } from "@resonance/src/db";
+import { ResonanceDB } from "@src/resonance/db";
 import { nodes as schemaNodes } from "@src/db/schema.js";
 
 const db = new ResonanceDB();

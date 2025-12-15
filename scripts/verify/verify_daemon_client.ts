@@ -1,5 +1,5 @@
 
-import { Embedder } from "@resonance/src/services/embedder";
+import { Embedder } from "@src/resonance/services/embedder";
 
 // This script expects the Daemon to be running on port 3010
 console.log("🧪 Testing Hybrid Embedder Client...");

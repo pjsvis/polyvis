@@ -1,6 +1,6 @@
 import { BaseGardener, type Candidate } from "./BaseGardener";
 import { TagEngine } from "../core/TagEngine";
-import { ResonanceDB } from "@resonance/src/db";
+import { ResonanceDB } from "@src/resonance/db";
 
 export class AutoTagger extends BaseGardener {
     name = "Auto-Tagger";

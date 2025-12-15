@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import type { ResonanceDB } from "@resonance/src/db";
+import type { ResonanceDB } from "@src/resonance/db";
 import { EdgeWeaver } from "@src/core/EdgeWeaver";
 
 // Mock ResonanceDB

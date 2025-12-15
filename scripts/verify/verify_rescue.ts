@@ -1,4 +1,4 @@
-import { ResonanceDB } from "@resonance/src/db";
+import { ResonanceDB } from "@src/resonance/db";
 import { SemanticWeaver } from "@src/core/SemanticWeaver";
 import { Database } from "bun:sqlite";
 import settings from "@/polyvis.settings.json";

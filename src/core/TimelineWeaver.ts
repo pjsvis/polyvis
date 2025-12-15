@@ -1,4 +1,4 @@
-import { ResonanceDB } from "@resonance/src/db";
+import { ResonanceDB } from "@src/resonance/db";
 
 export class TimelineWeaver {
 	static weave(db: ResonanceDB) {

@@ -1,7 +1,7 @@
-import { describe, expect, test, mock, beforeEach, afterEach } from "bun:test";
+import { describe, expect, test, mock, beforeEach, afterEach, spyOn } from "bun:test";
 import { Ingestor } from "@src/pipeline/Ingestor";
-import { ResonanceDB } from "@resonance/src/db";
-import { Embedder } from "@resonance/src/services/embedder";
+import { ResonanceDB } from "@src/resonance/db";
+import { Embedder } from "@src/resonance/services/embedder";
 
 // Mock Dependencies
 const mockInsertNode = mock(() => {});
@@ -9,7 +9,7 @@ const mockInsertEdge = mock(() => {});
 const mockClose = mock(() => {});
 const mockEmbed = mock(async () => new Float32Array([0.1, 0.2, 0.3]));
 
-mock.module("@resonance/src/db", () => ({
+mock.module("@src/resonance/db", () => ({
     ResonanceDB: class {
         constructor() {}
         insertNode = mockInsertNode;
@@ -20,11 +20,14 @@ mock.module("@resonance/src/db", () => ({
         getRawDb = () => ({
             query: () => ({ get: () => ({ c: 0 }) }) // Mock count query
         });
+        getLexicon = () => [{ id: "term-1", label: "Term 1", aliases: [] }];
+        getNodes = () => [];
+        getNodesByType = () => [];
         checkpoint = () => {};
     }
 }));
 
-mock.module("@resonance/src/services/embedder", () => ({
+mock.module("@src/resonance/services/embedder", () => ({
     Embedder: {
         getInstance: () => ({
             embed: mockEmbed
@@ -33,23 +36,28 @@ mock.module("@resonance/src/services/embedder", () => ({
 }));
 
 // Mock FS for Lexicon Bootstrap
-mock.module("bun", () => ({
-    Glob: class {
-        scanSync = function* () { yield "test-file.md"; }
-        scan = async function* () { yield "test-file.md"; }
-    },
-    file: (path: string) => ({
-        exists: async () => true,
-        text: async () => `---
+const mockFile = (path: string) => ({
+    exists: async () => true,
+    text: async () => `---
 title: Test Doc
 ---
 # Test Content
 <!-- locus:test-1 -->
 Boxed Content
 `,
-        json: async () => ({ concepts: [{ id: "term-1", title: "Term 1" }] }),
-    })
+    json: async () => ({ concepts: [{ id: "term-1", title: "Term 1" }] }),
+});
+
+mock.module("bun", () => ({
+    Glob: class {
+        *scanSync() { yield "test-file.md"; }
+        async *scan() { yield "test-file.md"; }
+    },
+    file: mockFile
 }));
+
+// Mock Global Bun via Spy
+spyOn(Bun, "file").mockImplementation(mockFile as any);
 
 mock.module("@src/utils/validator", () => ({
     PipelineValidator: class {

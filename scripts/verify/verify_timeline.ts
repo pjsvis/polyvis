@@ -1,4 +1,4 @@
-import { ResonanceDB } from "@resonance/src/db";
+import { ResonanceDB } from "@src/resonance/db";
 import { TimelineWeaver } from "@src/core/TimelineWeaver";
 
 const db = new ResonanceDB();

@@ -1,5 +1,5 @@
 
-import { ResonanceDB } from "../../resonance/src/db";
+import { ResonanceDB } from "@src/resonance/db";
 import { EdgeWeaver } from "../../src/core/EdgeWeaver";
 import { join } from "path";
 import { existsSync, rmSync } from "fs";

@@ -1,6 +1,7 @@
 import { Database } from "bun:sqlite";
 import { join } from "path";
 import settings from "@/polyvis.settings.json";
+import { MIGRATIONS, CURRENT_SCHEMA_VERSION, type Migration } from "./schema";
 
 // Types matching Schema
 export interface Node {
@@ -21,74 +22,61 @@ export class ResonanceDB {
 	constructor(dbPath?: string) {
 		const target =
 			dbPath || join(process.cwd(), settings.paths.database.resonance);
+		// Ensure directory exists if we are creating it? 
+        // Database constructor usually handles file creation, but not directory.
+        // Assuming directory exists for now as it usually does.
 		this.db = new Database(target);
 		this.db.run("PRAGMA journal_mode = WAL;");
+        
+        this.migrate();
+    }
 
-		// GENESIS Schema
-		this.db.run(`
-            CREATE TABLE IF NOT EXISTS nodes (
-                id TEXT PRIMARY KEY,
-                type TEXT,
-                title TEXT,
-                content TEXT,
-                domain TEXT,
-                layer TEXT,
-                embedding BLOB,
-                hash TEXT,
-                meta TEXT
-            );
-            
-            CREATE TABLE IF NOT EXISTS edges (
-                source TEXT,
-                target TEXT,
-                type TEXT,
-                PRIMARY KEY (source, target, type)
-            );
-            
-            CREATE INDEX IF NOT EXISTS idx_edges_source ON edges(source);
-            CREATE INDEX IF NOT EXISTS idx_edges_target ON edges(target);
+    private migrate() {
+        const row = this.db.query("PRAGMA user_version").get() as { user_version: number };
+        let currentVersion = row.user_version;
 
-            -- FTS5 Virtual Table
-            CREATE VIRTUAL TABLE IF NOT EXISTS nodes_fts USING fts5(
-                id UNINDEXED, 
-                title, 
-                content, 
-                meta,
-                tokenize='porter'
-            );
+        // Backward Compatibility for existing unversioned DBs
+        if (currentVersion === 0) {
+            const tables = this.db.query("SELECT name FROM sqlite_master WHERE type='table' AND name='nodes'").get();
+            if (tables) {
+                // DB exists but has version 0. Detect schema state.
+                const cols = this.db.query("PRAGMA table_info(nodes)").all() as any[];
+                const hasHash = cols.some(c => c.name === 'hash');
+                const hasMeta = cols.some(c => c.name === 'meta');
+                
+                if (hasHash && hasMeta) {
+                    currentVersion = 3;
+                } else if (hasHash) {
+                    currentVersion = 2;
+                } else {
+                    currentVersion = 1;
+                }
+                // Update the version on the file so we don't guess next time
+                this.db.run(`PRAGMA user_version = ${currentVersion}`);
+            }
+        }
 
-            -- Triggers to sync proper nodes with FTS
-            CREATE TRIGGER IF NOT EXISTS nodes_ai AFTER INSERT ON nodes BEGIN
-                INSERT INTO nodes_fts(rowid, id, title, content, meta) 
-                VALUES (new.rowid, new.id, new.title, new.content, new.meta);
-            END;
+        if (currentVersion >= CURRENT_SCHEMA_VERSION) return;
 
-            CREATE TRIGGER IF NOT EXISTS nodes_ad AFTER DELETE ON nodes BEGIN
-                DELETE FROM nodes_fts WHERE rowid = old.rowid;
-            END;
+        console.log(`📦 ResonanceDB: Migrating from v${currentVersion} to v${CURRENT_SCHEMA_VERSION}...`);
 
-            CREATE TRIGGER IF NOT EXISTS nodes_au AFTER UPDATE ON nodes BEGIN
-                INSERT INTO nodes_fts(nodes_fts, rowid, id, title, content, meta) 
-                VALUES('delete', old.rowid, old.id, old.title, old.content, old.meta);
-                INSERT INTO nodes_fts(rowid, id, title, content, meta) 
-                VALUES (new.rowid, new.id, new.title, new.content, new.meta);
-            END;
-
-            -- Self-Healing: Backfill FTS if missing
-            INSERT INTO nodes_fts(rowid, id, title, content, meta)
-            SELECT rowid, id, title, content, meta FROM nodes
-            WHERE rowid NOT IN (SELECT rowid FROM nodes_fts);
-        `);
+        for (const migration of MIGRATIONS) {
+            if (migration.version > currentVersion) {
+                // console.log(`   Running Migration v${migration.version}: ${migration.description}`);
+                if (migration.sql) {
+                    this.db.run(migration.sql);
+                }
+                if (migration.up) {
+                    migration.up(this.db);
+                }
+                this.db.run(`PRAGMA user_version = ${migration.version}`);
+                currentVersion = migration.version;
+            }
+        }
     }
 
 	insertNode(node: Node) {
-		// Ensure columns exist (migrations)
-		try {
-			this.db.run("ALTER TABLE nodes ADD COLUMN hash TEXT");
-		} catch (e) {}
-		try {
-			this.db.run("ALTER TABLE nodes ADD COLUMN meta TEXT");
-		} catch (e) {}
+        // No inline migrations here anymore!
 
 		const stmt = this.db.prepare(`
             INSERT OR REPLACE INTO nodes (id, type, title, content, domain, layer, embedding, hash, meta)
@@ -136,6 +124,61 @@ export class ResonanceDB {
 			[source, target, type],
 		);
 	}
+
+    // Typed Data Accessors
+
+    getNodes(domain?: string): Node[] {
+        let sql = "SELECT * FROM nodes";
+        const params: any[] = [];
+        if (domain) {
+            sql += " WHERE domain = ?";
+            params.push(domain);
+        }
+        const rows = this.db.query(sql).all(...params) as any[];
+        return rows.map(this.mapRowToNode);
+    }
+    
+    getLexicon(): any[] {
+         // Assuming Lexicon are nodes of type 'concept' or domain 'lexicon'
+         // Based on pipeline/Ingestor.ts loadLexiconFromDB: domain='lexicon' AND type='concept'
+         const sql = "SELECT * FROM nodes WHERE domain = 'lexicon' AND type = 'concept'";
+         const rows = this.db.query(sql).all() as any[];
+         // The structure expected by Ingestor or EdgeWeaver might differ slightly (just ID/Title), 
+         // but returning full nodes is safer.
+         // Actually, typically Lexicon is [{ id, label, aliases... }]
+         // We parse 'meta' to get aliases.
+         return rows.map(row => {
+             const meta = row.meta ? JSON.parse(row.meta) : {};
+             return {
+                 id: row.id,
+                 label: row.title,
+                 aliases: meta.aliases || [],
+                 definition: row.content,
+                 ...meta
+             };
+         });
+    }
+
+    private mapRowToNode(row: any): Node {
+        return {
+			id: row.id,
+			type: row.type,
+			label: row.title,
+			content: row.content,
+			domain: row.domain,
+			layer: row.layer,
+            // We usually don't deserialize embedding here unless requested for perf?
+            // But strict signature says Node has embedding?
+            // SQLite returns BLOB as Buffer/Uint8Array.
+            // We can leave it as is or optional.
+            // For now, let's skip embedding in retrieval unless we need specific accessor for it, 
+            // OR if the user expects it. `findSimilar` logic decodes it.
+            // Let's return Typed Array if present.
+            embedding: row.embedding ? new Float32Array(row.embedding.buffer, row.embedding.byteOffset, row.embedding.byteLength / 4) : undefined,
+			hash: row.hash,
+			meta: row.meta ? JSON.parse(row.meta) : {},
+		};
+    }
 
 	findSimilar(
 		queryVec: Float32Array,
@@ -217,16 +260,7 @@ export class ResonanceDB {
 	getNodesByType(type: string): Node[] {
 		const sql = "SELECT * FROM nodes WHERE type = ?";
 		const rows = this.db.query(sql).all(type) as any[];
-		return rows.map((row) => ({
-			id: row.id,
-			type: row.type,
-			label: row.title,
-			content: row.content,
-			domain: row.domain,
-			layer: row.layer,
-			hash: row.hash,
-			meta: row.meta ? JSON.parse(row.meta) : {},
-		}));
+		return rows.map(this.mapRowToNode);
 	}
 
 	/**

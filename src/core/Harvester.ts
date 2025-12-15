@@ -1,4 +1,4 @@
-import { Embedder } from "@resonance/src/services/embedder";
+import { Embedder } from "@src/resonance/services/embedder";
 import { Glob } from "bun";
 
 export class Harvester {

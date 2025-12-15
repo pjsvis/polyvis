@@ -17,7 +17,7 @@
 		"watch:css": "tailwindcss -i ./src/css/main.css -o ./public/css/app.css --watch",
 		"build:js": "bun build ./src/js/app.js ./src/js/utils/theme.js --outdir ./public/js",
 		"watch:js": "bun build ./src/js/app.js ./src/js/utils/theme.js --outdir ./public/js --watch",
-		"build:data": "bun run scripts/pipeline/build_persona.ts && bun run scripts/pipeline/build_experience.ts",
+		"build:data": "bun run scripts/pipeline/ingest.ts",
 		"mcp": "bun run src/mcp/index.ts",
 		"test:integration": "bun run tests/integration/lifecycle.test.ts",
 		"check": "biome check .",

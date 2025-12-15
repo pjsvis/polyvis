@@ -1,4 +1,4 @@
-import { ResonanceDB } from "@resonance/src/db";
+import { ResonanceDB } from "@src/resonance/db";
 import { AutoTagger } from "@src/gardeners/AutoTagger";
 import { parseArgs } from "util";
 

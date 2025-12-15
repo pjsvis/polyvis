@@ -1,4 +1,4 @@
-import type { ResonanceDB } from "@resonance/src/db";
+import type { ResonanceDB } from "@src/resonance/db";
 import { LouvainGate } from "./LouvainGate";
 
 export class EdgeWeaver {
