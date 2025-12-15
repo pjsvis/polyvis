@@ -186,19 +186,22 @@ export class Ingestor {
         }
     }
 
-    private getFilesToProcess(options: IngestorOptions): string[] {
-        const files: string[] = [];
+    private getFilesToProcess(options: IngestorOptions): { path: string, type: string }[] {
+        const files: { path: string, type: string }[] = [];
         if (options.file) {
-            files.push(String(options.file));
+            files.push({ path: String(options.file), type: "document" });
         } else {
-            const sourceDirs = options.dir
-                ? [String(options.dir)]
-                : settings.paths.sources.experience.directories;
+            const sources = options.dir
+                ? [{ path: String(options.dir), name: "Document" }]
+                : settings.paths.sources.experience;
             
-            for (const dir of sourceDirs) {
+            for (const source of sources) {
                 const glob = new Glob("**/*.md");
-                for (const file of glob.scanSync(dir)) { // using scanSync for simplicity here
-                     files.push(join(process.cwd(), dir, file));
+                for (const file of glob.scanSync(source.path)) {
+                     files.push({ 
+                         path: join(process.cwd(), source.path, file),
+                         type: source.name.toLowerCase() // Use name from settings as generic type base
+                     });
                 }
             }
         }
@@ -240,20 +243,18 @@ export class Ingestor {
     // --- Processing Logic ---
 
     private async processFile(
-        filePath: string,
+        fileEntry: { path: string, type: string },
         db: ResonanceDB,
         embedder: Embedder,
         weaver: EdgeWeaver,
         tokenizer: TokenizerService,
     ): Promise<number> {
+        const filePath = fileEntry.path;
+        const type = fileEntry.type;
         const content = await Bun.file(filePath).text();
         const fmMatch = content.match(/^---\n([\s\S]*?)\n---/);
         const frontmatter = fmMatch && fmMatch[1] ? this.parseFrontmatter(fmMatch[1]) : {};
         let totalBoxChars = 0;
-
-        let type = "document";
-        if (filePath.includes("playbook")) type = "playbook";
-        if (filePath.includes("debrief")) type = "debrief";
 
         const boxRegex = /<!-- locus:([a-zA-Z0-9-]+) -->\n([\s\S]*?)(?=<!-- locus:|$)/g;
         let match: RegExpExecArray | null;
@@ -304,11 +305,10 @@ export class Ingestor {
 
         console.log(`⚡️ [${id}] Ingesting (${content.length} chars)...`);
 
-        const narrativeFolders = ["playbooks", "debriefs", "knowledge", "briefs"];
-        const isNarrative = narrativeFolders.some(folder => sourcePath.includes(folder));
-
+        // Removed hardcoded narrative allowlist. 
+        // Logic: If it's mounted, we process & embed it.
         let embedding: Float32Array | undefined = undefined;
-        if (isNarrative && content.length > 50) {
+        if (content.length > 50) {
             embedding = await embedder.embed(content) || undefined;
         }
 

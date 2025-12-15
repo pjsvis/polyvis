@@ -48,8 +48,8 @@ export class ResonanceSync {
         console.log(`🕸️  Edge Weaver Initialized (${allLexiconItems?.length || 0} concepts)`);
 
         // --- 4. Pipeline B: Markdown Docs ---
-        for (const dir of settings.paths.sources.experience.directories) {
-            await this.processDirectory(dir, db, embedder, weaver, limit);
+        for (const source of settings.paths.sources.experience) {
+            await this.processDirectory(source, db, embedder, weaver, limit);
         }
 
         // --- 5. TimeWeaver ---
@@ -74,6 +74,58 @@ export class ResonanceSync {
 
         console.log("🚀 Unification Sync Complete.");
     }
+
+    // ...
+
+    private async processDirectory(source: { path: string; name: string }, db: ResonanceDB, embedder: Embedder, weaver: EdgeWeaver, limit: number) {
+        const dir = source.path;
+        const pattern = new Glob(`${dir}/**/*.md`);
+        let fileCount = 0;
+        console.log(`📂 Scanning ${dir} (${source.name})...`);
+
+        for await (const file of pattern.scan(".")) {
+            const rawContent = await Bun.file(file).text();
+            const filename = file.split("/").pop() || "";
+            const content = BentoNormalizer.normalize(rawContent, filename);
+            const contentHash = Bun.hash(content).toString();
+            const existingHash = db.getNodeHash(file);
+
+            if (existingHash === contentHash) continue;
+            console.log(`📝 Updating ${file}...`);
+
+            const leadSummary = content.slice(0, 1000);
+            const vec = await embedder.embed(leadSummary);
+
+            const fileNodeId = file;
+            const dateMatch = filename.match(/^(\d{4}-\d{2}-\d{2})/);
+            const created = dateMatch ? dateMatch[1] : null;
+
+            db.insertNode({
+                id: fileNodeId,
+                type: source.name.toLowerCase(),
+                label: file.split("/").pop(),
+                content: content.slice(0, 500) + "\n\n... [Content truncated. See Source File] ...",
+                domain: "resonance",
+                layer: "experience",
+                embedding: vec,
+                hash: contentHash,
+                meta: { created: created, source: file }
+            });
+
+            weaver.weave(fileNodeId, content);
+
+            // Auto-detect Boxed Content (formerly "Playbook" logic)
+            if (content.includes("<!-- locus:")) {
+                await this.processPlaybookSections(fileNodeId, content, db, embedder, weaver);
+            }
+
+            fileCount++;
+            if (limit && fileCount >= limit) break;
+        }
+        console.log(`✅ ${dir}: ${fileCount} files processed.`);
+    }
+
+
 
     private async ingestCDA(db: ResonanceDB, embedder: Embedder, cdaPath: string, allLexiconItems: unknown[]) {
         console.log(`📜 Ingesting CDA: ${cdaPath}`);
@@ -160,51 +212,7 @@ export class ResonanceSync {
         }
     }
 
-    private async processDirectory(dir: string, db: ResonanceDB, embedder: Embedder, weaver: EdgeWeaver, limit: number) {
-        const pattern = new Glob(`${dir}/**/*.md`);
-        let fileCount = 0;
-        console.log(`📂 Scanning ${dir}...`);
 
-        for await (const file of pattern.scan(".")) {
-            const rawContent = await Bun.file(file).text();
-            const filename = file.split("/").pop() || "";
-            const content = BentoNormalizer.normalize(rawContent, filename);
-            const contentHash = Bun.hash(content).toString();
-            const existingHash = db.getNodeHash(file);
-
-            if (existingHash === contentHash) continue;
-            console.log(`📝 Updating ${file}...`);
-
-            const leadSummary = content.slice(0, 1000);
-            const vec = await embedder.embed(leadSummary);
-
-            const fileNodeId = file;
-            const dateMatch = filename.match(/^(\d{4}-\d{2}-\d{2})/);
-            const created = dateMatch ? dateMatch[1] : null;
-
-            db.insertNode({
-                id: fileNodeId,
-                type: dir.includes("playbooks") ? "playbook" : "debrief",
-                label: file.split("/").pop(),
-                content: content.slice(0, 500) + "\n\n... [Content truncated. See Source File] ...",
-                domain: "resonance",
-                layer: "experience",
-                embedding: vec,
-                hash: contentHash,
-                meta: { created: created, source: file }
-            });
-
-            weaver.weave(fileNodeId, content);
-
-            if (dir.includes("playbooks")) {
-                await this.processPlaybookSections(fileNodeId, content, db, embedder, weaver);
-            }
-
-            fileCount++;
-            if (limit && fileCount >= limit) break;
-        }
-        console.log(`✅ ${dir}: ${fileCount} files processed.`);
-    }
 
     private async processPlaybookSections(
         fileNodeId: string, 

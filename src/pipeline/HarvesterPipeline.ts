@@ -50,8 +50,8 @@ export class HarvesterPipeline {
         // Use target arg OR settings directories OR default to 'docs'
         const scanDirs = target
             ? [target]
-            : settings.paths?.sources?.experience?.directories?.length > 0
-                ? settings.paths.sources.experience.directories
+            : Array.isArray(settings.paths?.sources?.experience)
+                ? settings.paths.sources.experience.map((s: any) => s.path)
                 : ["docs"];
 
         console.log(`Scanning: ${scanDirs.join(", ")}`);

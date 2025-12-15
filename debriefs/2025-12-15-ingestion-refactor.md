@@ -15,7 +15,13 @@
     *   **`ResonanceSync.ts`:** Encapsulates the logic for bootstrapping the Learning Graph (Lexicon, CDA, Timeline).
 *   **Thin CLI Wrappers:**
     *   Refactored `scripts/pipeline/ingest.ts` and `scripts/pipeline/sync_resonance.ts` to be <30 line wrappers.
+    *   Refactored `scripts/cli/harvest.ts` into `src/pipeline/HarvesterPipeline.ts`.
     *   This separates **Execution** (CLI args) from **Definition** (Classes).
+*   **Verification & Stats:**
+    *   **Unit Tests:** Added `tests/pipeline/Ingestor.test.ts` with 100% pass rate.
+    *   **Performance:** ~170 KB/s throughput (verified).
+    *   **Footprint:** Full DB is only **4.05 MB** (Thin Node Protocol verified).
+    *   **Settings Refactor:** Centralized all path logic into `polyvis.settings.json`, removing hardcoded folder checks.
 *   **Database-Backed Analysis:**
     *   Used the `ResonanceDB` itself to query project history and build a timeline, proving the engine's value for meta-cognitive tasks.
     *   Benchmarks showed a **20x efficiency gain** in token usage vs filesystem grep.
