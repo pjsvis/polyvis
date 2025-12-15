@@ -47,6 +47,12 @@
 	/* MISC */
 	--width-stats: 200px;
 	--z-tooltip: 100;
+
+	/* GRAPH COLORS (Semantic) */
+	--graph-background: oklch(95% 0 0);
+	--graph-edge-default: oklch(100% 0 0);
+	--graph-node-orphan: oklch(60% 0.3 20);
+	--graph-edge-ghost: #ffd700;
 }
 
 :root {
@@ -105,7 +111,7 @@
 	--surface-2-fg: oklch(
 		clamp(0%, calc((var(--surface-2-l) - var(--threshold)) * -1000), 100%) 0 0
 	);
-	
+
 	/* SURFACE 3: Hover/Active/Input */
 	--surface-3-l: 96%;
 	--surface-3-c: 0;
@@ -127,11 +133,17 @@
 	--border-base: oklch(var(--border-base-l) 0 0);
 	--border-width: 1px;
 
-	/* MISC */
-	--radius-component: var(--radius-2);
+	/* SHADOWS */
 	--shadow-offset: var(--size-1);
 	--shadow-strength: 10%;
 	--shadow-color: 220 40% 2%;
+	--shadow-sm: 0 1px 2px 0 oklch(var(--shadow-color) / 0.05);
+	--shadow-md:
+		0 4px 6px -1px oklch(var(--shadow-color) / 0.1), 0 2px 4px -2px
+		oklch(var(--shadow-color) / 0.1);
+	--shadow-lg:
+		0 10px 15px -3px oklch(var(--shadow-color) / 0.1), 0 4px 6px -4px
+		oklch(var(--shadow-color) / 0.1);
 
 	/* Layout Dimensions */
 	--width-sidebar-base: var(--size-content-2);
@@ -156,17 +168,19 @@
 	--scrollthumb-color: oklch(88% 0 0);
 	--scrollthumb-hover-color: oklch(80% 0 0);
 
+	/* LEGACY ALIASES (to be migrated) */
+	--gray-2: var(--surface-3);
+	--gray-8: var(--surface-3);
+	--gray-9: var(--text-2);
+	--color-brand: var(--primary);
+
 	/* ALIASES / COMPATIBILITY */
 	--surface-panel: var(--surface-2);
 	--surface-panel-fg: var(--surface-2-fg);
 	/* Semantic Colors */
-	--surface-hover: var(--gray-2);
-
-	@media (prefers-color-scheme: dark) {
-		--surface-hover: var(--gray-8);
-	}
-    /* SEMANTIC GRAPH COLORS */
-    --color-ghost-edge: #FFD700; /* Gold */
+	--surface-hover: var(--surface-3);
+	/* SEMANTIC GRAPH COLORS */
+	--color-ghost-edge: #ffd700; /* Gold */
 }
 
 /* 
@@ -189,7 +203,7 @@
 
 		/* Surface 2 (Panels) -> Slightly Lighter Dark */
 		--surface-2-l: 20%; /* #303134 */
-		
+
 		/* Surface 3 (Hover) -> Distinctly Lighter */
 		--surface-3-l: 30%; /* #3c4043 */
 

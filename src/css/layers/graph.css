@@ -17,13 +17,11 @@
 
 .explorer-graph-panel {
 	/* Local Scope for Graph Variables */
-	--graph-bg: #e5e7eb;
-	/* Fixed Light Gray */
-	--graph-edge: #ffffff;
-	/* Fixed White */
+	--graph-bg: var(--graph-background);
+	--graph-edge: var(--graph-edge-default);
 
-	background-color: #e5e7eb;
-	/* Direct application to ensure isolation */
+	background-color: var(--graph-background);
+	/* Use semantic variable for consistency */
 }
 
 #sigma-container {
@@ -34,9 +32,9 @@
 /* Zoom Controls Isolation */
 .sigma-zoom-controls {
 	/* Local Scope for Zoom Variables */
-	--zoom-bg: #ffffff;
-	--zoom-text: #202124;
-	--zoom-border: #dadce0;
+	--zoom-bg: var(--surface-1);
+	--zoom-text: var(--text-1);
+	--zoom-border: var(--border-base);
 
 	background-color: var(--zoom-bg);
 	border-color: var(--zoom-border);
