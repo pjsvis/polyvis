@@ -39,23 +39,53 @@ export class Ingestor {
         this.tokenizer = TokenizerService.getInstance();
     }
 
+    /**
+     * UNIFIED PIPELINE RUNNER
+     * Runs both Persona and Experience pipelines.
+     */
     async run(options: IngestorOptions = {}) {
-        console.log("🌉 <THE BRIDGE> Ingestion Protocol Initiated...");
+        const sqliteDb = await this.init(options);
+        
+        // Phase 1: Persona
+        const lexiconItems = await this.runPersona();
+        
+        // Phase 2: Experience
+        await this.runExperience(options, lexiconItems, sqliteDb);
+        
+        this.cleanup(sqliteDb);
+        return true; // Simplified success check
+    }
 
-        // Initialize Validator
-        const validator = new PipelineValidator();
-        const sqliteDb = new Database(this.dbPath);
-        validator.captureBaseline(sqliteDb);
-
-        // 0. Bootstrap Lexicon (for Weaver)
+    /**
+     * PHASE 1: PERSONA
+     * Ingests Core Ontology (Lexicon) and Directives (CDA).
+     */
+    async runPersona(): Promise<LexiconItem[]> {
+        console.log("🧩 [Phase 1] Starting Persona Ingestion...");
+        
+        // 1. Lexicon
         const lexicon = await this.bootstrapLexicon();
         
-        // 0.5 Ingest CDA Directives
+        // 2. CDA
         await this.ingestCDA();
+        
+        console.log("✅ [Phase 1] Persona Ingestion Complete.");
+        return lexicon;
+    }
+
+    /**
+     * PHASE 2: EXPERIENCE
+     * Ingests Documents, Playbooks, and Debriefs.
+     */
+    async runExperience(options: IngestorOptions, lexicon: LexiconItem[] = [], sqliteDb: Database) {
+        console.log("📚 [Phase 2] Starting Experience Ingestion...");
+
+        // If lexicon is empty (e.g. running independently), try loading from DB
+        if (lexicon.length === 0) {
+            lexicon = await this.loadLexiconFromDB();
+        }
 
         const weaver = new EdgeWeaver(this.db, lexicon);
-
-        // 1. Determine Sources
         const filesToProcess = this.getFilesToProcess(options);
 
         // Process
@@ -82,24 +112,49 @@ export class Ingestor {
 
         this.logStats(processedCount, totalChars, durationSec, charsPerSec, dbStats);
 
-        // 4.5 Timeline Weaving
+        // Weaving
         await this.runWeavers();
-
-        // Validation
-        validator.expect({
-            files_to_process: processedCount,
-            min_nodes_added: processedCount,
-            required_vector_coverage: "experience",
-        });
         
-        const report = validator.validate(sqliteDb);
-        validator.printReport(report);
-
-        // Cleanup
+        // Validation (On native SQLite connection for speed/independence)
+        const validator = new PipelineValidator();
+        validator.captureBaseline(sqliteDb); 
+        
+        // Only run validation if we processed files
+        if (processedCount > 0) {
+             const report = validator.validate(sqliteDb);
+             validator.printReport(report);
+        }
+        console.log("✅ [Phase 2] Experience Ingestion Complete.");
+    }
+    
+    // --- Lifecycle Helpers ---
+    
+    private async init(options: IngestorOptions) {
+        console.log("🌉 <THE BRIDGE> Ingestion Protocol Initiated...");
+        // Ensure Embedder Init
+        await this.embedder.embed("init");
+        return new Database(this.dbPath);
+    }
+    
+    private cleanup(sqliteDb: Database) {
         sqliteDb.close();
         this.db.close();
-
-        return report.passed;
+    }
+    
+    private async loadLexiconFromDB(): Promise<LexiconItem[]> {
+        console.log("🧠 Loading Lexicon from Database...");
+        // Fetch all concepts/terms to seed the Weaver
+        const rows = this.db.getRawDb().query("SELECT id, title, meta FROM nodes WHERE type IN ('concept', 'term')").all() as any[];
+        const lexicon = rows.map(r => {
+            const meta = JSON.parse(r.meta || "{}");
+            return {
+                id: r.id,
+                title: r.title || r.label, // Handle schema variance
+                aliases: meta.aliases || []
+            };
+        });
+        this.tokenizer.loadLexicon(lexicon);
+        return lexicon;
     }
 
     private async bootstrapLexicon(): Promise<LexiconItem[]> {

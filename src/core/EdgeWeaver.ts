@@ -44,6 +44,7 @@ export class EdgeWeaver {
 	public weave(sourceNodeId: string, content: string): void {
 		this.processTags(sourceNodeId, content);
 		this.processWikiLinks(sourceNodeId, content);
+		this.processMetadataTags(sourceNodeId, content);
 	}
 
 	private processTags(sourceId: string, content: string): void {
@@ -72,6 +73,30 @@ export class EdgeWeaver {
 				const conceptId = this.lexicon.get(tagStub);
 				if (conceptId) {
                     this.safeInsertEdge(sourceId, conceptId, "EXEMPLIFIES");
+				}
+			}
+		}
+	}
+	
+	private processMetadataTags(sourceId: string, content: string): void {
+		// Ported from ResonanceSync: Handle <!-- tags: [RELATION: Target] -->
+		const tagBlockMatch = content.match(/<!-- tags: (.*?) -->/);
+		if (tagBlockMatch && tagBlockMatch[1]) {
+			const tagString = tagBlockMatch[1];
+			// Regex to find [KEY: Value] patterns
+			const tagRegex = /\[([\w_]+):\s*([^\]]+)\]/g;
+			
+			const matches = tagString.matchAll(tagRegex);
+			for (const match of matches) {
+				if (match[1] && match[2]) {
+					const relType = match[1].toLowerCase();
+					const targetId = match[2].trim();
+					
+					// Filter out non-structural tags (Qualities, Hashtags)
+					if (relType === "quality" || relType.startsWith("#")) continue;
+					
+					// Insert Edge
+					this.safeInsertEdge(sourceId, targetId, relType.toUpperCase());
 				}
 			}
 		}
