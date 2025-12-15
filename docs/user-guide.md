@@ -5,7 +5,8 @@ Welcome to **PolyVis**, a local-first Knowledge Graph engine and MCP Server.
 ## 1. Quick Start
 
 ### Installation
-Ensure you have [Bun](https://bun.sh) installed.
+**Requirement:** [Bun](https://bun.sh) is **mandatory** for this project.
+Ensure you have Bun installed.
 ```bash
 bun install
 ```

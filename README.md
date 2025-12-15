@@ -25,7 +25,7 @@ The application's visual design is strictly controlled by **`src/css/layers/them
 
 ## Prerequisites
 
-- [Bun.js](https://bun.sh/docs/installation) (v1.0 or later)
+- [Bun.js](https://bun.sh/docs/installation) (v1.0 or later) - **MANDATORY**
 - A local web server for development (e.g., `npm install -g live-server`)
 
 ## Getting Started

@@ -27,6 +27,18 @@ Expose the PolyVis knowledge graph and capabilities to external AI agents via th
 -   **Context Matters:** `bun run` relies on `package.json` being in the current working directory. When configuring external tools (like MCP clients), always specify the valid CWD explicitly.
 -   **Absolute vs. Relative:** For local user configurations (`~/.gemini/...`), absolute paths are necessary and acceptable since they are machine-specific by definition.
 
+## Verification Results ("Bingo Card")
+
+| Capability | Tool Name | Status | Notes |
+| :--- | :--- | :--- | :--- |
+| **Search** | `search_documents` | ✅ PASS | Successfully found terms via hybrid search. |
+| **Read** | `read_node_content` | ✅ PASS | Retrieved full content of markdown nodes properly. |
+| **Graph** | `explore_links` | ✅ PASS | Correctly identified outgoing links. |
+| **FS** | `list_directory_structure` | ✅ PASS | Returned top-level directory listing. |
+| **Write** | `inject_tags` | ✅ PASS | Successfully injected tags into a test file. |
+| **Stats** | `polyvis://stats/summary` | ✅ PASS | Returned correct graph statistics. |
+
 ## Next Steps
--   Reboot AntiGravity to load the new MCP server.
+-   [x] Reboot AntiGravity to load the new MCP server.
+-   [x] Verify server capabilities (COMPLETE).
 -   Begin using the "polyvis" server in agent workflows.
