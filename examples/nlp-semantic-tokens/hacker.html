@@ -7,7 +7,7 @@
         <style>
         /* Import a techy monospace font */
         @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@700&display=swap');
-        
+
 :root {
     --polyvis-text:'::POLYVIS::'
 --polyvis-font-size:1rem;
@@ -59,9 +59,9 @@
 
         <script>
 
-        
+
             const el = document.getElementById('polyvis-terminal');
-            const targetStr = "::POLYVIS::    ";
+            const targetStr = "...POLYVIS:::    ";
             // A mix of Katakana, Greek, and tech symbols
             const chars = "ｦｧｨｩｪｫｬｭｮｯｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜﾝΞΦΨΩΣΠ0123456789";
 
@@ -88,7 +88,8 @@
 
                 spans.forEach((span, i) => {
                     // "start" determines when this specific char enters the ingestion pipeline
-                    const start = i * 5;
+                    const totalChars = spans.length;
+                    const start = (totalChars - 1 - i) * 5;
                     const end = start + 40; // How long it stays chaotic
 
                     if (frame >= end) {

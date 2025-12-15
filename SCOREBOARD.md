@@ -1,7 +1,7 @@
 # PROMETHEUS SCOREBOARD
 
 ## Current Score
-**USER:** 10
+**USER:** 12
 **AGENT:** 4
 
 ## Rules of the Game
@@ -26,3 +26,5 @@
 | 2025-12-13 | **USER** | **The Manager's Eye**: Reminding the Agent to stop and codify learnings before rushing forward. |
 | 2025-12-13 | **AGENT** | **Redemption:** Agent successfully unified domains and implemented narrative vectors. Crucially, Agent ran `tsc` *during* verification, caught errors, fixed them, and validated with `ask_context.ts` *before* declaring completion. |
 | 2025-12-13 | **USER** | **False Summit:** Agent declared "Ingestion Pipeline Verification" complete, but failed to run `tsc`, leaving broken build errors in `bento-processor.ts`. |
+| 2025-12-15 | **USER** | **Definition of Done Violation:** Agent declared "Foundation First Redirect" complete but failed to run `tsc --noEmit` as required by Protocol 23. This left a valid `drizzle.config.ts` file broken due to an external dependency downgrade (caused by user action, but Agent responsibility to verify). |
+| 2025-12-15 | **USER** | **Strict Compiler:** Agent wrote `scripts/fix_lexicon_json.ts` to fix data corruption but failed to include type annotations, causing `tsc` error. |

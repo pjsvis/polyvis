@@ -1,4 +1,5 @@
 import type { ResonanceDB } from "@resonance/src/db";
+import { LouvainGate } from "./LouvainGate";
 
 export class EdgeWeaver {
 	private db: ResonanceDB;
@@ -58,7 +59,7 @@ export class EdgeWeaver {
 				const tagValue = match[1].trim();
 				const conceptId = this.lexicon.get(this.slugify(tagValue));
 				if (conceptId) {
-					this.db.insertEdge(sourceId, conceptId, "TAGGED_AS");
+                    this.safeInsertEdge(sourceId, conceptId, "TAGGED_AS");
 				}
 			}
 		}
@@ -70,7 +71,7 @@ export class EdgeWeaver {
 				const tagStub = match[1].toLowerCase();
 				const conceptId = this.lexicon.get(tagStub);
 				if (conceptId) {
-					this.db.insertEdge(sourceId, conceptId, "EXEMPLIFIES");
+                    this.safeInsertEdge(sourceId, conceptId, "EXEMPLIFIES");
 				}
 			}
 		}
@@ -87,7 +88,7 @@ export class EdgeWeaver {
 			// 1. Try Lexicon Lookup (Prioritize Concepts)
 			const conceptId = this.lexicon.get(this.slugify(rawTarget));
 			if (conceptId) {
-				this.db.insertEdge(sourceId, conceptId, "CITES");
+                this.safeInsertEdge(sourceId, conceptId, "CITES");
 			} else {
 				// 2. Assume it's a file path or direct ID link 
 				// In strict mode, if it's not in the lexicon/nodes, we might create a "Ghost Edge" 
@@ -97,6 +98,15 @@ export class EdgeWeaver {
 			}
 		}
 	}
+
+    private safeInsertEdge(source: string, target: string, type: string) {
+        const check = LouvainGate.check(this.db.getRawDb(), source, target);
+        if (check.allowed) {
+            this.db.insertEdge(source, target, type);
+        } else {
+            console.log(`[LouvainGate] ${check.reason}`);
+        }
+    }
 
 	private slugify(text: string): string {
 		return text

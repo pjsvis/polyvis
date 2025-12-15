@@ -9,6 +9,7 @@ import { parseArgs } from "util";
 import settings from "@/polyvis.settings.json";
 import { PipelineValidator } from "@scripts/utils/validator";
 import { Database } from "bun:sqlite";
+import { LouvainGate } from "@src/core/LouvainGate";
 
 // Types
 interface LexiconItem {
@@ -134,10 +135,16 @@ async function main() {
 				} as any);
 				directiveCount++;
 
+
+
 				// Create edges from validated relationships
 				for (const rel of entry.validated_relationships) {
-					db.insertEdge(entry.id, rel.target, rel.type);
-					edgeCount++;
+                    const check = LouvainGate.check(db.getRawDb(), entry.id, rel.target);
+                    if (check.allowed) {
+					    db.insertEdge(entry.id, rel.target, rel.type);
+                    } else {
+                        console.log(`[LouvainGate] ${check.reason}`);
+                    }
 				}
 			}
 

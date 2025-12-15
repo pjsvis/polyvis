@@ -92,17 +92,11 @@ export class ResonanceDB {
 		}
 	}
 
-	insertEdge(source: string, target: string, type: string = "related_to") {
-		// 🛡️ LouvainGate: Prevent Hairballs (Super-Nodes)
-		if (this.isSuperNode(target)) {
-			// Triadic Closure Check: Do source and target share a neighbor?
-			if (!this.sharesNeighbor(source, target)) {
-				// Reject edge to preserve modularity
-				// console.warn(`🛡️  LouvainGate: Rejected edge ${source} -> ${target} (No Triadic Closure)`);
-				return;
-			}
-		}
+	getRawDb(): Database {
+		return this.db;
+	}
 
+	insertEdge(source: string, target: string, type: string = "related_to") {
 		this.db.run(
 			`
             INSERT OR IGNORE INTO edges (source, target, type)
@@ -110,36 +104,6 @@ export class ResonanceDB {
         `,
 			[source, target, type],
 		);
-	}
-
-	private isSuperNode(id: string, threshold = 50): boolean {
-		const result = this.db
-			.query("SELECT COUNT(*) as c FROM edges WHERE target = ? OR source = ?")
-			.get(id, id) as { c: number };
-		return result.c > threshold;
-	}
-
-	private sharesNeighbor(a: string, b: string): boolean {
-		// Check for any common neighbor 'n' such that a-n and b-n exist
-		const result = this.db
-			.query(
-				`
-            SELECT 1 as exists_flag FROM edges e1 
-            JOIN edges e2 ON (
-                (e1.target = e2.target) OR 
-                (e1.source = e2.source) OR 
-                (e1.target = e2.source) OR 
-                (e1.source = e2.target)
-            )
-            WHERE 
-                (e1.source = ? OR e1.target = ?) AND
-                (e2.source = ? OR e2.target = ?)
-            LIMIT 1
-            `,
-			)
-			.get(a, a, b, b) as { exists_flag: number } | null;
-		
-		return !!result;
 	}
 
 	findSimilar(
