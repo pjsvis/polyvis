@@ -1,4 +1,4 @@
-import { VectorEngine } from "../utils/VectorEngine";
+import { VectorEngine } from "@src/core/VectorEngine";
 
 async function test() {
 	console.log("🧪 Testing Pure Bun Vector Engine...");

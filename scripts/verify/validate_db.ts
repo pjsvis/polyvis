@@ -1,7 +1,7 @@
 import { Database } from "bun:sqlite";
 import { join } from "path";
 import settings from "@/polyvis.settings.json";
-import { PipelineValidator } from "@scripts/utils/validator";
+import { PipelineValidator } from "@src/utils/validator";
 
 console.log("🔍 Running Database Validation Check...\n");
 

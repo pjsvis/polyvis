@@ -7,7 +7,7 @@ import { Glob } from "bun";
 import { join } from "path";
 import { parseArgs } from "util";
 import settings from "@/polyvis.settings.json";
-import { PipelineValidator } from "@scripts/utils/validator";
+import { PipelineValidator } from "@src/utils/validator";
 import { Database } from "bun:sqlite";
 import { LouvainGate } from "@src/core/LouvainGate";
 

@@ -5,9 +5,10 @@ import { join } from "path";
 
 // --- Configuration ---
 import settings from "@/polyvis.settings.json";
-import { SemanticMatcher } from "../utils/SemanticMatcher";
+import { SemanticMatcher } from "@src/core/SemanticMatcher";
+import { EdgeWeaver } from "@src/core/EdgeWeaver";
+import { PipelineValidator } from "@src/utils/validator";
 import type { EnrichedLexiconDocument } from "@resonance/src/types/enriched-cda";
-import { PipelineValidator } from "@scripts/utils/validator";
 
 // Types for Experience Index
 interface ExperienceNode {
