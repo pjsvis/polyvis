@@ -11,7 +11,7 @@
 		},
 		"sources": {
 			"experience": {
-				"directories": ["debriefs", "playbooks", "briefs"]
+				"directories": ["debriefs", "playbooks", "briefs", "docs"]
 			},
 			"persona": {
 				"lexicon": "scripts/fixtures/conceptual-lexicon-ref-v1.79.json",
