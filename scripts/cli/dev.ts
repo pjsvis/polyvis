@@ -28,6 +28,23 @@ try {
 	// Ignore errors if lsof fails or no process found
 }
 
+// 0.5 Clean stale build artifacts (The "Fresh Start" Protocol)
+const cssPath = join(PUBLIC_DIR, "css", "app.css");
+const cssFile = Bun.file(cssPath);
+
+console.log("🧹 Cleaning stale CSS artifact...");
+await Bun.write(cssFile, ""); // Truncate
+const rmProc = Bun.spawn(["rm", cssPath]);
+await rmProc.exited;
+
+// 0.6 Ensure valid initial build (Avoid Race Condition)
+console.log("🔨 Running initial CSS build...");
+const buildProc = Bun.spawn(["bun", "run", "build:css"], {
+	stdout: "inherit",
+	stderr: "inherit"
+});
+await buildProc.exited;
+
 // 1. Start CSS Watcher
 console.log("🎨 Starting CSS Watcher...");
 const cssWatcher = Bun.spawn(["bun", "run", "watch:css"], {

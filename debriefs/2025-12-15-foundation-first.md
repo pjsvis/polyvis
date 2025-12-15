@@ -65,6 +65,7 @@ Executed the "Foundation First" directive to address critical architectural gaps
     -   Explored `contrast-color()` (unsupported in current browser).
     -   **Solution:** Implemented **Relative Color Syntax (RCS)** formula: `color(from var(--bg) xyz round(up, min(1, max(0, 0.18 - y))) ...)`.
     -   Applied to RHS Headers and Buttons for guaranteed accessibility.
+    -   **Toggle Buttons:** Fixed ambiguous hover states by using `var(--surface-3)` for hover and `var(--primary)` for active, ensuring distinct visual feedback.
 -   **Scoreboard:** User +1 point (TSC violation in verification script).
 
 ## Artifacts Updated

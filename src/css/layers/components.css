@@ -4,37 +4,36 @@
 }
 
 .btn-structural {
+	/* Layout Essentials (Preserved) */
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
 	gap: var(--size-2);
-	background-color: var(--secondary);
-	color: var(--primary);
-	border: var(--border-size-2) solid var(--primary);
-	padding: var(--size-2) var(--size-4);
-	font-family: var(--font-mono);
-	text-transform: uppercase;
-	font-size: var(--font-size-base);
-	font-weight: 700;
-	cursor: pointer;
-	box-shadow: none;
-	transition: all 0.1s ease;
-	text-decoration: none;
-	border-radius: 0;
+	padding: var(--size-2) var(--size-3);
 
+	/* Typography */
+	font-family: var(--font-mono);
+	font-size: var(--font-size-sm);
+	text-transform: uppercase;
+	text-decoration: none;
+	
+	/* BARE METAL: Remove Borders/Backgrounds */
+	background-color: transparent;
+	border: 1px solid transparent; /* Reserve space for border */
+	color: var(--text-2); /* Muted by default */
+
+	/* Simple States */
 	&:hover {
-		transform: none;
-		box-shadow: none;
-		background-color: var(--primary);
-		color: var(--secondary);
+		color: var(--text-1);
+		background-color: var(--surface-hover);
 	}
 
 	&:active,
 	&.active {
-		transform: translateY(2px);
-		box-shadow: none;
-		background-color: var(--primary);
-		color: var(--secondary);
+		color: var(--primary);
+		font-weight: bold;
+		border-color: var(--border-base);
+		background-color: var(--surface-2);
 	}
 }
 
@@ -207,9 +206,7 @@
 	color: var(--text-1);
 }
 
-.btn-structural {
-	text-decoration: none;
-}
+
 
 .footer-text {
 	font-family: var(--font-mono);
@@ -235,9 +232,7 @@
 		background-color: var(--surface-hover);
 		color: var(--text-1);
 		/* Fallback */
-		/* biome-ignore lint/correctness/noUnknownFunction: Draft CSS feature */
-		/* biome-ignore lint/suspicious/noDuplicateProperties: Fallback pattern */
-		color: contrast-color(var(--surface-hover));
+
 		padding-left: var(--size-5);
 		/* Slight nudge effect */
 	}
@@ -246,9 +241,7 @@
 		background-color: var(--color-brand);
 		color: var(--gray-0);
 		/* Fallback */
-		/* biome-ignore lint/correctness/noUnknownFunction: Draft CSS feature */
-		/* biome-ignore lint/suspicious/noDuplicateProperties: Fallback pattern */
-		color: contrast-color(var(--color-brand));
+
 		/* Modern Standard */
 		font-weight: bold;
 	}

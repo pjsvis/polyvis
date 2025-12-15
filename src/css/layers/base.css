@@ -8,7 +8,7 @@ html {
 	overflow: hidden;
 	/* Strict app-shell behavior */
 	background-color: var(--accent);
-	color-scheme: light;
+	color-scheme: light dark;
 }
 
 h1,
@@ -61,18 +61,19 @@ a:hover {
 	text-decoration: none;
 }
 
+/* Restore Button Pointer (Tailwind Preflight removes this) */
+button {
+	cursor: pointer;
+}
+
 /* Monospace accents */
 .mono {
 	font-family: var(--font-mono);
 }
 
 /* Page Transitions */
+/* Page Transitions Removed for Zero Magic Rule */
 body {
-	opacity: 0;
-	transition: opacity 0.6s ease-out;
-}
-
-body.loaded {
 	opacity: 1;
 }
 

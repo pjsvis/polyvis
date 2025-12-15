@@ -86,3 +86,27 @@ The system will append suggestions using this specific HTML Comment format. **Do
   * **Vector Model:** `BAAI/bge-small-en-v1.5` (384 dimensions). *Changing this requires a full database wipe and re-ingest.*
   * **Chunking Strategy:** 1 File = 1 Chunk. (Atomic Knowledge).
 
+
+## 5. CSS & Theming (Atomic Design)
+
+We follow a "Zero Magic" Pure Bun + Tailwind CLI approach.
+
+### 5.1 The "No Shadow" Rule
+**NEVER** commit static CSS files to `public/css/` that shadow source files.
+*   **Source:** `src/css/main.css`
+*   **Build Target:** `public/css/app.css` (Gitignored)
+*   **Reason:** Static files override the local dev server, leading to "Zombie Code" where source changes are ignored.
+
+### 5.2 Theme Protocol
+We support `light` and `dark` modes, defaulting to the OS preference.
+
+1.  **Strict Color Scheme:** All HTML files MUST include this meta tag to prevent FOUC (Flash of Unstyled Content):
+    ```html
+    <meta name="color-scheme" content="light dark">
+    ```
+2.  **No Opacity Magic:** Do not use `body { opacity: 0 }`. It creates JS dependency for basic visibility.
+3.  **Variable Scope:**
+    *   `src/css/layers/theme.css`: Defines tokens (`--primary`, `--surface-1`).
+    *   `src/css/layers/components.css`: Consumes tokens.
+    *   **Semantic Tokens:** Use abstract names (`--surface-hover`) over raw colors (`--gray-200`) for interaction states.
+
