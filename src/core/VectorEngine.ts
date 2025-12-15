@@ -1,6 +1,7 @@
 import { Database } from "bun:sqlite";
 import { join } from "path";
 import settings from "@/polyvis.settings.json";
+import { FlagEmbedding, EmbeddingModel } from "fastembed";
 
 // Types
 export interface SearchResult {
@@ -49,41 +50,44 @@ function dotProduct(a: Float32Array, b: Float32Array): number {
 
 export class VectorEngine {
 	private db: Database;
-	private modelName: string;
+	private modelPromise: Promise<FlagEmbedding>;
 
-	constructor(dbPath?: string, model = "nomic-embed-text") {
+	constructor(dbPath?: string) {
 		const path =
 			dbPath || join(process.cwd(), settings.paths.database.resonance);
 		this.db = new Database(path);
-		this.modelName = model;
+		
+        // Lazy load the model
+        this.modelPromise = FlagEmbedding.init({
+            model: EmbeddingModel.AllMiniLML6V2
+        });
 	}
 
 	/**
-	 * Generate embedding using local Ollama instance
+	 * Generate embedding using FastEmbed (In-Process)
 	 * Returns FAFCAS-compliant Raw Bytes (Uint8Array)
 	 */
 	async embed(text: string): Promise<Uint8Array | null> {
 		try {
-			const response = await fetch("http://localhost:11434/api/embeddings", {
-				method: "POST",
-				body: JSON.stringify({
-					model: this.modelName,
-					prompt: text,
-				}),
-			});
+            const model = await this.modelPromise;
+            // fastembed returns a generator, we take the first item
+            const embeddings = model.embed([text]);
+            let vector: Float32Array | undefined;
+            
+            for await (const batch of embeddings) {
+                if (batch && batch.length > 0) {
+                    vector = new Float32Array(batch[0]!);
+                }
+                break; 
+            }
 
-			if (!response.ok) {
-				console.error(`Ollama Error: ${response.statusText}`);
-				return null;
-			}
-
-			const data = (await response.json()) as { embedding: number[] };
-			const floatVec = new Float32Array(data.embedding);
+            if (!vector) return null;
 
 			// Normalize to FAFCAS (Unit Length) -> Blob
-			return toFafcas(floatVec);
+            // FastEmbed output is usually normalized, but FAFCAS requires strict adherence
+			return toFafcas(vector);
 		} catch (e) {
-			console.error("Failed to connect to Ollama:", e);
+			console.error("Failed to generate embedding:", e);
 			return null;
 		}
 	}

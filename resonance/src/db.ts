@@ -47,8 +47,39 @@ export class ResonanceDB {
             
             CREATE INDEX IF NOT EXISTS idx_edges_source ON edges(source);
             CREATE INDEX IF NOT EXISTS idx_edges_target ON edges(target);
+
+            -- FTS5 Virtual Table
+            CREATE VIRTUAL TABLE IF NOT EXISTS nodes_fts USING fts5(
+                id UNINDEXED, 
+                title, 
+                content, 
+                meta,
+                tokenize='porter'
+            );
+
+            -- Triggers to sync proper nodes with FTS
+            CREATE TRIGGER IF NOT EXISTS nodes_ai AFTER INSERT ON nodes BEGIN
+                INSERT INTO nodes_fts(rowid, id, title, content, meta) 
+                VALUES (new.rowid, new.id, new.title, new.content, new.meta);
+            END;
+
+            CREATE TRIGGER IF NOT EXISTS nodes_ad AFTER DELETE ON nodes BEGIN
+                DELETE FROM nodes_fts WHERE rowid = old.rowid;
+            END;
+
+            CREATE TRIGGER IF NOT EXISTS nodes_au AFTER UPDATE ON nodes BEGIN
+                INSERT INTO nodes_fts(nodes_fts, rowid, id, title, content, meta) 
+                VALUES('delete', old.rowid, old.id, old.title, old.content, old.meta);
+                INSERT INTO nodes_fts(rowid, id, title, content, meta) 
+                VALUES (new.rowid, new.id, new.title, new.content, new.meta);
+            END;
+
+            -- Self-Healing: Backfill FTS if missing
+            INSERT INTO nodes_fts(rowid, id, title, content, meta)
+            SELECT rowid, id, title, content, meta FROM nodes
+            WHERE rowid NOT IN (SELECT rowid FROM nodes_fts);
         `);
-	}
+    }
 
 	insertNode(node: Node) {
 		// Ensure columns exist (migrations)

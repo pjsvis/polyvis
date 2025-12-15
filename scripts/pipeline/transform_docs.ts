@@ -15,7 +15,8 @@ function extractTitle(content: string, filename: string): string {
 // --- Transformation Loop ---
 let orderCounter = 0;
 
-for (const sourceDirRelative of settings.paths.sources.experience.directories) {
+for (const source of settings.paths.sources.experience) {
+    const sourceDirRelative = source.path;
 	const sourceDir = join(root, sourceDirRelative);
 	console.log(`Scanning ${sourceDir}...`);
 

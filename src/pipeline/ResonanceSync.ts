@@ -114,6 +114,13 @@ export class ResonanceSync {
 
             weaver.weave(fileNodeId, content);
 
+            // Ingest Injected Tags
+            const tagMatch = content.match(/<!-- tags: (.*?) -->/);
+            if (tagMatch && tagMatch[1]) {
+                const tags = tagMatch[1].split(",").map(t => t.trim());
+                this.extractEdgesFromTags(db, fileNodeId, tags);
+            }
+
             // Auto-detect Boxed Content (formerly "Playbook" logic)
             if (content.includes("<!-- locus:")) {
                 await this.processPlaybookSections(fileNodeId, content, db, embedder, weaver);

@@ -17,7 +17,8 @@
 		"watch:css": "tailwindcss -i ./src/css/main.css -o ./public/css/app.css --watch",
 		"build:js": "bun build ./src/js/app.js ./src/js/utils/theme.js --outdir ./public/js",
 		"watch:js": "bun build ./src/js/app.js ./src/js/utils/theme.js --outdir ./public/js --watch",
-		"build:data": "bun run scripts/pipeline/sync_resonance.ts",
+		"build:data": "bun run scripts/pipeline/ingest.ts && bun run scripts/pipeline/sync_resonance.ts",
+		"mcp": "bun run src/mcp/index.ts",
 		"check": "biome check .",
 		"format": "biome format --write .",
 		"lint": "biome lint .",
@@ -28,6 +29,7 @@
 	},
 	"dependencies": {
 		"@mistralai/mistralai": "^1.10.0",
+		"@modelcontextprotocol/sdk": "^1.25.0",
 		"alpinejs": "^3.15.2",
 		"compromise": "^14.14.4",
 		"drizzle-kit": "^0.31.8",

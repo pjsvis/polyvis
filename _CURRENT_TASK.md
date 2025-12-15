@@ -1,10 +1,14 @@
-# Current Task: CSS Architecture Stabilization
+# Current Task: MCP Server Integration
 
-**Objective:** Implement "Zero Magic" CSS Strategy to ensure predictable styling and reliable builds.
+**Objective:** Enable "Chat with your Graph" by exposing PolyVis as an MCP Server.
 
-## Status: Execution
+## Status: Done
 
 ## Checklist
-- [x] **Fix Cursors:** Restore pointer events in `base.css` (Tailwind Reset Override).
-- [x] **Harden Build:** Update `scripts/cli/dev.ts` to clean stale CSS artifacts.
-- [ ] **Verify:** Restart `bun run dev` and confirm "Fresh Start".
+- [x] **Implement:** Create `src/mcp/index.ts` with core capabilities.
+- [x] **Tools:** `search`, `read`, `explore`, `list`, `inject`.
+- [x] **Config:** Configure `mcp_config.json` with correct startup command.
+- [x] **Verify:** Test connection and tool execution.
+
+## Next
+- [ ] Reboot IDE to utilize the new 'polyvis' MCP server.
