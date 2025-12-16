@@ -22,6 +22,8 @@ async function notify(title: string, message: string) {
     }
 }
 
+import { EnvironmentVerifier } from "../utils/EnvironmentVerifier";
+
 // --- Service Lifecycle ---
 
 const lifecycle = new ServiceLifecycle({
@@ -33,7 +35,11 @@ const lifecycle = new ServiceLifecycle({
 
 // --- Server Logic (The actual Daemon) ---
 
-async function runServer() {
+async function main() {
+    // 0. Verify Environment
+    await EnvironmentVerifier.verifyOrExit();
+
+    // 1. Initialize Ingestion (Daemon Mode: Watch Enabled)
     const PORT = parseInt(process.env.VECTOR_PORT || "3010");
 
     console.log(`🔌 Vector Daemon starting on port ${PORT}...`);
@@ -164,5 +170,5 @@ function triggerIngestion() {
 
 // --- Dispatch ---
 
-await lifecycle.run(command, runServer);
+await lifecycle.run(command, main);
 

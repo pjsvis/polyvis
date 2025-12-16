@@ -10,6 +10,7 @@ import { ResonanceDB } from "@src/resonance/db";
 import { VectorEngine } from "@src/core/VectorEngine";
 import { join } from "path";
 import { ServiceLifecycle } from "../utils/ServiceLifecycle";
+import { EnvironmentVerifier } from "../utils/EnvironmentVerifier";
 
 const args = process.argv.slice(2);
 const command = args[0] || "serve"; 
@@ -26,6 +27,9 @@ const lifecycle = new ServiceLifecycle({
 // --- Server Logic ---
 
 async function runServer() {
+    // 0. Verify Environment
+    await EnvironmentVerifier.verifyOrExit();
+
     // console.error("🚀 PolyVis MCP Server Initializing..."); // Silenced to prevent MCP protocol pollution
     
     // 1. Initialize DB & Engines
