@@ -81,10 +81,11 @@ const server = Bun.serve({
 		if (path === "/api/health") {
             try {
                 // Import dependencies dynamically to avoid heavy startup
-                const { Database } = await import("bun:sqlite");
+                const { DatabaseFactory } = await import("../../src/resonance/DatabaseFactory");
                 const settings = await import("../../polyvis.settings.json");
 
-                const db = new Database(settings.default.paths.database.resonance, { readonly: true });
+                // Critical: Use Factory to ensure WAL/BusyTimeout for safe concurrent reading
+                const db = DatabaseFactory.connect(settings.default.paths.database.resonance, { readonly: true });
                 
                 // 1. Basic Stats
                 const N = (db.query("SELECT COUNT(*) as c FROM nodes WHERE type != 'root' AND type != 'domain'").get() as any).c;

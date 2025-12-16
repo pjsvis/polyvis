@@ -60,14 +60,7 @@ export class AutoTagger extends BaseGardener {
             `[concept: ${candidate.type}]`
         ];
 
-        /* 
-        // Real LLM Logic (Commented out for Verification Phase due to Ollama timeout)
-        const result = await this.tagEngine!.generateTags(candidate.content);
-        const tags = [
-            ...result.hardTags.map(t => `[concept: ${t.replace("tag-", "")}]`),
-            ...result.softTokens.map(t => `[token: ${t.replace("tag-", "")}]`)
-        ];
-        */
+
 
         if (tags.length === 0) {
             console.log("   ⚠️ No tags generated.");

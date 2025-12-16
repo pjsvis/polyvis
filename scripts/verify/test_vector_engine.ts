@@ -1,9 +1,10 @@
 import { VectorEngine } from "@src/core/VectorEngine";
+import settings from "@/polyvis.settings.json";
 
 async function test() {
 	console.log("🧪 Testing Pure Bun Vector Engine...");
 
-	const engine = new VectorEngine();
+    const engine = new VectorEngine(settings.paths.database.resonance);
 
 	// 1. Generate & Save
 	console.log("Generating embedding for Genesis Node...");

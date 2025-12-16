@@ -3,8 +3,7 @@ import { SemanticWeaver } from "@src/core/SemanticWeaver";
 import { Database } from "bun:sqlite";
 import settings from "@/polyvis.settings.json";
 
-const db = new ResonanceDB();
-// const rawDb = new Database(settings.paths.database.resonance); // CAUSED LOCK
+const db = new ResonanceDB(settings.paths.database.resonance);
 
 console.log("🔍 Verifying Semantic Rescue...");
 

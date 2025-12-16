@@ -9,6 +9,7 @@ import settings from "@/polyvis.settings.json";
 import { PipelineValidator } from "@src/utils/validator";
 import { Database } from "bun:sqlite";
 import { LouvainGate } from "@src/core/LouvainGate";
+import { DatabaseFactory } from "@src/resonance/DatabaseFactory";
 
 // Types
 export interface IngestorOptions {
@@ -133,7 +134,9 @@ export class Ingestor {
         console.log("🌉 <THE BRIDGE> Ingestion Protocol Initiated...");
         // Ensure Embedder Init
         await this.embedder.embed("init");
-        return new Database(this.dbPath);
+        // Use Factory for safe validation connection
+        // Note: Validation is read-heavy but might need to see WAL updates
+        return DatabaseFactory.connect(this.dbPath);
     }
     
     private cleanup(sqliteDb: Database) {

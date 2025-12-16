@@ -1,7 +1,8 @@
 import { Database } from "bun:sqlite";
 import { join } from "path";
 import settings from "@/polyvis.settings.json";
-import { MIGRATIONS, CURRENT_SCHEMA_VERSION, type Migration } from "./schema";
+import { MIGRATIONS, CURRENT_SCHEMA_VERSION } from "./schema";
+import { DatabaseFactory } from "./DatabaseFactory";
 
 // Types matching Schema
 export interface Node {
@@ -18,16 +19,21 @@ export interface Node {
 
 export class ResonanceDB {
 	private db: Database;
+    private dbPath: string;
+    private options: { readonly?: boolean };
 
-	constructor(dbPath?: string) {
-		const target =
-			dbPath || join(process.cwd(), settings.paths.database.resonance);
+	constructor(dbPath: string, options: { readonly?: boolean } = {}) {
 		// Ensure directory exists if we are creating it? 
         // Database constructor usually handles file creation, but not directory.
         // Assuming directory exists for now as it usually does.
-		this.db = new Database(target);
-		this.db.run("PRAGMA journal_mode = WAL;");
+        this.dbPath = dbPath;
+        this.options = options;
+		// Use Factory to ensure compliant configuration
+        // STABILITY FIX: Always force ReadWrite (ignore options.readonly if passed)
+        // WAL mode requires all readers to have write access to -shm file.
+        this.db = DatabaseFactory.connect(dbPath, { ...options, readonly: false });
         
+        // Always check migration (it's safe now with locking)
         this.migrate();
     }
 

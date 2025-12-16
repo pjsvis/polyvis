@@ -1,7 +1,8 @@
 import { ResonanceDB } from "@src/resonance/db";
+import settings from "@/polyvis.settings.json";
 import { nodes as schemaNodes } from "@src/db/schema.js";
 
-const db = new ResonanceDB();
+const db = new ResonanceDB(settings.paths.database.resonance);
 console.log("🔍 Verifying Ingestion...");
 
 // 1. Check GENESIS

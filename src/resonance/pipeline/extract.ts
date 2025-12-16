@@ -12,6 +12,7 @@ const dbPath = join(process.cwd(), settings.paths.database.resonance);
 const publicDir = join(process.cwd(), "public");
 const outputPath = join(publicDir, "terms.json");
 
+
 // --- Pre-flight Checks ---
 if (!existsSync(dbPath)) {
 	console.error(`❌ Error: Database not found at ${dbPath}`);
@@ -25,9 +26,11 @@ if (!existsSync(publicDir)) {
 	mkdirSync(publicDir, { recursive: true });
 }
 
+import { DatabaseFactory } from "@src/resonance/DatabaseFactory";
+
 // --- Database Query ---
-// Open the database in read-only mode, as we are only extracting data.
-const db = new Database(dbPath, { readonly: true });
+// Open the database in read-only mode, using Factory for safe concurrency config
+const db = DatabaseFactory.connect(dbPath, { readonly: true });
 
 // This query identifies the most "valuable" terms by counting how many
 // connections (edges) they have. Terms that are more connected are likely

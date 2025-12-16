@@ -1,29 +1,36 @@
 {
 	"paths": {
 		"database": {
-			"legacy": "scripts/ctx.db",
-			"resonance": ".resonance/resonance.db"
+			"resonance": "public/resonance.db"
+		},
+		"docs": {
+			"root": "docs",
+			"webdocs": "docs/webdocs",
+			"architecture": "docs/architecture",
+			"public": "public/docs"
 		},
 		"sources": {
-			"docs": [
-				{ "path": "playbooks", "type": "playbook", "dest": "playbooks" },
-				{ "path": "debriefs", "type": "debrief", "dest": "debriefs" },
-				{ "path": "AGENTS.md", "type": "protocol", "dest": "" }
+			"experience": [
+				{ "path": "debriefs", "name": "Debrief" },
+				{ "path": "playbooks", "name": "Playbook" },
+				{ "path": "briefs", "name": "Brief" },
+				{ "path": "docs", "name": "Docs" }
 			],
-			"legacy": [
-				"scripts/conceptual-lexicon-ref-v1.79.json",
-				"scripts/cda-ref-v63.json"
-			]
+			"persona": {
+				"lexicon": "scripts/fixtures/conceptual-lexicon-ref-v1.79.json",
+				"cda": "scripts/fixtures/cda-ref-v63.json"
+			}
 		}
 	},
 	"graph": {
 		"tuning": {
 			"louvain": {
-				"persona": 1.1,
-				"experience": 1.0
+				"persona": 0.3,
+				"experience": 0.25
 			}
 		}
 	},
+
 	"schema": {
 		"version": "1.0.0"
 	}

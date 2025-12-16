@@ -52,10 +52,22 @@ export class VectorEngine {
 	private db: Database;
 	private modelPromise: Promise<FlagEmbedding>;
 
-	constructor(dbPath?: string) {
-		const path =
-			dbPath || join(process.cwd(), settings.paths.database.resonance);
-		this.db = new Database(path);
+	constructor(dbOrPath: Database | string) {
+        if (typeof dbOrPath === "string") {
+            // Legacy/Stand-alone mode (Backwards Compat but discouraged)
+            const path = dbOrPath || join(process.cwd(), settings.paths.database.resonance);
+            this.db = new Database(path);
+            
+            // Apply Safeguards if we created it
+            this.db.run("PRAGMA journal_mode = WAL;");
+            this.db.run("PRAGMA busy_timeout = 5000;");
+            this.db.run("PRAGMA synchronous = NORMAL;");
+            this.db.run("PRAGMA mmap_size = 268435456;"); // 256MB
+            this.db.run("PRAGMA temp_store = memory;");
+        } else {
+            // SHARED CONNECTION MODE (Recommended)
+            this.db = dbOrPath;
+        }
 		
         // Lazy load the model
         this.modelPromise = FlagEmbedding.init({
