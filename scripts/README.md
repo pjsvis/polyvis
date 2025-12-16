@@ -2,11 +2,7 @@
 
 The operational scripts for the Polyvis Resonance Engine and Bento Box Protocol are organized into the following functional directories:
 
-## 📂 `core/`
-The foundational logic and classes.
-- **`BentoNormalizer`**: Enforces document hierarchy.
-- **`EdgeWeaver`**: semantic linking engine.
-- **`Harvester`**: Discovery engine.
+
 
 ## 📂 `pipeline/`
 Ingestion and synchronization workflows.
