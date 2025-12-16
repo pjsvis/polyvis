@@ -1,4 +1,4 @@
-import { Ingestor } from "@src/pipeline/Ingestor";
+import { Ingestor } from "../../pipeline/Ingestor";
 import { parseArgs } from "util";
 
 // Parse CLI
