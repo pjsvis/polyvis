@@ -6,18 +6,23 @@
 
 The **Ingestion Daemon** is a lightweight HTTP service that keeps the embedding model (FastEmbed) loaded in memory. This prevents the significant overhead (2-5s) of reloading the model for every single CLI command or MCP request.
 
-## Manual Management
+## Lifecycle Management
 
-### Spawning
-```bash
-bun run src/resonance/daemon.ts
-```
-*Note: Run in a separate terminal or background process.*
+We use a managed script to handle the daemon process, logs, and PID files.
 
-### Verification
+### Commands
+
+| Action | Command | Description |
+| :--- | :--- | :--- |
+| **Start** | `bun run daemon start` | Spawns the daemon in the background (detached). Logs to `.daemon.log`. |
+| **Stop** | `bun run daemon stop` | Gracefully terminates the daemon (SIGTERM). |
+| **Status** | `bun run daemon status` | Checks if the process is running and responding. |
+| **Restart**| `bun run daemon restart`| Convenience command to stop and start. |
+
+### Logs
+Output is redirected to `.daemon.log` in the project root.
 ```bash
-curl http://localhost:3010/health
-# {"status":"ok"}
+tail -f .daemon.log
 ```
 
 ## Architectural Opinion: MCP Integration
