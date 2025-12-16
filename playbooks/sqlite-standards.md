@@ -30,16 +30,11 @@ To ensure concurrency (1 Writer + N Readers) without `SQLITE_BUSY` or `disk I/O 
 Do not instantiate `new Database()` directly. Always use the factory:
 
 ```typescript
-const db = DatabaseFactory.connect(path, { readonly: false }); 
+import { DatabaseFactory } from "@src/resonance/DatabaseFactory";
+
+// For raw access (enforces WAL, timeout, etc.)
+const db = DatabaseFactory.connectToResonance(); 
 // Factory will enforce Pragma settings automatically.
-```environments (macOS/Bun).
-PRAGMA mmap_size = 0; 
-
--- 5. Integrity
-PRAGMA foreign_keys = ON;
-
--- 6. Temporary Store (Speed)
-PRAGMA temp_store = memory;
 ```
 
 ## 2. Architecture Patterns
@@ -48,8 +43,9 @@ PRAGMA temp_store = memory;
 Use the `ResonanceDB` class for all standard graph operations. It encapsulates the config above.
 
 ```typescript
-// Correct
-const db = new ResonanceDB("public/resonance.db");
+// Correct: Uses Factory internally via init()
+const db = ResonanceDB.init();
+// or if strictly necessary: new ResonanceDB(DatabaseFactory.connectToResonance())
 ```
 
 ### ✅ Protocol B: Dependency Injection (Services)

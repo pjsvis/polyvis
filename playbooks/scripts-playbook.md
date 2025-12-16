@@ -35,6 +35,25 @@ The Model Context Protocol server for AI Agent integration.
     -   `bun run mcp` (or `serve`): Runs in foreground, awaiting JSON-RPC messages on stdin. Use this for testing or when connecting via an MCP Client (which spawns this process).
     -   `bun run mcp start`: **NOT RECOMMENDED**. Will start and immediately exit.
 
+## Development Standards
+
+### Database Access
+All scripts must adhere to the **Single Source of Truth** for database connections.
+-   **DO NOT** use `new Database(path)`.
+-   **DO NOT** manually resolve paths from `settings.json`.
+-   **DO USE** `ResonanceDB.init()` for high-level graph access.
+-   **DO USE** `DatabaseFactory.connectToResonance()` for raw SQL access.
+
+```typescript
+// ✅ Good
+import { ResonanceDB } from "@src/resonance/db";
+const db = ResonanceDB.init();
+
+// ✅ Good (Raw)
+import { DatabaseFactory } from "@src/resonance/DatabaseFactory";
+const sqlite = DatabaseFactory.connectToResonance();
+```
+
 ## Build & Maintenance Scripts
 
 ### Data Pipeline
@@ -54,3 +73,8 @@ The Model Context Protocol server for AI Agent integration.
 All standard CLIs (`dev`, `daemon`, `mcp`) automatically integrate **Zombie Defense**.
 -   **Behavior**: On startup, they scan for "Ghost" processes (holding locked files) or duplicate instances of themselves.
 -   **Auto-Cleanup**: If a stale PID file exists but the process is dead, it cleans the file. If the process is alive, it aborts (to prevent double-runs).
+
+> [!CAUTION]
+> **The Locked Trio**: Valid processes hold locks on three files: `resonance.db`, `resonance.db-shm`, and `resonance.db-wal`.
+> If a "Zombie" process retains these locks, any new process attempting to start will crash with `Disk I/O Error`.
+> **Rule**: You must clear zombies off the road before depressing the accelerator.

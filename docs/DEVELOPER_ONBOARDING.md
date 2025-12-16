@@ -24,7 +24,7 @@ We use `bun` for everything.
 *   `bun run build:data`: Rebuilds the database from source files.
 
 ## 4. Coding Standards (How to not break things)
-*   **Database Access:** NEVER connect to the DB manually. Use `DatabaseFactory.connectToResonance()`. This prevents "Database Locked" errors.
+*   **Database Access:** NEVER connect to the DB manually. Use `DatabaseFactory.connectToResonance()` or `ResonanceDB.init()`. This prevents "Database Locked" errors.
 *   **Scripts:** All scripts live in `scripts/`. They must use the standard `ServiceLifecycle` pattern if they run as daemons.
     *   *Reference:* [Scripts Playbook](../playbooks/scripts-playbook.md)
 
