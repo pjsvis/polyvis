@@ -18,11 +18,11 @@ async function verifyMatrix() {
         const nodes = db.getNodes("experience"); // Get first few
         if (nodes.length > 0) {
             report["A2"] = `✅ PASS (${nodes.length} nodes found)`;
-            console.log(`   Success: Found node ${nodes[0].id}`);
+            console.log(`   Success: Found node ${nodes[0]?.id}`);
         } else {
             report["A2"] = "❌ FAIL (No nodes returned)";
         }
-    } catch (e) {
+    } catch (e: any) {
         report["A2"] = `❌ FAIL (${e.message})`;
     }
 
@@ -42,7 +42,7 @@ async function verifyMatrix() {
         } else {
             report["B3"] = "⚠️ SKIP (No edges in DB)";
         }
-    } catch (e) {
+    } catch (e: any) {
         report["B3"] = `❌ FAIL (${e.message})`;
     }
 
@@ -53,14 +53,14 @@ async function verifyMatrix() {
         const results = await vectorEngine.search("pipeline", 5);
         if (results.length > 0) {
             report["C1"] = `✅ PASS (Found ${results.length} matches)`;
-            console.log(`   Top match: ${results[0].id} (${results[0].score.toFixed(3)})`);
+            console.log(`   Top match: ${results[0]?.id} (${results[0]?.score.toFixed(3)})`);
         } else {
             report["C1"] = "❌ FAIL (Empty results)";
             // Dig deeper: Are there vectors?
             const vecCount = (db.getRawDb().query("SELECT COUNT(*) as c FROM nodes WHERE embedding IS NOT NULL").get() as any).c;
             console.log(`   Diagnostic: DB has ${vecCount} vectors.`);
         }
-    } catch (e) {
+    } catch (e: any) {
         report["C1"] = `❌ FAIL (${e.message})`;
         console.error(e);
     }
@@ -71,14 +71,14 @@ async function verifyMatrix() {
         const results = db.searchText("pipeline");
         if (results.length > 0) {
             report["D1"] = `✅ PASS (Found ${results.length} matches)`;
-            console.log(`   Top match: ${results[0].id}`);
+            console.log(`   Top match: ${results[0]?.id}`);
         } else {
             report["D1"] = "❌ FAIL (Empty results)";
             // Dig deeper: Check FTS table
             const ftsCount = (db.getRawDb().query("SELECT COUNT(*) as c FROM nodes_fts").get() as any).c;
             console.log(`   Diagnostic: FTS table has ${ftsCount} rows.`);
         }
-    } catch (e) {
+    } catch (e: any) {
         report["D1"] = `❌ FAIL (${e.message})`;
     }
 
@@ -91,7 +91,7 @@ async function verifyMatrix() {
         } else {
             report["B4"] = "❌ FAIL (Zero stats)";
         }
-    } catch (e) {
+    } catch (e: any) {
         report["B4"] = `❌ FAIL (${e.message})`;
     }
 
