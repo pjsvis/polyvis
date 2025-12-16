@@ -10,3 +10,4 @@ The vector database and semantic core of Polyvis.
 - **`cli/`**: CLI entry points (e.g., `ingest.ts`).
 - **`services/`**: Internal services (e.g., `Embedder`).
 - **`transform/`**: Transformation pipelines (e.g., `cda.ts`).
+- **`pipeline/`**: Data processing steps (e.g., `extract.ts`).

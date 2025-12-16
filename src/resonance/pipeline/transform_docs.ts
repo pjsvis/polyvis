@@ -1,4 +1,4 @@
-import type { IngestionArtifact } from "@src/types/artifact.js";
+import type { IngestionArtifact } from "@src/types/artifact";
 import { Glob } from "bun";
 import { basename, join } from "path";
 import settings from "@/polyvis.settings.json";
@@ -9,7 +9,7 @@ const root = process.cwd();
 // --- Helpers ---
 function extractTitle(content: string, filename: string): string {
 	const match = content.match(/^#\s+(.+)$/m);
-	return match && match[1] ? match[1].trim() : filename;
+	return match?.[1] ? match[1].trim() : filename;
 }
 
 // --- Transformation Loop ---

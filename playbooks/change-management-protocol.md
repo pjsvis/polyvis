@@ -58,6 +58,17 @@ Reorganize root documentation files into docs/ subdirectories
 - Move to docs/walkthroughs/, docs/analysis/, docs/archive/
 - Keep README.md, AGENTS.md, _CURRENT-*.md in root
 
+## Library Consolidation Protocol
+When moving scattered scripts into a centralized library (e.g., `scripts/` -> `src/lib/`):
+
+1.  **Iterative Strategy**: Move *one file at a time*.
+    -   **Move**: `mv old/path/file.ts new/path/file.ts`
+    -   **Refactor**: Update imports to use aliases (`@src/*`) immediately.
+    -   **Verify**: Run `tsc --noEmit` AND the script itself (if runnable).
+    -   **Document**: Update READMEs in both old and new locations.
+2.  **Alias Enforcement**: Do not use relative paths (e.g., `../../`) for library code. Use defined `tsconfig` aliases to ensure portability.
+3.  **Continuity Check**: Before signing off, run the full pipeline to ensure no "invisible" regressions (like runtime SQL schema mismatches) occurred.
+
 ## Verification Criteria
 - [ ] Root contains only 4 .md files
 - [ ] tree docs -L 2 shows organized structure

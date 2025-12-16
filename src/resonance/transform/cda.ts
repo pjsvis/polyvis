@@ -8,15 +8,15 @@
  */
 
 import { join } from "path";
-import settings from "../../../polyvis.settings.json";
+import settings from "@/polyvis.settings.json";
 import type {
 	EnrichedCdaDocument,
 	EnrichedCdaEntry,
 	EnrichedLexiconDocument,
 	EnrichedLexiconConcept,
 	CandidateRelationship,
-} from "../types/enriched-cda";
-import { SemanticMatcher } from "../../core/SemanticMatcher";
+} from "@src/resonance/types/enriched-cda";
+import { SemanticMatcher } from "@src/core/SemanticMatcher";
 
 // Simple keyword extraction (can be enhanced later)
 function extractKeywords(text: string): string[] {

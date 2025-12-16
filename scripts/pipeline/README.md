@@ -37,4 +37,5 @@ Codebase Status (`src/core`):
 -   **Core Logic:** `BentoBoxer`, `EdgeWeaver`, and `TagEngine` are clean classes.
 -   **Database:** `ResonanceDB` is a self-contained wrapper.
 -   **Dependency:** Currently relies on `polyvis.settings.json` injection.
--   **Verdict:** Ready for extraction to `@resonance/core` library with minor refactoring (config injection).
+-   **(Moved)**: `extract_terms.ts` -> `src/resonance/pipeline/extract.ts`. Ready for extraction to `@resonance/core` library with minor refactoring (config injection).
+-   **(Moved)**: `transform_docs.ts` -> `src/resonance/pipeline/transform_docs.ts`. Ready for extraction to `@resonance/core` library with minor refactoring (config injection).

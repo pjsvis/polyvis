@@ -34,7 +34,7 @@ const db = new Database(dbPath, { readonly: true });
 // more central to the knowledge graph and will yield richer results.
 const query = `
   SELECT
-    n.label
+    n.title
   FROM
     nodes n
   JOIN (
@@ -54,16 +54,16 @@ const query = `
     -- Only include nodes that have 2 or more distinct neighbors
     counts.neighbor_count >= 2
   ORDER BY
-    counts.neighbor_count DESC, n.label ASC;
+    counts.neighbor_count DESC, n.title ASC;
 `;
 
 try {
 	// --- Data Extraction & Transformation ---
 	console.log("Querying database for high-value terms...");
-	const results = db.query(query).all() as { label: string }[];
+	const results = db.query(query).all() as { title: string }[];
 
 	// We just want an array of the term labels.
-	const terms = results.map((row) => row.label);
+	const terms = results.map((row) => row.title);
 
 	if (terms.length === 0) {
 		console.warn(
