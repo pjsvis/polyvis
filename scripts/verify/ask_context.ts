@@ -1,5 +1,6 @@
 import { ResonanceDB } from "@src/resonance/db";
 import { Embedder } from "@src/resonance/services/embedder";
+import { VectorEngine } from "@src/core/VectorEngine";
 import { join } from "path";
 import settings from "@/polyvis.settings.json";
 
@@ -22,11 +23,12 @@ async function main() {
         process.exit(1);
     }
 
-    // Use findSimilar API
-    const results = db.findSimilar(vector, 5, 'experience');
+    // Use VectorEngine
+    const ve = new VectorEngine(db.getRawDb());
+    const results = await ve.searchByVector(vector, 5); // Domain filtering temporarily removed
 
-    console.log(`\n📋 Top 5 Matches (Domain: experience):`);
-    results.forEach((r, i) => {
+    console.log(`\nFound ${results.length} matches:`);
+    results.forEach((r: any, i: number) => {
         console.log(`   ${i+1}. [${r.id}] (${r.score.toFixed(4)}) - ${r.label}`);
     });
 

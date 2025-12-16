@@ -27,7 +27,30 @@ Use `bun test` to run tests.
 
 ```ts
 import { test, expect } from "bun:test";
+## 4. Process Management & Zombie Defense
 
+### Dev Server Management
+The `dev` script now supports subcommands for better process control:
+-   `bun run dev start` (Default): Starts the server and watchers.
+-   `bun run dev stop`: Kills the server running on port 3000.
+-   `bun run dev restart`: Stops and then starts.
+-   `bun run dev status`: Checks if the server is running.
+
+### The "Zombie" Problem
+In Bun, file handles (especially to SQLite DBs or SHM files) can persist if a process crashes hard or is detached. This causes "Disk I/O Errors" for future processes.
+
+### The Solution: `ZombieDefense`
+Use `src/utils/ZombieDefense.ts` to enforce a clean environment before critical operations.
+
+```typescript
+import { ZombieDefense } from "@src/utils/ZombieDefense";
+
+// In your startup logic:
+await ZombieDefense.assertClean("MyService", true); // true = interactive mode
+```
+
+### Whitelist
+The defense system kills any `bun` process NOT in the whitelist. If adding a new persistent service, update `ZombieDefense.WHITELIST`.
 test("hello world", () => {
   expect(1).toBe(1);
 });

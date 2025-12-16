@@ -8,6 +8,7 @@ export interface SearchResult {
 	id: string;
 	score: number;
 	content: string;
+    title?: string;
 }
 
 /**
@@ -118,27 +119,22 @@ export class VectorEngine {
 	 * FAFCAS Optimized Search
 	 * Uses raw BLOBs and dot product for high-speed retrieval.
 	 */
-	async search(query: string, limit = 5): Promise<SearchResult[]> {
-		// 1. Get Normalized Query Vector (Blob)
-		const queryBlob = await this.embed(query);
-		if (!queryBlob) return [];
-
-		// Create Float32 view for calculation
-		const queryFloats = new Float32Array(
-			queryBlob.buffer,
-			queryBlob.byteOffset,
-			queryBlob.byteLength / 4,
-		);
-
-		// 2. Load all embeddings (Raw BLOBs)
+	/**
+	 * Search using a raw vector (Float32Array).
+	 * Useful for "More Like This" or when embedding is already computed.
+	 */
+	async searchByVector(
+		queryFloats: Float32Array,
+		limit = 5,
+	): Promise<SearchResult[]> {
+		// 2. SLIM SCAN: Load only ID and Embedding (No Content)
+		// Optimization: drastic reduction in memory/IO
 		const candidates = this.db
-			.query(
-				"SELECT id, content, embedding FROM nodes WHERE embedding IS NOT NULL",
-			)
-			.all() as { id: string; content: string; embedding: Uint8Array }[];
+			.query("SELECT id, embedding FROM nodes WHERE embedding IS NOT NULL")
+			.all() as { id: string; embedding: Uint8Array }[];
 
 		// 3. Compute Scores (Hot Loop)
-		const results: SearchResult[] = [];
+		const scored: { id: string; score: number }[] = [];
 
 		for (const candidate of candidates) {
 			// Zero-copy view on the candidate blob
@@ -153,15 +149,46 @@ export class VectorEngine {
 
 			// Arbitrary threshold filter
 			if (score > 0.0) {
-				results.push({
-					id: candidate.id,
-					score,
-					content: candidate.content,
-				});
+				scored.push({ id: candidate.id, score });
 			}
 		}
 
 		// 4. Sort & Limit
-		return results.sort((a, b) => b.score - a.score).slice(0, limit);
+		const topK = scored.sort((a, b) => b.score - a.score).slice(0, limit);
+
+		// 5. Hydrate Content (for top K only)
+		const results: SearchResult[] = [];
+		const contentStmt = this.db.prepare(
+			"SELECT title, content FROM nodes WHERE id = ?",
+		);
+
+		for (const item of topK) {
+			const row = contentStmt.get(item.id) as { title: string; content: string };
+			if (row) {
+				results.push({
+					id: item.id,
+					score: item.score,
+                    title: row.title,     // Add title
+					content: row.content,
+				});
+			}
+		}
+
+		return results;
+	}
+
+	async search(query: string, limit = 5): Promise<SearchResult[]> {
+		// 1. Get Normalized Query Vector (Blob)
+		const queryBlob = await this.embed(query);
+		if (!queryBlob) return [];
+
+		// Create Float32 view for calculation
+		const queryFloats = new Float32Array(
+			queryBlob.buffer,
+			queryBlob.byteOffset,
+			queryBlob.byteLength / 4,
+		);
+
+		return this.searchByVector(queryFloats, limit);
 	}
 }

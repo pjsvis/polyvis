@@ -1,11 +1,8 @@
-import { Database } from "bun:sqlite";
-import settings from "@/polyvis.settings.json";
-import { join } from "path";
+import { DatabaseFactory } from "@/src/resonance/DatabaseFactory";
 
-const dbPath = join(process.cwd(), settings.paths.database.resonance);
-console.log(`🔍 Checking Domains in: ${dbPath}`);
+console.log(`🔍 Checking Domains...`);
 
-const db = new Database(dbPath);
+const db = DatabaseFactory.connectToResonance({ readonly: true });
 
 try {
     const query = db.query("SELECT domain, COUNT(*) as count FROM nodes GROUP BY domain");

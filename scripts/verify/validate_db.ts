@@ -1,12 +1,9 @@
-import { Database } from "bun:sqlite";
-import { join } from "path";
-import settings from "@/polyvis.settings.json";
+import { DatabaseFactory } from "@/src/resonance/DatabaseFactory";
 import { PipelineValidator } from "@src/utils/validator";
 
 console.log("🔍 Running Database Validation Check...\n");
 
-const dbPath = join(process.cwd(), settings.paths.database.resonance);
-const db = new Database(dbPath);
+const db = DatabaseFactory.connectToResonance({ readonly: true });
 
 const validator = new PipelineValidator();
 validator.captureBaseline(db);

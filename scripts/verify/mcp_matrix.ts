@@ -15,7 +15,7 @@ async function verifyMatrix() {
     // --- CELL A2: SQL / Read Node ---
     console.log("\n[A2] Testing SQL/Read Node (getNodes)...");
     try {
-        const nodes = db.getNodes("experience"); // Get first few
+        const nodes = db.getNodes({ domain: "test" }); // Get first few
         if (nodes.length > 0) {
             report["A2"] = `✅ PASS (${nodes.length} nodes found)`;
             console.log(`   Success: Found node ${nodes[0]?.id}`);

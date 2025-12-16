@@ -1,6 +1,6 @@
-import { Database } from "bun:sqlite";
+import { DatabaseFactory } from "@/src/resonance/DatabaseFactory";
 
-const db = new Database(".resonance/resonance.db");
+const db = DatabaseFactory.connectToResonance({ readonly: true });
 const rows = db
 	.query(`
     SELECT id, meta 

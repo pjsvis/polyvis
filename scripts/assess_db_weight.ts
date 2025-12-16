@@ -1,9 +1,9 @@
-
-import { Database } from "bun:sqlite";
+import { DatabaseFactory } from "@/src/resonance/DatabaseFactory";
 import { stat } from "fs/promises";
+import settings from "@/polyvis.settings.json";
 
-const dbPath = ".resonance/resonance.db";
-const db = new Database(dbPath);
+const dbPath = settings.paths.database.resonance;
+const db = DatabaseFactory.connectToResonance({ readonly: true }); 
 const stats = await stat(dbPath);
 
 console.log(`\n📊 DB Storage Analysis`);

@@ -1,4 +1,4 @@
-import { Database } from "bun:sqlite";
+import { DatabaseFactory } from "@/src/resonance/DatabaseFactory";
 import { edges, nodes } from "@src/db/schema.js";
 import type { IngestionArtifact } from "@src/types/artifact.js";
 import assert from "assert";
@@ -17,15 +17,14 @@ const artifactPath = join(
 const originals: IngestionArtifact[] = await Bun.file(artifactPath).json();
 
 // 2. Read from DB
-const dbPath = join(process.cwd(), settings.paths.database.resonance);
-const db = new Database(dbPath);
+const db = DatabaseFactory.connectToResonance({ readonly: true });
 
 const rows = db
 	.query(`
-    SELECT id, type, title, content, domain, layer, order_index, metadata 
+    SELECT id, type, title, content, domain, layer, metadata 
     FROM nodes 
     WHERE type IN ('playbook', 'debrief')
-    ORDER BY order_index ASC
+    ORDER BY id ASC
 `)
 	.all() as any[];
 
@@ -33,7 +32,8 @@ const rows = db
 const recovered: IngestionArtifact[] = rows.map((row) => ({
 	id: row.id,
 	type: row.type,
-	order_index: row.order_index,
+	order_index: 0, // Fallback for recovered artifacts
+	// order_index: row.order_index, // deprecated
 	payload: {
 		title: row.title,
 		content: row.content,

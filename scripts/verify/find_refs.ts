@@ -1,9 +1,6 @@
-import { Database } from "bun:sqlite";
-import { join } from "path";
-import settings from "@/polyvis.settings.json";
+import { DatabaseFactory } from "@/src/resonance/DatabaseFactory";
 
-const dbPath = join(process.cwd(), settings.paths.database.resonance);
-const db = new Database(dbPath);
+const db = DatabaseFactory.connectToResonance({ readonly: true });
 const query = db.prepare("SELECT id, label, definition FROM nodes");
 const nodes = query.all() as {
 	id: string;

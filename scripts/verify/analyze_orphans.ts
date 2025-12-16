@@ -1,7 +1,6 @@
-import { Database } from "bun:sqlite";
-import settings from "@/polyvis.settings.json";
+import { DatabaseFactory } from "@/src/resonance/DatabaseFactory";
 
-const db = new Database(settings.paths.database.resonance);
+const db = DatabaseFactory.connectToResonance({ readonly: true });
 console.log("🔍 Analyzing Graph Orphans...");
 
 // 1. Identify Orphans (Nodes with 0 edges)

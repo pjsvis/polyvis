@@ -1,13 +1,15 @@
-import { Database } from "bun:sqlite";
+import { DatabaseFactory } from "@/src/resonance/DatabaseFactory";
 
 const dbPath = process.argv[2];
-if (!dbPath) {
-	console.error("Please provide a database path");
-	process.exit(1);
-}
+let db;
 
-console.log(`Checking DB at: ${dbPath}`);
-const db = new Database(dbPath);
+if (dbPath) {
+	console.log(`Checking DB at: ${dbPath}`);
+	db = DatabaseFactory.connect(dbPath, { readonly: true });
+} else {
+	console.log("Checking Main Resonance DB...");
+	db = DatabaseFactory.connectToResonance({ readonly: true });
+}
 
 const nodeCount = db.query("SELECT count(*) as count FROM nodes").get() as {
 	count: number;

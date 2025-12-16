@@ -27,6 +27,8 @@ const interval = setInterval(async () => {
     }
 }, 200); // Slightly slower to allow for embedding time
 
+// ... (existing code)
+
 process.on("SIGINT", () => {
     console.log("\n🛑 Reader Stopping...");
     process.exit(0);

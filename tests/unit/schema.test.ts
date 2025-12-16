@@ -45,7 +45,7 @@ describe("ResonanceDB Schema & Migration", () => {
             meta: { key: "value" }
         });
 
-        const nodes = db.getNodes("test");
+        const nodes = db.getNodes({ domain: "test" });
         expect(nodes.length).toBe(1);
         expect(nodes[0]!.id).toBe("test-node");
         expect(nodes[0]!.label).toBe("Test Label");

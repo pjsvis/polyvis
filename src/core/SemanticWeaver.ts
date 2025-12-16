@@ -41,25 +41,45 @@ export class SemanticWeaver {
 				raw.byteLength / 4,
 			);
 
-			// Search for "Experience" (Content Clustering)
-			// Pivot: Concepts have no vectors, so we cluster related content instead.
-			const matches = db.findSimilar(vec, 3, "experience");
-			
-			// Filter matches
-			const validMatches = matches.filter(m => m.score > 0.85 && m.id !== orphan.id);
+			// 3. Search for "Experience" (Content Clustering)
+            // Manual Vector Search since db.findSimilar is deprecated.
+            // Ideally we use VectorEngine, but for this maintenance task, raw DB access is fine.
+             const candidates = db.getRawDb().query(`
+                SELECT id, embedding FROM nodes 
+                WHERE (layer = 'experience' OR type = 'note')
+                AND embedding IS NOT NULL
+            `).all() as { id: string, embedding: Uint8Array }[];
 
-			if (validMatches.length > 0) {
-				// Link to the best match (Top 1)
-				const best = validMatches[0];
-				
-				if (best) {
-					// Edge: Orphan RELATED_TO Concept
-					db.insertEdge(orphan.id, best.id, "RELATED_TO");
-					rescuedCount++;
-				}
-			} else if (matches.length > 0) {
+            let bestMatch: { id: string, score: number } | null = null;
+            
+            // Import dotProduct from db utility or define local
+            // We can import it from db.ts since it is an export function
+            const { dotProduct } = require("@src/resonance/db"); 
+
+            for (const candidate of candidates) {
+                if (candidate.id === orphan.id) continue;
+                
+                const candidateVec = new Float32Array(
+                    candidate.embedding.buffer,
+                    candidate.embedding.byteOffset,
+                    candidate.embedding.byteLength / 4
+                );
+                
+                const score = dotProduct(vec, candidateVec);
+                if (score > 0.85) {
+                    if (!bestMatch || score > bestMatch.score) {
+                        bestMatch = { id: candidate.id, score };
+                    }
+                }
+            }
+
+			if (bestMatch) {
+				// Edge: Orphan RELATED_TO Best Match
+				db.insertEdge(orphan.id, bestMatch.id, "RELATED_TO");
+				rescuedCount++;
+			} else {
 				// Debug: Log near misses
-				// console.log(`   - Missed '${orphan.title}': Top match ${matches[0].score.toFixed(2)}`);
+				// console.log(`   - Missed '${orphan.title}': No match > 0.85`);
 			}
 		}
 

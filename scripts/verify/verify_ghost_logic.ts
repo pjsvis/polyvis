@@ -1,5 +1,5 @@
 
-import { Database } from "bun:sqlite";
+import { DatabaseFactory } from "@/src/resonance/DatabaseFactory";
 import { dotProduct } from "@src/js/utils/math.js";
 
 // Verify alias usage (as requested)
@@ -8,7 +8,7 @@ import { dotProduct } from "@src/js/utils/math.js";
 
 console.log("🧪 Testing Ghost Graph SQL Logic...");
 
-const db = new Database(".resonance/resonance.db");
+const db = DatabaseFactory.connectToResonance({ readonly: true });
 
 // 1. Fetch nodes directly (no UDF)
 const nodes = db.query("SELECT id, embedding FROM nodes WHERE embedding IS NOT NULL").all() as any[];

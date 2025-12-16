@@ -26,11 +26,15 @@ async function main() {
         const vec = await embedder.embed(q);
         if (!vec) continue;
 
-        const results = db.findSimilar(vec, 3);
+        // Use VectorEngine for search
+        const { VectorEngine } = require("@src/core/VectorEngine");
+        const ve = new VectorEngine(db.getRawDb());
+        const results = await ve.searchByVector(vec, 3);
         const duration = (performance.now() - start).toFixed(2);
         
         console.log(`   ⏱️  Time: ${duration}ms`);
-        results.forEach(r => {
+        console.log(`\nPromoting Research:`);
+        results.forEach((r: any) => {
             console.log(`   - [${r.score.toFixed(2)}] ${r.label}`);
             // Peek at content
             const row = db['db'].query("SELECT content FROM nodes WHERE id = ?").get(r.id) as any;

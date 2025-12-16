@@ -4,9 +4,7 @@ import { Embedder } from "./services/embedder";
 import { Ingestor } from "../pipeline/Ingestor";
 import { join } from "path";
 import settings from "@/polyvis.settings.json";
-
-const PID_FILE = ".daemon.pid";
-const LOG_FILE = ".daemon.log";
+import { ServiceLifecycle } from "../utils/ServiceLifecycle";
 
 const args = process.argv.slice(2);
 const command = args[0] || "serve"; 
@@ -24,91 +22,14 @@ async function notify(title: string, message: string) {
     }
 }
 
-// --- Lifecycle Management Logic ---
+// --- Service Lifecycle ---
 
-async function isRunning(pid: number): Promise<boolean> {
-    try {
-        process.kill(pid, 0);
-        return true;
-    } catch (_e) {
-        return false;
-    }
-}
-
-async function start() {
-    if (await Bun.file(PID_FILE).exists()) {
-        const pid = parseInt(await Bun.file(PID_FILE).text());
-        if (await isRunning(pid)) {
-            console.log(`⚠️  Daemon is already running (PID: ${pid})`);
-            return;
-        }
-        console.log("⚠️  Found stale PID file. Clearing...");
-        await unlink(PID_FILE);
-    }
-
-    const logFile = Bun.file(LOG_FILE);
-    // Truncate log on new start
-    await Bun.write(logFile, "");
-
-    const selfPath = process.argv[1] || "src/resonance/daemon.ts";
-    const subprocess = Bun.spawn(["bun", "run", selfPath, "serve"], {
-        cwd: process.cwd(),
-        detached: true,
-        stdout: logFile,
-        stderr: logFile,
-    });
-
-    await Bun.write(PID_FILE, subprocess.pid.toString());
-    
-    subprocess.unref();
-
-    console.log(`✅ Daemon started (PID: ${subprocess.pid})`);
-    console.log(`📝 Logs: ${LOG_FILE}`);
-}
-
-async function stop() {
-    if (!await Bun.file(PID_FILE).exists()) {
-        console.log("ℹ️  Daemon is not running.");
-        return;
-    }
-
-    const pid = parseInt(await Bun.file(PID_FILE).text());
-    
-    if (await isRunning(pid)) {
-        console.log(`🛑 Stopping Daemon (PID: ${pid})...`);
-        process.kill(pid, "SIGTERM");
-        
-        let attempts = 0;
-        while (await isRunning(pid) && attempts < 10) {
-            await new Promise(r => setTimeout(r, 100));
-            attempts++;
-        }
-        
-        if (await isRunning(pid)) {
-             console.log("⚠️  Process did not exit gracefully. Force killing...");
-             process.kill(pid, "SIGKILL");
-        }
-        console.log("✅ Daemon stopped.");
-    } else {
-        console.log("⚠️  Stale PID file found. Cleaning up.");
-    }
-
-    await unlink(PID_FILE);
-}
-
-async function status() {
-     if (await Bun.file(PID_FILE).exists()) {
-        const pid = parseInt(await Bun.file(PID_FILE).text());
-        if (await isRunning(pid)) {
-            console.log(`🟢 Daemon is RUNNING (PID: ${pid})`);
-            console.log(`   Port: 3010 (default)`);
-            return;
-        }
-        console.log(`🔴 Daemon is NOT RUNNING (Stale PID: ${pid})`);
-    } else {
-        console.log("⚪️ Daemon is STOPPED");
-    }
-}
+const lifecycle = new ServiceLifecycle({
+    name: "Daemon",
+    pidFile: ".daemon.pid",
+    logFile: ".daemon.log",
+    entryPoint: "src/resonance/daemon.ts"
+});
 
 // --- Server Logic (The actual Daemon) ---
 
@@ -178,6 +99,7 @@ async function runServer() {
 
 let debounceTimer: ReturnType<typeof setTimeout> | null = null;
 const DEBOUNCE_MS = 2000;
+const pendingFiles = new Set<string>();
 
 function startWatcher() {
     // Dynamically load watch targets from settings
@@ -193,6 +115,11 @@ function startWatcher() {
                 // Ignore dotfiles and ensure markdown
                 if (filename && !filename.startsWith(".") && filename.endsWith(".md")) {
                     console.log(`📝 Change detected: ${dir}/${filename} (${event})`);
+                    
+                    // Add full path to pending set
+                    const fullPath = join(process.cwd(), dir, filename);
+                    pendingFiles.add(fullPath);
+                    
                     triggerIngestion();
                 }
             });
@@ -208,21 +135,27 @@ function triggerIngestion() {
     }
 
     debounceTimer = setTimeout(async () => {
-        console.log("🔄 Debounce settle. Starting Ingestion...");
+        const batchSize = pendingFiles.size;
+        if (batchSize === 0) return;
+
+        console.log(`🔄 Debounce settle. Starting Batch Ingestion (${batchSize} files)...`);
+        
+        // Drain the set
+        const batch = Array.from(pendingFiles);
+        pendingFiles.clear();
+
         try {
             // Re-instantiate DB/Ingestor for fresh context
-            // Note: In a long running process, we might want to keep singletons, 
-            // but Ingestor is designed to be ephemeral. 
-            // Reuse DB connection if possible? ResonanceDB handles it.
-            
-            // Ingestor manages its own DB lifecycle (init -> run -> cleanup)
             const ingestor = new Ingestor();
-            await ingestor.run();
+            
+            // OPTIMIZATION: Pass only the changed files
+            await ingestor.run({ files: batch });
 
-            console.log("✅ Ingestion Complete.");
-            await notify("PolyVis Resonance", "Knowledge Graph Updated.");
+            console.log("✅ Batch Ingestion Complete.");
+            await notify("PolyVis Resonance", `Graph Updated (${batchSize} files).`);
         } catch (e) {
             console.error("❌ Ingestion Failed:", e);
+            // Re-queue failed files? For now, we just drop them to avoid loops.
             await notify("PolyVis Resonance", "Ingestion Failed (Check Logs)");
         }
     }, DEBOUNCE_MS);
@@ -231,31 +164,5 @@ function triggerIngestion() {
 
 // --- Dispatch ---
 
-switch (command) {
-    case "start":
-        await start();
-        process.exit(0);
-        break;
-    case "stop":
-        await stop();
-        process.exit(0);
-        break;
-    case "status":
-        await status();
-        process.exit(0);
-        break;
-    case "restart":
-        await stop();
-        await new Promise(r => setTimeout(r, 500));
-        await start();
-        process.exit(0);
-        break;
-    case "serve":
-        await runServer();
-        // Do NOT exit, server needs to keep running
-        break;
-    default:
-        console.log(`Unknown command '${command}'. Use: start, stop, status, restart, or serve`);
-        process.exit(1);
-}
+await lifecycle.run(command, runServer);
 

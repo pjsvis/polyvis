@@ -1,5 +1,6 @@
 import { ResonanceDB } from "@src/resonance/db";
 import { Embedder } from "@src/resonance/services/embedder";
+import { VectorEngine } from "@src/core/VectorEngine";
 import { join } from "path";
 import settings from "@/polyvis.settings.json";
 
@@ -22,10 +23,11 @@ async function main() {
     const embedding = await embedder.embed(query);
     if (!embedding) throw new Error("Embedding failed");
     
-    const vectorResults = db.findSimilar(embedding, 3);
-    const vecTime = (performance.now() - vecStart).toFixed(2);
-    console.log(`   ✅ Found ${vectorResults.length} matches in ${vecTime}ms`);
-    vectorResults.forEach(r => console.log(`      - [${r.score.toFixed(2)}] ${r.label}`));
+    const ve = new VectorEngine(db['db']);
+    const vectorResults = await ve.searchByVector(embedding, 3);
+    
+    console.log("   Recall:");
+    vectorResults.forEach((r: any) => console.log(`      - [${r.score.toFixed(2)}] ${r.id}`));
 
     // 3. Graph Traversal Test
     console.log("\n3️⃣  Graph Connectivity Check");

@@ -11,33 +11,45 @@ export class AutoTagger extends BaseGardener {
     }
 
     async scan(limit: number): Promise<Candidate[]> {
-        // Find nodes (docs or sections) that don't have tags in metadata
-        // Note: SQLite JSON queries can be tricky, so we might fetch and filter.
-        // Or simpler: Find nodes where content does NOT contain "<!-- tags:"
-        
-        // Let's grab a batch of potential nodes
-        const nodes = this.db.getNodesByType("note")
-            .concat(this.db.getNodesByType("debrief"))
-            .concat(this.db.getNodesByType("section"))
-            .concat(this.db.getNodesByType("document")); // Covers generic docs
-
+        const types = ["note", "debrief", "section", "document"];
         const candidates: Candidate[] = [];
 
-        for (const node of nodes) {
+        for (const type of types) {
             if (candidates.length >= limit) break;
             
-            // Check if source file exists
-            if (!node.meta?.source) continue;
+            // FAFCAS Optimization: Fetch only what we need for this batch
+            // We fetch 'limit' nodes of this type. 
+            // Warning: If we have 1000 tagged notes and 0 untagged, we fetch 1000, filter all out, and get 0 candidates.
+            // Then we move to next type. 
+            // Ideally we'd filter in SQL: `content NOT LIKE '%<!-- tags:%'`.
+            // But strict SQL for that is messy with JSON/Text mix.
+            // Let's stick to memory filter but at least limit the fetch to a reasonable batch size (e.g. 5x limit) to avoid dumping whole DB.
             
-            // Heuristic: If it already has tags in raw content, skip
-            if (node.content && node.content.includes("<!-- tags:")) continue;
-
-            candidates.push({
-                nodeId: node.id,
-                filePath: String(node.meta.source),
-                content: node.content || "", // Fallback
-                type: node.type
+            const batchSize = Math.max(limit * 5, 200);
+            
+            const nodes = this.db.getNodes({ 
+                type, 
+                limit: batchSize,
+                // We need content to check for existing tags
+                excludeContent: false 
             });
+
+            for (const node of nodes) {
+                if (candidates.length >= limit) break;
+                
+                // Check if source file exists
+                if (!node.meta?.source) continue;
+                
+                // Heuristic: If it already has tags in raw content, skip
+                if (node.content && node.content.includes("<!-- tags:")) continue;
+
+                candidates.push({
+                    nodeId: node.id,
+                    filePath: String(node.meta.source),
+                    content: node.content || "", // Fallback
+                    type: node.type
+                });
+            }
         }
 
         return candidates;

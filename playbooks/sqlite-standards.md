@@ -16,15 +16,23 @@ Every connection (Writer or Reader) must execute these immediately upon opening:
 PRAGMA busy_timeout = 5000;
 
 -- 2. Write-Ahead Logging (Concurrency)
--- "Smart WAL": Only set if not already 'wal' to avoid write locks on readers.
--- WARNING: Readers must NOT use "readonly" connection flags in WAL mode.
-PRAGMA journal_mode = WAL;
+-- "Smart WAL": Only set if not already 'wal' to avoid write## 2. Configuration Standards (The "Hardened" Protocol)
 
--- 3. Synchronous Mode (Performance)
-PRAGMA synchronous = NORMAL;
+To ensure concurrency (1 Writer + N Readers) without `SQLITE_BUSY` or `disk I/O error`, we enforce the following **Hardened Configuration** via `DatabaseFactory`.
 
--- 4. Memory Mapping (Stability)
--- CRITICAL: Disabled to prevent "Disk I/O Error" in multi-process environments (macOS/Bun).
+### 2.1 The Golden Rules
+1.  **WAL Mode is Mandatory**: `PRAGMA journal_mode = WAL`.
+2.  **ReadWrite is Mandatory**: Even "Readers" must connect with `readonly: false` because WAL readers need to write to the `-shm` shared memory file.
+3.  **Busy Timeout**: `PRAGMA busy_timeout = 5000;` (Wait 5s for locks).
+4.  **No mmap**: `PRAGMA mmap_size = 0;` (Stability over speed).
+
+### 2.2 Implementation (`DatabaseFactory.ts`)
+Do not instantiate `new Database()` directly. Always use the factory:
+
+```typescript
+const db = DatabaseFactory.connect(path, { readonly: false }); 
+// Factory will enforce Pragma settings automatically.
+```environments (macOS/Bun).
 PRAGMA mmap_size = 0; 
 
 -- 5. Integrity

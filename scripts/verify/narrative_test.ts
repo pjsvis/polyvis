@@ -1,10 +1,10 @@
-import { Database } from "bun:sqlite";
+import { DatabaseFactory } from "@/src/resonance/DatabaseFactory";
 import settings from "@/polyvis.settings.json";
 import { join } from "path";
 
 console.log("📜 Starting Narrative Reconstruction (The Turing Test)...");
 
-const db = new Database(settings.paths.database.resonance, { readonly: true });
+const db = DatabaseFactory.connectToResonance({ readonly: true });
 
 // 1. Fetch Debriefs and Edges
 const nodes = db.query("SELECT * FROM nodes WHERE type = 'debrief'").all() as any[];

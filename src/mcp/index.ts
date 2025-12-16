@@ -8,104 +8,31 @@ import {
 } from "@modelcontextprotocol/sdk/types.js";
 import { ResonanceDB } from "@src/resonance/db";
 import { VectorEngine } from "@src/core/VectorEngine";
-import { unlink } from "fs/promises";
 import { join } from "path";
+import { ServiceLifecycle } from "../utils/ServiceLifecycle";
 
-const PID_FILE = ".mcp.pid";
-const LOG_FILE = ".mcp.log";
 const args = process.argv.slice(2);
 const command = args[0] || "serve"; 
 
-// --- Lifecycle Management ---
+// --- Service Lifecycle ---
 
-async function isRunning(pid: number): Promise<boolean> {
-    try {
-        process.kill(pid, 0);
-        return true;
-    } catch (_e) {
-        return false;
-    }
-}
-
-async function start() {
-    if (await Bun.file(PID_FILE).exists()) {
-        const pid = parseInt(await Bun.file(PID_FILE).text());
-        if (await isRunning(pid)) {
-            console.log(`⚠️  MCP Server is already running (PID: ${pid})`);
-            return;
-        }
-        console.log("⚠️  Found stale PID file. Clearing...");
-        await unlink(PID_FILE);
-    }
-
-    const logFile = Bun.file(LOG_FILE);
-    await Bun.write(logFile, "");
-
-    const selfPath = process.argv[1] || "src/mcp/index.ts";
-    const subprocess = Bun.spawn(["bun", "run", selfPath, "serve"], {
-        cwd: process.cwd(),
-        detached: true,
-        stdout: logFile,
-        stderr: logFile,
-    });
-
-    await Bun.write(PID_FILE, subprocess.pid.toString());
-    subprocess.unref();
-
-    console.log(`✅ MCP Server started (PID: ${subprocess.pid})`);
-    console.log(`📝 Logs: ${LOG_FILE}`);
-}
-
-async function stop() {
-    if (!await Bun.file(PID_FILE).exists()) {
-        console.log("ℹ️  MCP Server is not running.");
-        return;
-    }
-
-    const pid = parseInt(await Bun.file(PID_FILE).text());
-    
-    if (await isRunning(pid)) {
-        console.log(`🛑 Stopping MCP Server (PID: ${pid})...`);
-        process.kill(pid, "SIGTERM");
-        
-        let attempts = 0;
-        while (await isRunning(pid) && attempts < 10) {
-            await new Promise(r => setTimeout(r, 100));
-            attempts++;
-        }
-        
-        if (await isRunning(pid)) {
-             console.log("⚠️  Process did not exit gracefully. Force killing...");
-             process.kill(pid, "SIGKILL");
-        }
-        console.log("✅ MCP Server stopped.");
-    } else {
-        console.log("⚠️  Stale PID file found. Cleaning up.");
-    }
-    await unlink(PID_FILE);
-}
-
-async function status() {
-     if (await Bun.file(PID_FILE).exists()) {
-        const pid = parseInt(await Bun.file(PID_FILE).text());
-        if (await isRunning(pid)) {
-            console.log(`🟢 MCP Server is RUNNING (PID: ${pid})`);
-            return;
-        }
-        console.log(`🔴 MCP Server is NOT RUNNING (Stale PID: ${pid})`);
-    } else {
-        console.log("⚪️ MCP Server is STOPPED");
-    }
-}
+const lifecycle = new ServiceLifecycle({
+    name: "MCP",
+    pidFile: ".mcp.pid",
+    logFile: ".mcp.log",
+    entryPoint: "src/mcp/index.ts"
+});
 
 // --- Server Logic ---
 
 async function runServer() {
-    console.error("🚀 PolyVis MCP Server Initializing...");
+    // console.error("🚀 PolyVis MCP Server Initializing..."); // Silenced to prevent MCP protocol pollution
     
     // 1. Initialize DB & Engines
     // This will now use the ROBUST configuration from db.ts (WAL + 5s Timeout)
-    const dbPath = "public/resonance.db"; 
+    // FIX: Use absolute path relative to this script to prevent CWD drift in MCP Client
+    const dbPath = join(import.meta.dir, "../../public/resonance.db"); 
+
     // STABILITY: Use standard ReadWrite connection for WAL support
     const db = new ResonanceDB(dbPath);
     // SHARED CONNECTION: Pass the raw DB instance from ResonanceDB to VectorEngine
@@ -294,16 +221,9 @@ async function runServer() {
     // 5. Connect Transport
     const transport = new StdioServerTransport();
     await server.connect(transport);
-    console.error("✅ PolyVis MCP Server Running (Concurrency Mode: WAL+Timeout)");
+    // console.error("✅ PolyVis MCP Server Running (Concurrency Mode: WAL+Timeout)"); // Silenced
 }
 
 // --- Dispatch ---
 
-switch (command) {
-    case "start": await start(); process.exit(0); break;
-    case "stop": await stop(); process.exit(0); break;
-    case "status": await status(); process.exit(0); break;
-    case "restart": await stop(); await new Promise(r => setTimeout(r, 500)); await start(); process.exit(0); break;
-    case "serve": await runServer(); break;
-    default: console.log(`Unknown command '${command}'. Use: start, stop, status, restart, or serve`); process.exit(1);
-}
+await lifecycle.run(command, runServer);

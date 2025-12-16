@@ -32,7 +32,9 @@ async function main() {
     const vector = await embedder.embed(query);
     
     console.log("... Searching Vector Space");
-    const similarNodes = db.findSimilar(vector, 3); // Top 3
+    const { VectorEngine } = require("@src/core/VectorEngine");
+    const ve = new VectorEngine(db.getRawDb());
+    const similarNodes = await ve.searchByVector(vector, 3); // Top 3
 
     if (similarNodes.length === 0) {
         console.log("❌ No relevant information found in the graph.");

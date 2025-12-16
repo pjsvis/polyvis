@@ -1,6 +1,7 @@
 import { ResonanceDB } from "@src/resonance/db";
 import { Database } from "bun:sqlite";
 import { Embedder } from "@src/resonance/services/embedder";
+import { VectorEngine } from "@src/core/VectorEngine";
 import settings from "@/polyvis.settings.json";
 
 async function main() {
@@ -47,10 +48,11 @@ async function main() {
 	const embedder = Embedder.getInstance();
 	const vec = await embedder.embed("simplicity and complexity"); // Search for known concept
 
-	const results = db.findSimilar(vec, 10);
+	const ve = new VectorEngine(db.getRawDb());
+	const results = await ve.searchByVector(vec, 10);
 
-	console.log("   Top 10 Results:");
-	results.forEach((r) => {
+	console.log("   Top 10 Matches:");
+	results.forEach((r: any) => {
 		// Fetch type for display
 		const node = db["db"]
 			.query("SELECT type, domain FROM nodes WHERE id = ?")
@@ -62,7 +64,7 @@ async function main() {
 
 	// Check if we have mixed domains
 	const domains = new Set(
-		results.map((r) => {
+		results.map((r: any) => {
 			const node = db["db"]
 				.query("SELECT domain FROM nodes WHERE id = ?")
 				.get(r.id) as any;

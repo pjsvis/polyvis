@@ -1,9 +1,8 @@
-import { Database } from "bun:sqlite";
-import settings from "@/polyvis.settings.json";
+import { DatabaseFactory } from "@/src/resonance/DatabaseFactory";
 
 console.log("🏥 Analyzing Graph Health...");
 
-const db = new Database(settings.paths.database.resonance);
+const db = DatabaseFactory.connectToResonance({ readonly: true });
 
 // 1. Basic Stats via SQL (Fastest)
 const N = (db.query("SELECT COUNT(*) as c FROM nodes WHERE type != 'root' AND type != 'domain'").get() as any).c;

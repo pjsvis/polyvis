@@ -14,6 +14,7 @@ import { DatabaseFactory } from "@src/resonance/DatabaseFactory";
 // Types
 export interface IngestorOptions {
     file?: string;
+    files?: string[];
     dir?: string;
     dbPath?: string;
 }
@@ -242,9 +243,19 @@ export class Ingestor {
 
     private getFilesToProcess(options: IngestorOptions): { path: string, type: string }[] {
         const files: { path: string, type: string }[] = [];
+        
+        // 1. Specific single file
         if (options.file) {
             files.push({ path: String(options.file), type: "document" });
-        } else {
+        } 
+        // 2. Specific list of files (Batch)
+        else if (options.files && options.files.length > 0) {
+             for (const f of options.files) {
+                 files.push({ path: String(f), type: "document" });
+             }
+        }
+        // 3. Full Directory Scan
+        else {
             const sources = options.dir
                 ? [{ path: String(options.dir), name: "Document" }]
                 : settings.paths.sources.experience;

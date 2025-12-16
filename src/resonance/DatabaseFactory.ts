@@ -1,4 +1,5 @@
 import { Database } from "bun:sqlite";
+import settings from "@/polyvis.settings.json";
 
 /**
  * 🏭 DATABASE FACTORY (The Enforcer)
@@ -8,9 +9,16 @@ import { Database } from "bun:sqlite";
  * 
  * USAGE:
  * import { DatabaseFactory } from "@src/resonance/DatabaseFactory";
- * const db = DatabaseFactory.connect("path/to.db");
+ * const db = DatabaseFactory.connectToResonance();
  */
 export class DatabaseFactory {
+    /**
+     * Connects specifically to the main Resonance Graph database.
+     * Uses path from `polyvis.settings.json`.
+     */
+    static connectToResonance(options: { readonly?: boolean } = {}): Database {
+        return this.connect(settings.paths.database.resonance, options);
+    }
     /**
      * Creates a fully configured, concurrent-safe SQLite connection.
      */

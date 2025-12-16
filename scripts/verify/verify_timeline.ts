@@ -1,7 +1,7 @@
 import { ResonanceDB } from "@src/resonance/db";
 import { TimelineWeaver } from "@src/core/TimelineWeaver";
 import settings from "@/polyvis.settings.json";
-import { Database } from "bun:sqlite";
+import { DatabaseFactory } from "@/src/resonance/DatabaseFactory";
 
 console.log("🔍 Verifying Timeline Weaver...");
 
@@ -12,7 +12,7 @@ const db = new ResonanceDB(dbPath);
 TimelineWeaver.weave(db);
 
 // 2. Check Edges (via raw check for speed/independence)
-const rawDb = new Database(dbPath, { readonly: true });
+const rawDb = DatabaseFactory.connectToResonance({ readonly: true });
 try {
     const result = rawDb.query("SELECT COUNT(*) as c FROM edges WHERE type = 'SUCCEEDS'").get() as any;
     console.log(`✅ Verification: Found ${result.c} 'SUCCEEDS' edges in database.`);

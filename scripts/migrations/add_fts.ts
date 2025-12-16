@@ -1,6 +1,4 @@
-import { Database } from "bun:sqlite";
-import settings from "@/polyvis.settings.json";
-import { join } from "path";
+import { DatabaseFactory } from "@/src/resonance/DatabaseFactory";
 
 /**
  * Database Migration: Add Full-Text Search (FTS5) Capability
@@ -12,10 +10,9 @@ import { join } from "path";
  */
 
 async function addFTS() {
-	const dbPath = join(process.cwd(), settings.paths.database.resonance);
-	console.log(`🔧 Adding FTS5 to: ${dbPath}`);
+	console.log(`🔧 Adding FTS5 to Resonance DB...`);
 	
-	const db = new Database(dbPath);
+	const db = DatabaseFactory.connectToResonance();
 
 	try {
 		// Enable WAL mode (should already be set but ensure consistency)

@@ -1,5 +1,6 @@
 
 import { Ingestor } from "@src/pipeline/Ingestor";
+import { ZombieDefense } from "@src/utils/ZombieDefense";
 import { parseArgs } from "util";
 
 // Parse CLI
@@ -21,6 +22,9 @@ const { values } = parseArgs({
 });
 
 const ingestor = new Ingestor(values.db);
+
+// Zombie Defense: Ensure clean slate before heavy I/O
+await ZombieDefense.assertClean("Ingest", true);
 
 console.log("🚀 Starting Ingestion...");
 const result = await ingestor.run({
