@@ -2,11 +2,10 @@ import { ResonanceDB } from "@src/resonance/db";
 import { Database } from "bun:sqlite";
 import { Embedder } from "@src/resonance/services/embedder";
 import { VectorEngine } from "@src/core/VectorEngine";
-import settings from "@/polyvis.settings.json";
 
 async function main() {
 	console.log("🔍 Verifying Unification...");
-	const db = new ResonanceDB(settings.paths.database.resonance);
+	const db = ResonanceDB.init();
 
 	// 1. Check Counts
 	const counts = db["db"]

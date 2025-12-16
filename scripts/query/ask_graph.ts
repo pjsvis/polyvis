@@ -1,8 +1,6 @@
 import { Embedder } from "@src/resonance/services/embedder";
 import { ResonanceDB } from "@src/resonance/db";
 import { LLMClient } from "@src/core/LLMClient";
-import settings from "@/polyvis.settings.json";
-import { join } from "path";
 import { parseArgs } from "util";
 
 async function main() {
@@ -22,8 +20,7 @@ async function main() {
     console.log(`🔎 Asking Graph: "${query}"`);
 
     // 1. Initialize
-    const dbPath = join(process.cwd(), settings.paths.database.resonance);
-    const db = new ResonanceDB(dbPath);
+    const db = ResonanceDB.init();
     const embedder = Embedder.getInstance();
     const llm = await LLMClient.getInstance();
 

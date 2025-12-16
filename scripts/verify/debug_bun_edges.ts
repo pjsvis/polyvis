@@ -1,8 +1,6 @@
-import { Database } from "bun:sqlite";
-import settings from "@/polyvis.settings.json";
-import { join } from "path";
+import { DatabaseFactory } from "@src/resonance/DatabaseFactory";
 
-const db = new Database(join(process.cwd(), settings.paths.database.resonance));
+const db = DatabaseFactory.connectToResonance();
 const query = db.query(
 	"SELECT * FROM edges WHERE source = 'bun-playbook' OR target = 'bun-playbook'",
 );

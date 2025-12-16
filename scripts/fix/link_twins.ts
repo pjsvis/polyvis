@@ -1,7 +1,7 @@
 import { ResonanceDB } from "@src/resonance/db";
 import { join } from "path";
 import { readdirSync, readFileSync } from "fs";
-import settings from "@/polyvis.settings.json";
+
 
 async function main() {
     console.log("🩹  Graph Healer: Initializing...");
@@ -36,8 +36,7 @@ async function main() {
     console.log(`🔗 Linking ${twins.length} Twins (Sim > 0.98)...`);
 
     // 2. Connect to DB
-    const dbPath = join(process.cwd(), settings.paths.database.resonance);
-    const db = new ResonanceDB(dbPath);
+    const db = ResonanceDB.init();
 
     // 3. Insert SAME_AS Edges
     db['db'].transaction(() => {

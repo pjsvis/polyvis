@@ -1,14 +1,12 @@
 import { ResonanceDB } from "@src/resonance/db";
 import { VectorEngine } from "@src/core/VectorEngine";
-import { resolve } from "path";
 
 async function verifyMatrix() {
     console.log("🧩 MCP Capability Bingo - Diagnostic Sequence");
     console.log("==========================================");
 
-    const dbPath = resolve(process.cwd(), "public/resonance.db");
-    const db = new ResonanceDB(dbPath);
-    const vectorEngine = new VectorEngine(dbPath);
+    const db = ResonanceDB.init();
+    const vectorEngine = new VectorEngine(db.getRawDb());
 
     const report: Record<string, string> = {};
 

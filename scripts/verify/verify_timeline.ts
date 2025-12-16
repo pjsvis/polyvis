@@ -1,12 +1,10 @@
 import { ResonanceDB } from "@src/resonance/db";
 import { TimelineWeaver } from "@src/core/TimelineWeaver";
-import settings from "@/polyvis.settings.json";
 import { DatabaseFactory } from "@/src/resonance/DatabaseFactory";
 
 console.log("🔍 Verifying Timeline Weaver...");
 
-const dbPath = settings.paths.database.resonance;
-const db = new ResonanceDB(dbPath);
+const db = ResonanceDB.init();
 
 // 1. Run Weaver
 TimelineWeaver.weave(db);

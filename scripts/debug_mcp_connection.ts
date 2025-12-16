@@ -1,15 +1,12 @@
 import { ResonanceDB } from "@src/resonance/db";
 import { VectorEngine } from "@src/core/VectorEngine";
-import settings from "@/polyvis.settings.json";
+
 
 console.log("🕵️‍♀️ Debugging MCP Readonly Connection...");
 
-const dbPath = settings.paths.database.resonance;
-
 try {
-    console.log(`📂 Opening DB: ${dbPath} (Readonly)`);
-    // Replicate MCP logic EXACTLY
-    const db = new ResonanceDB(dbPath, { readonly: true });
+    const db = ResonanceDB.init({ readonly: true });
+    console.log(`📂 Opening DB (Readonly)`);
     
     // Check Pragmas
     const journal = db.getRawDb().query("PRAGMA journal_mode;").get();

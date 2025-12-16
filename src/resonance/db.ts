@@ -22,6 +22,14 @@ export class ResonanceDB {
     private dbPath: string;
     private options: { readonly?: boolean };
 
+    /**
+     * Factory method to load the default Resonance Graph based on settings.
+     */
+    static init(options: { readonly?: boolean } = {}): ResonanceDB {
+        return new ResonanceDB(settings.paths.database.resonance, options);
+    }
+
+
 	constructor(dbPath: string, options: { readonly?: boolean } = {}) {
 		// Ensure directory exists if we are creating it? 
         // Database constructor usually handles file creation, but not directory.

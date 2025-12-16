@@ -2,6 +2,7 @@
 import { Ingestor } from "@src/pipeline/Ingestor";
 import { parseArgs } from "util";
 import { Database } from "bun:sqlite";
+import { DatabaseFactory } from "@src/resonance/DatabaseFactory";
 import settings from "@/polyvis.settings.json";
 
 /**
@@ -23,18 +24,13 @@ async function main() {
         strict: false,
     });
 
+    // Use Factory for default path logic or overridden path if provided (though Factory strictly handles Resonance DB)
+    // If 'db' arg is provided, we might be testing elsewhere, but for now standardizing on factory for default.
     const dbPath = values.db ? String(values.db) : settings.paths.database.resonance;
     const ingestor = new Ingestor(dbPath);
     
-    // We need a raw SQLite connection for the method signature (and validator)
-    // Ingestor.ts methods interact with ResonanceDB instance internally, 
-    // but runExperience takes sqliteDb for validation.
-    // Ideally we should refactor runExperience to NOT need external sqliteDb param, but for now...
-    // Wait, Ingestor.init() returns it.
-    // I can't call init() easily because it's private.
-    // I'll just instantiate local one.
-    
-    const sqliteDb = new Database(dbPath);
+    // Use factory for the validation connection if using default path
+    const sqliteDb = values.db ? new Database(dbPath) : DatabaseFactory.connectToResonance();
     
     // Ensure Embedder is ready
     const embedder = (ingestor as any).embedder; // Private access workaround or just trust it

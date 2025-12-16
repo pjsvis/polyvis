@@ -13,8 +13,7 @@ async function main() {
 
     console.log(`🔍 Asking Context: "${query}"`);
 
-	const dbPath = join(process.cwd(), settings.paths.database.resonance);
-    const db = new ResonanceDB(dbPath);
+    const db = ResonanceDB.init();
     const embedder = Embedder.getInstance();
 
     const vector = await embedder.embed(query);

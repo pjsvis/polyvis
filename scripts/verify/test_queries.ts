@@ -1,18 +1,15 @@
 import { ResonanceDB } from "@src/resonance/db";
 import { Embedder } from "@src/resonance/services/embedder";
 import { VectorEngine } from "@src/core/VectorEngine";
-import { join } from "path";
-import settings from "@/polyvis.settings.json";
 
 async function main() {
     console.log("🧪 Running Resonance Query Field Tests...\n");
-    const dbPath = join(process.cwd(), settings.paths.database.resonance);
-    const db = new ResonanceDB(dbPath);
+    const db = ResonanceDB.init();
     const embedder = Embedder.getInstance();
 
     // 1. SQL Metadata Test
     console.log("1️⃣  SQL Metadata Check");
-    const nodeCount = db['db'].query("SELECT COUNT(*) as count FROM nodes").get() as { count: number };
+    const nodeCount = db.getRawDb().query("SELECT COUNT(*) as count FROM nodes").get() as { count: number };
     console.log(`   ✅ Nodes: ${nodeCount.count}`);
     if (nodeCount.count === 0) throw new Error("Database is empty!");
 

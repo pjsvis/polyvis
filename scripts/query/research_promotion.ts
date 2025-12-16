@@ -1,12 +1,9 @@
 import { ResonanceDB } from "@src/resonance/db";
 import { Embedder } from "@src/resonance/services/embedder";
-import { join } from "path";
-import settings from "@/polyvis.settings.json";
 
 async function main() {
     console.log("🕵️‍♀️ Running Code Promotion Research...\n");
-    const dbPath = join(process.cwd(), settings.paths.database.resonance);
-    const db = new ResonanceDB(dbPath);
+    const db = ResonanceDB.init();
     const embedder = Embedder.getInstance();
     const startTotal = performance.now();
 

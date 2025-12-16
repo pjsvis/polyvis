@@ -2,6 +2,7 @@ import { Database } from "bun:sqlite";
 import { existsSync, readFileSync } from "fs";
 import { lexer } from "marked";
 import { join } from "path";
+import { DatabaseFactory } from "@src/resonance/DatabaseFactory";
 
 // --- Configuration ---
 import settings from "@/polyvis.settings.json";
@@ -26,14 +27,9 @@ async function ingest() {
 	// We assume current working directory is project root
 	// We assume current working directory is project root
 	const ROOT_DIR = process.cwd();
-	const DB_PATH = join(ROOT_DIR, settings.paths.database.resonance); 
 	const EXP_INDEX_PATH = join(ROOT_DIR, "public/data/experience.json");
 	
 
-	if (!existsSync(DB_PATH)) {
-		console.error(`❌ DB not found: ${DB_PATH}`);
-		process.exit(1);
-	}
 	if (!existsSync(EXP_INDEX_PATH)) {
 		console.error(
 			`❌ Experience Index not found: ${EXP_INDEX_PATH}. Run 'bun run scripts/build_experience.ts' first.`,
@@ -41,7 +37,8 @@ async function ingest() {
 		process.exit(1);
 	}
 
-	const db = new Database(DB_PATH);
+    // Connect using Factory
+    const db = DatabaseFactory.connectToResonance();
 	const indexData: ExperienceNode[] = await Bun.file(EXP_INDEX_PATH).json();
 
 	// Initialize Validator
@@ -378,7 +375,7 @@ async function ingest() {
 
 	db.close();
 
-    console.log(`📦 Database updated in place at ${DB_PATH}`);
+    console.log(`📦 Database updated in place.`);
 	console.log(`🎉 Done.`);
 
 	// Exit with error code if validation failed

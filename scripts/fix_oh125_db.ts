@@ -1,7 +1,7 @@
 
-import { Database } from "bun:sqlite";
+import { DatabaseFactory } from "@src/resonance/DatabaseFactory";
 
-const db = new Database(".resonance/resonance.db");
+const db = DatabaseFactory.connectToResonance();
 
 // 1. Check current state
 const query = db.query("SELECT id, content FROM nodes WHERE id = $id");

@@ -1,9 +1,6 @@
 import { ResonanceDB } from "@src/resonance/db";
-import { join } from "path";
-import settings from "@/polyvis.settings.json";
 
-const dbPath = join(process.cwd(), settings.paths.database.resonance);
-const db = new ResonanceDB(dbPath);
+const db = ResonanceDB.init();
 
 const rows = db["db"]
 	.query("SELECT id, title FROM nodes ORDER BY rowid DESC LIMIT 5")

@@ -19,17 +19,8 @@ const agentName = values.agent || "tag";
 async function main() {
     console.log("🌿 PolyVis Garden CLI");
     
-    // Load Settings (to get DB path)
-    let settings: any = {};
-    try {
-        const text = await Bun.file("polyvis.settings.json").text();
-        settings = JSON.parse(text);
-    } catch(e) {
-        settings = { paths: { database: { resonance: "public/resonance.db" } } };
-    }
-
-    const dbPath = settings.paths.database.resonance;
-    const db = new ResonanceDB(dbPath);
+    // Load DB (Auto-configured by Factory)
+    const db = ResonanceDB.init();
 
     if (agentName === "tag") {
         const gardener = new AutoTagger(db);

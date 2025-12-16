@@ -1,9 +1,7 @@
 import { ResonanceDB } from "@src/resonance/db";
 import { SemanticWeaver } from "@src/core/SemanticWeaver";
-import { Database } from "bun:sqlite";
-import settings from "@/polyvis.settings.json";
 
-const db = new ResonanceDB(settings.paths.database.resonance);
+const db = ResonanceDB.init();
 
 console.log("🔍 Verifying Semantic Rescue...");
 

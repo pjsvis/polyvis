@@ -1,14 +1,11 @@
 import { ResonanceDB } from "@src/resonance/db";
-import { join } from "path";
-import settings from "@/polyvis.settings.json";
-
-const dbPath = join(process.cwd(), settings.paths.database.resonance);
-const db = new ResonanceDB(dbPath);
 
 console.log("📅 Querying Database for Timeline...\n");
 
+const db = ResonanceDB.init();
+
 // Direct SQL query to bypass vector search and get everything
-const nodes = db['db'].query(`
+const nodes = db.getRawDb().query(`
     SELECT id, title, content, meta 
     FROM nodes 
     WHERE type = 'debrief' 

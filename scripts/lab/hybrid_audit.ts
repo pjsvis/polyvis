@@ -1,5 +1,5 @@
 import { ResonanceDB } from "@src/resonance/db";
-import settings from "@/polyvis.settings.json";
+
 import { join } from "path";
 import { writeFileSync, mkdirSync } from "fs";
 
@@ -21,8 +21,7 @@ async function main() {
     console.log("🕵️  Hybrid Audit: Initializing...");
     
     // 1. Load Data
-    const dbPath = join(process.cwd(), settings.paths.database.resonance);
-    const db = new ResonanceDB(dbPath);
+    const db = ResonanceDB.init();
     
     // Fetch Nodes
     const rawNodes = db['db'].query("SELECT id, title, type, embedding FROM nodes").all() as any[];
