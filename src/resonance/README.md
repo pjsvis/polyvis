@@ -9,3 +9,4 @@ The vector database and semantic core of Polyvis.
 - **`schema.ts`**: Database schema definitions.
 - **`cli/`**: CLI entry points (e.g., `ingest.ts`).
 - **`services/`**: Internal services (e.g., `Embedder`).
+- **`transform/`**: Transformation pipelines (e.g., `cda.ts`).

@@ -1,16 +1,17 @@
-# Current Task: MCP Capability Verification
+# Current Task: Resonance Engine Migration
 
-**Objective:** Verify 100% functionality of the MCP Server tools (Green Bingo Card).
+**Objective:** Consolidate core Resonance Engine logic from `scripts/` to `src/resonance/` to enable portability.
 
-
-## Status: Session Complete
+## Status: In Progress (Iterative Migration)
 
 ## Checklist
-- [x] **Consolidate:** Resonance engine consolidated and schema hardened.
-- [x] **Diagnostic:** `scripts/verify/mcp_matrix.ts` confirms code logic works (PASS).
-- [x] **Instrument:** `src/mcp/index.ts` updated to expose runtime errors.
-- [x] **Verify:** Restart MCP Server and confirm `search_documents` works.
-- [x] **Operations:** Spawn daemon and mandate Bun.
+- [x] **Setup:** Clean slate established, READMEs audited.
+- [x] **Phase 1:** `ingest.ts` and `daemon.ts` moved/merged.
+- [ ] **Phase 2.1:** Move `transform_cda.ts` -> `src/resonance/transform/cda.ts` [/]
+- [ ] **Phase 2.2:** Move `extract_terms.ts` -> `src/resonance/pipeline/extract.ts`
+- [ ] **Phase 2.3:** Move `migrate_db.ts` -> `src/resonance/cli/migrate.ts`
+- [ ] **Phase 2.4:** Move `transform_docs.ts` -> `src/resonance/pipeline/transform_docs.ts`
+- [ ] **Validation:** Verify successful build (`tsc`) after each step.
 
 ## Next
-- [ ] Good night.
+- Move `scripts/transform/transform_cda.ts` and fix imports.
