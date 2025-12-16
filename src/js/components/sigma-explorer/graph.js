@@ -1,3 +1,5 @@
+import { adaptNode, adaptEdge } from "./adapter.js";
+
 export const initialState = () => ({
 	graph: null,
 	layout: "forceatlas2",
@@ -24,59 +26,21 @@ export const methods = {
 			// A node is included if its assigned subGraph is in the active list.
 			if (!this.activeSubGraphs.includes(row.subGraph)) return;
 
-			// Add Node
+			// Add Node (via Safe Adapter)
 			if (!this.graph.hasNode(row.id)) {
-				this.graph.addNode(row.id, {
-					label: row.title || row.label || row.id,
-					nodeType: row.type || "Unknown",
-					domain: row.domain,
-					subGraph: row.subGraph,
-					definition: row.content || row.definition || "",
+                const sigmaNode = adaptNode(row);
+                
+                // Override Color if needed based on dynamic layout state (rare, usually adapter is enough)
+                // We keep the adapter pure, so if we need CSS var injection we do it here or in adapter.
+                // For now, adapter defaults are fine.
+                
+                // Re-apply originalColor logic if it was dynamic in the old code?
+                // The old code had: originalColor: row.subGraph === "persona" ? "black" : "#475569"
+                // The adapter sets 'color'. Let's ensure we have originalColor/Size if needed for resets.
+                sigmaNode.originalColor = sigmaNode.color;
+                sigmaNode.originalSize = sigmaNode.size;
 
-					size: (() => {
-						if (row.type === "term" || row.type === "Core Concept") return 20;
-						if (row.type === "playbook") return 12;
-						if (row.type === "protocol") return 12;
-						if (row.type === "directive") return 10;
-						if (row.type === "debrief") return 8;
-						if (row.type === "section") return 4;
-						return 6;
-					})(),
-
-					color: (() => {
-						// Persona / Ontology
-						if (row.subGraph === "persona") return "black";
-						
-						// Sub-Graph Colors
-						if (row.subGraph === "playbooks") return "#f97316"; // Orange
-						if (row.subGraph === "debriefs") return "#3b82f6";  // Blue
-						if (row.subGraph === "briefs") return "#22c55e";    // Green
-						if (row.subGraph === "knowledge") return "#ec4899"; // Pink
-						
-						// Fallbacks
-						if (row.type === "protocol") return "#a855f7"; // Purple
-						return "#475569"; // Slate
-					})(),
-
-					originalSize:
-						row.type === "term" || row.type === "Core Concept" ? 20 : 6,
-					originalColor: row.subGraph === "persona" ? "black" : "#475569",
-
-					x: ((str) => {
-						let hash = 0;
-						for (let i = 0; i < str.length; i++)
-							hash = (Math.imul(31, hash) + str.charCodeAt(i)) | 0;
-						return (Math.abs(hash) % 1000) / 10;
-					})(row.id + "x"),
-					y: ((str) => {
-						let hash = 0;
-						for (let i = 0; i < str.length; i++)
-							hash = (Math.imul(31, hash) + str.charCodeAt(i)) | 0;
-						return (Math.abs(hash) % 1000) / 10;
-					})(row.id + "y"),
-
-					external_refs: row.external_refs ? JSON.parse(row.external_refs) : [],
-				});
+				this.graph.addNode(sigmaNode.id, sigmaNode);
 			}
 		});
 
@@ -84,15 +48,13 @@ export const methods = {
 		this.masterData.edges.forEach((row) => {
 			if (this.graph.hasNode(row.source) && this.graph.hasNode(row.target)) {
 				if (!this.graph.hasEdge(row.source, row.target)) {
-					this.graph.addEdge(row.source, row.target, {
-						type: "arrow",
-						label: row.type || row.relation,
-						size: 2,
-						color:
-							getComputedStyle(document.documentElement)
-								.getPropertyValue("--graph-edge")
-								.trim() || "#ffffff",
-					});
+                    const sigmaEdge = adaptEdge(row);
+                    // Inject dynamic CSS var color if needed (adapter used hardcoded slate)
+                    sigmaEdge.color = getComputedStyle(document.documentElement)
+                        .getPropertyValue("--graph-edge")
+                        .trim() || "#cbd5e1";
+                        
+					this.graph.addEdge(sigmaEdge.source, sigmaEdge.target, sigmaEdge);
 				}
 			}
 		});

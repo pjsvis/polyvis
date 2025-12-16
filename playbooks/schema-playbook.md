@@ -79,4 +79,18 @@ Always verify ingestion pipelines by reading the DB back into the original forma
 
 **Result:** Raw SQL is ~13x faster for bulk operations.
 
-**Conclusion:** Use Drizzle for schemas and individual queries. Use Raw SQL for the Ingestion Loop.
+## 4. Naming Conventions (Title vs Label)
+**Issue:** Frontend libraries (Sigma.js) reserve the key `label` for the display text. Our domain model prefers `title` for semantic clarity (e.g., Document Title).
+**Resolution:**
+1.  **Database (Truth):** Use `title`.
+    -   `nodes.title` (TEXT)
+    -   *Why?* It's domain-accurate. A document has a title, not a label.
+2.  **View (Adapter):** Map `title` -> `label`.
+    -   In `sigma-explorer/graph.js`: `label: row.title`
+    -   *Why?* Libraries expect specific keys. We adapt our data to the tool, not our schema to the tool.
+3.  **Scripts:** Always query `title`.
+    -   ❌ `SELECT label FROM nodes`
+    -   ✅ `SELECT title FROM nodes`
+
+**Anti-Pattern:** "Zero Magic" does NOT mean "Coupled Schema". Mapping 1 key in a UI adapter is acceptable "Low Magic" to preserve semantic integrity in the DB.
+

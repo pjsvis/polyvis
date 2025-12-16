@@ -5214,6 +5214,90 @@ var methods = {
   }
 };
 
+// src/js/components/sigma-explorer/adapter.js
+var NODE_ATTR_ALLOWLIST = new Set([
+  "id",
+  "domain",
+  "layer",
+  "subGraph",
+  "external_refs"
+]);
+function adaptNode(row) {
+  if (!row || !row.id)
+    return null;
+  const sigmaNode = {
+    id: row.id,
+    label: row.title && row.title.length > 0 ? row.title : row.label || row.id,
+    nodeType: row.type || "unknown",
+    size: calculateBaseSize(row.type),
+    color: calculateBaseColor(row.subGraph || "misc"),
+    x: stableHash(row.id + "x"),
+    y: stableHash(row.id + "y")
+  };
+  NODE_ATTR_ALLOWLIST.forEach((attr) => {
+    if (row[attr] !== undefined) {
+      sigmaNode[attr] = row[attr];
+    }
+  });
+  const rawContent = row.content || row.definition || "";
+  sigmaNode.definition = rawContent.length > 500 ? rawContent.substring(0, 500) + "..." : rawContent;
+  if (typeof row.external_refs === "string") {
+    try {
+      sigmaNode.external_refs = JSON.parse(row.external_refs);
+    } catch {
+      sigmaNode.external_refs = [];
+    }
+  }
+  return sigmaNode;
+}
+function adaptEdge(row) {
+  if (!row || !row.source || !row.target)
+    return null;
+  return {
+    source: row.source,
+    target: row.target,
+    type: "arrow",
+    label: row.type || row.relation || "",
+    size: 2,
+    color: "#cbd5e1"
+  };
+}
+function calculateBaseSize(type) {
+  switch (type) {
+    case "term":
+    case "Core Concept":
+      return 20;
+    case "playbook":
+      return 12;
+    case "protocol":
+      return 12;
+    case "directive":
+      return 10;
+    case "debrief":
+      return 8;
+    case "section":
+      return 4;
+    default:
+      return 6;
+  }
+}
+function calculateBaseColor(subGraph) {
+  const colors = {
+    persona: "#000000",
+    playbooks: "#f97316",
+    debriefs: "#3b82f6",
+    briefs: "#22c55e",
+    knowledge: "#ec4899"
+  };
+  return colors[subGraph] || "#475569";
+}
+function stableHash(str) {
+  let hash = 0;
+  for (let i = 0;i < str.length; i++)
+    hash = Math.imul(31, hash) + str.charCodeAt(i) | 0;
+  return Math.abs(hash) % 1000 / 10;
+}
+
 // src/js/components/sigma-explorer/graph.js
 var initialState2 = () => ({
   graph: null,
@@ -5236,69 +5320,18 @@ var methods2 = {
       if (!this.activeSubGraphs.includes(row.subGraph))
         return;
       if (!this.graph.hasNode(row.id)) {
-        this.graph.addNode(row.id, {
-          label: row.title || row.label || row.id,
-          nodeType: row.type || "Unknown",
-          domain: row.domain,
-          subGraph: row.subGraph,
-          definition: row.content || row.definition || "",
-          size: (() => {
-            if (row.type === "term" || row.type === "Core Concept")
-              return 20;
-            if (row.type === "playbook")
-              return 12;
-            if (row.type === "protocol")
-              return 12;
-            if (row.type === "directive")
-              return 10;
-            if (row.type === "debrief")
-              return 8;
-            if (row.type === "section")
-              return 4;
-            return 6;
-          })(),
-          color: (() => {
-            if (row.subGraph === "persona")
-              return "black";
-            if (row.subGraph === "playbooks")
-              return "#f97316";
-            if (row.subGraph === "debriefs")
-              return "#3b82f6";
-            if (row.subGraph === "briefs")
-              return "#22c55e";
-            if (row.subGraph === "knowledge")
-              return "#ec4899";
-            if (row.type === "protocol")
-              return "#a855f7";
-            return "#475569";
-          })(),
-          originalSize: row.type === "term" || row.type === "Core Concept" ? 20 : 6,
-          originalColor: row.subGraph === "persona" ? "black" : "#475569",
-          x: ((str) => {
-            let hash = 0;
-            for (let i = 0;i < str.length; i++)
-              hash = Math.imul(31, hash) + str.charCodeAt(i) | 0;
-            return Math.abs(hash) % 1000 / 10;
-          })(row.id + "x"),
-          y: ((str) => {
-            let hash = 0;
-            for (let i = 0;i < str.length; i++)
-              hash = Math.imul(31, hash) + str.charCodeAt(i) | 0;
-            return Math.abs(hash) % 1000 / 10;
-          })(row.id + "y"),
-          external_refs: row.external_refs ? JSON.parse(row.external_refs) : []
-        });
+        const sigmaNode = adaptNode(row);
+        sigmaNode.originalColor = sigmaNode.color;
+        sigmaNode.originalSize = sigmaNode.size;
+        this.graph.addNode(sigmaNode.id, sigmaNode);
       }
     });
     this.masterData.edges.forEach((row) => {
       if (this.graph.hasNode(row.source) && this.graph.hasNode(row.target)) {
         if (!this.graph.hasEdge(row.source, row.target)) {
-          this.graph.addEdge(row.source, row.target, {
-            type: "arrow",
-            label: row.type || row.relation,
-            size: 2,
-            color: getComputedStyle(document.documentElement).getPropertyValue("--graph-edge").trim() || "#ffffff"
-          });
+          const sigmaEdge = adaptEdge(row);
+          sigmaEdge.color = getComputedStyle(document.documentElement).getPropertyValue("--graph-edge").trim() || "#cbd5e1";
+          this.graph.addEdge(sigmaEdge.source, sigmaEdge.target, sigmaEdge);
         }
       }
     });

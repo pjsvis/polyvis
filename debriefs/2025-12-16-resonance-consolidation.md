@@ -29,6 +29,23 @@ We successfully consolidated the core Resonance Engine logic from the `scripts/`
     -   *Fix:* Switched to `tsconfig` aliases (`@src/*`) which made the code cleaner and the verification passed immediately.
 
 ## 🧠 Lessons Learned
+-   **The False Finish (Scoreboard Lesson):** `tsc --noEmit` is cheap. Running it *before* declaring "Complete" is non-negotiable. Trying to wrap up a broken build destroys trust and wastes points.
 -   **Iterative Migration:** The "Move -> Refactor Imports -> Verify -> Update Docs" loop for *each* file (rather than batch moving) prevented a "broken state" and made debugging the `extract.ts` issue trivial.
 -   **Aliases over Relatives:** Always prefer path aliases for core library code to ensure portability and reduce refactoring friction when moving files.
 -   **Verify Continuity:** Running the full pipeline after migration is crucial. Static analysis (`tsc`) didn't catch the runtime SQL schema error, but the `extract` script execution did.
+-   **Adapter Pattern for Views:** Resolving the "Title vs Label" naming conflict by forcing a Translation Layer (`adapter.js`) is superior to renaming DB columns or leaky code.
+
+## 🚀 Aspirations (Next Steps)
+-   **Full Migration:** Move the remaining UI components to a more structured `src/ui` or similar, now that `src/resonance` is clean.
+-   **Strict Typing:** Enforce the `SigmaNode` interface across the entire frontend now that we have an adapter.
+
+## 📚 Playbooks Updated
+-   `playbooks/change-management-protocol.md`: Added "Library Consolidation Protocol".
+-   `playbooks/sigma-playbook.md`: Added "Data Translation Layer (The Adapter)".
+-   `playbooks/schema-playbook.md`: Added "Naming Conventions (Title vs Label)".
+
+## 🧩 Sigma Adapter (Post-Migration Addendum)
+We addressed a long-standing "Title vs Label" schema conflict by implementing a strict **Data Translation Layer**:
+-   **Problem:** DB uses `title`, Sigma.js uses `label`. Renaming DB columns risks validity.
+-   **Solution:** Created `src/js/components/sigma-explorer/adapter.js`.
+-   **Result:** `adaptNode(row)` handles mapping and sanitization. Verified with `tests/adapter.test.ts` (9/9 passed).

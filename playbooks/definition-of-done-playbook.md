@@ -38,6 +38,13 @@ bun run check
 **Success Criteria:** No new errors introduced
 **Note:** Existing errors in excluded directories are acceptable
 
+## 1. Code Quality
+- [ ] **Lint Free:** No linter errors or warnings.
+- [ ] **Type Safe:** `tsc --noEmit` passes with **ZERO** errors.
+    -   *Crucial:* Do not assume "it works" because it runs. Verify types.
+    -   *Constraint:* No `any` types unless strictly necessary and documented.
+    -   *Constraint:* No `@ts-ignore` without a link to a GitHub issue tracking the fix.
+
 ### Gate 4: Functional Verification
 Run the actual code that was changed:
 - If you modified a script, run it

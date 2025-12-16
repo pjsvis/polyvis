@@ -201,3 +201,42 @@ An ephemeral layer that visualizes vector similarities on demand.
 -   **Style**:
     -   Color: `var(--color-ghost-edge)` (defined in `theme.css`).
     -   Type: `arrow` (directed).
+## 8. Data Translation Layer (The Adapter)
+
+**Principle**: "The View shall not know the Database schema."
+
+To prevents "bad data" or reserved words from leaking into Sigma, we must use a strict **Adapter Pattern**. Do not pass raw DB rows directly to `graph.addNode()`.
+
+### The Contract
+We define a strict interface for what our Graph View expects:
+
+```typescript
+interface SigmaNode {
+    id: string;
+    label: string;       // REQUIRED. Mapped from DB 'title'
+    nodeType: string;    // Mapped from DB 'type'
+    x?: number;          // Calculated/Hashed
+    y?: number;          // Calculated/Hashed
+    color?: string;      // Calculated
+    size?: number;       // Calculated
+    attributes?: Record<string, any>; // Safe bucket for extras
+}
+```
+
+### Implementation (Safe Adapter)
+Create a pure function `adaptNode(row)` that:
+1.  **Sanitizes**: Ensures `label` is a non-empty string (fall back to ID).
+2.  **Filters**: Removes sensitive or large DB fields (like full `content`) unless explicitly whitelisted for the UI.
+3.  **Renames**: Maps `title` -> `label` explicitly.
+4.  **Validates**: Drops nodes that don't meet minimum visual criteria.
+
+**Bad (Leaky):**
+```js
+graph.addNode(row.id, { ...row, label: row.title }); // Leaks all DB columns!
+```
+
+**Good (Safe):**
+```js
+const cleanNode = adaptNode(row);
+graph.addNode(cleanNode.id, cleanNode);
+```
