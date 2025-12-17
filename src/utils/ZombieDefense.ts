@@ -67,7 +67,7 @@ export class ZombieDefense {
             processes.forEach(p => {
                 // Ignore self and parent immediately
                 const match = p.match(/\s+(\d+)\s+/);
-                if (match && protectedPids.has(match[1])) return;
+                if (match && match[1] && protectedPids.has(match[1])) return;
 
                 // Strict Filter: Must be in our CWD or explicit bun run
                 if (!p.includes(process.cwd()) && !p.includes("bun run")) return;
