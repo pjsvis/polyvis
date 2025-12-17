@@ -1,10 +1,9 @@
-import { SEAMAN_CONSTANTS } from "../config/constants";
-import { LocusLedger } from "../data/LocusLedger";
-
-import { unified } from "unified";
+import remarkGfm from "remark-gfm";
 import remarkParse from "remark-parse";
 import remarkStringify from "remark-stringify";
-import remarkGfm from "remark-gfm";
+import { unified } from "unified";
+import { SEAMAN_CONSTANTS } from "../config/constants";
+import { LocusLedger } from "../data/LocusLedger";
 
 // Define AST Types (Basic subset needed)
 interface Node {
@@ -50,7 +49,7 @@ export class BentoBoxer {
 		let currentNodes: Node[] = [];
 
 		// 2. Iterate through top-level children
-		for (const node of (tree.children as Node[])) {
+		for (const node of tree.children as Node[]) {
 			// SPLIT ON: Heading 1, 2, 3, 4
 			if (node.type === "heading" && node.depth && node.depth <= 4) {
 				// If we have accumulated content, flush it.
@@ -91,7 +90,7 @@ export class BentoBoxer {
 
 		// FRACTURE CASE: Too big.
 		// Strategy: Split by Thematic Break (HR) or Paragraph chunks.
-		
+
 		// 1. Try splitting by Thematic Break
 		const hrIndex = nodes.findIndex((n) => n.type === "thematicBreak");
 		if (hrIndex !== -1) {

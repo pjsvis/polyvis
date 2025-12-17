@@ -1,5 +1,5 @@
+import { join } from "node:path";
 import OpenAI from "openai";
-import { join } from "path";
 
 export interface LLMConfig {
 	baseUrl: string;
@@ -39,13 +39,18 @@ export class LLMClient {
 				throw new Error(`Provider '${activeProvider}' not found in settings.`);
 			}
 
-			console.log(`🤖 LLM Client Initialized: ${activeProvider} (${providerConfig.model})`);
+			console.log(
+				`🤖 LLM Client Initialized: ${activeProvider} (${providerConfig.model})`,
+			);
 			LLMClient.instance = new LLMClient(providerConfig);
 		}
 		return LLMClient.instance;
 	}
 
-	public async generate(prompt: string, system = "You are a helpful assistant."): Promise<string> {
+	public async generate(
+		prompt: string,
+		system = "You are a helpful assistant.",
+	): Promise<string> {
 		try {
 			const response = await this.client.chat.completions.create({
 				model: this.model,
@@ -68,7 +73,10 @@ export class LLMClient {
 			const response = await this.client.chat.completions.create({
 				model: this.model,
 				messages: [
-					{ role: "system", content: "You are a JSON generator. Output only valid JSON." },
+					{
+						role: "system",
+						content: "You are a JSON generator. Output only valid JSON.",
+					},
 					{ role: "user", content: prompt },
 				],
 				response_format: { type: "json_object" },

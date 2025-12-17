@@ -196,7 +196,7 @@ export default () => ({
 				try {
 					// Use Viz.js (assumed to be loaded globally via script tag in index.html)
 					if (typeof Viz !== "undefined") {
-						const viz = new Viz();
+						const _viz = new Viz();
 						// We need to return a placeholder that we swap out, or render synchronously?
 						// Viz.js 2.x is async. For simplicity in this synchronous renderer,
 						// we might need a synchronous version or a different approach.
@@ -239,7 +239,7 @@ export default () => ({
 			});
 
 			// NEW: Handle [[Wiki Internal Links]]
-			html = html.replace(/\[\[(.*?)\]\]/g, (match, content) => {
+			html = html.replace(/\[\[(.*?)\]\]/g, (_match, content) => {
 				const text = content.trim();
 				// Case 1: [[ID]] matches reference
 				if (this.references[text]) {
@@ -312,8 +312,7 @@ export default () => ({
 		// Cleanup empty intro if it exists
 		const firstChild = container.firstElementChild;
 		if (
-			firstChild &&
-			firstChild.classList.contains("doc-intro") &&
+			firstChild?.classList.contains("doc-intro") &&
 			firstChild.children.length === 0
 		) {
 			firstChild.remove();
@@ -373,7 +372,7 @@ export default () => ({
 				text: text,
 				number: number,
 				id: id,
-				level: parseInt(h.tagName.substring(1)),
+				level: parseInt(h.tagName.substring(1), 10),
 			};
 
 			if (item.level === 2) {

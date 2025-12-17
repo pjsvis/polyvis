@@ -45,7 +45,7 @@ export default () => ({
 			xhr.open("GET", "/resonance.db", true);
 			xhr.responseType = "arraybuffer";
 
-			xhr.onload = (e) => {
+			xhr.onload = (_e) => {
 				const uInt8Array = new Uint8Array(xhr.response);
 				this.db = new SQL.Database(uInt8Array);
 				this.status = "Resonance DB Loaded. Ready.";

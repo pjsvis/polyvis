@@ -51,17 +51,17 @@ export const GENESIS_SQL = `
 `;
 
 export interface Migration {
-    version: number;
-    description: string;
-    sql?: string;
-    up?: (db: any) => void; 
+	version: number;
+	description: string;
+	sql?: string;
+	up?: (db: any) => void;
 }
 
 export const MIGRATIONS: Migration[] = [
-    {
-        version: 1,
-        description: "Genesis: Initial Tables (nodes, edges, fts)",
-        sql: `
+	{
+		version: 1,
+		description: "Genesis: Initial Tables (nodes, edges, fts)",
+		sql: `
             CREATE TABLE IF NOT EXISTS nodes (
                 id TEXT PRIMARY KEY,
                 type TEXT,
@@ -95,28 +95,28 @@ export const MIGRATIONS: Migration[] = [
                 INSERT INTO nodes_fts(rowid, id, title, content, meta) 
                 VALUES (new.rowid, new.id, new.title, new.content, new.meta);
             END;
-        `
-    },
-    {
-        version: 2,
-        description: "Add 'hash' column to nodes",
-        up: (db) => {
-            try {
-                db.run("ALTER TABLE nodes ADD COLUMN hash TEXT");
-            } catch (e: any) {
-                if (!e.message.includes("duplicate column")) throw e;
-            }
-        }
-    },
-    {
-        version: 3,
-        description: "Add 'meta' column to nodes",
-        up: (db) => {
-            try {
-                db.run("ALTER TABLE nodes ADD COLUMN meta TEXT");
-            } catch (e: any) {
-                if (!e.message.includes("duplicate column")) throw e;
-            }
-        }
-    }
+        `,
+	},
+	{
+		version: 2,
+		description: "Add 'hash' column to nodes",
+		up: (db) => {
+			try {
+				db.run("ALTER TABLE nodes ADD COLUMN hash TEXT");
+			} catch (e: any) {
+				if (!e.message.includes("duplicate column")) throw e;
+			}
+		},
+	},
+	{
+		version: 3,
+		description: "Add 'meta' column to nodes",
+		up: (db) => {
+			try {
+				db.run("ALTER TABLE nodes ADD COLUMN meta TEXT");
+			} catch (e: any) {
+				if (!e.message.includes("duplicate column")) throw e;
+			}
+		},
+	},
 ];

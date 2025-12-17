@@ -1,4 +1,4 @@
-import { parseArgs } from "util";
+import { parseArgs } from "node:util";
 import { type BentoBox, BentoBoxer } from "./core/BentoBoxer";
 import { TagEngine } from "./core/TagEngine";
 import { LocusLedger } from "./data/LocusLedger";

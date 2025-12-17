@@ -25,7 +25,8 @@ export class TagEngine {
 	}
 
 	public async generateTags(content: string): Promise<TagResult> {
-		if (!this.llm) throw new Error("TagEngine not initialized. Call getInstance().");
+		if (!this.llm)
+			throw new Error("TagEngine not initialized. Call getInstance().");
 
 		const prompt = `
       Analyze the text below. Extract 3-5 key entities (Proper Nouns) and 3-5 key abstract concepts.

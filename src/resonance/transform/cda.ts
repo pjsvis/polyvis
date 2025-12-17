@@ -2,21 +2,21 @@
 
 /**
  * CDA/CL Transformation Pipeline
- * 
+ *
  * Transforms raw CDA and Lexicon into enriched intermediate structure
  * with keyword extraction and candidate relationship generation.
  */
 
-import { join } from "path";
-import settings from "@/polyvis.settings.json";
+import { join } from "node:path";
+import { SemanticMatcher } from "@src/core/SemanticMatcher";
 import type {
+	CandidateRelationship,
 	EnrichedCdaDocument,
 	EnrichedCdaEntry,
-	EnrichedLexiconDocument,
 	EnrichedLexiconConcept,
-	CandidateRelationship,
+	EnrichedLexiconDocument,
 } from "@src/resonance/types/enriched-cda";
-import { SemanticMatcher } from "@src/core/SemanticMatcher";
+import settings from "@/polyvis.settings.json";
 
 // Simple keyword extraction (can be enhanced later)
 function extractKeywords(text: string): string[] {
@@ -205,9 +205,7 @@ async function main() {
 			title: c.title,
 			description: c.description || c.title,
 			category: c.category || "uncategorized",
-			extracted_keywords: extractKeywords(
-				`${c.title} ${c.description || ""}`,
-			),
+			extracted_keywords: extractKeywords(`${c.title} ${c.description || ""}`),
 			aliases: c.aliases || [],
 			meta: {
 				type: c.type,
@@ -237,11 +235,11 @@ async function main() {
 	// Transform CDA
 	console.log("\n📋 Transforming CDA...");
 	const cdaEntries: EnrichedCdaEntry[] = [];
-	
+
 	// Initialize Semantic Matcher (mgrep wrapper)
 	const semanticMatcher = new SemanticMatcher();
 	console.log("   🤖 Initialized Semantic Matcher");
-    let totalSemanticRels = 0;
+	let totalSemanticRels = 0;
 
 	for (const section of cdaData.directives) {
 		for (const entry of section.entries) {
@@ -254,42 +252,42 @@ async function main() {
 
 			// Semantic Search Soft Links
 			const semanticRels: CandidateRelationship[] = [];
-			
+
 			// Only run if we have a meaty definition to search with
 			if (entry.definition && entry.definition.length > 15) {
 				try {
 					// Search known documentation for semantic references
 					const docsPath = join(process.cwd(), settings.paths.docs.public);
-					
+
 					const matches = await semanticMatcher.findCandidates(
-						entry.definition, 
-						docsPath
+						entry.definition,
+						docsPath,
 					);
-					
+
 					for (const match of matches) {
-						// Logic: If mgrep returns a match in the lexicon file, 
+						// Logic: If mgrep returns a match in the lexicon file,
 						// we need to identify WHICH concept that line belongs to.
 						// Naive approach: Basic text proximity or line number mapping.
 						// Better approach for MVP: Check if the matched content *contains* a concept title.
-						
-						const relatedConcept = enrichedConcepts.find(c => 
-							match.content.toLowerCase().includes(c.title.toLowerCase())
+
+						const relatedConcept = enrichedConcepts.find((c) =>
+							match.content.toLowerCase().includes(c.title.toLowerCase()),
 						);
 
 						if (relatedConcept) {
 							// Avoid dupes from keywords
-							if (!keywordRels.some(r => r.target === relatedConcept.id)) {
+							if (!keywordRels.some((r) => r.target === relatedConcept.id)) {
 								semanticRels.push({
 									type: "RELATED_TO",
 									target: relatedConcept.id,
 									confidence: 0.65, // Lower than keyword, but significant
-									source: "semantic_search"
+									source: "semantic_search",
 								});
-                                totalSemanticRels++;
+								totalSemanticRels++;
 							}
 						}
 					}
-				} catch (e) {
+				} catch (_e) {
 					// Fail silently to normal flow
 				}
 			}
@@ -304,7 +302,8 @@ async function main() {
 					target: rel.target,
 					source: rel.source,
 					validated: true,
-					validator: rel.source === "explicit_tag" ? "auto" : "confidence_threshold",
+					validator:
+						rel.source === "explicit_tag" ? "auto" : "confidence_threshold",
 					validated_at: new Date().toISOString(),
 				}));
 
@@ -368,7 +367,9 @@ async function main() {
 	console.log(
 		`   ✅ ${enrichedCda.stats.total_validated_relationships} relationships validated`,
 	);
-    console.log(`   ✨ ${totalSemanticRels} SWL (Semantic Soft Links) discovered`);
+	console.log(
+		`   ✨ ${totalSemanticRels} SWL (Semantic Soft Links) discovered`,
+	);
 
 	// Write output
 	console.log("\n💾 Writing enriched artifacts...");
@@ -385,7 +386,7 @@ async function main() {
 	console.log(`   ✅ Lexicon: .resonance/artifacts/lexicon-enriched.json`);
 	console.log(`   ✅ CDA: .resonance/artifacts/cda-enriched.json`);
 
-	console.log("\n" + "═".repeat(60));
+	console.log(`\n${"═".repeat(60)}`);
 	console.log("✅ Transformation Complete");
 }
 

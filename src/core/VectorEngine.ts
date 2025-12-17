@@ -1,14 +1,14 @@
 import { Database } from "bun:sqlite";
-import { join } from "path";
+import { join } from "node:path";
+import { EmbeddingModel, FlagEmbedding } from "fastembed";
 import settings from "@/polyvis.settings.json";
-import { FlagEmbedding, EmbeddingModel } from "fastembed";
 
 // Types
 export interface SearchResult {
 	id: string;
 	score: number;
 	content: string;
-    title?: string;
+	title?: string;
 }
 
 /**
@@ -54,26 +54,27 @@ export class VectorEngine {
 	private modelPromise: Promise<FlagEmbedding>;
 
 	constructor(dbOrPath: Database | string) {
-        if (typeof dbOrPath === "string") {
-            // Legacy/Stand-alone mode (Backwards Compat but discouraged)
-            const path = dbOrPath || join(process.cwd(), settings.paths.database.resonance);
-            this.db = new Database(path);
-            
-            // Apply Safeguards if we created it
-            this.db.run("PRAGMA journal_mode = WAL;");
-            this.db.run("PRAGMA busy_timeout = 5000;");
-            this.db.run("PRAGMA synchronous = NORMAL;");
-            this.db.run("PRAGMA mmap_size = 268435456;"); // 256MB
-            this.db.run("PRAGMA temp_store = memory;");
-        } else {
-            // SHARED CONNECTION MODE (Recommended)
-            this.db = dbOrPath;
-        }
-		
-        // Lazy load the model
-        this.modelPromise = FlagEmbedding.init({
-            model: EmbeddingModel.AllMiniLML6V2
-        });
+		if (typeof dbOrPath === "string") {
+			// Legacy/Stand-alone mode (Backwards Compat but discouraged)
+			const path =
+				dbOrPath || join(process.cwd(), settings.paths.database.resonance);
+			this.db = new Database(path);
+
+			// Apply Safeguards if we created it
+			this.db.run("PRAGMA journal_mode = WAL;");
+			this.db.run("PRAGMA busy_timeout = 5000;");
+			this.db.run("PRAGMA synchronous = NORMAL;");
+			this.db.run("PRAGMA mmap_size = 268435456;"); // 256MB
+			this.db.run("PRAGMA temp_store = memory;");
+		} else {
+			// SHARED CONNECTION MODE (Recommended)
+			this.db = dbOrPath;
+		}
+
+		// Lazy load the model
+		this.modelPromise = FlagEmbedding.init({
+			model: EmbeddingModel.AllMiniLML6V2,
+		});
 	}
 
 	/**
@@ -82,22 +83,22 @@ export class VectorEngine {
 	 */
 	async embed(text: string): Promise<Uint8Array | null> {
 		try {
-            const model = await this.modelPromise;
-            // fastembed returns a generator, we take the first item
-            const embeddings = model.embed([text]);
-            let vector: Float32Array | undefined;
-            
-            for await (const batch of embeddings) {
-                if (batch && batch.length > 0) {
-                    vector = new Float32Array(batch[0]!);
-                }
-                break; 
-            }
+			const model = await this.modelPromise;
+			// fastembed returns a generator, we take the first item
+			const embeddings = model.embed([text]);
+			let vector: Float32Array | undefined;
 
-            if (!vector) return null;
+			for await (const batch of embeddings) {
+				if (batch && batch.length > 0) {
+					vector = new Float32Array(batch[0]!);
+				}
+				break;
+			}
+
+			if (!vector) return null;
 
 			// Normalize to FAFCAS (Unit Length) -> Blob
-            // FastEmbed output is usually normalized, but FAFCAS requires strict adherence
+			// FastEmbed output is usually normalized, but FAFCAS requires strict adherence
 			return toFafcas(vector);
 		} catch (e) {
 			console.error("Failed to generate embedding:", e);
@@ -163,12 +164,15 @@ export class VectorEngine {
 		);
 
 		for (const item of topK) {
-			const row = contentStmt.get(item.id) as { title: string; content: string };
+			const row = contentStmt.get(item.id) as {
+				title: string;
+				content: string;
+			};
 			if (row) {
 				results.push({
 					id: item.id,
 					score: item.score,
-                    title: row.title,     // Add title
+					title: row.title, // Add title
 					content: row.content,
 				});
 			}

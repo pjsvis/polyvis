@@ -1,4 +1,4 @@
-import { adaptNode, adaptEdge } from "./adapter.js";
+import { adaptEdge, adaptNode } from "./adapter.js";
 
 export const initialState = () => ({
 	graph: null,
@@ -22,23 +22,23 @@ export const methods = {
 		this.masterData.nodes.forEach((row) => {
 			if (row.type === "root" || row.type === "domain") return;
 
-            // Add NodeSub-Graph Filter (Composability)
+			// Add NodeSub-Graph Filter (Composability)
 			// A node is included if its assigned subGraph is in the active list.
 			if (!this.activeSubGraphs.includes(row.subGraph)) return;
 
 			// Add Node (via Safe Adapter)
 			if (!this.graph.hasNode(row.id)) {
-                const sigmaNode = adaptNode(row);
-                
-                // Override Color if needed based on dynamic layout state (rare, usually adapter is enough)
-                // We keep the adapter pure, so if we need CSS var injection we do it here or in adapter.
-                // For now, adapter defaults are fine.
-                
-                // Re-apply originalColor logic if it was dynamic in the old code?
-                // The old code had: originalColor: row.subGraph === "persona" ? "black" : "#475569"
-                // The adapter sets 'color'. Let's ensure we have originalColor/Size if needed for resets.
-                sigmaNode.originalColor = sigmaNode.color;
-                sigmaNode.originalSize = sigmaNode.size;
+				const sigmaNode = adaptNode(row);
+
+				// Override Color if needed based on dynamic layout state (rare, usually adapter is enough)
+				// We keep the adapter pure, so if we need CSS var injection we do it here or in adapter.
+				// For now, adapter defaults are fine.
+
+				// Re-apply originalColor logic if it was dynamic in the old code?
+				// The old code had: originalColor: row.subGraph === "persona" ? "black" : "#475569"
+				// The adapter sets 'color'. Let's ensure we have originalColor/Size if needed for resets.
+				sigmaNode.originalColor = sigmaNode.color;
+				sigmaNode.originalSize = sigmaNode.size;
 
 				this.graph.addNode(sigmaNode.id, sigmaNode);
 			}
@@ -48,12 +48,13 @@ export const methods = {
 		this.masterData.edges.forEach((row) => {
 			if (this.graph.hasNode(row.source) && this.graph.hasNode(row.target)) {
 				if (!this.graph.hasEdge(row.source, row.target)) {
-                    const sigmaEdge = adaptEdge(row);
-                    // Inject dynamic CSS var color if needed (adapter used hardcoded slate)
-                    sigmaEdge.color = getComputedStyle(document.documentElement)
-                        .getPropertyValue("--graph-edge")
-                        .trim() || "#cbd5e1";
-                        
+					const sigmaEdge = adaptEdge(row);
+					// Inject dynamic CSS var color if needed (adapter used hardcoded slate)
+					sigmaEdge.color =
+						getComputedStyle(document.documentElement)
+							.getPropertyValue("--graph-edge")
+							.trim() || "#cbd5e1";
+
 					this.graph.addEdge(sigmaEdge.source, sigmaEdge.target, sigmaEdge);
 				}
 			}
@@ -61,7 +62,7 @@ export const methods = {
 
 		const currentNodes = this.graph.order;
 		const currentEdges = this.graph.size;
-		this.status = `Graph Config: ${this.activeSubGraphs.join('+')} | ${currentNodes} Nodes, ${currentEdges} Edges.`;
+		this.status = `Graph Config: ${this.activeSubGraphs.join("+")} | ${currentNodes} Nodes, ${currentEdges} Edges.`;
 
 		// Compute Stats & Visibility
 		this.computeOrphanStats();
@@ -83,12 +84,12 @@ export const methods = {
 	toggleSubGraph(subGraph) {
 		if (this.activeSubGraphs.includes(subGraph)) {
 			// Remove it
-			this.activeSubGraphs = this.activeSubGraphs.filter(g => g !== subGraph);
+			this.activeSubGraphs = this.activeSubGraphs.filter((g) => g !== subGraph);
 		} else {
 			// Add it
 			this.activeSubGraphs.push(subGraph);
 		}
-		
+
 		console.log("Active Sub-Graphs:", this.activeSubGraphs);
 
 		// Must Reconstruct Graph

@@ -184,7 +184,6 @@ export default () => ({
 			a.download = "polyvis_graph.png";
 			a.click();
 		};
-		img.src =
-			"data:image/svg+xml;base64," + btoa(unescape(encodeURIComponent(data)));
+		img.src = `data:image/svg+xml;base64,${btoa(unescape(encodeURIComponent(data)))}`;
 	},
 });

@@ -2,6 +2,7 @@ import { Embedder } from "@src/resonance/services/embedder";
 import { Glob } from "bun";
 
 export class Harvester {
+	// biome-ignore lint/correctness/noUnusedPrivateClassMembers: Reserved for future embedding functionality
 	private embedder: Embedder;
 
 	constructor() {

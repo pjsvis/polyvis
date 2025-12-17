@@ -45,9 +45,9 @@ export class PipelineValidator {
 		const edges = db.query("SELECT COUNT(*) as count FROM edges").get() as {
 			count: number;
 		};
-		const vectors = db.query(
-			"SELECT COUNT(*) as count FROM nodes WHERE embedding IS NOT NULL",
-		).get() as { count: number };
+		const vectors = db
+			.query("SELECT COUNT(*) as count FROM nodes WHERE embedding IS NOT NULL")
+			.get() as { count: number };
 
 		this.baseline = {
 			nodes: nodes.count,
@@ -107,9 +107,11 @@ export class PipelineValidator {
 				}
 			).count,
 			vectors: (
-				db.query(
-					"SELECT COUNT(*) as count FROM nodes WHERE embedding IS NOT NULL",
-				).get() as { count: number }
+				db
+					.query(
+						"SELECT COUNT(*) as count FROM nodes WHERE embedding IS NOT NULL",
+					)
+					.get() as { count: number }
 			).count,
 			timestamp: new Date().toISOString(),
 		};
@@ -143,9 +145,9 @@ export class PipelineValidator {
 				);
 			}
 		} else if (this.expectations.required_vector_coverage === "experience") {
-			const experienceNodes = db.query(
-				"SELECT COUNT(*) as count FROM nodes WHERE domain = 'resonance'",
-			).get() as { count: number };
+			const experienceNodes = db
+				.query("SELECT COUNT(*) as count FROM nodes WHERE domain = 'resonance'")
+				.get() as { count: number };
 			if (results.vectors < experienceNodes.count) {
 				this.addWarning(
 					"vector_coverage",
@@ -155,11 +157,13 @@ export class PipelineValidator {
 		}
 
 		// Check: Orphaned edges (edges pointing to non-existent nodes)
-		const orphanedEdges = db.query(`
+		const orphanedEdges = db
+			.query(`
             SELECT COUNT(*) as count FROM edges e
             WHERE NOT EXISTS (SELECT 1 FROM nodes WHERE id = e.source)
                OR NOT EXISTS (SELECT 1 FROM nodes WHERE id = e.target)
-        `).get() as { count: number };
+        `)
+			.get() as { count: number };
 
 		if (orphanedEdges.count > 0) {
 			this.addError(
@@ -169,11 +173,13 @@ export class PipelineValidator {
 		}
 
 		// Check: Duplicate node IDs (should be impossible with PRIMARY KEY, but good to verify)
-		const duplicateNodes = db.query(`
+		const duplicateNodes = db
+			.query(`
             SELECT id, COUNT(*) as count FROM nodes
             GROUP BY id
             HAVING count > 1
-        `).all() as { id: string; count: number }[];
+        `)
+			.all() as { id: string; count: number }[];
 
 		if (duplicateNodes.length > 0) {
 			this.addError(
@@ -227,7 +233,7 @@ export class PipelineValidator {
 	 * Print validation report to console
 	 */
 	printReport(report: ValidationReport): void {
-		console.log("\n" + "=".repeat(60));
+		console.log(`\n${"=".repeat(60)}`);
 		console.log("🧪 VALIDATION REPORT");
 		console.log("=".repeat(60));
 		console.log(report.summary);
@@ -253,6 +259,6 @@ export class PipelineValidator {
 		console.log(`   - Nodes: ${report.results.nodes}`);
 		console.log(`   - Edges: ${report.results.edges}`);
 		console.log(`   - Vectors: ${report.results.vectors}`);
-		console.log("=".repeat(60) + "\n");
+		console.log(`${"=".repeat(60)}\n`);
 	}
 }

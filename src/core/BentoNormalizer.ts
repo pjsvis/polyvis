@@ -29,7 +29,7 @@ export function fixHeadless(content: string, filename: string): string {
 	// If no content at all, consider strictly headless or empty.
 	// If content exists, check if it's an H1.
 	const firstLine = lines[firstContentIndex];
-	const hasH1AtTop = firstLine && firstLine.trim().startsWith("# ");
+	const hasH1AtTop = firstLine?.trim().startsWith("# ");
 
 	if (!hasH1AtTop) {
 		// Generate title from filename
@@ -68,7 +68,7 @@ export function fixShouting(content: string): string {
 			if (line.trim().startsWith("# ")) {
 				h1Count++;
 				if (h1Count > 1) {
-					return "#" + line; // Demote to ##
+					return `#${line}`; // Demote to ##
 				}
 			}
 			return line;
@@ -88,7 +88,7 @@ export function flattenDeepNesting(content: string): string {
 		.map((line) => {
 			// Match H4 (#### ), H5 (##### ), H6 (###### )
 			const match = line.match(/^(#{4,6})\s+(.+)$/);
-			if (match && match[2]) {
+			if (match?.[2]) {
 				// Convert to bold: "**Title**"
 				return `**${match[2].trim()}**`;
 			}

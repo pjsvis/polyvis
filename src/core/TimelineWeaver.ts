@@ -1,4 +1,4 @@
-import { ResonanceDB } from "@src/resonance/db";
+import type { ResonanceDB } from "@src/resonance/db";
 
 export class TimelineWeaver {
 	static weave(db: ResonanceDB) {
@@ -30,9 +30,10 @@ export class TimelineWeaver {
 					dateObj: dateStr ? new Date(dateStr) : null,
 				};
 			})
-			.filter((n) => n.dateObj && !isNaN(n.dateObj.getTime()));
+			.filter((n) => n.dateObj && !Number.isNaN(n.dateObj.getTime()));
 
 		// Sort Descending (Newest First) -> [Dec 14, Dec 13, Dec 12]
+		// biome-ignore lint/style/noNonNullAssertion: dateObj guaranteed non-null by filter above
 		datedNodes.sort((a, b) => b.dateObj!.getTime() - a.dateObj!.getTime());
 
 		// 3. Weave Edges

@@ -1,6 +1,5 @@
-import { Database } from "bun:sqlite";
-import { existsSync, mkdirSync } from "fs";
-import { join } from "path";
+import { existsSync, mkdirSync } from "node:fs";
+import { join } from "node:path";
 
 console.log("Starting term extraction...");
 
@@ -11,7 +10,6 @@ import settings from "@/polyvis.settings.json";
 const dbPath = join(process.cwd(), settings.paths.database.resonance);
 const publicDir = join(process.cwd(), "public");
 const outputPath = join(publicDir, "terms.json");
-
 
 // --- Pre-flight Checks ---
 if (!existsSync(dbPath)) {

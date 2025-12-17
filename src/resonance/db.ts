@@ -1,8 +1,7 @@
-import { Database } from "bun:sqlite";
-import { join } from "path";
+import type { Database } from "bun:sqlite";
 import settings from "@/polyvis.settings.json";
-import { MIGRATIONS, CURRENT_SCHEMA_VERSION } from "./schema";
 import { DatabaseFactory } from "./DatabaseFactory";
+import { CURRENT_SCHEMA_VERSION, MIGRATIONS } from "./schema";
 
 // Types matching Schema
 export interface Node {
@@ -19,78 +18,87 @@ export interface Node {
 
 export class ResonanceDB {
 	private db: Database;
-    private dbPath: string;
-    private options: { readonly?: boolean };
+	// biome-ignore lint/correctness/noUnusedPrivateClassMembers: May be used for debugging/diagnostics
+	private dbPath: string;
+	// biome-ignore lint/correctness/noUnusedPrivateClassMembers: May be used for debugging/diagnostics
+	private options: { readonly?: boolean };
 
-    /**
-     * Factory method to load the default Resonance Graph based on settings.
-     */
-    static init(options: { readonly?: boolean } = {}): ResonanceDB {
-        return new ResonanceDB(settings.paths.database.resonance, options);
-    }
-
+	/**
+	 * Factory method to load the default Resonance Graph based on settings.
+	 */
+	static init(options: { readonly?: boolean } = {}): ResonanceDB {
+		return new ResonanceDB(settings.paths.database.resonance, options);
+	}
 
 	constructor(dbPath: string, options: { readonly?: boolean } = {}) {
-		// Ensure directory exists if we are creating it? 
-        // Database constructor usually handles file creation, but not directory.
-        // Assuming directory exists for now as it usually does.
-        this.dbPath = dbPath;
-        this.options = options;
+		// Ensure directory exists if we are creating it?
+		// Database constructor usually handles file creation, but not directory.
+		// Assuming directory exists for now as it usually does.
+		this.dbPath = dbPath;
+		this.options = options;
 		// Use Factory to ensure compliant configuration
-        // STABILITY FIX: Always force ReadWrite (ignore options.readonly if passed)
-        // WAL mode requires all readers to have write access to -shm file.
-        this.db = DatabaseFactory.connect(dbPath, { ...options, readonly: false });
-        
-        // Always check migration (it's safe now with locking)
-        this.migrate();
-    }
+		// STABILITY FIX: Always force ReadWrite (ignore options.readonly if passed)
+		// WAL mode requires all readers to have write access to -shm file.
+		this.db = DatabaseFactory.connect(dbPath, { ...options, readonly: false });
 
-    private migrate() {
-        const row = this.db.query("PRAGMA user_version").get() as { user_version: number };
-        let currentVersion = row.user_version;
+		// Always check migration (it's safe now with locking)
+		this.migrate();
+	}
 
-        // Backward Compatibility for existing unversioned DBs
-        if (currentVersion === 0) {
-            const tables = this.db.query("SELECT name FROM sqlite_master WHERE type='table' AND name='nodes'").get();
-            if (tables) {
-                // DB exists but has version 0. Detect schema state.
-                const cols = this.db.query("PRAGMA table_info(nodes)").all() as any[];
-                const hasHash = cols.some(c => c.name === 'hash');
-                const hasMeta = cols.some(c => c.name === 'meta');
-                
-                if (hasHash && hasMeta) {
-                    currentVersion = 3;
-                } else if (hasHash) {
-                    currentVersion = 2;
-                } else {
-                    currentVersion = 1;
-                }
-                // Update the version on the file so we don't guess next time
-                this.db.run(`PRAGMA user_version = ${currentVersion}`);
-            }
-        }
+	private migrate() {
+		const row = this.db.query("PRAGMA user_version").get() as {
+			user_version: number;
+		};
+		let currentVersion = row.user_version;
 
-        if (currentVersion >= CURRENT_SCHEMA_VERSION) return;
+		// Backward Compatibility for existing unversioned DBs
+		if (currentVersion === 0) {
+			const tables = this.db
+				.query(
+					"SELECT name FROM sqlite_master WHERE type='table' AND name='nodes'",
+				)
+				.get();
+			if (tables) {
+				// DB exists but has version 0. Detect schema state.
+				const cols = this.db.query("PRAGMA table_info(nodes)").all() as any[];
+				const hasHash = cols.some((c) => c.name === "hash");
+				const hasMeta = cols.some((c) => c.name === "meta");
 
-        console.log(`📦 ResonanceDB: Migrating from v${currentVersion} to v${CURRENT_SCHEMA_VERSION}...`);
+				if (hasHash && hasMeta) {
+					currentVersion = 3;
+				} else if (hasHash) {
+					currentVersion = 2;
+				} else {
+					currentVersion = 1;
+				}
+				// Update the version on the file so we don't guess next time
+				this.db.run(`PRAGMA user_version = ${currentVersion}`);
+			}
+		}
 
-        for (const migration of MIGRATIONS) {
-            if (migration.version > currentVersion) {
-                // console.log(`   Running Migration v${migration.version}: ${migration.description}`);
-                if (migration.sql) {
-                    this.db.run(migration.sql);
-                }
-                if (migration.up) {
-                    migration.up(this.db);
-                }
-                this.db.run(`PRAGMA user_version = ${migration.version}`);
-                currentVersion = migration.version;
-            }
-        }
-    }
+		if (currentVersion >= CURRENT_SCHEMA_VERSION) return;
+
+		console.log(
+			`📦 ResonanceDB: Migrating from v${currentVersion} to v${CURRENT_SCHEMA_VERSION}...`,
+		);
+
+		for (const migration of MIGRATIONS) {
+			if (migration.version > currentVersion) {
+				// console.log(`   Running Migration v${migration.version}: ${migration.description}`);
+				if (migration.sql) {
+					this.db.run(migration.sql);
+				}
+				if (migration.up) {
+					migration.up(this.db);
+				}
+				this.db.run(`PRAGMA user_version = ${migration.version}`);
+				currentVersion = migration.version;
+			}
+		}
+	}
 
 	insertNode(node: Node) {
-        // No inline migrations here anymore!
+		// No inline migrations here anymore!
 
 		const stmt = this.db.prepare(`
             INSERT OR REPLACE INTO nodes (id, type, title, content, domain, layer, embedding, hash, meta)
@@ -139,92 +147,105 @@ export class ResonanceDB {
 		);
 	}
 
-    // Typed Data Accessors
+	// Typed Data Accessors
 
-    // Typed Data Accessors
+	// Typed Data Accessors
 
-    /**
-     * Fetch nodes with Safe Limits.
-     * @param options.excludeContent If true, skips 'content' and 'embedding' columns (Large BLOBs).
-     */
-    getNodes(options: { 
-        domain?: string; 
-        type?: string; 
-        limit?: number; 
-        offset?: number; 
-        excludeContent?: boolean; // FAFCAS: Optimization for metadata scans
-    } = {}): Node[] {
-        // Safe Default Limit? User specifically asked to fix unbounded. 
-        // But for backward compatibility with scripts that expect everything, we might need a high limit or explicit 'unlimited' flag.
-        // Let's default to unlimited IF not specified, but strongly encourage limits in docs.
-        // Actually, 'sloppy code' implies implicit SELECT * is bad.
-        // Let's implement options but keep default behavior 'all' to avoid breaking existing logic silently, 
-        // BUT we will log a warning if count > 1000 and no limit?
-        // No, let's just implement the capabilities first. callers must opt-in to limits.
-        
-        const cols = options.excludeContent 
-            ? "id, type, title, domain, layer, hash, meta" // No content, No embedding
-            : "*";
+	/**
+	 * Fetch nodes with Safe Limits.
+	 * @param options.excludeContent If true, skips 'content' and 'embedding' columns (Large BLOBs).
+	 */
+	getNodes(
+		options: {
+			domain?: string;
+			type?: string;
+			limit?: number;
+			offset?: number;
+			excludeContent?: boolean; // FAFCAS: Optimization for metadata scans
+		} = {},
+	): Node[] {
+		// Safe Default Limit? User specifically asked to fix unbounded.
+		// But for backward compatibility with scripts that expect everything, we might need a high limit or explicit 'unlimited' flag.
+		// Let's default to unlimited IF not specified, but strongly encourage limits in docs.
+		// Actually, 'sloppy code' implies implicit SELECT * is bad.
+		// Let's implement options but keep default behavior 'all' to avoid breaking existing logic silently,
+		// BUT we will log a warning if count > 1000 and no limit?
+		// No, let's just implement the capabilities first. callers must opt-in to limits.
 
-        let sql = `SELECT ${cols} FROM nodes WHERE 1=1`;
-        const params: any[] = [];
+		const cols = options.excludeContent
+			? "id, type, title, domain, layer, hash, meta" // No content, No embedding
+			: "*";
 
-        if (options.domain) {
-            sql += " AND domain = ?";
-            params.push(options.domain);
-        }
-        if (options.type) {
-             sql += " AND type = ?";
-             params.push(options.type);
-        }
-        
-        if (options.limit) {
-            sql += " LIMIT ?";
-            params.push(options.limit);
-        }
-        if (options.offset) {
-            sql += " OFFSET ?";
-            params.push(options.offset);
-        }
+		let sql = `SELECT ${cols} FROM nodes WHERE 1=1`;
+		const params: any[] = [];
 
-        const rows = this.db.query(sql).all(...params) as any[];
-        return rows.map(row => this.mapRowToNode(row));
-    }
-    
-    getLexicon(): any[] {
-         // Optimized: Exclude content/embedding since we only need ID, Title, Aliases
-         const sql = "SELECT id, title, meta, content FROM nodes WHERE domain = 'lexicon' AND type = 'concept'"; 
-         // Note: content is 'definition', usually small. Keep it. Embedding is big.
-         // Actually, let's select specific columns to avoid embedding blob
-         
-         const rows = this.db.query("SELECT id, title, meta, content FROM nodes WHERE domain = 'lexicon' AND type = 'concept'").all() as any[];
+		if (options.domain) {
+			sql += " AND domain = ?";
+			params.push(options.domain);
+		}
+		if (options.type) {
+			sql += " AND type = ?";
+			params.push(options.type);
+		}
 
-         return rows.map(row => {
-             const meta = row.meta ? JSON.parse(row.meta) : {};
-             return {
-                 id: row.id,
-                 label: row.title,
-                 aliases: meta.aliases || [],
-                 definition: row.content,
-                 ...meta
-             };
-         });
-    }
+		if (options.limit) {
+			sql += " LIMIT ?";
+			params.push(options.limit);
+		}
+		if (options.offset) {
+			sql += " OFFSET ?";
+			params.push(options.offset);
+		}
 
-    private mapRowToNode(row: any): Node {
-        return {
+		const rows = this.db.query(sql).all(...params) as any[];
+		return rows.map((row) => this.mapRowToNode(row));
+	}
+
+	getLexicon(): any[] {
+		// Optimized: Exclude content/embedding since we only need ID, Title, Aliases
+		const _sql =
+			"SELECT id, title, meta, content FROM nodes WHERE domain = 'lexicon' AND type = 'concept'";
+		// Note: content is 'definition', usually small. Keep it. Embedding is big.
+		// Actually, let's select specific columns to avoid embedding blob
+
+		const rows = this.db
+			.query(
+				"SELECT id, title, meta, content FROM nodes WHERE domain = 'lexicon' AND type = 'concept'",
+			)
+			.all() as any[];
+
+		return rows.map((row) => {
+			const meta = row.meta ? JSON.parse(row.meta) : {};
+			return {
+				id: row.id,
+				label: row.title,
+				aliases: meta.aliases || [],
+				definition: row.content,
+				...meta,
+			};
+		});
+	}
+
+	private mapRowToNode(row: any): Node {
+		return {
 			id: row.id,
 			type: row.type,
 			label: row.title,
 			content: row.content, // May be undefined if excluded
 			domain: row.domain,
 			layer: row.layer,
-            // Only hydrate embedding if it exists (was selected)
-            embedding: row.embedding ? new Float32Array(row.embedding.buffer, row.embedding.byteOffset, row.embedding.byteLength / 4) : undefined,
+			// Only hydrate embedding if it exists (was selected)
+			embedding: row.embedding
+				? new Float32Array(
+						row.embedding.buffer,
+						row.embedding.byteOffset,
+						row.embedding.byteLength / 4,
+					)
+				: undefined,
 			hash: row.hash,
 			meta: row.meta ? JSON.parse(row.meta) : {},
 		};
-    }
+	}
 
 	getNodeHash(id: string): string | null {
 		const row = this.db
@@ -265,7 +286,7 @@ export class ResonanceDB {
 	}
 
 	getNodesByType(type: string): Node[] {
-        // Forward to new method
+		// Forward to new method
 		return this.getNodes({ type });
 	}
 

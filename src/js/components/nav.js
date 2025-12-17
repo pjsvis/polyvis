@@ -1,5 +1,3 @@
-import { toggleTheme } from "../utils/theme.js";
-
 export default () => ({
 	links: [
 		{ name: "HQ", href: "/", icon: "home" },

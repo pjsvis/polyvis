@@ -1,6 +1,6 @@
+import { basename, join } from "node:path";
 import type { IngestionArtifact } from "@src/types/artifact";
 import { Glob } from "bun";
-import { basename, join } from "path";
 import settings from "@/polyvis.settings.json";
 
 const artifacts: IngestionArtifact[] = [];
@@ -16,7 +16,7 @@ function extractTitle(content: string, filename: string): string {
 let orderCounter = 0;
 
 for (const source of settings.paths.sources.experience) {
-    const sourceDirRelative = source.path;
+	const sourceDirRelative = source.path;
 	const sourceDir = join(root, sourceDirRelative);
 	console.log(`Scanning ${sourceDir}...`);
 
@@ -50,8 +50,8 @@ for (const source of settings.paths.sources.experience) {
 
 // --- Output ---
 const outDir = join(root, ".resonance", "artifacts");
-if (!require("fs").existsSync(outDir)) {
-	require("fs").mkdirSync(outDir, { recursive: true });
+if (!require("node:fs").existsSync(outDir)) {
+	require("node:fs").mkdirSync(outDir, { recursive: true });
 }
 
 const outFile = join(outDir, "docs.json");

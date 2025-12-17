@@ -8,7 +8,20 @@
       "Bash(git diff:*)",
       "Bash(cd /Users/petersmith/Documents/GitHub/polyvis && ls -t debriefs/ | head -10)",
       "Bash(cd /Users/petersmith/Documents/GitHub/polyvis && cat _CURRENT_TASK.md)",
-      "Bash(cd /Users/petersmith/Documents/GitHub/polyvis && find src/js -name \"*.js\" -type f | head -10)"
+      "Bash(cd /Users/petersmith/Documents/GitHub/polyvis && find src/js -name \"*.js\" -type f | head -10)",
+      "Bash(cd /Users/petersmith/Documents/GitHub/polyvis && tsc --noEmit)",
+      "Bash(cd /Users/petersmith/Documents/GitHub/polyvis && bunx biome check src/ --diagnostic-level=error)",
+      "Bash(cd /Users/petersmith/Documents/GitHub/polyvis && ps aux | grep -E \"(daemon|mcp)\" | grep -v grep)",
+      "Bash(cd /Users/petersmith/Documents/GitHub/polyvis && bunx biome check src/ --write)",
+      "Bash(cd /Users/petersmith/Documents/GitHub/polyvis && bunx biome check src/ --write --unsafe)",
+      "Edit(src/core/**)",
+      "Bash(cd /Users/petersmith/Documents/GitHub/polyvis && cat -A src/core/SemanticMatcher.ts | sed -n '32,35p')",
+      "Bash(cd /Users/petersmith/Documents/GitHub/polyvis && sed -n '32,36p' src/core/SemanticMatcher.ts)",
+      "Bash(cd /Users/petersmith/Documents/GitHub/polyvis && tsc --noEmit 2>&1 | head -20)",
+      "Bash(cd /Users/petersmith/Documents/GitHub/polyvis && bunx biome check src/ --diagnostic-level=error 2>&1 | grep -E \"(Found|Checked)\" | head -5)",
+      "Edit(src/resonance/**)",
+      "Bash(cd /Users/petersmith/Documents/GitHub/polyvis && sed -n '35,37p' src/core/TimelineWeaver.ts)",
+      "Bash(cd /Users/petersmith/Documents/GitHub/polyvis && bunx biome check src/ --diagnostic-level=error 2>&1 | tail -10)"
     ]
   }
 }

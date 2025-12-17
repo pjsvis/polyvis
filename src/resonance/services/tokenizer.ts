@@ -149,8 +149,8 @@ export class TokenizerService {
 
 	// Deprecated / No-Op
 	public extend(
-		customWords: Record<string, string>,
-		customPatterns: Record<string, string>,
+		_customWords: Record<string, string>,
+		_customPatterns: Record<string, string>,
 	) {
 		// No-op for brute force scanner
 	}

@@ -34,23 +34,26 @@ export const methods = {
 				// ADAPTIVE LOUVAIN (Rule of 7 & Rule of 3)
 				// Goal: 3 to 7 communities.
 				// Max 3 attempts to prevent thrashing.
-				
+
 				let resolution = 1.0; // Start middle
 				let attempts = 0;
 				const maxAttempts = 3;
-				
+
 				while (attempts < maxAttempts) {
 					attempts++;
 					this.louvainCommunities = graphologyLibrary.communitiesLouvain(
 						this.graph,
 						{ resolution: resolution },
 					);
-					
-					const uniqueCount = new Set(Object.values(this.louvainCommunities)).size;
-					console.log(`Adaptive Louvain #${attempts}: Res ${resolution.toFixed(1)} -> ${uniqueCount} communities`);
+
+					const uniqueCount = new Set(Object.values(this.louvainCommunities))
+						.size;
+					console.log(
+						`Adaptive Louvain #${attempts}: Res ${resolution.toFixed(1)} -> ${uniqueCount} communities`,
+					);
 
 					if (uniqueCount >= 3 && uniqueCount <= 7) break; // Success
-					
+
 					// Tuning
 					if (uniqueCount > 7) {
 						resolution = Math.max(0.1, resolution - 0.3); // Coarser
@@ -62,22 +65,26 @@ export const methods = {
 				// POST-PROCESS: Strict Enforcement (Visual Fallback)
 				// If we still have > 7, force merge the tail into "Misc"
 				const counts = {};
-				Object.values(this.louvainCommunities).forEach(c => {
+				Object.values(this.louvainCommunities).forEach((c) => {
 					counts[c] = (counts[c] || 0) + 1;
 				});
-				
-				const sortedIds = Object.keys(counts).sort((a,b) => counts[b] - counts[a]);
+
+				const sortedIds = Object.keys(counts).sort(
+					(a, b) => counts[b] - counts[a],
+				);
 				if (sortedIds.length > 7) {
 					const top6 = new Set(sortedIds.slice(0, 6)); // Keep top 6
 					const miscId = 999;
-					
-					this.graph.forEachNode(node => {
+
+					this.graph.forEachNode((node) => {
 						const originalComm = this.louvainCommunities[node];
 						if (!top6.has(String(originalComm))) {
 							this.louvainCommunities[node] = miscId;
 						}
 					});
-					console.log(`Force-merged ${sortedIds.length - 6} small communities into 'Misc'.`);
+					console.log(
+						`Force-merged ${sortedIds.length - 6} small communities into 'Misc'.`,
+					);
 				}
 
 				this.louvainNames = {};
@@ -93,7 +100,7 @@ export const methods = {
 						this.louvainNames[commId] = "Misc / Others";
 						return;
 					}
-					
+
 					let maxDegree = -1;
 					let hubNode = null;
 					communityNodes[commId].forEach((node) => {
@@ -278,7 +285,7 @@ export const methods = {
 			"#3cb44b",
 		];
 		const sortedGroups = Object.keys(counts)
-			.map((id) => ({ id: parseInt(id), count: counts[id] }))
+			.map((id) => ({ id: parseInt(id, 10), count: counts[id] }))
 			.sort((a, b) => b.count - a.count);
 		return sortedGroups.map((group, index) => ({
 			...group,

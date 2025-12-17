@@ -1,13 +1,13 @@
 import type { Database } from "bun:sqlite";
+import { randomUUID } from "node:crypto";
 import { DatabaseFactory } from "@src/resonance/DatabaseFactory";
-import { randomUUID } from "crypto";
 import { DB_PATHS } from "../config/constants";
 
 export class LocusLedger {
 	private db: Database;
 
 	constructor(dbPath: string = DB_PATHS.LEDGER) {
-        // Use Factory to ensure compliant configuration (WAL, Timeout, etc.)
+		// Use Factory to ensure compliant configuration (WAL, Timeout, etc.)
 		this.db = DatabaseFactory.connect(dbPath, { create: true });
 		this.initialize();
 	}

@@ -1,8 +1,8 @@
+import { dotProduct } from "../../utils/math.js";
 import * as Data from "./data.js";
 import * as Graph from "./graph.js";
 import * as Interactions from "./interactions.js";
 import * as Viz from "./viz.js";
-import { dotProduct } from "../../utils/math.js";
 
 export default function sigmaApp() {
 	return {
@@ -11,11 +11,11 @@ export default function sigmaApp() {
 		error: null,
 		loaded: false,
 		debug: false,
-		
+
 		// Sub-Graph State (Composability)
 		activeSubGraphs: ["persona"], // Default start
-		availableSubGraphs: [],       // Discovered from data
-		
+		availableSubGraphs: [], // Discovered from data
+
 		// Legacy / View State
 		leftOpen: true,
 		rightOpen: false,
@@ -64,13 +64,13 @@ export default function sigmaApp() {
 				xhr.open("GET", "/resonance.db", true);
 				xhr.responseType = "arraybuffer";
 
-				xhr.onload = (e) => {
+				xhr.onload = (_e) => {
 					const uInt8Array = new Uint8Array(xhr.response);
 					const db = new SQL.Database(uInt8Array);
-                    
-                    // 1. INJECT UDF (Vector Math)
-                    db.create_function("vec_dot", dotProduct);
-                    console.log("✅ UDF 'vec_dot' registered.");
+
+					// 1. INJECT UDF (Vector Math)
+					db.create_function("vec_dot", dotProduct);
+					console.log("✅ UDF 'vec_dot' registered.");
 
 					this.loadGraph(db);
 					this.loaded = true;

@@ -1,14 +1,14 @@
 export const initialState = () => ({
 	masterData: { nodes: [], edges: [] },
 	health: {
-        nodes: 0,
-        edges: 0,
-        density: 0,
-        avgDegree: 0,
-        components: 0,
-        giantCompPercent: 0
-    }, 
-    db: null,     // SQLite Instance
+		nodes: 0,
+		edges: 0,
+		density: 0,
+		avgDegree: 0,
+		components: 0,
+		giantCompPercent: 0,
+	},
+	db: null, // SQLite Instance
 });
 
 export const methods = {
@@ -24,7 +24,7 @@ export const methods = {
 	},
 	loadGraph(db) {
 		this.status = "Extracting Data...";
-        this.db = db; // Store for UDF queries
+		this.db = db; // Store for UDF queries
 		this.masterData = { nodes: [], edges: [] };
 
 		// Query Nodes
@@ -64,13 +64,13 @@ export const methods = {
 
 		// 3. Post-Process: Enrich with Sub-Graph Tags
 		const discoveredSubGraphs = new Set();
-		this.masterData.nodes.forEach(node => {
+		this.masterData.nodes.forEach((node) => {
 			let subGraph = "misc"; // Default fallback
-			
+
 			// A. Explicit Domain Check
 			if (node.domain === "persona") {
 				subGraph = "persona";
-			} 
+			}
 			// B. Folder Extraction from Source
 			else if (node.meta) {
 				try {
@@ -79,10 +79,16 @@ export const methods = {
 						// Extract first folder after root or known folder names
 						// e.g. "polyvis/playbooks/foo.md" -> "playbooks"
 						// e.g. "debriefs/2025/foo.md" -> "debriefs"
-						const parts = meta.source.split('/');
-						
+						const _parts = meta.source.split("/");
+
 						// Heuristic: Check for known folders
-						const knownFolders = ["playbooks", "debriefs", "briefs", "shards", "knowledge"];
+						const knownFolders = [
+							"playbooks",
+							"debriefs",
+							"briefs",
+							"shards",
+							"knowledge",
+						];
 						for (const folder of knownFolders) {
 							if (meta.source.includes(folder)) {
 								subGraph = folder;
@@ -90,19 +96,19 @@ export const methods = {
 							}
 						}
 					}
-				} catch (e) {
+				} catch (_e) {
 					// Invalid meta JSON, ignore
 				}
 			}
-			
+
 			node.subGraph = subGraph;
 			discoveredSubGraphs.add(subGraph);
 		});
 
 		// Update State with Discovered Graphs
 		this.availableSubGraphs = Array.from(discoveredSubGraphs).sort();
-        // DEFAULT: Show ALL Sub-Graphs initially
-        this.activeSubGraphs = [...this.availableSubGraphs];
+		// DEFAULT: Show ALL Sub-Graphs initially
+		this.activeSubGraphs = [...this.availableSubGraphs];
 		console.log("Discovered Sub-Graphs:", this.availableSubGraphs);
 
 		// Chain operations

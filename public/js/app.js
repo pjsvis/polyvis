@@ -1,36 +1,3 @@
-// src/js/utils/theme.js
-var THEME_KEY = "polyvis-theme";
-var getPreferredTheme = () => {
-  const stored = localStorage.getItem(THEME_KEY);
-  if (stored)
-    return stored;
-  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-};
-var setTheme = (theme) => {
-  if (theme === "system") {
-    localStorage.removeItem(THEME_KEY);
-    document.documentElement.removeAttribute("data-theme");
-  } else {
-    localStorage.setItem(THEME_KEY, theme);
-    document.documentElement.setAttribute("data-theme", theme);
-  }
-};
-var toggleTheme = () => {
-  const current = document.documentElement.getAttribute("data-theme") || "light";
-  const next = current === "dark" ? "light" : "dark";
-  console.log("Theme toggled to:", next);
-  setTheme(next);
-  return next;
-};
-console.log("Exposing toggleTheme to window");
-window.toggleTheme = toggleTheme;
-var initTheme = () => {
-  const stored = localStorage.getItem(THEME_KEY);
-  if (stored) {
-    document.documentElement.setAttribute("data-theme", stored);
-  }
-};
-
 // node_modules/alpinejs/dist/module.esm.js
 var flushPending = false;
 var flushing = false;
@@ -4593,7 +4560,7 @@ var doc_viewer_default = () => ({
       if (lang === "dot" || lang === "graphviz") {
         try {
           if (typeof Viz !== "undefined") {
-            const viz = new Viz;
+            const _viz = new Viz;
             return `<div class="viz-container" data-dot="${encodeURIComponent(text)}">Loading Diagram...</div>`;
           }
         } catch (e) {
@@ -4620,7 +4587,7 @@ var doc_viewer_default = () => ({
         }
         return match;
       });
-      html = html.replace(/\[\[(.*?)\]\]/g, (match, content) => {
+      html = html.replace(/\[\[(.*?)\]\]/g, (_match, content) => {
         const text = content.trim();
         if (this.references[text]) {
           return `<a href="#" class="wiki-ref" data-ref="${text}">${text}</a>`;
@@ -4662,7 +4629,7 @@ var doc_viewer_default = () => ({
     });
     closeSection();
     const firstChild = container.firstElementChild;
-    if (firstChild && firstChild.classList.contains("doc-intro") && firstChild.children.length === 0) {
+    if (firstChild?.classList.contains("doc-intro") && firstChild.children.length === 0) {
       firstChild.remove();
     }
     return container.innerHTML;
@@ -4710,7 +4677,7 @@ var doc_viewer_default = () => ({
         text,
         number,
         id,
-        level: parseInt(h.tagName.substring(1))
+        level: parseInt(h.tagName.substring(1), 10)
       };
       if (item.level === 2) {
         currentGroup = { header: item, children: [] };
@@ -4793,7 +4760,7 @@ var explorer_default = () => ({
       const xhr = new XMLHttpRequest;
       xhr.open("GET", "/resonance.db", true);
       xhr.responseType = "arraybuffer";
-      xhr.onload = (e) => {
+      xhr.onload = (_e2) => {
         const uInt8Array = new Uint8Array(xhr.response);
         this.db = new SQL.Database(uInt8Array);
         this.status = "Resonance DB Loaded. Ready.";
@@ -5065,7 +5032,7 @@ var graph_default = () => ({
       a.download = "polyvis_graph.png";
       a.click();
     };
-    img.src = "data:image/svg+xml;base64," + btoa(unescape(encodeURIComponent(data2)));
+    img.src = `data:image/svg+xml;base64,${btoa(unescape(encodeURIComponent(data2)))}`;
   }
 });
 
@@ -5120,6 +5087,31 @@ var nav_default = () => ({
         `;
   }
 });
+
+// src/js/utils/math.js
+function dotProduct(a, b2) {
+  if (!a || !b2)
+    return 0;
+  let vecA = a;
+  let vecB = b2;
+  if (a instanceof Uint8Array) {
+    vecA = new Float32Array(a.buffer, a.byteOffset, a.byteLength / 4);
+  }
+  if (b2 instanceof Uint8Array) {
+    vecB = new Float32Array(b2.buffer, b2.byteOffset, b2.byteLength / 4);
+  }
+  if (typeof a === "string")
+    vecA = JSON.parse(a);
+  if (typeof b2 === "string")
+    vecB = JSON.parse(b2);
+  if (vecA.length !== vecB.length)
+    return 0;
+  let dot = 0;
+  for (let i = 0;i < vecA.length; i++) {
+    dot += vecA[i] * vecB[i];
+  }
+  return dot;
+}
 
 // src/js/components/sigma-explorer/data.js
 var initialState = () => ({
@@ -5189,8 +5181,14 @@ var methods = {
         try {
           const meta = JSON.parse(node.meta);
           if (meta.source) {
-            const parts = meta.source.split("/");
-            const knownFolders = ["playbooks", "debriefs", "briefs", "shards", "knowledge"];
+            const _parts = meta.source.split("/");
+            const knownFolders = [
+              "playbooks",
+              "debriefs",
+              "briefs",
+              "shards",
+              "knowledge"
+            ];
             for (const folder of knownFolders) {
               if (meta.source.includes(folder)) {
                 subGraph = folder;
@@ -5198,7 +5196,7 @@ var methods = {
               }
             }
           }
-        } catch (e) {}
+        } catch (_e2) {}
       }
       node.subGraph = subGraph;
       discoveredSubGraphs.add(subGraph);
@@ -5231,8 +5229,8 @@ function adaptNode(row) {
     nodeType: row.type || "unknown",
     size: calculateBaseSize(row.type),
     color: calculateBaseColor(row.subGraph || "misc"),
-    x: stableHash(row.id + "x"),
-    y: stableHash(row.id + "y")
+    x: stableHash(`${row.id}x`),
+    y: stableHash(`${row.id}y`)
   };
   NODE_ATTR_ALLOWLIST.forEach((attr) => {
     if (row[attr] !== undefined) {
@@ -5240,7 +5238,7 @@ function adaptNode(row) {
     }
   });
   const rawContent = row.content || row.definition || "";
-  sigmaNode.definition = rawContent.length > 500 ? rawContent.substring(0, 500) + "..." : rawContent;
+  sigmaNode.definition = rawContent.length > 500 ? `${rawContent.substring(0, 500)}...` : rawContent;
   if (typeof row.external_refs === "string") {
     try {
       sigmaNode.external_refs = JSON.parse(row.external_refs);
@@ -5475,7 +5473,7 @@ var methods3 = {
       container.style.cursor = "grabbing";
     });
     document.addEventListener("mouseup", () => {
-      if (this.renderer && this.renderer.getMouseCaptor()) {
+      if (this.renderer?.getMouseCaptor()) {
         this.renderer.getMouseCaptor().isMouseEnabled = true;
       }
       if (!this.hoveredNode)
@@ -5484,7 +5482,7 @@ var methods3 = {
     try {
       if (this.renderer.getMouseCaptor())
         this.renderer.getMouseCaptor().isMouseWheelEnabled = false;
-    } catch (e) {}
+    } catch (_e2) {}
     container.addEventListener("wheel", (e) => e.stopPropagation(), true);
     this.renderer.on("clickNode", ({ node }) => {
       this.selectNode(node);
@@ -5620,7 +5618,9 @@ var methods3 = {
     this.searchComplete = false;
     this.hasSimilarNodes = false;
     try {
-      const result = this.db.exec("SELECT embedding FROM nodes WHERE id = ?", [nodeId]);
+      const result = this.db.exec("SELECT embedding FROM nodes WHERE id = ?", [
+        nodeId
+      ]);
       if (!result.length || !result[0].values.length)
         return;
       const embedding = result[0].values[0][0];
@@ -5921,7 +5921,7 @@ var methods4 = {
       "#8e4ec6",
       "#3cb44b"
     ];
-    const sortedGroups = Object.keys(counts).map((id) => ({ id: parseInt(id), count: counts[id] })).sort((a, b2) => b2.count - a.count);
+    const sortedGroups = Object.keys(counts).map((id) => ({ id: parseInt(id, 10), count: counts[id] })).sort((a, b2) => b2.count - a.count);
     return sortedGroups.map((group, index) => ({
       ...group,
       color: colors[index % colors.length],
@@ -5951,31 +5951,6 @@ var methods4 = {
     this.toggleColorViz("louvain");
   }
 };
-
-// src/js/utils/math.js
-function dotProduct(a, b2) {
-  if (!a || !b2)
-    return 0;
-  let vecA = a;
-  let vecB = b2;
-  if (a instanceof Uint8Array) {
-    vecA = new Float32Array(a.buffer, a.byteOffset, a.byteLength / 4);
-  }
-  if (b2 instanceof Uint8Array) {
-    vecB = new Float32Array(b2.buffer, b2.byteOffset, b2.byteLength / 4);
-  }
-  if (typeof a === "string")
-    vecA = JSON.parse(a);
-  if (typeof b2 === "string")
-    vecB = JSON.parse(b2);
-  if (vecA.length !== vecB.length)
-    return 0;
-  let dot = 0;
-  for (let i = 0;i < vecA.length; i++) {
-    dot += vecA[i] * vecB[i];
-  }
-  return dot;
-}
 
 // src/js/components/sigma-explorer/index.js
 function sigmaApp() {
@@ -6017,7 +5992,7 @@ function sigmaApp() {
         const xhr = new XMLHttpRequest;
         xhr.open("GET", "/resonance.db", true);
         xhr.responseType = "arraybuffer";
-        xhr.onload = (e) => {
+        xhr.onload = (_e2) => {
           const uInt8Array = new Uint8Array(xhr.response);
           const db = new SQL.Database(uInt8Array);
           db.create_function("vec_dot", dotProduct);
