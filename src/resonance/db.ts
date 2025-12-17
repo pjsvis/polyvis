@@ -351,9 +351,32 @@ export class ResonanceDB {
 	}
 }
 
+// Helper: Calculate magnitude (L2 norm) of a vector
+function magnitude(vec: Float32Array): number {
+	let sum = 0;
+	for (let i = 0; i < vec.length; i++) {
+		sum += (vec[i] || 0) * (vec[i] || 0);
+	}
+	return Math.sqrt(sum);
+}
+
 // FAFCAS Protocol: use Dot Product for normalized vectors
 // Source: playbooks/embeddings-and-fafcas-protocol-playbook.md
+// 
+// Returns 0 for zero-magnitude vectors (failed embeddings) to prevent
+// false matches in search results.
 export function dotProduct(a: Float32Array, b: Float32Array): number {
+	// Check for zero vectors (failed embeddings)
+	const magA = magnitude(a);
+	const magB = magnitude(b);
+
+	if (magA < 1e-6 || magB < 1e-6) {
+		console.warn(
+			"⚠️  Zero vector detected in dot product, skipping comparison",
+		);
+		return 0;
+	}
+
 	let sum = 0;
 	// Modern JS engines SIMD-optimize this loop automatically
 	for (let i = 0; i < a.length; i++) {

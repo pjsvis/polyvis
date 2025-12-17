@@ -122,6 +122,40 @@ export class ServiceLifecycle {
 		if (checkZombies) {
 			await ZombieDefense.assertClean(`${this.config.name} (Serve)`);
 		}
+
+		// Register cleanup handlers to remove PID file on exit/crash/kill
+		let cleanupCalled = false;
+		const cleanup = async (signal?: string) => {
+			if (cleanupCalled) return; // Prevent double cleanup
+			cleanupCalled = true;
+
+			try {
+				if (await Bun.file(this.config.pidFile).exists()) {
+					await unlink(this.config.pidFile);
+					if (signal) {
+						console.error(
+							`\n🧹 ${this.config.name}: PID file cleaned up on ${signal}`,
+						);
+					}
+				}
+			} catch (e) {
+				// Ignore cleanup errors (file might already be deleted)
+			}
+		};
+
+		// Register signal handlers
+		process.on("SIGINT", () => cleanup("SIGINT").then(() => process.exit(0)));
+		process.on("SIGTERM", () => cleanup("SIGTERM").then(() => process.exit(0)));
+		process.on("exit", () => {
+			// Note: exit event is synchronous, so we do sync cleanup
+			if (!cleanupCalled && Bun.file(this.config.pidFile).exists()) {
+				cleanupCalled = true;
+				try {
+					Bun.write(this.config.pidFile, ""); // Truncate to mark as stale
+				} catch {}
+			}
+		});
+
 		await serverLogic();
 	}
 

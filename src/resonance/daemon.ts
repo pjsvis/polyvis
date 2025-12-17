@@ -108,6 +108,14 @@ let debounceTimer: ReturnType<typeof setTimeout> | null = null;
 const DEBOUNCE_MS = 2000;
 const pendingFiles = new Set<string>();
 
+// Retry queue: Track failed ingestions with attempt counts
+const retryQueue = new Map<
+	string,
+	{ attempts: number; lastError: string; lastAttempt: number }
+>();
+const MAX_RETRIES = 3;
+const RETRY_BACKOFF_MS = 5000; // Wait 5 seconds before retry
+
 function startWatcher() {
 	// Dynamically load watch targets from settings
 	const rawSources = settings.paths.sources.experience;
@@ -161,11 +169,55 @@ function triggerIngestion() {
 			await ingestor.run({ files: batch });
 
 			console.log("✅ Batch Ingestion Complete.");
+			// Clear retry counts for successful files
+			for (const file of batch) {
+				retryQueue.delete(file);
+			}
 			await notify("PolyVis Resonance", `Graph Updated (${batchSize} files).`);
 		} catch (e) {
-			console.error("❌ Ingestion Failed:", e);
-			// Re-queue failed files? For now, we just drop them to avoid loops.
-			await notify("PolyVis Resonance", "Ingestion Failed (Check Logs)");
+			const errorMsg = e instanceof Error ? e.message : String(e);
+			console.error("❌ Ingestion Failed:", errorMsg);
+
+			// Re-queue failed files with retry logic
+			const now = Date.now();
+			for (const file of batch) {
+				const retryInfo = retryQueue.get(file) || {
+					attempts: 0,
+					lastError: "",
+					lastAttempt: 0,
+				};
+
+				if (retryInfo.attempts < MAX_RETRIES) {
+					// Re-queue with exponential backoff
+					const nextAttempt = retryInfo.attempts + 1;
+					retryQueue.set(file, {
+						attempts: nextAttempt,
+						lastError: errorMsg,
+						lastAttempt: now,
+					});
+
+					// Re-add to pending files after backoff delay
+					setTimeout(() => {
+						pendingFiles.add(file);
+						triggerIngestion();
+					}, RETRY_BACKOFF_MS * nextAttempt);
+
+					console.warn(
+						`🔄 RETRY: ${file} will retry (attempt ${nextAttempt}/${MAX_RETRIES}) in ${RETRY_BACKOFF_MS * nextAttempt}ms`,
+					);
+				} else {
+					// Abandon after max retries
+					console.error(
+						`⛔ ABANDONED: ${file} failed ${MAX_RETRIES} times. Last error: ${retryInfo.lastError}`,
+					);
+					retryQueue.delete(file); // Remove from tracking
+				}
+			}
+
+			await notify(
+				"PolyVis Resonance",
+				`Ingestion Failed (${batch.length} files will retry)`,
+			);
 		}
 	}, DEBOUNCE_MS);
 }
