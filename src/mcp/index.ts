@@ -1,3 +1,4 @@
+import { appendFileSync } from "node:fs";
 import { join } from "node:path";
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
@@ -26,29 +27,27 @@ const lifecycle = new ServiceLifecycle({
 
 // --- Server Logic ---
 
+// Helper function to create fresh database connection per request
+function createConnection() {
+	const dbPath = join(import.meta.dir, "../../public/resonance.db");
+	const db = new ResonanceDB(dbPath);
+	const vectorEngine = new VectorEngine(db.getRawDb());
+	return { db, vectorEngine };
+}
+
 async function runServer() {
 	// 0. Verify Environment
 	await EnvironmentVerifier.verifyOrExit();
 
 	// console.error("🚀 PolyVis MCP Server Initializing..."); // Silenced to prevent MCP protocol pollution
 
-	// 1. Initialize DB & Engines
-	// This will now use the ROBUST configuration from db.ts (WAL + 5s Timeout)
-	// FIX: Use absolute path relative to this script to prevent CWD drift in MCP Client
-	const dbPath = join(import.meta.dir, "../../public/resonance.db");
-
-	// STABILITY: Use standard ReadWrite connection for WAL support
-	const db = new ResonanceDB(dbPath);
-	// SHARED CONNECTION: Pass the raw DB instance from ResonanceDB to VectorEngine
-	const vectorEngine = new VectorEngine(db.getRawDb());
-
-	// 2. Setup Server
+	// 1. Setup Server
 	const server = new Server(
 		{ name: "polyvis-mcp", version: "1.0.0" },
 		{ capabilities: { tools: {}, resources: {} } },
 	);
 
-	// 3. Define Constants
+	// 2. Define Constants
 	const TOOLS = {
 		SEARCH: "search_documents",
 		READ: "read_node_content",
@@ -57,7 +56,7 @@ async function runServer() {
 		GARDEN: "inject_tags",
 	};
 
-	// 4. Register Handlers
+	// 3. Register Handlers
 	server.setRequestHandler(ListToolsRequestSchema, async () => {
 		return {
 			tools: [
@@ -121,97 +120,116 @@ async function runServer() {
 		const { name, arguments: args } = request.params;
 		try {
 			if (name === TOOLS.SEARCH) {
-				const query = String(args?.query);
-				const limit = Number(args?.limit || 20);
-				const candidates = new Map<
-					string,
-					{ id: string; score: number; preview: string; source: string }
-				>();
-				const errors: string[] = [];
-
-				// Vector Search
+				// Create fresh connection for this request
+				const { db, vectorEngine } = createConnection();
 				try {
-					const vectorResults = await vectorEngine.search(query, limit);
-					for (const r of vectorResults) {
-						candidates.set(r.id, {
-							id: r.id,
-							score: r.score,
-							preview: r.content.slice(0, 200).replace(/\n/g, " "),
-							source: "vector",
-						});
-					}
-				} catch (e: any) {
-					console.error(`Vector Search Error: ${e.message}`);
-					errors.push(e.message);
-				}
+					const query = String(args?.query);
+					const limit = Number(args?.limit || 20);
+					const candidates = new Map<
+						string,
+						{ id: string; score: number; preview: string; source: string }
+					>();
+					const errors: string[] = [];
 
-				// FTS Search
-				try {
-					const ftsResults = db.searchText(query, limit);
-					for (const r of ftsResults) {
-						const existing = candidates.get(r.id);
-						if (existing) {
-							existing.score += 0.2;
-							existing.source = "hybrid";
-						} else {
+					// Vector Search
+					try {
+						const vectorResults = await vectorEngine.search(query, limit);
+						for (const r of vectorResults) {
 							candidates.set(r.id, {
 								id: r.id,
-								score: 0.5,
-								preview: r.snippet || r.title,
-								source: "keyword",
+								score: r.score,
+								preview: r.content.slice(0, 200).replace(/\n/g, " "),
+								source: "vector",
 							});
 						}
+					} catch (e: any) {
+						console.error(`Vector Search Error: ${e.message}`);
+						errors.push(e.message);
 					}
-				} catch (e: any) {
-					console.error(`FTS Search Error: ${e.message}`);
-					errors.push(e.message);
-				}
 
-				const results = Array.from(candidates.values())
-					.sort((a, b) => b.score - a.score)
-					.slice(0, limit)
-					.map((r) => ({ ...r, score: r.score.toFixed(3) }));
+					// FTS Search
+					try {
+						const ftsResults = db.searchText(query, limit);
+						for (const r of ftsResults) {
+							const existing = candidates.get(r.id);
+							if (existing) {
+								existing.score += 0.2;
+								existing.source = "hybrid";
+							} else {
+								candidates.set(r.id, {
+									id: r.id,
+									score: 0.5,
+									preview: r.snippet || r.title,
+									source: "keyword",
+								});
+							}
+						}
+					} catch (e: any) {
+						console.error(`FTS Search Error: ${e.message}`);
+						errors.push(e.message);
+					}
 
-				if (results.length === 0 && errors.length > 0) {
+					const results = Array.from(candidates.values())
+						.sort((a, b) => b.score - a.score)
+						.slice(0, limit)
+						.map((r) => ({ ...r, score: r.score.toFixed(3) }));
+
+					if (results.length === 0 && errors.length > 0) {
+						return {
+							content: [
+								{ type: "text", text: `Search Error: ${errors.join(", ")}` },
+							],
+							isError: true,
+						};
+					}
 					return {
-						content: [
-							{ type: "text", text: `Search Error: ${errors.join(", ")}` },
-						],
-						isError: true,
+						content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
 					};
+				} finally {
+					// Cleanup connection
+					db.close();
 				}
-				return {
-					content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
-				};
 			}
 
 			if (name === TOOLS.READ) {
-				const id = String(args?.id);
-				const row = db
-					.getRawDb()
-					.query("SELECT content FROM nodes WHERE id = ?")
-					.get(id) as any;
-				if (!row)
-					return { content: [{ type: "text", text: "Node not found." }] };
-				return { content: [{ type: "text", text: row.content }] };
+				// Create fresh connection for this request
+				const { db } = createConnection();
+				try {
+					const id = String(args?.id);
+					const row = db
+						.getRawDb()
+						.query("SELECT content FROM nodes WHERE id = ?")
+						.get(id) as any;
+					if (!row)
+						return { content: [{ type: "text", text: "Node not found." }] };
+					return { content: [{ type: "text", text: row.content }] };
+				} finally {
+					db.close();
+				}
 			}
 
 			if (name === TOOLS.EXPLORE) {
-				const id = String(args?.id);
-				const relation = args?.relation ? String(args.relation) : undefined;
-				let sql = "SELECT target, type FROM edges WHERE source = ?";
-				const params = [id];
-				if (relation) {
-					sql += " AND type = ?";
-					params.push(relation);
+				// Create fresh connection for this request
+				const { db } = createConnection();
+				try {
+					const id = String(args?.id);
+					const relation = args?.relation ? String(args.relation) : undefined;
+					let sql = "SELECT target, type FROM edges WHERE source = ?";
+					const params = [id];
+					if (relation) {
+						sql += " AND type = ?";
+						params.push(relation);
+					}
+					const rows = db
+						.getRawDb()
+						.query(sql)
+						.all(...params) as any[];
+					return {
+						content: [{ type: "text", text: JSON.stringify(rows, null, 2) }],
+					};
+				} finally {
+					db.close();
 				}
-				const rows = db
-					.getRawDb()
-					.query(sql)
-					.all(...params) as any[];
-				return {
-					content: [{ type: "text", text: JSON.stringify(rows, null, 2) }],
-				};
 			}
 
 			if (name === TOOLS.LIST) {
@@ -273,24 +291,28 @@ async function runServer() {
 
 	server.setRequestHandler(ReadResourceRequestSchema, async (request) => {
 		if (request.params.uri === "polyvis://stats/summary") {
-			const stats = db.getStats();
-			const text = `Nodes: ${stats.nodes}\nEdges: ${stats.edges}\nVectors: ${stats.vectors}\nSize: ${(stats.db_size_bytes / 1024 / 1024).toFixed(2)} MB`;
-			return {
-				contents: [{ uri: request.params.uri, mimeType: "text/plain", text }],
-			};
+			// Create fresh connection for this request
+			const { db } = createConnection();
+			try {
+				const stats = db.getStats();
+				const text = `Nodes: ${stats.nodes}\nEdges: ${stats.edges}\nVectors: ${stats.vectors}\nSize: ${(stats.db_size_bytes / 1024 / 1024).toFixed(2)} MB`;
+				return {
+					contents: [{ uri: request.params.uri, mimeType: "text/plain", text }],
+				};
+			} finally {
+				db.close();
+			}
 		}
 		throw new Error("Resource not found");
 	});
 
-	// 5. Connect Transport
+	// 4. Connect Transport
 	const transport = new StdioServerTransport();
 	await server.connect(transport);
-	// console.error("✅ PolyVis MCP Server Running (Concurrency Mode: WAL+Timeout)"); // Silenced
+	// console.error("✅ PolyVis MCP Server Running (Per-Request Connections)"); // Silenced
 }
 
 // --- Global Error Handling ---
-// --- Global Error Handling ---
-import { appendFileSync } from "node:fs";
 
 process.on("uncaughtException", (error) => {
 	const msg = `[${new Date().toISOString()}] UNKNOWN MCP ERROR: ${error instanceof Error ? error.stack : error}\n`;

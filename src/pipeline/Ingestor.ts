@@ -65,14 +65,22 @@ export class Ingestor {
 	async runPersona(): Promise<LexiconItem[]> {
 		console.log("🧩 [Phase 1] Starting Persona Ingestion...");
 
-		// 1. Lexicon
-		const lexicon = await this.bootstrapLexicon();
+		this.db.beginTransaction();
+		try {
+			// 1. Lexicon
+			const lexicon = await this.bootstrapLexicon();
 
-		// 2. CDA
-		await this.ingestCDA();
+			// 2. CDA
+			await this.ingestCDA();
 
-		console.log("✅ [Phase 1] Persona Ingestion Complete.");
-		return lexicon;
+			this.db.commit();
+			console.log("✅ [Phase 1] Persona Ingestion Complete.");
+			return lexicon;
+		} catch (e) {
+			this.db.rollback();
+			console.error("❌ [Phase 1] Persona Ingestion Failed, rolled back.");
+			throw e;
+		}
 	}
 
 	/**
@@ -86,57 +94,68 @@ export class Ingestor {
 	) {
 		console.log("📚 [Phase 2] Starting Experience Ingestion...");
 
-		// If lexicon is empty (e.g. running independently), try loading from DB
-		if (lexicon.length === 0) {
-			lexicon = await this.loadLexiconFromDB();
-		}
+		this.db.beginTransaction();
+		try {
+			// If lexicon is empty (e.g. running independently), try loading from DB
+			if (lexicon.length === 0) {
+				lexicon = await this.loadLexiconFromDB();
+			}
 
-		const weaver = new EdgeWeaver(this.db, lexicon);
-		const filesToProcess = this.getFilesToProcess(options);
+			const weaver = new EdgeWeaver(this.db, lexicon);
+			const filesToProcess = this.getFilesToProcess(options);
 
-		// Process
-		const startTime = performance.now();
-		let totalChars = 0;
-		let processedCount = 0;
+			// Process
+			const startTime = performance.now();
+			let totalChars = 0;
+			let processedCount = 0;
 
-		for (const filePath of filesToProcess) {
-			const charsProccessed = await this.processFile(
-				filePath,
-				this.db,
-				this.embedder,
-				weaver,
-				this.tokenizer,
+			for (const filePath of filesToProcess) {
+				const charsProccessed = await this.processFile(
+					filePath,
+					this.db,
+					this.embedder,
+					weaver,
+					this.tokenizer,
+				);
+				totalChars += charsProccessed;
+				processedCount++;
+			}
+
+			const endTime = performance.now();
+			const durationSec = (endTime - startTime) / 1000;
+			const charsPerSec = totalChars / durationSec;
+			const dbStats = this.db.getStats();
+
+			this.logStats(
+				processedCount,
+				totalChars,
+				durationSec,
+				charsPerSec,
+				dbStats,
 			);
-			totalChars += charsProccessed;
-			processedCount++;
+
+			// Weaving
+			await this.runWeavers();
+
+			// Commit all changes
+			this.db.commit();
+
+			// Validation (On native SQLite connection for speed/independence)
+			// Run AFTER commit so validator sees committed data
+			const validator = new PipelineValidator();
+			validator.captureBaseline(sqliteDb);
+
+			// Only run validation if we processed files
+			if (processedCount > 0) {
+				const report = validator.validate(sqliteDb);
+				validator.printReport(report);
+			}
+			console.log("✅ [Phase 2] Experience Ingestion Complete.");
+		} catch (e) {
+			this.db.rollback();
+			console.error("❌ [Phase 2] Experience Ingestion Failed, rolled back.");
+			throw e;
 		}
-
-		const endTime = performance.now();
-		const durationSec = (endTime - startTime) / 1000;
-		const charsPerSec = totalChars / durationSec;
-		const dbStats = this.db.getStats();
-
-		this.logStats(
-			processedCount,
-			totalChars,
-			durationSec,
-			charsPerSec,
-			dbStats,
-		);
-
-		// Weaving
-		await this.runWeavers();
-
-		// Validation (On native SQLite connection for speed/independence)
-		const validator = new PipelineValidator();
-		validator.captureBaseline(sqliteDb);
-
-		// Only run validation if we processed files
-		if (processedCount > 0) {
-			const report = validator.validate(sqliteDb);
-			validator.printReport(report);
-		}
-		console.log("✅ [Phase 2] Experience Ingestion Complete.");
 	}
 
 	// --- Lifecycle Helpers ---

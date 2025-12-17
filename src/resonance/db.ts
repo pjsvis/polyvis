@@ -327,6 +327,22 @@ export class ResonanceDB {
 		}
 	}
 
+	/**
+	 * Transaction Management
+	 * Wraps database operations in transactions for atomicity and performance
+	 */
+	beginTransaction() {
+		this.db.run("BEGIN TRANSACTION");
+	}
+
+	commit() {
+		this.db.run("COMMIT");
+	}
+
+	rollback() {
+		this.db.run("ROLLBACK");
+	}
+
 	close() {
 		this.db.close();
 	}
