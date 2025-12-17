@@ -13,7 +13,14 @@ export function fixHeadless(content: string, filename: string): string {
 		while (i < lines.length && (lines[i]?.trim() ?? "") !== "---") {
 			i++;
 		}
-		if (i < lines.length) {
+		// Bounds check: Ensure we found a closing ---
+		if (i >= lines.length) {
+			// Unclosed frontmatter - skip only the opening ---
+			console.warn(
+				"⚠️  Unclosed frontmatter detected (missing closing ---), skipping only first line",
+			);
+			firstContentIndex = 1;
+		} else {
 			firstContentIndex = i + 1; // Start checking after the second '---'
 		}
 	}

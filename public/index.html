@@ -28,7 +28,7 @@
       <nav class="nav-wrapper">
         <div style="display: flex; align-items: center; gap: 2rem; width: 100%; justify-content: space-between; white-space: nowrap;">
           <a href="/" class="nav-brand" style="font-weight: 900; font-size: 1.25rem; letter-spacing: -0.02em;">POLYVIS</a>
-          <a href="#" id="nav-theme-toggle" onclick="window.toggleTheme(); return false;" class="nav-item">
+          <a href="#" id="nav-theme-toggle" @click.prevent="window.toggleTheme()" class="nav-item">
             <i data-lucide="sun" style="width: var(--font-size-sm); height: var(--font-size-sm);"></i>
             Theme
           </a>

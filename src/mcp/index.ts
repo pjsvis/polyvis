@@ -124,7 +124,23 @@ async function runServer() {
 				const { db, vectorEngine } = createConnection();
 				try {
 					const query = String(args?.query);
-					const limit = Number(args?.limit || 20);
+					
+					// Rate limiting: Validate query length
+					if (query.length > MAX_QUERY_LENGTH) {
+						return {
+							content: [
+								{
+									type: "text",
+									text: `Query too long (${query.length} chars). Maximum: ${MAX_QUERY_LENGTH} chars.`,
+								},
+							],
+							isError: true,
+						};
+					}
+					
+					// Rate limiting: Clamp limit to maximum
+					const requestedLimit = Number(args?.limit || 20);
+					const limit = Math.min(requestedLimit, MAX_SEARCH_LIMIT);
 					const candidates = new Map<
 						string,
 						{ id: string; score: number; preview: string; source: string }

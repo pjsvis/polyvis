@@ -62,7 +62,7 @@
                     </div>
 
                     <div style="margin-left: auto;">
-                         <a href="#" id="nav-theme-toggle" onclick="window.toggleTheme(); return false;" class="nav-item">
+                         <a href="#" id="nav-theme-toggle" @click.prevent="window.toggleTheme()" class="nav-item">
                             <i data-lucide="sun" style="width: var(--font-size-sm); height: var(--font-size-sm);"></i> Theme
                          </a>
                     </div>
