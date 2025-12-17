@@ -53,9 +53,17 @@ export class VectorEngine {
 	private db: Database;
 	private modelPromise: Promise<FlagEmbedding>;
 
+	/**
+	 * @param dbOrPath - Database instance (recommended) or string path (deprecated)
+	 * @deprecated String path constructor bypasses DatabaseFactory and will be removed in v2.0.
+	 *             Use `new VectorEngine(db: Database)` instead.
+	 */
 	constructor(dbOrPath: Database | string) {
 		if (typeof dbOrPath === "string") {
-			// Legacy/Stand-alone mode (Backwards Compat but discouraged)
+			// DEPRECATED: String path mode bypasses DatabaseFactory
+			console.warn(
+				"⚠️  DEPRECATED: VectorEngine string path constructor bypasses DatabaseFactory. Pass Database object instead. Will be removed in v2.0.",
+			);
 			const path =
 				dbOrPath || join(process.cwd(), settings.paths.database.resonance);
 			this.db = new Database(path);
@@ -67,7 +75,7 @@ export class VectorEngine {
 			this.db.run("PRAGMA mmap_size = 268435456;"); // 256MB
 			this.db.run("PRAGMA temp_store = memory;");
 		} else {
-			// SHARED CONNECTION MODE (Recommended)
+			// RECOMMENDED: Database object from DatabaseFactory
 			this.db = dbOrPath;
 		}
 

@@ -51,7 +51,8 @@ console.log("SKIPPED. To profile: `bun add graphology` and uncomment code in scr
 
 // 3. Initialize Vector Engine (WASM / Model Load)
 console.log("\n--- Step 3: VectorEngine Initialization (Deep Load) ---");
-const ve = new VectorEngine(settings.paths.database.resonance);
+const rdb = ResonanceDB.init();
+const ve = new VectorEngine(rdb.getRawDb());
 // Force model load by running a dummy search
 const t3_start = performance.now();
 await ve.search("warmup", 1);

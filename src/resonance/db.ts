@@ -20,26 +20,25 @@ export class ResonanceDB {
 	private db: Database;
 	// biome-ignore lint/correctness/noUnusedPrivateClassMembers: May be used for debugging/diagnostics
 	private dbPath: string;
-	// biome-ignore lint/correctness/noUnusedPrivateClassMembers: May be used for debugging/diagnostics
-	private options: { readonly?: boolean };
 
 	/**
 	 * Factory method to load the default Resonance Graph based on settings.
 	 */
-	static init(options: { readonly?: boolean } = {}): ResonanceDB {
-		return new ResonanceDB(settings.paths.database.resonance, options);
+	static init(): ResonanceDB {
+		return new ResonanceDB(settings.paths.database.resonance);
 	}
 
-	constructor(dbPath: string, options: { readonly?: boolean } = {}) {
-		// Ensure directory exists if we are creating it?
-		// Database constructor usually handles file creation, but not directory.
-		// Assuming directory exists for now as it usually does.
+	/**
+	 * @param dbPath - Absolute path to the SQLite database file
+	 *
+	 * Note: ResonanceDB always opens in read-write mode regardless of any options.
+	 * WAL mode requires write access to the -shm (shared memory) file even for readers.
+	 */
+	constructor(dbPath: string) {
 		this.dbPath = dbPath;
-		this.options = options;
-		// Use Factory to ensure compliant configuration
-		// STABILITY FIX: Always force ReadWrite (ignore options.readonly if passed)
-		// WAL mode requires all readers to have write access to -shm file.
-		this.db = DatabaseFactory.connect(dbPath, { ...options, readonly: false });
+		// Use DatabaseFactory to ensure compliant configuration (WAL mode + timeouts)
+		// Always read-write: WAL mode requires all connections to have write access to -shm file
+		this.db = DatabaseFactory.connect(dbPath, { readonly: false });
 
 		// Always check migration (it's safe now with locking)
 		this.migrate();

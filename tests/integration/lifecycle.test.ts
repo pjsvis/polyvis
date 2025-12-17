@@ -6,7 +6,7 @@ import { join } from "path";
 
 const dbPath = "public/resonance.db";
 const db = new ResonanceDB(dbPath);
-const vectorEngine = new VectorEngine(dbPath);
+const vectorEngine = new VectorEngine(db.getRawDb());
 const testFile = "docs/test_lifecycle_E2E.md";
 const testId = "test-lifecycle-e2e";
 
