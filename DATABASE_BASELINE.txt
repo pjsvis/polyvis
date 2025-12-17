@@ -1,0 +1,15 @@
+DATABASE BASELINE
+=================
+
+Last Updated: 2025-12-17 20:19
+
+CURRENT STATE:
+--------------
+Nodes:   434
+Edges:   634
+Vectors: 247
+DB Size: 8.46 MB
+
+HISTORY:
+--------
+2025-12-17 20:19 - Initial baseline after restore from pre-benchmark backup
