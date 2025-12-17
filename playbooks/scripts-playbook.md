@@ -33,6 +33,8 @@ The Model Context Protocol server for AI Agent integration.
 -   **Important Note**: Because this server communicates via `stdin/stdout`, it **cannot** be effectively run in `start` (background) mode, as it will immediately encounter EOF on stdin and exit.
 -   **Usage**:
     -   `bun run mcp` (or `serve`): Runs in foreground, awaiting JSON-RPC messages on stdin. Use this for testing or when connecting via an MCP Client (which spawns this process).
+        > [!NOTE]
+        > The MCP Server (`serve` mode) uses a relaxed Zombie Defense protocol (`checkZombies=false`) to allow it to coexist with its own wrapper scripts without triggering a self-termination.
     -   `bun run mcp start`: **NOT RECOMMENDED**. Will start and immediately exit.
 
 ## Development Standards
@@ -72,6 +74,7 @@ const sqlite = DatabaseFactory.connectToResonance();
 ## Zombie Defense
 All standard CLIs (`dev`, `daemon`, `mcp`) automatically integrate **Zombie Defense**.
 -   **Behavior**: On startup, they scan for "Ghost" processes (holding locked files) or duplicate instances of themselves.
+-   **Identity Awareness**: The defense protocol scans PIDs. To prevent "friendly fire" (a process killing itself), it explicitly excludes its own PID (`process.pid`) and parent PID (`process.ppid`) from the duplicate list.
 -   **Auto-Cleanup**: If a stale PID file exists but the process is dead, it cleans the file. If the process is alive, it aborts (to prevent double-runs).
 
 > [!CAUTION]

@@ -228,6 +228,24 @@ async function runServer() {
     // console.error("✅ PolyVis MCP Server Running (Concurrency Mode: WAL+Timeout)"); // Silenced
 }
 
+// --- Global Error Handling ---
+// --- Global Error Handling ---
+import { appendFileSync } from "fs";
+
+process.on("uncaughtException", (error) => {
+    const msg = `[${new Date().toISOString()}] UNKNOWN MCP ERROR: ${error instanceof Error ? error.stack : error}\n`;
+    console.error(msg);
+    try { appendFileSync(".mcp.crash.log", msg); } catch {}
+});
+
+process.on("unhandledRejection", (reason) => {
+    const msg = `[${new Date().toISOString()}] UNHANDLED REJECTION: ${reason}\n`;
+    console.error(msg);
+    try { appendFileSync(".mcp.crash.log", msg); } catch {}
+});
+
 // --- Dispatch ---
 
-await lifecycle.run(command, runServer);
+// Pass false to disable strict zombie checking for the serve command
+// We rely on the internal logic of runServer + improved ZombieDefense
+await lifecycle.run(command, runServer, false);

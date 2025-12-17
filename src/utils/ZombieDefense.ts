@@ -30,13 +30,19 @@ export class ZombieDefense {
     /**
      * Scan the environment for unauthorized or stale processes.
      */
-    static async scan(): Promise<ZombieReport> {
+    static async scan(excludePids: string[] = []): Promise<ZombieReport> {
         const report: ZombieReport = {
             ghosts: [],
             duplicates: [],
             unknowns: [],
             clean: true
         };
+
+        const protectedPids = new Set([
+            process.pid.toString(),
+            process.ppid.toString(),
+            ...excludePids
+        ]);
 
         // 1. Ghost Check (Deleted File Handles)
         try {
@@ -59,6 +65,10 @@ export class ZombieDefense {
             const activeMap = new Map<string, number>();
 
             processes.forEach(p => {
+                // Ignore self and parent immediately
+                const match = p.match(/\s+(\d+)\s+/);
+                if (match && protectedPids.has(match[1])) return;
+
                 // Strict Filter: Must be in our CWD or explicit bun run
                 if (!p.includes(process.cwd()) && !p.includes("bun run")) return;
 
@@ -67,6 +77,10 @@ export class ZombieDefense {
                 if (isWhitelisted) {
                     ZombieDefense.WHITELIST.forEach(w => {
                         if (p.includes(w)) {
+                            // HEURISTIC: Don't count "bun run scripts/foo.ts" and "bun scripts/foo.ts" as duplicates of each other if they are the same PID (obviously),
+                            // but here we already filtered by PID.
+                            // We need to be careful about the wrapper vs the actual process.
+                            
                             const count = (activeMap.get(w) || 0) + 1;
                             activeMap.set(w, count);
                             if (count > 1) {

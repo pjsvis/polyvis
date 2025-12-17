@@ -110,16 +110,18 @@ export class ServiceLifecycle {
      * Wrapper for the foreground 'serve' command logic.
      * Use this to wrap your actual server startup code.
      */
-    async serve(serverLogic: () => Promise<void>) {
+    async serve(serverLogic: () => Promise<void>, checkZombies = true) {
         // Enforce clean state (ensure we aren't running as a zombie of ourselves)
-        await ZombieDefense.assertClean(`${this.config.name} (Serve)`);
+        if (checkZombies) {
+            await ZombieDefense.assertClean(`${this.config.name} (Serve)`);
+        }
         await serverLogic();
     }
 
     /**
      * Main CLI dispatch logic.
      */
-    async run(command: string, serverLogic: () => Promise<void>) {
+    async run(command: string, serverLogic: () => Promise<void>, checkZombies = true) {
         switch (command) {
             case "start":
                 await this.start();
@@ -140,7 +142,7 @@ export class ServiceLifecycle {
                 process.exit(0);
                 break;
             case "serve":
-                await this.serve(serverLogic);
+                await this.serve(serverLogic, checkZombies);
                 break;
             default:
                 console.log(`Unknown command '${command}'. Use: start, stop, status, restart, or serve`);

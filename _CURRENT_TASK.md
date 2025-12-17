@@ -1,16 +1,15 @@
-# Current Task: Resonance Hardening & Zombie Defense
+# Current Task: MCP Stabilization & OPM-15 Inquiry
 
-**Objective:** Stabilize Database Concurrency and Prevent Process Contention.
+**Objective:** Stabilize MCP Server and retrieve OPM-15 definition.
 
-## Status: Complete (2025-12-16)
+## Status: Complete (2025-12-17)
 
 ## Checklist
-- [x] **Hardening:** Implemented "Hardened SQLite Protocol" (WAL, Busy Timeout).
-- [x] **Stress Test:** Full database rebuild verified with concurrent Daemon ingestion.
-- [x] **Incident Resolved:** `disk I/O error` traced to Zombie Process (PID 9622) holding deleted file handle.
-- [x] **Zombie Defense:** Implemented `src/utils/ZombieDefense.ts` to enforce strict startup and offer interactive kill options.
-- [x] **Verified:** "Excalibur" search passed post-rebuild.
+- [x] **Discovery:** Identified OPM-15 as "Resonance Dual-Provider Inference Protocol".
+- [x] **Bug Fix:** Resolved MCP Server `EOF` crash caused by aggressive "Zombie Defense".
+- [x] **Refactor:** `ZombieDefense` now identity-aware (excludes self-PID).
+- [x] **Lifecycle:** `ServiceLifecycle` allows relaxed checks for `stdio` mode.
+- [x] **Verification:** Validated via `scripts/verify/test_mcp_lifecycle.ts`.
 
 ## Next
 - **Resume:** Normal development operations.
-

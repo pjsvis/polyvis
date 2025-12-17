@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git log:*)",
+      "Bash(git branch:*)",
+      "Bash(cd /Users/petersmith/Documents/GitHub/polyvis && find . -maxdepth 2 -type d | grep -v node_modules | grep -v \".git\" | sort)",
+      "Bash(cd /Users/petersmith/Documents/GitHub/polyvis && ls -la playbooks/ | head -20)",
+      "Bash(git diff:*)",
+      "Bash(cd /Users/petersmith/Documents/GitHub/polyvis && ls -t debriefs/ | head -10)",
+      "Bash(cd /Users/petersmith/Documents/GitHub/polyvis && cat _CURRENT_TASK.md)",
+      "Bash(cd /Users/petersmith/Documents/GitHub/polyvis && find src/js -name \"*.js\" -type f | head -10)"
+    ]
+  }
+}
