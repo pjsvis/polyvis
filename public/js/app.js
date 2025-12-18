@@ -5053,11 +5053,6 @@ var nav_default = () => ({
         window.lucide.createIcons();
     });
   },
-  toggleTheme() {
-    if (window.toggleTheme) {
-      window.toggleTheme();
-    }
-  },
   get view() {
     const currentPath = window.location.pathname;
     const linksHTML = this.links.map((link) => {
@@ -5082,7 +5077,7 @@ var nav_default = () => ({
                     </div>
                 </div>
                 <div style="display: flex; align-items: center; gap: 1.5rem;">
-                    <a href="#" id="nav-theme-toggle" @click.prevent="toggleTheme()" class="nav-item">
+                    <a href="#" id="nav-theme-toggle" onclick="window.toggleTheme(); return false;" class="nav-item">
                         <i data-lucide="sun" style="width: var(--font-size-sm); height: var(--font-size-sm);"></i>
                         Theme
                     </a>
