@@ -11,18 +11,18 @@ import settings from "@/polyvis.settings.json";
  * import { DatabaseFactory } from "@src/resonance/DatabaseFactory";
  * const db = DatabaseFactory.connectToResonance();
  */
-export class DatabaseFactory {
+export const DatabaseFactory = {
 	/**
 	 * Connects specifically to the main Resonance Graph database.
 	 * Uses path from `polyvis.settings.json`.
 	 */
-	static connectToResonance(options: { readonly?: boolean } = {}): Database {
+	connectToResonance(options: { readonly?: boolean } = {}): Database {
 		return DatabaseFactory.connect(settings.paths.database.resonance, options);
-	}
+	},
 	/**
 	 * Creates a fully configured, concurrent-safe SQLite connection.
 	 */
-	static connect(
+	connect(
 		path: string,
 		options: { readonly?: boolean; create?: boolean } = {},
 	): Database {
@@ -61,13 +61,13 @@ export class DatabaseFactory {
 		db.run("PRAGMA foreign_keys = ON;");
 
 		return db;
-	}
+	},
 
 	/**
 	 * 🩺 HEALTH CHECK (Validation)
 	 * Verifies that the connection is compliant with standards.
 	 */
-	static performHealthCheck(db: Database) {
+	performHealthCheck(db: Database) {
 		const journal = db.query("PRAGMA journal_mode;").get() as {
 			journal_mode: string;
 		};
@@ -96,5 +96,5 @@ export class DatabaseFactory {
 			console.error("❌ HealthCheck Failed:", e);
 			throw e;
 		}
-	}
-}
+	},
+};
