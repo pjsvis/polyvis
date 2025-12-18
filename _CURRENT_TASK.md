@@ -1,15 +1,15 @@
-# Current Task: MCP Stabilization & OPM-15 Inquiry
+# Current Task: TypeScript Build Stability
 
-**Objective:** Stabilize MCP Server and retrieve OPM-15 definition.
+**Objective:** Fix persistent TypeScript errors and stabilize ingestion scripts.
 
-## Status: Complete (2025-12-17)
+## Status: Complete (2025-12-18)
 
 ## Checklist
-- [x] **Discovery:** Identified OPM-15 as "Resonance Dual-Provider Inference Protocol".
-- [x] **Bug Fix:** Resolved MCP Server `EOF` crash caused by aggressive "Zombie Defense".
-- [x] **Refactor:** `ZombieDefense` now identity-aware (excludes self-PID).
-- [x] **Lifecycle:** `ServiceLifecycle` allows relaxed checks for `stdio` mode.
-- [x] **Verification:** Validated via `scripts/verify/test_mcp_lifecycle.ts`.
+- [x] **Diagnostic:** Identified 9 errors across 5 files.
+- [x] **Fix:** Resolved `ServiceLifecycle` sync/async mismatch.
+- [x] **Standards:** Aligned `debug_mcp_connection` with SQLite "Hardened Protocol".
+- [x] **Refactor:** Updated ingestion scripts to match `Ingestor` lifecycle API.
+- [x] **Verification:** `tsc --noEmit` passing (Clean Build).
 
 ## Next
 - **Resume:** Normal development operations.
