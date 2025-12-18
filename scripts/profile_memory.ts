@@ -1,5 +1,6 @@
 
 import { DatabaseFactory } from "@/src/resonance/DatabaseFactory";
+import { ResonanceDB } from "@/src/resonance/db";
 import { VectorEngine } from "@/src/core/VectorEngine";
 // import Graph from "graphology"; // ⚠️ Manual Profile Only: `bun add graphology` to enable
 import { format } from "util";

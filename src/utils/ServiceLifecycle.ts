@@ -1,3 +1,4 @@
+import { existsSync } from "node:fs";
 import { unlink } from "node:fs/promises";
 import { ZombieDefense } from "./ZombieDefense";
 
@@ -148,7 +149,7 @@ export class ServiceLifecycle {
 		process.on("SIGTERM", () => cleanup("SIGTERM").then(() => process.exit(0)));
 		process.on("exit", () => {
 			// Note: exit event is synchronous, so we do sync cleanup
-			if (!cleanupCalled && Bun.file(this.config.pidFile).exists()) {
+			if (!cleanupCalled && existsSync(this.config.pidFile)) {
 				cleanupCalled = true;
 				try {
 					Bun.write(this.config.pidFile, ""); // Truncate to mark as stale

@@ -160,7 +160,7 @@ export class Ingestor {
 
 	// --- Lifecycle Helpers ---
 
-	private async init(_options: IngestorOptions) {
+	public async init(_options: IngestorOptions) {
 		console.log("🌉 <THE BRIDGE> Ingestion Protocol Initiated...");
 		// Ensure Embedder Init
 		await this.embedder.embed("init");
@@ -169,7 +169,7 @@ export class Ingestor {
 		return DatabaseFactory.connect(this.dbPath);
 	}
 
-	private cleanup(sqliteDb: Database) {
+	public cleanup(sqliteDb: Database) {
 		sqliteDb.close();
 		this.db.close();
 	}
