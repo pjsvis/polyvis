@@ -4,6 +4,8 @@ import { EdgeWeaver } from "@src/core/EdgeWeaver";
 import { LouvainGate } from "@src/core/LouvainGate";
 import { LocusLedger } from "@src/data/LocusLedger";
 import { DatabaseFactory } from "@src/resonance/DatabaseFactory";
+// Types
+import type { Node } from "@src/resonance/db";
 import { ResonanceDB } from "@src/resonance/db";
 import { Embedder } from "@src/resonance/services/embedder";
 import { TokenizerService } from "@src/resonance/services/tokenizer";
@@ -11,7 +13,6 @@ import { PipelineValidator } from "@src/utils/validator";
 import { Glob } from "bun";
 import settings from "@/polyvis.settings.json";
 
-// Types
 export interface IngestorOptions {
 	file?: string;
 	files?: string[];
@@ -23,6 +24,24 @@ interface LexiconItem {
 	id: string;
 	title: string;
 	aliases: string[];
+}
+
+interface IngestionStats {
+	nodes: number;
+	edges: number;
+	vectors: number;
+	semantic_tokens: number;
+	db_size_bytes: number;
+}
+
+interface RawLexiconItem {
+	id: string;
+	label: string;
+	aliases?: string[];
+	description?: string;
+	category?: string;
+	tags?: string[];
+	title?: string; // Sometimes source JSON uses title
 }
 
 export class Ingestor {
@@ -94,7 +113,7 @@ export class Ingestor {
 	) {
 		console.log("📚 [Phase 2] Starting Experience Ingestion...");
 
-		this.db.beginTransaction();
+		// REMOVED: Global Transaction (prevents 100% data loss on 99% crash)
 		try {
 			// If lexicon is empty (e.g. running independently), try loading from DB
 			if (lexicon.length === 0) {
@@ -108,10 +127,16 @@ export class Ingestor {
 			const startTime = performance.now();
 			let totalChars = 0;
 			let processedCount = 0;
+			const BATCH_SIZE = 50;
 
-			for (const filePath of filesToProcess) {
+			for (const [i, fileEntry] of filesToProcess.entries()) {
+				// Start Batch Transaction
+				if (i % BATCH_SIZE === 0) {
+					this.db.beginTransaction();
+				}
+
 				const charsProccessed = await this.processFile(
-					filePath,
+					fileEntry,
 					this.db,
 					this.embedder,
 					weaver,
@@ -119,6 +144,11 @@ export class Ingestor {
 				);
 				totalChars += charsProccessed;
 				processedCount++;
+
+				// Commit Batch Transaction
+				if ((i + 1) % BATCH_SIZE === 0 || i === filesToProcess.length - 1) {
+					this.db.commit();
+				}
 			}
 
 			const endTime = performance.now();
@@ -134,11 +164,16 @@ export class Ingestor {
 				dbStats,
 			);
 
-			// Weaving
-			await this.runWeavers();
-
-			// Commit all changes
-			this.db.commit();
+			// Weaving (Protected by its own transaction)
+			this.db.beginTransaction();
+			try {
+				await this.runWeavers();
+				this.db.commit();
+			} catch (e) {
+				this.db.rollback();
+				console.error("❌ Weaving failed, partial rollback:", e);
+				// Continue, as ingestion is primary
+			}
 
 			// Validation (On native SQLite connection for speed/independence)
 			// Run AFTER commit so validator sees committed data
@@ -150,10 +185,30 @@ export class Ingestor {
 				const report = validator.validate(sqliteDb);
 				validator.printReport(report);
 			}
+
+			// ------------------------------------------------------------------
+			// 🛡️ IRON-CLAD PERSISTENCE PROTOCOL
+			// ------------------------------------------------------------------
+
+			// 1. Force WAL Checkpoint
+			console.log("💾 Persistence: Forcing WAL Checkpoint...");
+			this.db.getRawDb().run("PRAGMA wal_checkpoint(TRUNCATE);");
+
+			// 2. Pinch Check (Verification)
+			const finalSize = Bun.file(this.dbPath).size; // .size is sync on BunFile
+			if (finalSize === 0) {
+				throw new Error(
+					"CRITICAL: Pinch Check Failed. Database file is 0 bytes.",
+				);
+			}
+			console.log(
+				`✅ Persistence: Verified (DB Size: ${(finalSize / 1024 / 1024).toFixed(2)} MB)`,
+			);
+
 			console.log("✅ [Phase 2] Experience Ingestion Complete.");
 		} catch (e) {
-			this.db.rollback();
-			console.error("❌ [Phase 2] Experience Ingestion Failed, rolled back.");
+			// No global rollback available (intentional)
+			console.error("❌ [Phase 2] Experience Ingestion Failed.");
 			throw e;
 		}
 	}
@@ -177,7 +232,7 @@ export class Ingestor {
 	private async loadLexiconFromDB(): Promise<LexiconItem[]> {
 		console.log("🧠 Loading Lexicon from Database...");
 		const rawLexicon = this.db.getLexicon();
-		const lexicon: LexiconItem[] = rawLexicon.map((item: any) => ({
+		const lexicon: LexiconItem[] = rawLexicon.map((item: RawLexiconItem) => ({
 			id: item.id,
 			title: item.label,
 			aliases: item.aliases || [],
@@ -199,9 +254,9 @@ export class Ingestor {
 					const json = await file.json();
 					if (json) {
 						const items = Array.isArray(json) ? json : json.concepts;
-						lexicon = (items as any[]).map((c: any) => ({
+						lexicon = (items as RawLexiconItem[]).map((c) => ({
 							id: c.id,
-							title: c.title,
+							title: c.title || c.label,
 							aliases: c.aliases || [],
 						}));
 
@@ -210,15 +265,15 @@ export class Ingestor {
 							this.db.insertNode({
 								id: item.id,
 								type: "concept",
-								label: item.title,
-								content: item.description || item.title,
+								label: item.title || item.label,
+								content: item.description || item.title || item.label,
 								domain: "persona",
 								layer: "ontology",
 								meta: {
 									category: item.category,
 									tags: item.tags,
 								},
-							} as any);
+							} as Node);
 						}
 						console.log(`📚 Bootstrapped Lexicon: ${lexicon.length} concepts.`);
 						this.tokenizer.loadLexicon(lexicon);
@@ -257,7 +312,7 @@ export class Ingestor {
 							section: entry.section,
 							tags: entry.explicit_tags,
 						},
-					} as any);
+					} as Node);
 					directiveCount++;
 
 					for (const rel of entry.validated_relationships) {
@@ -337,7 +392,7 @@ export class Ingestor {
 		chars: number,
 		duration: number,
 		throughput: number,
-		stats: any,
+		stats: IngestionStats,
 	) {
 		console.log(`🏁 Ingestion Complete.`);
 		console.log(`   Processed: ${count} files.`);
@@ -432,7 +487,7 @@ export class Ingestor {
 		id: string,
 		content: string,
 		type: string,
-		meta: any,
+		meta: Record<string, unknown>,
 		sourcePath: string,
 		db: ResonanceDB,
 		embedder: Embedder,
@@ -457,7 +512,7 @@ export class Ingestor {
 		const node = {
 			id: id,
 			type: type,
-			label: meta.title || sourcePath.split("/").pop(),
+			label: (meta.title as string) || sourcePath.split("/").pop(),
 			content: content,
 			domain: "experience",
 			layer: "note",
@@ -470,8 +525,8 @@ export class Ingestor {
 		weaver.weave(id, content);
 	}
 
-	private parseFrontmatter(text: string): Record<string, any> {
-		const meta: Record<string, any> = {};
+	private parseFrontmatter(text: string): Record<string, unknown> {
+		const meta: Record<string, unknown> = {};
 		text.split("\n").forEach((line) => {
 			const [key, ...vals] = line.split(":");
 			if (key && vals.length) {
