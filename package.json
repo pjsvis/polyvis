@@ -3,8 +3,11 @@
 	"private": true,
 	"version": "0.1.0",
 	"license": "MIT",
-	"npm.exclude": "**/node_modules/**",
-    "npm.autoDetect": "on",
+	"npm.exclude": [
+		"**/node_modules/**",
+		"experiments/**"
+	],
+	"npm.autoDetect": "on",
 	"engines": {
 		"bun": ">=1.0.0",
 		"node": "22.x"
