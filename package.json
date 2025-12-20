@@ -45,6 +45,7 @@
 		"@mistralai/mistralai": "1.10.0",
 		"@modelcontextprotocol/sdk": "1.25.0",
 		"alpinejs": "3.15.2",
+		"basecoat-css": "^0.3.7",
 		"compromise": "14.14.4",
 		"drizzle-kit": "0.31.8",
 		"drizzle-orm": "0.45.0",
