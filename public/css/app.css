@@ -20,7 +20,10 @@
     --color-amber-400: oklch(82.8% 0.189 84.429);
     --color-amber-500: oklch(76.9% 0.188 70.08);
     --color-amber-600: oklch(66.6% 0.179 58.318);
+    --color-yellow-100: oklch(97.3% 0.071 103.193);
     --color-yellow-500: oklch(79.5% 0.184 86.047);
+    --color-yellow-900: oklch(42.1% 0.095 57.708);
+    --color-green-100: oklch(96.2% 0.044 156.743);
     --color-green-400: oklch(79.2% 0.209 151.711);
     --color-green-500: oklch(72.3% 0.219 149.579);
     --color-green-600: oklch(62.7% 0.194 149.214);
@@ -39,9 +42,11 @@
     --color-sky-600: oklch(58.8% 0.158 241.966);
     --color-sky-700: oklch(50% 0.134 242.749);
     --color-sky-900: oklch(39.1% 0.09 240.876);
+    --color-blue-100: oklch(93.2% 0.032 255.585);
     --color-blue-200: oklch(88.2% 0.059 254.128);
     --color-blue-500: oklch(62.3% 0.214 259.815);
     --color-blue-600: oklch(54.6% 0.245 262.881);
+    --color-blue-900: oklch(37.9% 0.146 265.522);
     --color-blue-950: oklch(28.2% 0.091 267.935);
     --color-indigo-200: oklch(87% 0.065 274.039);
     --color-indigo-300: oklch(78.5% 0.115 274.713);
@@ -10012,12 +10017,10 @@ html[data-theme="dark"] {
     font-size: var(--markdown-font-size);
     line-height: var(--markdown-line-height);
     color: var(--text-1);
-    column-width: 40ch;
-    column-gap: 2rem;
-    column-fill: auto;
+    max-width: 75ch;
+    margin-inline: auto;
   }
   .doc-card,	.doc-intro {
-    break-inside: avoid;
     background-color: var(--surface-1);
     border: 1px solid var(--border-base);
     border-radius: var(--radius-3);
