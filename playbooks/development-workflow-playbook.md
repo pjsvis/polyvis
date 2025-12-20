@@ -119,7 +119,7 @@ Since this is a frontend-only project, you can serve the files using any simple 
 1.  Navigate to the project root directory.
 2.  Start your server, pointing it to the `public` directory as the root.
 
-**Example using `live-server`:**
+**Example using `http-server`:**
 ```bash
-live-server public
+bun x http-server public
 ```
