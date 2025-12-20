@@ -70,7 +70,7 @@ export class EnlightenedTriad {
 			[
 				{
 					role: "user",
-					content: `Analyze the validity of this logical claim. \n\nClaim: "${claim}"\n\nShow your thinking process, then end with 'VERDICT: PASS' or 'VERDICT: FAIL'.`,
+					content: `Analyze the validity of this logical claim. \n\nClaim: "${claim}"\n\nShow your thinking process wrapped in <think> tags like this: <think> ... </think>, then end with 'VERDICT: PASS' or 'VERDICT: FAIL'.`,
 				},
 			],
 			{ temperature: 0.6, max_tokens: 2048 },
@@ -78,14 +78,25 @@ export class EnlightenedTriad {
 
 		// --- THE PARSER ---
 		// Olmo uses <think> tags. We split the "Raj" monologue from the Answer.
-		let thoughtTrace = rawOutput;
-		let finalAnswer = rawOutput;
+		let thoughtTrace = "";
+		let finalAnswer = "";
 
-		// Handling both explicit tags and implicit separation
-		if (rawOutput.includes("</think>")) {
-			const parts = rawOutput.split("</think>");
-			thoughtTrace = (parts[0] ?? "").replace("<think>", "").trim();
-			finalAnswer = (parts[1] ?? "").trim();
+		const thinkMatch = rawOutput.match(/<think>([\s\S]*?)<\/think>/);
+
+		if (thinkMatch) {
+			// case 1: structured output
+			thoughtTrace = thinkMatch[1].trim();
+			finalAnswer = rawOutput.replace(thinkMatch[0], "").trim();
+		} else if (rawOutput.includes("VERDICT:")) {
+			// case 2: implicit separation (fallback)
+			const parts = rawOutput.split("VERDICT:");
+			thoughtTrace = parts[0].trim();
+			// Reconstruct the verdict part
+			finalAnswer = `VERDICT:${parts.slice(1).join("VERDICT:")}`.trim();
+		} else {
+			// case 3: total failure to structure
+			thoughtTrace = rawOutput;
+			finalAnswer = "VERDICT: FAIL (Parse Error)";
 		}
 
 		const passed = finalAnswer.includes("VERDICT: PASS");

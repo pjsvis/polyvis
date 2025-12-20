@@ -24,6 +24,16 @@ export class ZombieDefense {
 		"bun run watch:css",
 		"bun run watch:js",
 		"scripts/verify/test_mcp_query.ts",
+		"src/services/olmo3.ts",
+		"src/services/phi.ts",
+		"src/services/llama.ts",
+		"src/services/llamauv.ts",
+		"scripts/cli/servers.ts",
+		"bun run olmo3",
+		"bun run phi",
+		"bun run llama",
+		"bun run llamauv",
+		"bun run servers",
 	];
 
 	/**

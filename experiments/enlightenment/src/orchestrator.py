@@ -1,3 +1,12 @@
+
+# -----------------------------------------------------------------------------
+# ⚠️ EXPERIMENTAL LEGACY ORCHESTRATOR
+# -----------------------------------------------------------------------------
+# This script is for experimental usage during development loops.
+# For production usage, please use the standardized `bun run <service>` commands.
+# See: src/services/README.md
+# -----------------------------------------------------------------------------
+
 import subprocess
 import time
 import signal
@@ -21,8 +30,8 @@ AGENTS = [
         "name": "ARCHITECT (Llama-3)",
         "port": 8083,
         "model": "Meta-Llama-3-8B-Instruct-Q4_K_M.gguf",
-        "vector": "enlightenment_vector_v2.gguf", # The Accountant (-0.3)
-        "scale": "-0.3",
+        "vector": "enlightenment_vector_v2.gguf", # The Accountant (-0.11)
+        "scale": "-0.11",
         "ctx": 8192
     },
     {
@@ -30,7 +39,14 @@ AGENTS = [
         "port": 8084,
         "model": "Olmo-3-7B-Think-Q4_K_M.gguf",
         "vector": None, # Needs raw thinking power
-        "ctx": 8192
+        "ctx": 64000,
+        "extra_args": [
+            "--jinja",
+            "--reasoning-budget", "0",
+            "--reasoning-format", "none",
+            "-fa", "on",
+            "--temp", "0.6"
+        ]
     }
 ]
 
@@ -51,6 +67,9 @@ def start_agent(agent):
     if agent["vector"]:
         vec_path = VECTORS_DIR / agent["vector"]
         cmd.extend(["--control-vector-scaled", f"{vec_path}:{agent['scale']}"])
+
+    if "extra_args" in agent:
+        cmd.extend(agent["extra_args"])
 
     # Redirect stdout to avoid console clutter, keep stderr for errors
     p = subprocess.Popen(cmd, stdout=subprocess.DEVNULL)

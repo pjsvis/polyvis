@@ -33,7 +33,7 @@ ARCHIVE_DIR = EXPERIMENT_DIR / "logs_archive"
 # 4. SETTINGS
 PORT = 8083
 CTX_SIZE = 8192
-SEARCH_SPACE = [0.0, -0.3, -0.5, -0.8, -1.0, -1.5]
+SEARCH_SPACE = [-0.1, -0.11, -0.12]
 
 PROBES = {
     "A_EXTRACTOR": {

@@ -95,7 +95,13 @@ export class ServiceLifecycle {
 			console.log("⚠️  Stale PID file found. Cleaning up.");
 		}
 
-		await unlink(this.config.pidFile);
+		try {
+			await unlink(this.config.pidFile);
+		} catch (e: any) {
+			if (e.code !== "ENOENT") {
+				console.warn(`⚠️ Failed to remove PID file: ${e.message}`);
+			}
+		}
 	}
 
 	/**

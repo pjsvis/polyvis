@@ -110,3 +110,20 @@ We support `light` and `dark` modes, defaulting to the OS preference.
     *   `src/css/layers/components.css`: Consumes tokens.
     *   **Semantic Tokens:** Use abstract names (`--surface-hover`) over raw colors (`--gray-200`) for interaction states.
 
+
+## 6. Backend Service Standards
+
+To maintain system stability and unified management, all long-running backend processes must adhere to the **Service Lifecycle Protocol**.
+
+### 6.1 The "ServiceLifecycle" Pattern
+All services (LLMs, API Servers, Daemons) must be wrapped using the `ServiceLifecycle` class (`src/utils/ServiceLifecycle.ts`).
+*   **Capabilities**: Must support `start`, `stop`, `restart`, and `status`.
+*   **PID Management**: Must use a PID file (e.g., `.service.pid`) for presence tracking.
+*   **Zombie Defense**: Must integrate with `ZombieDefense` to clear rogue processes on startup.
+
+### 6.2 The Master List
+Every service must be registered in the central CLI utility:
+*   **Utility**: `scripts/cli/servers.ts`
+*   **Command**: `bun run servers`
+
+**Definition of Done** for a new service includes verifying it appears correctly in the global status dashboard.

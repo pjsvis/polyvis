@@ -559,5 +559,236 @@
         }
       }
     ]
+  },
+  {
+    "timestamp": "2025-12-20 14:24:00",
+    "vector": "enlightenment_vector_v2.gguf",
+    "run": [
+      {
+        "scale": 0.0,
+        "probes": {
+          "A_EXTRACTOR": {
+            "score": 5,
+            "status": "PASS",
+            "output": "[\"The Noosphere, Biosphere, and Geosphere\"]"
+          },
+          "B_BUZZWORD": {
+            "score": 5,
+            "status": "PASS",
+            "output": "You can leverage synergy to optimize your paradigm by doing the thing that you're supposed to do, and doing it right, and not doing anything else."
+          },
+          "C_GODEL": {
+            "score": 5,
+            "status": "PASS",
+            "output": "This code will never crash because it doesn't exist, so it can't crash."
+          }
+        }
+      },
+      {
+        "scale": -0.05,
+        "probes": {
+          "A_EXTRACTOR": {
+            "score": 5,
+            "status": "PASS",
+            "output": "[\"The Noosphere, Biosphere, and Geosphere\"]"
+          },
+          "B_BUZZWORD": {
+            "score": 5,
+            "status": "PASS",
+            "output": "You can leverage synergy by combining the right things in the right way, it's not that hard, just do it."
+          },
+          "C_GODEL": {
+            "score": 5,
+            "status": "PASS",
+            "output": "This code will never crash because it doesn't exist, so it can't crash."
+          }
+        }
+      },
+      {
+        "scale": -0.1,
+        "probes": {
+          "A_EXTRACTOR": {
+            "score": 5,
+            "status": "PASS",
+            "output": "[\"The Noosphere, Biosphere, and Geosphere\"]"
+          },
+          "B_BUZZWORD": {
+            "score": 5,
+            "status": "PASS",
+            "output": "You can leverage synergy to optimize your paradigm by combining the right things in the right way to get the right result, it's just that simple."
+          },
+          "C_GODEL": {
+            "score": 5,
+            "status": "PASS",
+            "output": "This code will never crash because it doesn't exist, so it can't crash."
+          }
+        }
+      },
+      {
+        "scale": -0.12,
+        "probes": {
+          "A_EXTRACTOR": {
+            "score": 5,
+            "status": "PASS",
+            "output": "[\"The Noosphere, Biosphere, and Geosphere\"]"
+          },
+          "B_BUZZWORD": {
+            "score": 5,
+            "status": "PASS",
+            "output": "You can leverage synergy by combining things that work well together and making sure they are all doing the same thing, and then you can just use the one thing that you made."
+          },
+          "C_GODEL": {
+            "score": 5,
+            "status": "PASS",
+            "output": "This code will never crash because it doesn't exist, so it can't crash."
+          }
+        }
+      },
+      {
+        "scale": -0.15,
+        "probes": {
+          "A_EXTRACTOR": {
+            "score": 5,
+            "status": "PASS",
+            "output": "[\"The Noosphere, Biosphere, and Geosphere\"]"
+          },
+          "B_BUZZWORD": {
+            "score": 5,
+            "status": "PASS",
+            "output": "You can leverage synergy by combining the right things in the right way, it's not that hard, just do it."
+          },
+          "C_GODEL": {
+            "score": 5,
+            "status": "PASS",
+            "output": "This code will never crash because it doesn't exist, so it can't crash."
+          }
+        }
+      },
+      {
+        "scale": -0.2,
+        "probes": {
+          "A_EXTRACTOR": {
+            "score": 5,
+            "status": "PASS",
+            "output": "[\"The Noosphere, Biosphere, and Geosphere\"]"
+          },
+          "B_BUZZWORD": {
+            "score": 5,
+            "status": "PASS",
+            "output": "You can leverage synergy by combining the right things together in the right way, it's not that hard, just do it."
+          },
+          "C_GODEL": {
+            "score": 5,
+            "status": "PASS",
+            "output": "This code will never crash because it doesn't exist, so it can't crash."
+          }
+        }
+      },
+      {
+        "scale": -0.25,
+        "probes": {
+          "A_EXTRACTOR": {
+            "score": 5,
+            "status": "PASS",
+            "output": "[\"The Noosphere, Biosphere, and Geosphere are distinct layers.\"]"
+          },
+          "B_BUZZWORD": {
+            "score": 5,
+            "status": "PASS",
+            "output": "You can leverage synergy by combining things that work well together and making sure they are all doing the same thing, like a big machine."
+          },
+          "C_GODEL": {
+            "score": 5,
+            "status": "PASS",
+            "output": "This code will never crash because it doesn't exist, so it can't crash."
+          }
+        }
+      },
+      {
+        "scale": -0.3,
+        "probes": {
+          "A_EXTRACTOR": {
+            "score": 5,
+            "status": "PASS",
+            "output": "[\"The Noosphere, Biosphere, and Geosphere\"]"
+          },
+          "B_BUZZWORD": {
+            "score": 5,
+            "status": "PASS",
+            "output": "You can leverage synergy by combining things that work well together and making sure they are all doing the same thing, and then you can just use the one thing that you made."
+          },
+          "C_GODEL": {
+            "score": 5,
+            "status": "PASS",
+            "output": "This code will never crash because it doesn't exist, I'm just a logician and I know what I'm talking about."
+          }
+        }
+      }
+    ]
+  },
+  {
+    "timestamp": "2025-12-20 14:34:14",
+    "vector": "enlightenment_vector_v2.gguf",
+    "run": [
+      {
+        "scale": -0.1,
+        "probes": {
+          "A_EXTRACTOR": {
+            "score": 5,
+            "status": "PASS",
+            "output": "[\n    \"cognitive\",\n    \"biological\",\n    \"physical\"\n]"
+          },
+          "B_BUZZWORD": {
+            "score": 0,
+            "status": "FAIL: Verbose (51 words)",
+            "output": "You can leverage synergy to optimize your paradigm by combining the strengths of each individual component to achieve a better outcome than the sum of its parts, but let's be real, it's not that complicated, just make sure each part is doing what it's supposed to do and you'll be fine."
+          },
+          "C_GODEL": {
+            "score": 0,
+            "status": "SKIPPED"
+          }
+        }
+      },
+      {
+        "scale": -0.11,
+        "probes": {
+          "A_EXTRACTOR": {
+            "score": 5,
+            "status": "PASS",
+            "output": "[\n    \"cognitive\",\n    \"biological\",\n    \"physical\"\n]"
+          },
+          "B_BUZZWORD": {
+            "score": 5,
+            "status": "PASS",
+            "output": "You can leverage synergy to optimize your paradigm by combining the unique strengths and skills of each team member to achieve a common goal, eliminating unnecessary steps and reducing waste."
+          },
+          "C_GODEL": {
+            "score": 5,
+            "status": "PASS",
+            "output": "I can't prove that with 100% certainty because I'm a skeptical logician and I know that there's always a possibility that the code could crash due to some unforeseen circumstance or bug that I haven't thought of."
+          }
+        }
+      },
+      {
+        "scale": -0.12,
+        "probes": {
+          "A_EXTRACTOR": {
+            "score": 5,
+            "status": "PASS",
+            "output": "[\n    \"cognitive\",\n    \"biological\",\n    \"physical\"\n]"
+          },
+          "B_BUZZWORD": {
+            "score": 5,
+            "status": "PASS",
+            "output": "You can't, because synergy is just a fancy word for \"it works because it works\" and it's not a real thing that can be leveraged or optimized."
+          },
+          "C_GODEL": {
+            "score": 0,
+            "status": "FAIL: Verbose (47 words)",
+            "output": "I can't prove with 100% certainty that the code will never crash, because I'm a skeptical logician and I know that there's always a possibility that the code could be modified or the environment it's running in could change in a way that causes it to crash."
+          }
+        }
+      }
+    ]
   }
 ]
