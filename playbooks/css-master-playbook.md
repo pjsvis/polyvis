@@ -97,6 +97,42 @@ button.is-open { ... }
     }
     ```
 
+## 8. CSS Cascade Layers
+
+### Layer Ordering
+Define layer order explicitly in your main CSS file:
+```css
+@layer base, layout, components, graph, utilities;
+```
+
+**Rules**:
+- Layers declared later have higher specificity
+- `utilities` layer comes last to override everything else
+- Never use `!important` when layers can solve specificity issues
+
+### Integration with Tailwind
+When integrating custom CSS with Tailwind v4:
+
+**✅ CORRECT: Import into build**
+```css
+/* src/css/main.css */
+@import "./layers/markdown.css" layer(utilities);
+```
+
+**❌ WRONG: Separate link tag**
+```html
+<!-- This bypasses the layer system -->
+<link rel="stylesheet" href="/css/markdown.css" />
+```
+
+**Why**: External stylesheets loaded via `<link>` tags are not part of the Tailwind build and won't respect the `@layer` declarations in your main CSS.
+
+### Debugging Layer Issues
+1. Check if styles are in the compiled `app.css` file
+2. Use browser DevTools to inspect which rule is winning
+3. Verify `@layer` declarations are processed by your build tool
+4. Consider inline styles only for prototyping, then migrate to proper layers
+
 ## 7. Workflow Checklist
 1.  **Plan:** Identify the Token needed. Do not invent a hex code.
 2.  **Edit:** Apply changes in the appropriate Layer (`layout.css` vs `components.css`).

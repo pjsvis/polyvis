@@ -1,4 +1,4 @@
-ll# Briefs Playbook
+# Briefs Playbook
 
 ## Purpose
 A brief is a concise document that outlines the objective, requirements, and plan for a specific task or feature. It serves as a contract between the user and the agent, ensuring alignment before work begins.

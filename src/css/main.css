@@ -19,3 +19,4 @@
 
 @import "./layers/graph.css" layer(graph);
 @import "./layers/utilities.css" layer(utilities);
+@import "./layers/markdown.css" layer(utilities);

@@ -4440,7 +4440,13 @@ var doc_viewer_default = () => ({
   experience: [],
   playbooks: [],
   debriefs: [],
+  activeAnchor: window.location.hash || '',
   async init() {
+    // Track hash changes for active anchor
+    window.addEventListener('hashchange', () => {
+      this.activeAnchor = window.location.hash || '';
+    });
+    
     try {
       const [indexRes, refsRes, expRes] = await Promise.all([
         fetch("/index.json"),

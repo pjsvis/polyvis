@@ -16,7 +16,7 @@ function parseOlmoOutput(rawOutput: string) {
 	} else if (rawOutput.includes("VERDICT:")) {
 		// case 2: implicit separation (fallback)
 		const parts = rawOutput.split("VERDICT:");
-		thoughtTrace = parts[0].trim();
+		thoughtTrace = parts[0]?.trim() ?? "";
 		// Reconstruct the verdict part
 		finalAnswer = `VERDICT:${parts.slice(1).join("VERDICT:")}`.trim();
 	} else {

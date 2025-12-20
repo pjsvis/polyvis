@@ -83,14 +83,14 @@ export class EnlightenedTriad {
 
 		const thinkMatch = rawOutput.match(/<think>([\s\S]*?)<\/think>/);
 
-		if (thinkMatch) {
+		if (thinkMatch && thinkMatch[1]) {
 			// case 1: structured output
 			thoughtTrace = thinkMatch[1].trim();
 			finalAnswer = rawOutput.replace(thinkMatch[0], "").trim();
 		} else if (rawOutput.includes("VERDICT:")) {
 			// case 2: implicit separation (fallback)
 			const parts = rawOutput.split("VERDICT:");
-			thoughtTrace = parts[0].trim();
+			thoughtTrace = parts[0]?.trim() ?? "";
 			// Reconstruct the verdict part
 			finalAnswer = `VERDICT:${parts.slice(1).join("VERDICT:")}`.trim();
 		} else {
