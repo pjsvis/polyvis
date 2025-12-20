@@ -79,3 +79,9 @@ reports/test-*.md
 public/resonance.db
 public/resonance.db-wal
 public/resonance.db-shm
+
+# Enlightenment Experiment
+experiments/enlightenment/models/
+experiments/enlightenment/venv/
+experiments/enlightenment/__pycache__/
+*.gguf

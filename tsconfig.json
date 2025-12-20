@@ -40,6 +40,7 @@
 		"dist",
 		".resonance",
 		"briefs",
-		"examples"
+		"examples",
+		"experiments"
 	]
 }

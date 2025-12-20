@@ -28,7 +28,8 @@
 		"check": "biome check .",
 		"format": "biome format --write .",
 		"lint": "biome lint .",
-		"update-review-branch": "sh scripts/maintenance/update_review_branch.sh"
+		"update-review-branch": "sh scripts/maintenance/update_review_branch.sh",
+		"start:triad": "python3 experiments/enlightenment/src/orchestrator.py"
 	},
 	"peerDependencies": {
 		"typescript": "5.9.3"
