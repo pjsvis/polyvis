@@ -21,8 +21,14 @@ export default () => ({
 	experience: [],
 	playbooks: [],
 	debriefs: [],
+	activeAnchor: window.location.hash || '',
 
 	async init() {
+		// Track hash changes for active anchor
+		window.addEventListener('hashchange', () => {
+			this.activeAnchor = window.location.hash || '';
+		});
+
 		try {
 			// Parallel fetch for speed
 			const [indexRes, refsRes, expRes] = await Promise.all([
@@ -264,7 +270,7 @@ export default () => ({
 		return html;
 	},
 
-	groupIntoCards(htmlString) {
+			groupIntoCards(htmlString) {
 		const parser = new DOMParser();
 		const doc = parser.parseFromString(htmlString, "text/html");
 		const body = doc.body;
@@ -299,9 +305,6 @@ export default () => ({
 				openSection("doc-card");
 			}
 
-			// If we are in a section, append.
-			// Note: If the first element is H2, the doc-intro will be empty and we should probably skip appending it?
-			// Actually, let's just append. Empty sections can be handled by CSS or cleanup.
 			if (currentSection) {
 				currentSection.appendChild(node);
 			}

@@ -13,11 +13,6 @@ var setTheme = (theme) => {
   } else {
     localStorage.setItem(THEME_KEY, theme);
     document.documentElement.setAttribute("data-theme", theme);
-    if (theme === "dark") {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
   }
 };
 var toggleTheme = () => {
@@ -33,11 +28,6 @@ var initTheme = () => {
   const stored = localStorage.getItem(THEME_KEY);
   if (stored) {
     document.documentElement.setAttribute("data-theme", stored);
-    if (stored === "dark") {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
   }
 };
 export {
