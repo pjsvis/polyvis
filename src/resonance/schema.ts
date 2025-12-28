@@ -1,4 +1,4 @@
-export const CURRENT_SCHEMA_VERSION = 3;
+export const CURRENT_SCHEMA_VERSION = 4;
 
 export const GENESIS_SQL = `
     CREATE TABLE IF NOT EXISTS nodes (
@@ -17,6 +17,9 @@ export const GENESIS_SQL = `
         source TEXT,
         target TEXT,
         type TEXT,
+        confidence REAL DEFAULT 1.0,
+        veracity REAL DEFAULT 1.0,
+        context_source TEXT,
         PRIMARY KEY (source, target, type)
     );
     
@@ -116,6 +119,25 @@ export const MIGRATIONS: Migration[] = [
 				db.run("ALTER TABLE nodes ADD COLUMN meta TEXT");
 			} catch (e: any) {
 				if (!e.message.includes("duplicate column")) throw e;
+			}
+		},
+	},
+	{
+		version: 4,
+		description:
+			"Add semantic edge metadata (confidence, veracity, context_source)",
+		up: (db) => {
+			// Add columns for semantic harvester edges
+			for (const col of [
+				"confidence REAL DEFAULT 1.0",
+				"veracity REAL DEFAULT 1.0",
+				"context_source TEXT",
+			]) {
+				try {
+					db.run(`ALTER TABLE edges ADD COLUMN ${col}`);
+				} catch (e: any) {
+					if (!e.message.includes("duplicate column")) throw e;
+				}
 			}
 		},
 	},

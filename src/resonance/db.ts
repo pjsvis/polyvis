@@ -146,6 +146,31 @@ export class ResonanceDB {
 		);
 	}
 
+	/**
+	 * Insert a semantic edge with confidence and veracity metadata.
+	 * Used by the Sieve+Net harvester for extracted triples.
+	 */
+	insertSemanticEdge(
+		source: string,
+		target: string,
+		type: string,
+		confidence: number = 1.0,
+		veracity: number = 1.0,
+		contextSource?: string,
+	) {
+		this.db.run(
+			`
+            INSERT INTO edges (source, target, type, confidence, veracity, context_source)
+            VALUES (?, ?, ?, ?, ?, ?)
+            ON CONFLICT(source, target, type) DO UPDATE SET
+                confidence = excluded.confidence,
+                veracity = excluded.veracity,
+                context_source = excluded.context_source
+        `,
+			[source, target, type, confidence, veracity, contextSource ?? null],
+		);
+	}
+
 	// Typed Data Accessors
 
 	// Typed Data Accessors
@@ -362,7 +387,7 @@ function magnitude(vec: Float32Array): number {
 
 // FAFCAS Protocol: use Dot Product for normalized vectors
 // Source: playbooks/embeddings-and-fafcas-protocol-playbook.md
-// 
+//
 // Returns 0 for zero-magnitude vectors (failed embeddings) to prevent
 // false matches in search results.
 export function dotProduct(a: Float32Array, b: Float32Array): number {
@@ -371,9 +396,7 @@ export function dotProduct(a: Float32Array, b: Float32Array): number {
 	const magB = magnitude(b);
 
 	if (magA < 1e-6 || magB < 1e-6) {
-		console.warn(
-			"⚠️  Zero vector detected in dot product, skipping comparison",
-		);
+		console.warn("⚠️  Zero vector detected in dot product, skipping comparison");
 		return 0;
 	}
 

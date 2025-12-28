@@ -1,4 +1,10 @@
-import { blob, primaryKey, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import {
+	blob,
+	primaryKey,
+	real,
+	sqliteTable,
+	text,
+} from "drizzle-orm/sqlite-core";
 
 export const nodes = sqliteTable("nodes", {
 	id: text("id").primaryKey(),
@@ -28,6 +34,11 @@ export const edges = sqliteTable(
 		source: text("source").notNull(),
 		target: text("target").notNull(),
 		type: text("type").notNull(),
+
+		// Semantic Harvester Metadata (v4)
+		confidence: real("confidence").default(1.0),
+		veracity: real("veracity").default(1.0),
+		contextSource: text("context_source"),
 	},
 	(t) => ({
 		pk: primaryKey({ columns: [t.source, t.target, t.type] }),
