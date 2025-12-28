@@ -50,7 +50,7 @@ class Harvester:
         """
         The 'Net': Extract triples using Llama.cpp with GBNF enforcement.
         
-        Returns empty list on failure (graceful degradation).
+        Falls back to regex extraction if server unavailable.
         """
         prompt = f"""SYSTEM: You are a Knowledge Graph Extractor. Extract semantic triples from the text.
 OUTPUT: JSON array of objects with "source", "rel", "target" keys.
@@ -73,13 +73,54 @@ ASSISTANT:"""
                 # GBNF guarantees valid JSON
                 return json.loads(content)
         except requests.exceptions.ConnectionError:
-            print("   ⚠️  Llama server not reachable - extraction skipped")
+            # Fallback to regex extraction
+            return self._extract_with_regex(text)
         except json.JSONDecodeError:
-            print("   ⚠️  Invalid JSON from Llama - extraction skipped")
+            print("   ⚠️  Invalid JSON from Llama - using fallback")
+            return self._extract_with_regex(text)
         except Exception as e:
-            print(f"   ⚠️  Llama error: {e}")
+            print(f"   ⚠️  Llama error: {e} - using fallback")
+            return self._extract_with_regex(text)
         
         return []
+    
+    def _extract_with_regex(self, text: str) -> list[dict]:
+        """
+        Fallback extraction using regex patterns when Llama is unavailable.
+        
+        Extracts:
+        - "X is a Y" -> IS_A relationship
+        - "X is the Y" -> IS_A relationship  
+        - "X implements Y" -> IMPLEMENTS relationship
+        - "X uses Y" -> USES relationship
+        """
+        triples = []
+        
+        # Pattern: "X is a/an/the Y"
+        is_a_pattern = r'^([A-Z][^.]*?)\s+is\s+(?:a|an|the)\s+([^.]+)'
+        match = re.search(is_a_pattern, text, re.IGNORECASE)
+        if match:
+            source = match.group(1).strip()
+            target = match.group(2).strip()
+            # Clean up common endings
+            target = re.sub(r'\s+that\b.*$', '', target)
+            target = re.sub(r'\s+which\b.*$', '', target)
+            if len(source) > 2 and len(target) > 2:
+                triples.append({"source": source, "rel": "IS_A", "target": target})
+        
+        # Pattern: "X implements Y"
+        impl_pattern = r'^([A-Z][^.]*?)\s+implements\s+(?:the\s+)?([^.]+)'
+        match = re.search(impl_pattern, text, re.IGNORECASE)
+        if match:
+            source = match.group(1).strip()
+            target = match.group(2).strip()
+            if len(source) > 2 and len(target) > 2:
+                triples.append({"source": source, "rel": "IMPLEMENTS", "target": target})
+        
+        if triples:
+            print(f"      📋 Regex extracted {len(triples)} triples (fallback)")
+        
+        return triples
     
     def process_file(self, filepath: str | Path) -> int:
         """

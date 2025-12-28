@@ -1,0 +1,102 @@
+{
+  "nodes": {
+    "brief-hollow-node-implementation.md": {
+      "type": "document",
+      "uri": "polyvis://brief-hollow-node-implementation.md"
+    },
+    "brief-local-first-classifier-11.md": {
+      "type": "document",
+      "uri": "polyvis://brief-local-first-classifier-11.md"
+    },
+    "brief-local-first-classifier-01.md": {
+      "type": "document",
+      "uri": "polyvis://brief-local-first-classifier-01.md"
+    },
+    "brief-local-first-classifier-05.md": {
+      "type": "document",
+      "uri": "polyvis://brief-local-first-classifier-05.md"
+    },
+    "USER: \"A Locus Tag": {
+      "type": "concept",
+      "uri": "polyvis://brief-local-first-classifier-05.md#USER:-\"A-Locus-Tag"
+    },
+    "brief-local-first-classifier-04.md": {
+      "type": "document",
+      "uri": "polyvis://brief-local-first-classifier-04.md"
+    },
+    "brief-local-first-classifier-10.md": {
+      "type": "document",
+      "uri": "polyvis://brief-local-first-classifier-10.md"
+    },
+    "README.md": {
+      "type": "document",
+      "uri": "polyvis://README.md"
+    },
+    "The **Polyvis Ingestion Pipeline**": {
+      "type": "concept",
+      "uri": "polyvis://README.md#The-**Polyvis-Ingestion-Pipeline**"
+    },
+    "brief-local-first-classifier-07.md": {
+      "type": "document",
+      "uri": "polyvis://brief-local-first-classifier-07.md"
+    },
+    "brief-local-first-classifier-03.md": {
+      "type": "document",
+      "uri": "polyvis://brief-local-first-classifier-03.md"
+    },
+    "brief-local-first-classifier-02.md": {
+      "type": "document",
+      "uri": "polyvis://brief-local-first-classifier-02.md"
+    },
+    "brief-local-first-classifier-06.md": {
+      "type": "document",
+      "uri": "polyvis://brief-local-first-classifier-06.md"
+    },
+    "brief-local-first-classifier-09.md": {
+      "type": "document",
+      "uri": "polyvis://brief-local-first-classifier-09.md"
+    },
+    "brief-local-first-classifier.md": {
+      "type": "document",
+      "uri": "polyvis://brief-local-first-classifier.md"
+    },
+    "brief-local-first-classifier-08.md": {
+      "type": "document",
+      "uri": "polyvis://brief-local-first-classifier-08.md"
+    },
+    "brief-makefile-documentation.md": {
+      "type": "document",
+      "uri": "polyvis://brief-makefile-documentation.md"
+    }
+  },
+  "edges": [
+    {
+      "source": "brief-local-first-classifier-05.md",
+      "rel": "HAS_PART",
+      "target": "USER: \"A Locus Tag",
+      "confidence_score": 1.0,
+      "context_source": "briefs/local-first-classifier/brief-local-first-classifier-05.md"
+    },
+    {
+      "source": "USER: \"A Locus Tag",
+      "rel": "IS_A",
+      "target": "unique identifier assigned to a conversational juncture",
+      "confidence_score": 0.9535,
+      "context_source": "briefs/local-first-classifier/brief-local-first-classifier-05.md"
+    },
+    {
+      "source": "README.md",
+      "rel": "HAS_PART",
+      "target": "The **Polyvis Ingestion Pipeline**",
+      "confidence_score": 1.0,
+      "context_source": "briefs/local-first-classifier/README.md"
+    },
+    {
+      "source": "The **Polyvis Ingestion Pipeline**",
+      "rel": "IS_A",
+      "target": "sovereign AI system designed to transform unstructured text (\"Stuff\") into a structured Knowledge Graph (\"Things\") without relying on external APIs",
+      "confidence_score": 0.9586,
+      "context_source": "briefs/local-first-classifier/README.md"
+    }
+  ]
+}
