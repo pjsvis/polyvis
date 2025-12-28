@@ -31,7 +31,7 @@ print(json.dumps(result))
 
 	// Parse the last line (the JSON output)
 	const lines = result.stdout.toString().trim().split("\n");
-	const jsonLine = lines[lines.length - 1];
+	const jsonLine = lines[lines.length - 1] ?? "{}";
 	return JSON.parse(jsonLine);
 }
 

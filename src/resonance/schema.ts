@@ -1,11 +1,10 @@
-export const CURRENT_SCHEMA_VERSION = 4;
+export const CURRENT_SCHEMA_VERSION = 5;
 
 export const GENESIS_SQL = `
     CREATE TABLE IF NOT EXISTS nodes (
         id TEXT PRIMARY KEY,
         type TEXT,
         title TEXT,
-        content TEXT,
         domain TEXT,
         layer TEXT,
         embedding BLOB,
@@ -25,32 +24,6 @@ export const GENESIS_SQL = `
     
     CREATE INDEX IF NOT EXISTS idx_edges_source ON edges(source);
     CREATE INDEX IF NOT EXISTS idx_edges_target ON edges(target);
-
-    -- FTS5 Virtual Table
-    CREATE VIRTUAL TABLE IF NOT EXISTS nodes_fts USING fts5(
-        id UNINDEXED, 
-        title, 
-        content, 
-        meta,
-        tokenize='porter'
-    );
-
-    -- Triggers to sync proper nodes with FTS
-    CREATE TRIGGER IF NOT EXISTS nodes_ai AFTER INSERT ON nodes BEGIN
-        INSERT INTO nodes_fts(rowid, id, title, content, meta) 
-        VALUES (new.rowid, new.id, new.title, new.content, new.meta);
-    END;
-
-    CREATE TRIGGER IF NOT EXISTS nodes_ad AFTER DELETE ON nodes BEGIN
-        DELETE FROM nodes_fts WHERE rowid = old.rowid;
-    END;
-
-    CREATE TRIGGER IF NOT EXISTS nodes_au AFTER UPDATE ON nodes BEGIN
-        INSERT INTO nodes_fts(nodes_fts, rowid, id, title, content, meta) 
-        VALUES('delete', old.rowid, old.id, old.title, old.content, old.meta);
-        INSERT INTO nodes_fts(rowid, id, title, content, meta) 
-        VALUES (new.rowid, new.id, new.title, new.content, new.meta);
-    END;
 `;
 
 export interface Migration {
@@ -139,6 +112,22 @@ export const MIGRATIONS: Migration[] = [
 					if (!e.message.includes("duplicate column")) throw e;
 				}
 			}
+		},
+	},
+	{
+		version: 5,
+		description: "Hollow Node: Remove FTS and content column",
+		up: (db) => {
+			// Drop FTS table and triggers
+			db.run("DROP TABLE IF EXISTS nodes_fts");
+			db.run("DROP TRIGGER IF EXISTS nodes_ai");
+			db.run("DROP TRIGGER IF EXISTS nodes_ad");
+			db.run("DROP TRIGGER IF EXISTS nodes_au");
+
+			// SQLite < 3.35 doesn't support DROP COLUMN, recreate table
+			// For now, we keep content column in existing DBs but stop using it
+			// New databases created from GENESIS_SQL won't have content column
+			console.log("   Migration v5: FTS removed, content column deprecated");
 		},
 	},
 ];

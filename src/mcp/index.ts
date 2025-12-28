@@ -63,7 +63,7 @@ async function runServer() {
 				{
 					name: TOOLS.SEARCH,
 					description:
-						"Search the Knowledge Graph using Hybrid (Vector + Keyword) search.",
+						"Search the Knowledge Graph using Vector (semantic) search.",
 					inputSchema: {
 						type: "object",
 						properties: {
@@ -131,7 +131,7 @@ async function runServer() {
 					>();
 					const errors: string[] = [];
 
-					// Vector Search
+					// Vector Search only (FTS removed in Hollow Node migration)
 					try {
 						const vectorResults = await vectorEngine.search(query, limit);
 						for (const r of vectorResults) {
@@ -142,31 +142,10 @@ async function runServer() {
 								source: "vector",
 							});
 						}
-					} catch (e: any) {
-						console.error(`Vector Search Error: ${e.message}`);
-						errors.push(e.message);
-					}
-
-					// FTS Search
-					try {
-						const ftsResults = db.searchText(query, limit);
-						for (const r of ftsResults) {
-							const existing = candidates.get(r.id);
-							if (existing) {
-								existing.score += 0.2;
-								existing.source = "hybrid";
-							} else {
-								candidates.set(r.id, {
-									id: r.id,
-									score: 0.5,
-									preview: r.snippet || r.title,
-									source: "keyword",
-								});
-							}
-						}
-					} catch (e: any) {
-						console.error(`FTS Search Error: ${e.message}`);
-						errors.push(e.message);
+					} catch (e: unknown) {
+						const msg = e instanceof Error ? e.message : String(e);
+						console.error(`Vector Search Error: ${msg}`);
+						errors.push(msg);
 					}
 
 					const results = Array.from(candidates.values())
@@ -192,17 +171,41 @@ async function runServer() {
 			}
 
 			if (name === TOOLS.READ) {
-				// Create fresh connection for this request
+				// Hollow Node: Read content from filesystem via meta.source
 				const { db } = createConnection();
 				try {
 					const id = String(args?.id);
 					const row = db
 						.getRawDb()
-						.query("SELECT content FROM nodes WHERE id = ?")
-						.get(id) as any;
-					if (!row)
+						.query("SELECT meta FROM nodes WHERE id = ?")
+						.get(id) as { meta: string | null } | null;
+
+					if (!row) {
 						return { content: [{ type: "text", text: "Node not found." }] };
-					return { content: [{ type: "text", text: row.content }] };
+					}
+
+					const meta = row.meta ? JSON.parse(row.meta) : {};
+					const sourcePath = meta.source;
+
+					if (!sourcePath) {
+						return {
+							content: [
+								{ type: "text", text: `No source file for node: ${id}` },
+							],
+						};
+					}
+
+					// Read content from filesystem
+					try {
+						const content = await Bun.file(sourcePath).text();
+						return { content: [{ type: "text", text: content }] };
+					} catch {
+						return {
+							content: [
+								{ type: "text", text: `File not found: ${sourcePath}` },
+							],
+						};
+					}
 				} finally {
 					db.close();
 				}

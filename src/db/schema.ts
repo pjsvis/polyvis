@@ -10,9 +10,9 @@ export const nodes = sqliteTable("nodes", {
 	id: text("id").primaryKey(),
 	type: text("type").notNull(),
 
-	// Content Fields
+	// Node Identity
 	title: text("title"),
-	content: text("content"),
+	// content: removed - Hollow Node architecture retrieves from filesystem
 
 	// Taxonomy
 	domain: text("domain").default("knowledge"),
@@ -24,7 +24,7 @@ export const nodes = sqliteTable("nodes", {
 	// Integrity
 	hash: text("hash"),
 
-	// Metadata (JSON)
+	// Metadata (JSON) - includes source path for file retrieval
 	meta: text("meta"),
 });
 
