@@ -105,7 +105,15 @@ export class ResonanceDB {
         `);
 
 		try {
-			const blob = node.embedding ? toFafcas(node.embedding) : null;
+			// FAFCAS Protocol: Trust pre-normalized embeddings from Embedder/VectorEngine
+			// Embeddings are already normalized at generation boundary
+			const blob = node.embedding
+				? new Uint8Array(
+						node.embedding.buffer,
+						node.embedding.byteOffset,
+						node.embedding.byteLength,
+				  )
+				: null;
 
 			stmt.run({
 				$id: String(node.id),

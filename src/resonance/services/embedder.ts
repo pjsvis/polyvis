@@ -1,5 +1,6 @@
 import { join } from "node:path";
 import { EmbeddingModel, FlagEmbedding } from "fastembed";
+import { toFafcas } from "@src/resonance/db";
 
 export class Embedder {
 	private static instance: Embedder;
@@ -38,12 +39,14 @@ export class Embedder {
 					signal: AbortSignal.timeout(200), // Fast timeout: 200ms
 				});
 
-				if (response.ok) {
-					const data = (await response.json()) as { vector: number[] };
-					if (data.vector) {
-						return new Float32Array(data.vector);
-					}
+			if (response.ok) {
+				const data = (await response.json()) as { vector: number[] };
+				if (data.vector) {
+					// FAFCAS Protocol: Normalize at generation boundary
+					const raw = new Float32Array(data.vector);
+					return new Float32Array(toFafcas(raw).buffer);
 				}
+			}
 			} catch (_e) {
 				// Daemon unreachable or timeout
 				// console.warn("Vector Daemon unreachable, falling back to local.");
@@ -57,11 +60,14 @@ export class Embedder {
 		if (!gen) throw new Error("Failed to initialize embedder");
 		const result = await gen.next();
 
-		const val = result.value?.[0];
-		if (!val || val.length === 0) {
-			throw new Error("Failed to generate embedding");
-		}
+	const val = result.value?.[0];
+	if (!val || val.length === 0) {
+		throw new Error("Failed to generate embedding");
+	}
 
-		return new Float32Array(val);
+	// FAFCAS Protocol: Normalize at generation boundary
+	// Note: FastEmbed usually returns normalized vectors, but we enforce it here
+	const raw = new Float32Array(val);
+	return new Float32Array(toFafcas(raw).buffer);
 	}
 }

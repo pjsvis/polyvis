@@ -128,8 +128,8 @@ export class VectorEngine {
 
 			if (!vector) return null;
 
-			// Normalize to FAFCAS (Unit Length) -> Blob
-			// FastEmbed output is usually normalized, but FAFCAS requires strict adherence
+			// FAFCAS Protocol: Normalize to Unit Length
+			// Note: FastEmbed output is usually normalized, but we enforce it for compliance
 			return toFafcas(vector);
 		} catch (e) {
 			console.error("Failed to generate embedding:", e);
