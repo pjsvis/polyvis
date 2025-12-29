@@ -84,6 +84,7 @@ public/resonance.db-shm
 experiments/enlightenment/models/
 experiments/enlightenment/venv/
 experiments/enlightenment/__pycache__/
+experiments/enlightenment/llama.cpp/
 *.gguf
 
 # Python ML Pipeline
