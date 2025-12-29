@@ -88,6 +88,8 @@ By completely removing the Full-Text Search (FTS) engine and huge content blobs 
 
 Comparing **PolyVis** against a standard **"Modern Enterprise Stack"** (Next.js / Python Backend / Neo4j / Cloud Vector DB).
 
+![architectural_overview](architectural_overview.png)
+
 ### Key Factors for Success (Axes)
 1.  **Velocity:** Speed of runtime execution and development iteration.
 2.  **Scalability (Local):** Ability to handle node count on a single machine without lag.
