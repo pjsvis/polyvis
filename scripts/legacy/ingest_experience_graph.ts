@@ -1,14 +1,10 @@
-import { Database } from "bun:sqlite";
-import { EdgeWeaver } from "@src/core/EdgeWeaver";
+import { existsSync, readFileSync } from "node:fs";
+import { join } from "node:path";
 import { SemanticMatcher } from "@src/core/SemanticMatcher";
 import { DatabaseFactory } from "@src/resonance/DatabaseFactory";
 import type { EnrichedLexiconDocument } from "@src/resonance/types/enriched-cda";
 import { PipelineValidator } from "@src/utils/validator";
-import { existsSync, readFileSync } from "fs";
 import { lexer } from "marked";
-import { join } from "path";
-// --- Configuration ---
-import settings from "@/polyvis.settings.json";
 
 // Types for Experience Index
 interface ExperienceNode {
@@ -51,15 +47,15 @@ async function ingest() {
 		console.log(
 			`🧠 Loaded Lexicon: ${lexicon?.stats.total_concepts} concepts available for linking.`,
 		);
-	} catch (e) {
+	} catch (_e) {
 		console.warn(
 			"⚠️ Could not load Enriched Lexicon. Cross-layer semantic linking will be skipped.",
 		);
 	}
 
 	// Initialize Semantic Matcher
-	const semanticMatcher = new SemanticMatcher();
-	const useSemanticLinking = lexicon !== null;
+	const _semanticMatcher = new SemanticMatcher();
+	const _useSemanticLinking = lexicon !== null;
 	let semanticEdges = 0;
 
 	console.log(`📥 Loading ${indexData.length} experience artifacts...`);
@@ -130,7 +126,7 @@ async function ingest() {
 					capturing &&
 					(token.type === "paragraph" || token.type === "list")
 				) {
-					narrative += (token.raw || "") + "\n";
+					narrative += `${token.raw || ""}\n`;
 				}
 			}
 

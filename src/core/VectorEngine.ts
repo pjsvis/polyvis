@@ -19,7 +19,8 @@ function toFafcas(vector: Float32Array): Uint8Array {
 	// 1. Calculate Magnitude (L2 Norm)
 	let sum = 0;
 	for (let i = 0; i < vector.length; i++) {
-		sum += vector[i]! * vector[i]!;
+		const val = vector[i] || 0;
+		sum += val * val;
 	}
 	const magnitude = Math.sqrt(sum);
 
@@ -27,7 +28,7 @@ function toFafcas(vector: Float32Array): Uint8Array {
 	// Optimization: If magnitude is 0, return zero vector (avoids NaN)
 	if (magnitude > 1e-6) {
 		for (let i = 0; i < vector.length; i++) {
-			vector[i]! /= magnitude;
+			vector[i] = (vector[i] || 0) / magnitude;
 		}
 	}
 
@@ -42,7 +43,8 @@ function toFafcas(vector: Float32Array): Uint8Array {
 function magnitude(vec: Float32Array): number {
 	let sum = 0;
 	for (let i = 0; i < vec.length; i++) {
-		sum += vec[i]! * vec[i]!;
+		const val = vec[i] || 0;
+		sum += val * val;
 	}
 	return Math.sqrt(sum);
 }
@@ -67,7 +69,7 @@ function dotProduct(a: Float32Array, b: Float32Array): number {
 	let sum = 0;
 	// Modern JS engines SIMD-optimize this loop automatically
 	for (let i = 0; i < a.length; i++) {
-		sum += a[i]! * b[i]!;
+		sum += (a[i] || 0) * (b[i] || 0);
 	}
 	return sum;
 }
@@ -121,6 +123,7 @@ export class VectorEngine {
 
 			for await (const batch of embeddings) {
 				if (batch && batch.length > 0) {
+					// biome-ignore lint/style/noNonNullAssertion: Batch guaranteed by loop check
 					vector = new Float32Array(batch[0]!);
 				}
 				break;

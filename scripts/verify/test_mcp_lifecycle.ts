@@ -1,5 +1,5 @@
-import { spawn } from "child_process";
-import { resolve } from "path";
+import { spawn } from "node:child_process";
+import { resolve } from "node:path";
 
 const MCP_SCRIPT = resolve(process.cwd(), "src/mcp/index.ts");
 
@@ -56,7 +56,7 @@ async function testMcpLifecycle() {
 		},
 	};
 
-	proc.stdin.write(JSON.stringify(handshake) + "\n");
+	proc.stdin.write(`${JSON.stringify(handshake)}\n`);
 
 	// 4. Wait for response
 	await new Promise((r) => setTimeout(r, 1000));

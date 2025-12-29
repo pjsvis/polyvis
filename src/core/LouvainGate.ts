@@ -1,6 +1,6 @@
 import type { Database } from "bun:sqlite";
 
-export class LouvainGate {
+export const LouvainGate = {
 	/**
 	 * Checks if an edge between source and target should be allowed based on Local Modularity.
 	 * Rule: If target is a "Super Node" (> threshold edges) AND source shares NO neighbors with it,
@@ -12,18 +12,18 @@ export class LouvainGate {
 	 * @param threshold The degree threshold to consider a node a "Super Node" (default 50)
 	 * @returns boolean - true if edge is allowed, false if rejected
 	 */
-	static check(
+	check(
 		db: Database,
 		source: string,
 		target: string,
 		threshold = 50,
 	): { allowed: boolean; reason?: string } {
 		// 1. Check if target is a Super Node
-		const isSuper = LouvainGate.isSuperNode(db, target, threshold);
+		const isSuper = this.isSuperNode(db, target, threshold);
 
 		if (isSuper) {
 			// 2. Check for Triadic Closure (Shared Neighbor)
-			const shares = LouvainGate.sharesNeighbor(db, source, target);
+			const shares = this.sharesNeighbor(db, source, target);
 			if (!shares) {
 				return {
 					allowed: false,
@@ -33,20 +33,16 @@ export class LouvainGate {
 		}
 
 		return { allowed: true };
-	}
+	},
 
-	private static isSuperNode(
-		db: Database,
-		id: string,
-		threshold: number,
-	): boolean {
+	isSuperNode(db: Database, id: string, threshold: number): boolean {
 		const result = db
 			.query("SELECT COUNT(*) as c FROM edges WHERE target = ? OR source = ?")
 			.get(id, id) as { c: number };
 		return result.c > threshold;
-	}
+	},
 
-	private static sharesNeighbor(db: Database, a: string, b: string): boolean {
+	sharesNeighbor(db: Database, a: string, b: string): boolean {
 		// Check for any common neighbor 'n' such that a-n and b-n exist
 		const result = db
 			.query(
@@ -67,5 +63,5 @@ export class LouvainGate {
 			.get(a, a, b, b) as { exists_flag: number } | null;
 
 		return !!result;
-	}
-}
+	},
+};

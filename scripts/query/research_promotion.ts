@@ -34,7 +34,8 @@ async function main() {
 		results.forEach((r: any) => {
 			console.log(`   - [${r.score.toFixed(2)}] ${r.label}`);
 			// Peek at content
-			const row = db["db"]
+			const row = db
+				.getRawDb()
 				.query("SELECT content FROM nodes WHERE id = ?")
 				.get(r.id) as any;
 			if (row) {
@@ -47,7 +48,8 @@ async function main() {
 
 	// Direct SQL Search for 'TODO'
 	console.log("🔍 Scanning for TODOs related to refactoring...");
-	const todos = db["db"]
+	const todos = db
+		.getRawDb()
 		.query(`
         SELECT id, content FROM nodes 
         WHERE content LIKE '%TODO%' AND (content LIKE '%src%' OR content LIKE '%refactor%')

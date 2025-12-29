@@ -1,8 +1,6 @@
-import { edges, nodes } from "@src/db/schema.js";
+import assert from "node:assert";
+import { join } from "node:path";
 import type { IngestionArtifact } from "@src/types/artifact.js";
-import assert from "assert";
-import { join } from "path";
-import settings from "@/polyvis.settings.json";
 import { DatabaseFactory } from "@/src/resonance/DatabaseFactory";
 
 console.log("Starting Round-Trip Verification...");
@@ -51,7 +49,7 @@ try {
 	console.log(
 		"✅ VERIFICATION SUCCESS: Database perfectly matches Intermediate Artifacts.",
 	);
-} catch (e) {
+} catch (_e) {
 	console.error("❌ VERIFICATION FAILED: Data mismatch.");
 	// Simple diff
 	for (let i = 0; i < originals.length; i++) {

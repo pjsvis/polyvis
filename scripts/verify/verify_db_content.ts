@@ -1,7 +1,8 @@
+import type { Database } from "bun:sqlite";
 import { DatabaseFactory } from "@/src/resonance/DatabaseFactory";
 
 const dbPath = process.argv[2];
-let db;
+let db: Database;
 
 if (dbPath) {
 	console.log(`Checking DB at: ${dbPath}`);

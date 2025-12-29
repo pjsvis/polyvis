@@ -1,4 +1,3 @@
-import { Database } from "bun:sqlite";
 import { VectorEngine } from "@src/core/VectorEngine";
 import { ResonanceDB } from "@src/resonance/db";
 import { Embedder } from "@src/resonance/services/embedder";
@@ -8,7 +7,8 @@ async function main() {
 	const db = ResonanceDB.init();
 
 	// 1. Check Counts
-	const counts = db["db"]
+	const counts = db
+		.getRawDb()
 		.query(`
         SELECT type, COUNT(*) as count, domain 
         FROM nodes 
@@ -19,13 +19,15 @@ async function main() {
 	console.table(counts);
 
 	// 4. Check Aliases (using 'alias' rel)
-	const aliases = db["db"]
+	const aliases = db
+		.getRawDb()
 		.query("SELECT * FROM edges WHERE type = 'alias'")
 		.all() as any[];
 	console.log(`   Aliases Found: ${aliases.length}`);
 
 	// 5. Check 'cites' edges (WikiLinks)
-	const cites = db["db"]
+	const cites = db
+		.getRawDb()
 		.query("SELECT * FROM edges WHERE type = 'CITES'")
 		.all() as any[];
 	console.log(`   Citations Found: ${cites.length}`);
@@ -34,6 +36,7 @@ async function main() {
 	}
 
 	// 2. Check AST Sections
+	/* biome-ignore lint/suspicious/noExplicitAny: verification setup */
 	const sectionStat = counts.find((c: any) => c.type === "section") as any;
 	const sectionCount = sectionStat ? sectionStat.count : 0;
 	if (sectionCount > 0) {
@@ -51,20 +54,22 @@ async function main() {
 	const results = await ve.searchByVector(vec, 10);
 
 	console.log("   Top 10 Matches:");
-	results.forEach((r: any) => {
+	results.forEach((r) => {
 		// Fetch type for display
-		const node = db["db"]
+		const node = db
+			.getRawDb()
 			.query("SELECT type, domain FROM nodes WHERE id = ?")
-			.get(r.id) as any;
+			.get(r.id) as { type: string; domain: string };
 		console.log(
-			`   - [${node.domain}/${node.type}] ${r.label} (${r.score.toFixed(3)})`,
+			`   - [${node.domain}/${node.type}] ${r.title} (${r.score.toFixed(3)})`,
 		);
 	});
 
 	// Check if we have mixed domains
 	const domains = new Set(
 		results.map((r: any) => {
-			const node = db["db"]
+			const node = db
+				.getRawDb()
 				.query("SELECT domain FROM nodes WHERE id = ?")
 				.get(r.id) as any;
 			return node.domain;

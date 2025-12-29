@@ -1,4 +1,4 @@
-import { join } from "path";
+import { join } from "node:path";
 import { AutoTagger } from "../../src/gardeners/AutoTagger";
 import { ResonanceDB } from "../../src/resonance/db";
 

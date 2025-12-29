@@ -13,11 +13,11 @@
  * absolute path of the current installation.
  */
 
-import { resolve } from "path";
+import { resolve } from "node:path";
 
 const cwd = resolve(process.cwd());
 const mcpScript = resolve(cwd, "src/mcp/index.ts");
-const bunPath = process.execPath; // "bun" executable path
+const _bunPath = process.execPath; // "bun" executable path
 
 const config = {
 	mcpServers: {

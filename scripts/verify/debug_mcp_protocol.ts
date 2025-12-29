@@ -41,7 +41,7 @@ async function test() {
 	await new Promise((r) => setTimeout(r, 1000));
 
 	console.log(`\n📤 Sending Request: ${JSON.stringify(request)}\n`);
-	proc.stdin.write(JSON.stringify(request) + "\n");
+	proc.stdin.write(`${JSON.stringify(request)}\n`);
 }
 
 test();

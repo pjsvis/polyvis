@@ -9,11 +9,11 @@
  * - Proper theme.css usage
  */
 
-import { readdirSync, readFileSync, statSync } from "fs";
-import { extname, join } from "path";
+import { readdirSync, readFileSync, statSync } from "node:fs";
+import { extname, join } from "node:path";
 
 const CSS_DIR = "src/css";
-const THEME_FILE = join(CSS_DIR, "layers/theme.css");
+const _THEME_FILE = join(CSS_DIR, "layers/theme.css");
 
 // Validation rules
 const RULES = {

@@ -27,12 +27,12 @@ console.log(JSON.stringify(tokens, null, 2));
 const nlp = require("compromise");
 const doc = nlp(text);
 console.log("\n[DEBUG] Term Analysis:");
-doc.json()[0].terms.forEach((t: any) => {
+doc.json()[0].terms.forEach((t: { text: string; tags: string[] }) => {
 	console.log(` - Text: "${t.text}" | Tags: [${t.tags.join(", ")}]`);
 });
 // 4. Verify
-const hasProtocol = tokens.protocols && tokens.protocols.includes("OH-058");
-const hasConcept = tokens.concepts && tokens.concepts.includes("Mentation");
+const hasProtocol = tokens.protocols?.includes("OH-058");
+const hasConcept = tokens.concepts?.includes("Mentation");
 console.log("\nStep 4: Verification:");
 console.log(`- Detected OH-058? ${hasProtocol ? "✅ YES" : "❌ NO"}`);
 console.log(`- Detected Mentation? ${hasConcept ? "✅ YES" : "❌ NO"}`);

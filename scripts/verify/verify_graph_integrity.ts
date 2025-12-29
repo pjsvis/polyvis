@@ -1,11 +1,12 @@
+import { existsSync, rmSync } from "node:fs";
+import { join } from "node:path";
 import { ResonanceDB } from "@src/resonance/db";
-import { existsSync, rmSync } from "fs";
-import { join } from "path";
 import { EdgeWeaver } from "../../src/core/EdgeWeaver";
 
 // Mock Data Generation
 function generateMockData(count: number) {
-	const nodes: any[] = [];
+	const nodes: { id: string; type: string; title: string; content?: string }[] =
+		[];
 	for (let i = 0; i < count; i++) {
 		// Create a "Super Node" candidate (e.g., 'concept-core')
 		// and many "Leaf Nodes"
@@ -41,7 +42,7 @@ async function verify() {
 	const nodes = generateMockData(100);
 
 	// Insert 'concept-core' first
-	db.insertNode(nodes[0]);
+	db.insertNode(nodes[0]!);
 
 	// Insert 100 notes that all link to 'concept-core'
 	// Without gating, 'concept-core' would have degree 99.
@@ -51,9 +52,9 @@ async function verify() {
 
 	let linksAttempted = 0;
 	for (let i = 1; i < nodes.length; i++) {
-		const node = nodes[i];
+		const node = nodes[i]!;
 		db.insertNode(node);
-		weaver.weave(node.id, node.content);
+		weaver.weave(node.id, node.content || "");
 		linksAttempted++;
 	}
 

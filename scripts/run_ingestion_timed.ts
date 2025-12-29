@@ -69,7 +69,7 @@ async function main() {
 
 		// Write timing to file for aggregation
 		const result = {
-			run: Number.parseInt(runNumber),
+			run: Number.parseInt(runNumber, 10),
 			totalTime,
 			personaTime: (t2 - t1) / 1000,
 			experienceTime: (t4 - t3) / 1000,

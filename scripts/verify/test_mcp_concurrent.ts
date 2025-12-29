@@ -40,7 +40,7 @@ async function sendMCPRequest(
 		});
 
 		// Send request
-		proc.stdin.write(JSON.stringify(request) + "\n");
+		proc.stdin.write(`${JSON.stringify(request)}\n`);
 		proc.stdin.end();
 
 		// Read response

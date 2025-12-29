@@ -24,6 +24,7 @@ export interface BentoBox {
 export class BentoBoxer {
 	private ledger: LocusLedger;
 	// private masker: MarkdownMasker; // Disabled for AST pass
+	// biome-ignore lint/suspicious/noExplicitAny: Unified types are complex
 	private processor: any;
 
 	constructor(ledger: LocusLedger) {

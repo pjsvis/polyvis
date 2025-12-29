@@ -23,7 +23,7 @@ console.table(
 	rows.map((r) => ({
 		...r,
 		missing: r.total - r.vectorized,
-		coverage: Math.round((r.vectorized / r.total) * 100) + "%",
+		coverage: `${Math.round((r.vectorized / r.total) * 100)}%`,
 	})),
 );
 

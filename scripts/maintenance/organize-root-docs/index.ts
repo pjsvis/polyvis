@@ -8,12 +8,18 @@
  * - Archive: Temporary/completed task docs
  */
 
-import { existsSync, mkdirSync, readdirSync, renameSync, statSync } from "fs";
-import { join } from "path";
+import {
+	existsSync,
+	mkdirSync,
+	readdirSync,
+	renameSync,
+	statSync,
+} from "node:fs";
+import { join } from "node:path";
 
 const ROOT_DIR = process.cwd();
 const DOCS_DIR = join(ROOT_DIR, "docs");
-const ARCHIVE_DIR = join(DOCS_DIR, "archive");
+const _ARCHIVE_DIR = join(DOCS_DIR, "archive");
 
 // Files that MUST stay in root
 const KEEP_IN_ROOT = new Set([
@@ -106,7 +112,7 @@ function analyzeRootDocs(): MoveCandidate[] {
 		candidates.push({
 			filename,
 			category: categorization.category,
-			destination: destination.replace(ROOT_DIR + "/", ""),
+			destination: destination.replace(`${ROOT_DIR}/`, ""),
 			reason: `${categorization.category} document`,
 		});
 	}
@@ -124,7 +130,7 @@ function ensureDirectories(candidates: MoveCandidate[]) {
 	for (const dir of dirs) {
 		if (!existsSync(dir)) {
 			mkdirSync(dir, { recursive: true });
-			console.log(`📁 Created directory: ${dir.replace(ROOT_DIR + "/", "")}`);
+			console.log(`📁 Created directory: ${dir.replace(`${ROOT_DIR}/`, "")}`);
 		}
 	}
 }
@@ -161,7 +167,7 @@ function main() {
 	console.log("\n");
 
 	// Confirm with user
-	const readline = require("readline");
+	const readline = require("node:readline");
 	const rl = readline.createInterface({
 		input: process.stdin,
 		output: process.stdout,

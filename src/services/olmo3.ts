@@ -1,4 +1,4 @@
-import { join } from "path";
+import { join } from "node:path";
 import { ServiceLifecycle } from "../utils/ServiceLifecycle";
 
 // --- Configuration ---

@@ -35,14 +35,14 @@ Final section.
 
 		expect(boxes.length).toBe(4);
 
-		expect(boxes[0]!.content).toContain("# Main Title");
-		expect(boxes[0]!.content).toContain("Introduction content");
+		expect(boxes[0]?.content).toContain("# Main Title");
+		expect(boxes[0]?.content).toContain("Introduction content");
 
-		expect(boxes[1]!.content).toContain("## Section 1");
-		expect(boxes[1]!.content).toContain("Content for section 1");
+		expect(boxes[1]?.content).toContain("## Section 1");
+		expect(boxes[1]?.content).toContain("Content for section 1");
 
-		expect(boxes[2]!.content).toContain("## Section 2");
-		expect(boxes[2]!.content).toContain("> Blockquote");
+		expect(boxes[2]?.content).toContain("## Section 2");
+		expect(boxes[2]?.content).toContain("> Blockquote");
 	});
 
 	test("Splits content by deeper headers (H3/H4)", () => {
@@ -70,8 +70,8 @@ Content 2.1.1
 		// 3. #### Deep Dive
 
 		expect(boxes.length).toBe(3);
-		expect(boxes[1]!.content).toContain("### Subsection 2.1");
-		expect(boxes[2]!.content).toContain("#### Deep Dive");
+		expect(boxes[1]?.content).toContain("### Subsection 2.1");
+		expect(boxes[2]?.content).toContain("#### Deep Dive");
 	});
 
 	test("Fractures large content by Paragraphs", () => {
@@ -87,7 +87,7 @@ ${largeText}
 		// Attempts to fracture the single H1 box.
 		// Should produce at least 2 boxes via paragraph chunking or fallback.
 		expect(boxes.length).toBeGreaterThan(1);
-		expect(boxes[0]!.tokenCount).toBeLessThan(350);
+		expect(boxes[0]?.tokenCount).toBeLessThan(350);
 	});
 
 	test("Handles empty content gracefully", () => {
@@ -105,7 +105,7 @@ const x = 1;
         `;
 		const boxes = boxer.process(input);
 		expect(boxes.length).toBe(1);
-		expect(boxes[0]!.content).toContain("const x = 1;");
-		expect(boxes[0]!.content).toContain("```typescript");
+		expect(boxes[0]?.content).toContain("const x = 1;");
+		expect(boxes[0]?.content).toContain("```typescript");
 	});
 });

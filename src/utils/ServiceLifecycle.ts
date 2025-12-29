@@ -145,7 +145,7 @@ export class ServiceLifecycle {
 						);
 					}
 				}
-			} catch (e) {
+			} catch (_e) {
 				// Ignore cleanup errors (file might already be deleted)
 			}
 		};

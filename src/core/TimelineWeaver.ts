@@ -1,7 +1,7 @@
 import type { ResonanceDB } from "@src/resonance/db";
 
-export class TimelineWeaver {
-	static weave(db: ResonanceDB) {
+export const TimelineWeaver = {
+	weave(db: ResonanceDB) {
 		console.log("⏳ TimelineWeaver: Initializing...");
 
 		// 1. Fetch Debriefs
@@ -53,5 +53,5 @@ export class TimelineWeaver {
 		console.log(
 			`⏳ TimelineWeaver: Linked ${edgesAdded} debriefs in chronological chain.`,
 		);
-	}
-}
+	},
+};

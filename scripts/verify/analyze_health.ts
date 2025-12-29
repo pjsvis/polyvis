@@ -10,13 +10,17 @@ const N = (
 		.query(
 			"SELECT COUNT(*) as c FROM nodes WHERE type != 'root' AND type != 'domain'",
 		)
-		.get() as any
+		.get() as { c: number }
 ).c;
-const E = (db.query("SELECT COUNT(*) as c FROM edges").get() as any).c;
+const E = (db.query("SELECT COUNT(*) as c FROM edges").get() as { c: number })
+	.c;
 const nodes = db
 	.query("SELECT id FROM nodes WHERE type != 'root' AND type != 'domain'")
-	.all() as any[];
-const edges = db.query("SELECT source, target FROM edges").all() as any[];
+	.all() as { id: string }[];
+const edges = db.query("SELECT source, target FROM edges").all() as {
+	source: string;
+	target: string;
+}[];
 
 // 2. Metrics Calculation
 const avgDegree = (2 * E) / N;
@@ -27,7 +31,9 @@ const density = maxEdges > 0 ? E / maxEdges : 0;
 // 3. Connected Components (BFS/Union-Find)
 // Simple implementation to find # of islands
 const adj = new Map<string, string[]>();
-nodes.forEach((n) => adj.set(n.id, []));
+nodes.forEach((n) => {
+	adj.set(n.id, []);
+});
 edges.forEach((e) => {
 	if (adj.has(e.source)) adj.get(e.source)?.push(e.target);
 	if (adj.has(e.target)) adj.get(e.target)?.push(e.source); // Undirected view
@@ -45,7 +51,8 @@ for (const node of nodes) {
 	visited.add(node.id);
 
 	while (stack.length > 0) {
-		const curr = stack.pop()!;
+		const curr = stack.pop();
+		if (!curr) continue;
 		size++;
 
 		const neighbors = adj.get(curr) || [];

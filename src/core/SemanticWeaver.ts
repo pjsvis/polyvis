@@ -1,7 +1,7 @@
 import type { ResonanceDB } from "@src/resonance/db";
 
-export class SemanticWeaver {
-	static weave(db: ResonanceDB) {
+export const SemanticWeaver = {
+	weave(db: ResonanceDB) {
 		console.log("🧠 SemanticWeaver: Initializing Orphan Rescue...");
 
 		// 1. Identify Orphans (Nodes with no edges AND available embedding)
@@ -20,7 +20,7 @@ export class SemanticWeaver {
               AND n.type != 'root'
               AND n.type != 'domain'
         `)
-			.all() as any[];
+			.all() as { id: string; embedding: Uint8Array; title: string }[];
 
 		if (orphans.length === 0) {
 			console.log("🧠 SemanticWeaver: No orphans found to rescue.");
@@ -92,5 +92,5 @@ export class SemanticWeaver {
 		}
 
 		console.log(`🧠 SemanticWeaver: Rescued ${rescuedCount} orphans.`);
-	}
-}
+	},
+};

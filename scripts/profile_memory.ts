@@ -1,6 +1,3 @@
-// import Graph from "graphology"; // ⚠️ Manual Profile Only: `bun add graphology` to enable
-import { format } from "util";
-import settings from "@/polyvis.settings.json";
 import { VectorEngine } from "@/src/core/VectorEngine";
 import { DatabaseFactory } from "@/src/resonance/DatabaseFactory";
 import { ResonanceDB } from "@/src/resonance/db";

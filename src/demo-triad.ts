@@ -34,7 +34,7 @@ async function runPipeline() {
 	console.log(`\n📝 THOUGHT TRACE (The 'Raj' Monologue):`);
 	// Truncate for console readability
 	console.log(
-		auditResult.thought_trace.substring(0, 300) + "... [truncated] ...",
+		`${auditResult.thought_trace.substring(0, 300)}... [truncated] ...`,
 	);
 
 	console.log(

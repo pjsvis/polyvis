@@ -1,7 +1,7 @@
+import { parseArgs } from "node:util";
 import { LLMClient } from "@src/core/LLMClient";
 import { ResonanceDB } from "@src/resonance/db";
 import { Embedder } from "@src/resonance/services/embedder";
-import { parseArgs } from "util";
 
 async function main() {
 	const { positionals } = parseArgs({
@@ -43,9 +43,10 @@ async function main() {
 
 	for (const node of similarNodes) {
 		// Fetch Content manually
-		const nodeData = db["db"]
+		const nodeData = db
+			.getRawDb()
 			.query("SELECT content, type FROM nodes WHERE id = ?")
-			.get(node.id) as any;
+			.get(node.id) as { content?: string; type?: string };
 		const content = nodeData?.content || "";
 		const type = nodeData?.type || "unknown";
 
@@ -53,12 +54,14 @@ async function main() {
 		contextStr += `CONTENT: ${content.slice(0, 500)}...\n`;
 
 		// Fetch Neighbors (Manual SQL)
-		const incoming = db["db"]
+		const incoming = db
+			.getRawDb()
 			.query("SELECT source as id, type FROM edges WHERE target = ?")
-			.all(node.id) as any[];
-		const outgoing = db["db"]
+			.all(node.id) as { id: string; type: string }[];
+		const outgoing = db
+			.getRawDb()
 			.query("SELECT target as id, type FROM edges WHERE source = ?")
-			.all(node.id) as any[];
+			.all(node.id) as { id: string; type: string }[];
 
 		const inStr = incoming.map((n) => `${n.type}<-${n.id}`).join(", ");
 		const outStr = outgoing.map((n) => `${n.type}->${n.id}`).join(", ");

@@ -36,7 +36,7 @@ export class EnlightenedTriad {
 	 * "The Builder"
 	 * Task: Structure raw text into strict JSON.
 	 */
-	async architect(unstructuredData: string): Promise<any> {
+	async architect(unstructuredData: string): Promise<unknown> {
 		const response = await this.callAgent(PORTS.ARCHITECT, [
 			{ role: "system", content: "Output JSON only." },
 			{
@@ -52,7 +52,7 @@ export class EnlightenedTriad {
 				.replace(/```/g, "")
 				.trim();
 			return JSON.parse(cleanJson);
-		} catch (e) {
+		} catch (_e) {
 			console.error("❌ Architect JSON Error. Raw output:", response);
 			return null;
 		}
@@ -83,7 +83,7 @@ export class EnlightenedTriad {
 
 		const thinkMatch = rawOutput.match(/<think>([\s\S]*?)<\/think>/);
 
-		if (thinkMatch && thinkMatch[1]) {
+		if (thinkMatch?.[1]) {
 			// case 1: structured output
 			thoughtTrace = thinkMatch[1].trim();
 			finalAnswer = rawOutput.replace(thinkMatch[0], "").trim();
@@ -111,8 +111,8 @@ export class EnlightenedTriad {
 	// --- UTILS (Bun Native Fetch) ---
 	private async callAgent(
 		port: number,
-		messages: any[],
-		options: any = {},
+		messages: { role: string; content: string }[],
+		options: { temperature?: number; max_tokens?: number } = {},
 	): Promise<string> {
 		try {
 			const response = await fetch(
@@ -138,7 +138,7 @@ export class EnlightenedTriad {
 				choices: { message: { content: string } }[];
 			};
 			return data.choices?.[0]?.message?.content || "";
-		} catch (error) {
+		} catch (_error) {
 			console.error(`❌ Agent at Port ${port} is offline/unreachable.`);
 			return "AGENT_OFFLINE";
 		}

@@ -1,8 +1,6 @@
 import { VectorEngine } from "@src/core/VectorEngine";
 import { ResonanceDB } from "@src/resonance/db";
 import { Embedder } from "@src/resonance/services/embedder";
-import { join } from "path";
-import settings from "@/polyvis.settings.json";
 
 async function main() {
 	const query = Bun.argv[2];

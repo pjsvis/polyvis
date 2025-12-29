@@ -1,5 +1,4 @@
-import { join } from "path";
-import settings from "@/polyvis.settings.json";
+import { join } from "node:path";
 import { DatabaseFactory } from "@/src/resonance/DatabaseFactory";
 
 console.log("📜 Starting Narrative Reconstruction (The Turing Test)...");
@@ -7,14 +6,21 @@ console.log("📜 Starting Narrative Reconstruction (The Turing Test)...");
 const db = DatabaseFactory.connectToResonance({ readonly: true });
 
 // 1. Fetch Debriefs and Edges
-const nodes = db
-	.query("SELECT * FROM nodes WHERE type = 'debrief'")
-	.all() as any[];
+const nodes = db.query("SELECT * FROM nodes WHERE type = 'debrief'").all() as {
+	id: string;
+	label: string;
+	title: string;
+	content: string;
+	meta: string;
+}[];
 const edges = db
 	.query("SELECT source, target FROM edges WHERE type = 'SUCCEEDS'")
-	.all() as any[];
+	.all() as { source: string; target: string }[];
 
-const nodeMap = new Map<string, any>(nodes.map((n) => [n.id, n]));
+const nodeMap = new Map<
+	string,
+	{ id: string; label: string; title: string; content: string; meta: string }
+>(nodes.map((n) => [n.id, n]));
 const nextMap = new Map<string, string>();
 const prevMap = new Map<string, string>();
 
@@ -47,12 +53,19 @@ if (genesisNodes.length > 1) {
 	);
 }
 
-const genesis = genesisNodes[0]; // Take the first valid start
+const genesis = genesisNodes[0];
+if (!genesis) throw new Error("Genesis node undefined despite length check");
 console.log(`✅ Genesis Found: ${genesis.id} (${genesis.label})`);
 
 // 3. Traverse the Thread
 let currentId = genesis.id;
-const timeline: any[] = [];
+const timeline: {
+	id: string;
+	label: string;
+	title: string;
+	content: string;
+	meta: string;
+}[] = [];
 
 while (currentId) {
 	const node = nodeMap.get(currentId);

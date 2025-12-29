@@ -1,6 +1,5 @@
 import { VectorEngine } from "@src/core/VectorEngine";
 import { ResonanceDB } from "@src/resonance/db";
-import settings from "@/polyvis.settings.json";
 
 async function test() {
 	console.log("🧪 Testing Pure Bun Vector Engine...");

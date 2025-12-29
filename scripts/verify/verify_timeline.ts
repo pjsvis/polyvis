@@ -14,7 +14,7 @@ const rawDb = DatabaseFactory.connectToResonance({ readonly: true });
 try {
 	const result = rawDb
 		.query("SELECT COUNT(*) as c FROM edges WHERE type = 'SUCCEEDS'")
-		.get() as any;
+		.get() as { c: number };
 	console.log(
 		`✅ Verification: Found ${result.c} 'SUCCEEDS' edges in database.`,
 	);

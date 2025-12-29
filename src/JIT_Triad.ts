@@ -2,7 +2,7 @@ import { type Subprocess, spawn } from "bun";
 import { EnlightenedTriad } from "./EnlightenedTriad"; // Re-using your existing interface
 
 // --- CONFIGURATION ---
-const BASE_DIR = import.meta.dir + "/../experiments/enlightenment"; // Adjust relative to src/
+const BASE_DIR = `${import.meta.dir}/../experiments/enlightenment`; // Adjust relative to src/
 const BIN_PATH = `${BASE_DIR}/llama.cpp/build/bin/llama-server`;
 const VECTORS_DIR = `${BASE_DIR}/vectors`;
 
@@ -73,7 +73,7 @@ async function bootAgent(role: keyof typeof AGENTS) {
 				console.log(" Online! 🟢");
 				return;
 			}
-		} catch (e) {}
+		} catch (_e) {}
 		await new Promise((r) => setTimeout(r, 500));
 		process.stdout.write(".");
 	}

@@ -1,9 +1,5 @@
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
-import {
-	CallToolResultSchema,
-	ListToolsResultSchema,
-} from "@modelcontextprotocol/sdk/types.js";
 
 async function main() {
 	process.env.SKIP_ZOMBIE_CHECK = "true"; // Bypass zombie defense for testing
@@ -40,11 +36,12 @@ async function main() {
 	// console.log(JSON.stringify(result, null, 2));
 
 	// Format strictly
-	const content = (result as any).content[0];
-	if (content.type === "text") {
+	const content = (result as { content: { type: string; text?: string }[] })
+		.content[0];
+	if (content && content.type === "text") {
 		console.log(content.text);
 	} else {
-		console.log("Non-text response:", content);
+		console.log("Non-text response or empty:", content);
 	}
 
 	await client.close();

@@ -15,8 +15,6 @@
  *   3 - Both TypeScript and Biome errors found
  */
 
-import { $ } from "bun";
-
 const CHECKS = {
 	ts: "TypeScript",
 	biome: "Biome (lint & format)",

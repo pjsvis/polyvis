@@ -14,7 +14,7 @@ const nodes = db
        OR id LIKE '%debrief%' 
        OR title LIKE '%Debrief%'
 `)
-	.all() as any[];
+	.all() as { id: string; title: string; content: string; meta: string }[];
 
 const timeline = nodes
 	.map((n) => {
@@ -25,12 +25,12 @@ const timeline = nodes
 			n.content.match(/date:\s*(\d{4}-\d{2}-\d{2})/i);
 
 		if (dateMatch) {
-			date = dateMatch[1];
+			date = dateMatch[1] || "Unknown";
 		} else if (n.meta) {
 			try {
 				const meta = JSON.parse(n.meta);
 				if (meta.date) date = meta.date;
-			} catch (e) {}
+			} catch (_e) {}
 		}
 
 		return {

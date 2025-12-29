@@ -10,19 +10,21 @@ const rows = db
 	.all();
 
 console.log("=== SEMANTIC TOKEN SAMPLE ===");
-for (const row of rows as any[]) {
+for (const row of rows as { id: string; meta: string }[]) {
 	try {
 		const meta = JSON.parse(row.meta);
 		if (meta.semantic_tokens) {
 			const tokens = meta.semantic_tokens;
-			const hasData = Object.values(tokens).some((arr: any) => arr.length > 0);
+			const hasData = Object.values(tokens).some(
+				(arr) => Array.isArray(arr) && arr.length > 0,
+			);
 
 			if (hasData) {
 				console.log(`\n[${row.id}]`);
 				console.log(JSON.stringify(tokens, null, 2));
 			}
 		}
-	} catch (e) {
+	} catch (_e) {
 		// ignore
 	}
 }

@@ -18,40 +18,42 @@ async function main() {
 
 	// 2. Vector Search Test
 	console.log("\n2️⃣  Vector Search Check");
-	const vecStart = performance.now();
+	const _vecStart = performance.now();
 	const query = "Resonance Engine Architecture";
 	const embedding = await embedder.embed(query);
 	if (!embedding) throw new Error("Embedding failed");
 
-	const ve = new VectorEngine(db["db"]);
+	const ve = new VectorEngine(db.getRawDb());
 	const vectorResults = await ve.searchByVector(embedding, 3);
 
 	console.log("   Recall:");
-	vectorResults.forEach((r: any) =>
-		console.log(`      - [${r.score.toFixed(2)}] ${r.id}`),
-	);
+	vectorResults.forEach((r) => {
+		console.log(`      - [${r.score.toFixed(2)}] ${r.id}`);
+	});
 
 	// 3. Graph Traversal Test
 	console.log("\n3️⃣  Graph Connectivity Check");
 	// Find a node with edges
-	const centerNode = db["db"]
+	const centerNode = db
+		.getRawDb()
 		.query(`
         SELECT source FROM edges GROUP BY source HAVING COUNT(*) > 0 LIMIT 1
     `)
 		.get() as { source: string };
 
 	if (centerNode) {
-		const neighbors = db["db"]
+		const neighbors = db
+			.getRawDb()
 			.query(`
             SELECT target, type FROM edges WHERE source = ?
         `)
-			.all(centerNode.source) as any[];
+			.all(centerNode.source) as { target: string; type: string }[];
 		console.log(
 			`   ✅ Node '${centerNode.source}' has ${neighbors.length} outgoing edges.`,
 		);
-		neighbors
-			.slice(0, 3)
-			.forEach((n) => console.log(`      -> [${n.type}] ${n.target}`));
+		neighbors.slice(0, 3).forEach((n) => {
+			console.log(`      -> [${n.type}] ${n.target}`);
+		});
 	} else {
 		console.warn("   ⚠️ No edges found in graph (Islands?).");
 	}
@@ -61,19 +63,22 @@ async function main() {
 	// Note: We might not have an exclusive FTS table yet, testing raw LIKE for now as a proxy if FTS isn't set up
 	// But let's check if we can find "Resonance" in content
 	const ftsStart = performance.now();
-	const ftsResults = db["db"]
+	const ftsResults = db
+		.getRawDb()
 		.query(`
         SELECT id, title FROM nodes 
         WHERE content LIKE '%Recursive%' 
         LIMIT 3
     `)
-		.all() as any[];
+		.all() as { id: string; title: string }[];
 	const ftsTime = (performance.now() - ftsStart).toFixed(2);
 
 	console.log(
 		`   ✅ Found ${ftsResults.length} matches for 'Recursive' in ${ftsTime}ms`,
 	);
-	ftsResults.forEach((r) => console.log(`      - ${r.title || r.id}`));
+	ftsResults.forEach((r) => {
+		console.log(`      - ${r.title || r.id}`);
+	});
 
 	db.close();
 	console.log("\n🎉 All Tests Completed.\n");
