@@ -1,4 +1,5 @@
 import type { ResonanceDB } from "@src/resonance/db";
+import { getLogger, type Logger } from "@src/utils/Logger";
 
 export interface Candidate {
 	nodeId: string;
@@ -9,9 +10,14 @@ export interface Candidate {
 
 export abstract class BaseGardener {
 	protected db: ResonanceDB;
+	protected log: Logger;
 
 	constructor(db: ResonanceDB) {
 		this.db = db;
+		// We use a generic name initially, subclasses can override or we rely on 'name' property later
+		// Actually, we can't access 'this.name' safely in constructor if it's a property.
+		// Let's use "Gardener" as the component.
+		this.log = getLogger("Gardener");
 	}
 
 	abstract name: string;
@@ -30,14 +36,20 @@ export abstract class BaseGardener {
 	 * Main loop.
 	 */
 	public async run(limit: number = 10) {
-		console.log(`🌿 Gardener [${this.name}] starting...`);
+		this.log.info({ gardener: this.name }, "🌿 Gardener starting...");
 		const candidates = await this.scan(limit);
-		console.log(`Found ${candidates.length} candidates.`);
+		this.log.info(
+			{ gardener: this.name, count: candidates.length },
+			"Found candidates",
+		);
 
 		for (const candidate of candidates) {
-			console.log(`Processing: ${candidate.nodeId}`);
+			this.log.debug(
+				{ gardener: this.name, nodeId: candidate.nodeId },
+				"Processing candidate",
+			);
 			await this.cultivate(candidate);
 		}
-		console.log(`✅ Gardener [${this.name}] finished.`);
+		this.log.info({ gardener: this.name }, "✅ Gardener finished");
 	}
 }

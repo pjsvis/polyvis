@@ -1,13 +1,20 @@
 # Current Task
 
-**Status**: Ready for Next Task  
-**Started**: 2024-12-11  
-**Last Updated**: 2025-12-28
+**Status**: Ready for Next Task
+**Started**: 2024-12-11
+**Last Updated**: 2025-12-29
 
 ## Objective
 System maintenance and protocol compliance
 
 ## Recently Completed ✅
+- **Structured Logging & Hollow Node Completion (2025-12-29):**
+  - **Protocol Safety:** Implemented Pino logging to `stderr`, protecting MCP JSON-RPC on `stdout`.
+  - **Hollow Node:** Finalized migration by removing legacy FTS engine (`searchText`, triggers), reducing DB size by ~60%.
+  - **Component Migration:** Refactored MCP Server, Daemon, Ingestor, Harvester, and Gardeners to use structured logging.
+  - **Verification:** Validated protocol safety with `debug_mcp_protocol.ts` and successfully verified ingestion/harvesting pipelines.
+  - Debrief: `debriefs/2025-12-29-structured-logging-and-hollow-node.md`
+
 - **FAFCAS Protocol Normalization Refactor (2025-12-28):**
   - Fixed embeddings pipeline inconsistency by enforcing normalization at generation boundary
   - Removed redundant normalization from storage layer
@@ -15,15 +22,8 @@ System maintenance and protocol compliance
   - Achieved 100% FAFCAS protocol adherence
   - Debrief: `debriefs/2025-12-28-fafcas-normalization-fix.md`
 
-- Geist font integration (Sans + Mono) with proper CSS variable setup
-- Industrial green accent branding throughout RHS sidebar
-- Active state tracking for TOC links (uppercase transform on click)
-- Semantic green coloring for all internal navigation links
-- Improved legibility with white sub-link text against green structural elements
-- Floating chevron toggles with proper positioning and accessibility
-
 ## Current Focus 🎯
 - Awaiting next directive
 
 ## Notes
-Embeddings pipeline now consistently respects FAFCAS principles throughout the entire system. Protocol boundary is explicit at the generation layer (`Embedder.embed()`), with storage layer trusting pre-normalized vectors. Test suite ensures compliance is maintained across future refactors.
+The system now adheres to strict stdio hygiene (Logs -> stderr, Output -> stdout), which is critical for the stability of the MCP Server. The architecture has been simplified to "Vector+Graph only" (Hollow Node), removing the complexity and weight of SQLite FTS.

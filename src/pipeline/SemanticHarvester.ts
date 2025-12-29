@@ -13,6 +13,7 @@
 import { $ } from "bun";
 import { join } from "node:path";
 import { existsSync } from "node:fs";
+import { getLogger } from "@src/utils/Logger";
 
 export interface SemanticNode {
 	name: string;
@@ -36,6 +37,7 @@ export interface KnowledgeGraph {
 export class SemanticHarvester {
 	private readonly ingestDir: string;
 	private readonly venvPython: string;
+	private log = getLogger("Harvester");
 
 	constructor(projectRoot?: string) {
 		const root = projectRoot ?? process.cwd();
@@ -49,7 +51,7 @@ export class SemanticHarvester {
 	async isReady(): Promise<boolean> {
 		// Check venv exists
 		if (!existsSync(this.venvPython)) {
-			console.warn(
+			this.log.warn(
 				"⚠️ Python venv not found. Run: cd ingest && python3 -m venv .venv && .venv/bin/pip install -r requirements.txt",
 			);
 			return false;
@@ -58,7 +60,7 @@ export class SemanticHarvester {
 		// Check classifier model exists
 		const classifierPath = join(this.ingestDir, "polyvis_classifier_v1");
 		if (!existsSync(classifierPath)) {
-			console.warn(
+			this.log.warn(
 				"⚠️ Classifier not trained. Run: cd ingest && .venv/bin/python train_classifier.py",
 			);
 			return false;
@@ -78,7 +80,7 @@ export class SemanticHarvester {
 			throw new Error("SemanticHarvester not ready. Check Python environment.");
 		}
 
-		console.log("🌾 Running Python Harvester...");
+		this.log.info("🌾 Running Python Harvester...");
 
 		const harvesterScript = join(this.ingestDir, "harvester.py");
 		const args = target ? [harvesterScript, target] : [harvesterScript];
@@ -87,13 +89,19 @@ export class SemanticHarvester {
 			const result = await $`${this.venvPython} ${args}`.quiet();
 
 			if (result.exitCode !== 0) {
-				console.error(result.stderr.toString());
+				this.log.error(
+					{ stderr: result.stderr.toString() },
+					"Harvester Failed",
+				);
 				throw new Error(`Harvester exited with code ${result.exitCode}`);
 			}
 
-			console.log(result.stdout.toString());
+			this.log.info(
+				{ output: result.stdout.toString().trim() },
+				"Harvester Success",
+			);
 		} catch (error) {
-			console.error("Harvester failed:", error);
+			this.log.error({ err: error }, "Harvester Execution Error");
 			throw error;
 		}
 
@@ -175,8 +183,9 @@ export class SemanticHarvester {
 			}
 
 			db.commit();
-			console.log(
-				`✅ Loaded ${nodesLoaded} nodes, ${edgesLoaded} edges into ResonanceDB`,
+			this.log.info(
+				{ nodes: nodesLoaded, edges: edgesLoaded },
+				"✅ Loaded Knowledge Graph into ResonanceDB",
 			);
 		} catch (error) {
 			db.rollback();
@@ -192,15 +201,22 @@ export class SemanticHarvester {
 // --- CLI Test ---
 if (import.meta.main) {
 	const harvester = new SemanticHarvester();
+	// For CLI output, we can probably rely on the logger since it goes to stderr.
+	// Maybe we want pure console.log for "user facing" CLI output?
+	// But Logger.ts is configured to use pino. pino writes JSON.
+	// If the user runs this manually, they might pipe to pino-pretty.
+	// Let's keep it structured.
 
-	console.log("Checking readiness...");
+	const log = getLogger("CLI");
+
+	log.info("Checking readiness...");
 	const ready = await harvester.isReady();
-	console.log(`Ready: ${ready}`);
+	log.info({ ready }, "Readiness Check");
 
 	if (ready) {
 		const target = process.argv[2];
 		const graph = await harvester.harvest(target);
 		const stats = harvester.getStats(graph);
-		console.log("\n📊 Extraction Stats:", stats);
+		log.info({ stats }, "📊 Extraction Stats");
 	}
 }

@@ -55,11 +55,14 @@ export class AutoTagger extends BaseGardener {
 			try {
 				this.tagEngine = await TagEngine.getInstance();
 			} catch (_e) {
-				console.warn("⚠️ TagEngine failed to safe load, continuing...");
+				this.log.warn("⚠️ TagEngine failed to safe load, continuing...");
 			}
 		}
 
-		console.log(`   🏷️  Tagging ${candidate.nodeId}...`);
+		this.log.debug(
+			{ gardener: this.name, candidate: candidate.nodeId },
+			"🏷️ Tagging candidate",
+		);
 
 		// MOCK MODE: If LLM is slow/down, we use deterministic tags for testing
 		const tags = [
@@ -68,7 +71,7 @@ export class AutoTagger extends BaseGardener {
 		];
 
 		if (tags.length === 0) {
-			console.log("   ⚠️ No tags generated.");
+			this.log.warn({ candidate: candidate.nodeId }, "⚠️ No tags generated.");
 			return;
 		}
 
@@ -91,7 +94,10 @@ export class AutoTagger extends BaseGardener {
 
 			// For V1 Safety: We will only process "Atomic" files (Debriefs, Notes) where one file = one node.
 			// We will implementation Section injection later to avoid regex corruption risk without more robust testing.
-			console.warn("   ⚠️ Section injection postponed for safety.");
+			this.log.warn(
+				{ candidate: candidate.nodeId },
+				"⚠️ Section injection postponed for safety.",
+			);
 			return;
 		} else {
 			// Atomic File Injection (Append)
@@ -101,7 +107,10 @@ export class AutoTagger extends BaseGardener {
 				: `${fileContent}\n${tagBlock}`;
 
 			await Bun.write(candidate.filePath, newContent);
-			console.log(`   ✅ Injected ${tags.length} tags.`);
+			this.log.info(
+				{ candidate: candidate.nodeId, tagCount: tags.length },
+				"✅ Injected tags",
+			);
 		}
 	}
 }

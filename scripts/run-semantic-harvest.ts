@@ -7,55 +7,65 @@
  */
 
 import { SemanticHarvester } from "@src/pipeline/SemanticHarvester";
+import { getLogger } from "@src/utils/Logger";
+
+const log = getLogger("RunSemanticHarvest");
 
 async function main() {
 	const target = process.argv[2];
 
-	console.log("🌾 Semantic Harvester Pipeline\n");
+	log.info("🌾 Semantic Harvester Pipeline");
 
 	const harvester = new SemanticHarvester();
 
 	// Check prerequisites
 	const ready = await harvester.isReady();
 	if (!ready) {
-		console.error("❌ Pipeline not ready. See above for setup instructions.");
+		log.error("❌ Pipeline not ready. See above for setup instructions.");
 		process.exit(1);
 	}
 
-	console.log("✅ Prerequisites verified\n");
+	log.info("✅ Prerequisites verified");
 
 	// Run harvest
-	console.log(`📄 Harvesting from: ${target || "(demo mode)"}`);
+	log.info({ target: target || "(demo mode)" }, "📄 Harvesting...");
 	const graph = await harvester.harvest(target);
 
 	// Show stats
 	const stats = harvester.getStats(graph);
-	console.log("\n📊 Harvest Statistics:");
-	console.log(
-		`   Nodes: ${stats.nodes} (${stats.concepts} concepts, ${stats.documents} documents)`,
+	log.info(
+		{
+			nodes: stats.nodes,
+			concepts: stats.concepts,
+			documents: stats.documents,
+			edges: stats.edges,
+		},
+		"📊 Harvest Statistics",
 	);
-	console.log(`   Edges: ${stats.edges}`);
 
 	// Load into ResonanceDB
 	if (stats.edges > 0) {
-		console.log("\n💾 Loading into ResonanceDB...");
+		log.info("💾 Loading into ResonanceDB...");
 		const loaded = await harvester.loadIntoResonance(graph);
-		console.log(
-			`   ✅ Loaded ${loaded.nodesLoaded} nodes, ${loaded.edgesLoaded} edges`,
+		log.info(
+			{
+				nodesLoaded: loaded.nodesLoaded,
+				edgesLoaded: loaded.edgesLoaded,
+			},
+			"✅ Loaded into ResonanceDB",
 		);
 	} else {
-		console.log("\n⚠️  No edges extracted - skipping database load");
-		console.log("   Tip: Run with Llama server for better extraction quality");
+		log.warn(
+			"⚠️  No edges extracted - skipping database load. Tip: Run with Llama server for better extraction quality",
+		);
 	}
 
 	// Verify
-	console.log("\n🔍 Verifying database...");
+	log.info("🔍 Verifying database...");
 	const { ResonanceDB } = await import("@src/resonance/db");
 	const db = ResonanceDB.init();
 
 	const dbStats = db.getStats();
-	console.log(`   Total Nodes: ${dbStats.nodes}`);
-	console.log(`   Total Edges: ${dbStats.edges}`);
 
 	// Check for semantic edges with confidence < 1.0
 	const semanticEdges = db
@@ -66,10 +76,18 @@ async function main() {
 	`)
 		.get() as { count: number };
 
-	console.log(`   Semantic Edges (with metadata): ${semanticEdges.count}`);
+	log.info(
+		{
+			totalNodes: dbStats.nodes,
+			totalEdges: dbStats.edges,
+			semanticEdges: semanticEdges.count,
+		},
+		"✅ Pipeline complete",
+	);
 
 	db.close();
-	console.log("\n✅ Pipeline complete!");
 }
 
-main().catch(console.error);
+main().catch((err) => {
+	log.fatal({ err }, "Pipeline Crash");
+});

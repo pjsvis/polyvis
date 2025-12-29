@@ -4,9 +4,12 @@ import settings from "@/polyvis.settings.json";
 import { Ingestor } from "../pipeline/Ingestor";
 import { ServiceLifecycle } from "../utils/ServiceLifecycle";
 import { Embedder } from "./services/embedder";
+import { getLogger } from "../utils/Logger";
+import { EnvironmentVerifier } from "../utils/EnvironmentVerifier";
 
 const args = process.argv.slice(2);
 const command = args[0] || "serve";
+const log = getLogger("Daemon");
 
 // --- Helper: Notifications ---
 
@@ -17,11 +20,9 @@ async function notify(title: string, message: string) {
 		const script = `display notification "${message}" with title "${title}"`;
 		await Bun.spawn(["osascript", "-e", script]);
 	} catch (e) {
-		console.error("Failed to send notification:", e);
+		log.error({ err: e }, "Failed to send notification");
 	}
 }
-
-import { EnvironmentVerifier } from "../utils/EnvironmentVerifier";
 
 // --- Service Lifecycle ---
 
@@ -41,16 +42,16 @@ async function main() {
 	// 1. Initialize Ingestion (Daemon Mode: Watch Enabled)
 	const PORT = parseInt(process.env.VECTOR_PORT || "3010", 10);
 
-	console.log(`🔌 Vector Daemon starting on port ${PORT}...`);
-	console.log(`   Initializing Embedder...`);
+	log.info({ port: PORT }, "🔌 Vector Daemon starting...");
+	log.info("Initializing Embedder...");
 
 	// 1. Initialize Embedder (Compute Node)
 	try {
 		const embedder = Embedder.getInstance();
 		await embedder.embed("warmup", true);
-		console.log(`   ✅ Embedder Ready.`);
+		log.info("✅ Embedder Ready.");
 	} catch (e) {
-		console.error("   ❌ Failed to initialize embedder:", e);
+		log.fatal({ err: e }, "❌ Failed to initialize embedder");
 		process.exit(1);
 	}
 
@@ -81,7 +82,7 @@ async function main() {
 						headers: { "Content-Type": "application/json" },
 					});
 				} catch (e) {
-					console.error(e);
+					log.error({ err: e }, "Embedder API Error");
 					return new Response("Internal Server Error", { status: 500 });
 				}
 			}
@@ -90,14 +91,14 @@ async function main() {
 		},
 	});
 
-	console.log(`🚀 Vector Daemon listening on http://localhost:${PORT}`);
+	log.info(`🚀 Vector Daemon listening on http://localhost:${PORT}`);
 
 	// 3. Start The Watcher (Active Custodian)
 	startWatcher();
 
 	// Handle cleanup
 	process.on("SIGTERM", () => {
-		console.log("🛑 Received SIGTERM, shutting down...");
+		log.info("🛑 Received SIGTERM, shutting down...");
 		process.exit(0);
 	});
 }
@@ -121,7 +122,7 @@ function startWatcher() {
 	const rawSources = settings.paths.sources.experience;
 	const dirsToWatch = rawSources.map((s) => s.path);
 
-	console.log(`👀 Watching directories: ${dirsToWatch.join(", ")}`);
+	log.info({ triggers: dirsToWatch }, "👀 Watching directories");
 
 	dirsToWatch.forEach((dir) => {
 		const path = join(process.cwd(), dir);
@@ -129,7 +130,10 @@ function startWatcher() {
 			watch(path, { recursive: true }, (event, filename) => {
 				// Ignore dotfiles and ensure markdown
 				if (filename && !filename.startsWith(".") && filename.endsWith(".md")) {
-					console.log(`📝 Change detected: ${dir}/${filename} (${event})`);
+					log.debug(
+						{ file: `${dir}/${filename}`, event },
+						"📝 Change detected",
+					);
 
 					// Add full path to pending set
 					const fullPath = join(process.cwd(), dir, filename);
@@ -139,7 +143,7 @@ function startWatcher() {
 				}
 			});
 		} catch (e) {
-			console.warn(`⚠️ Could not watch ${dir}:`, e);
+			log.warn({ dir, err: e }, "⚠️ Could not watch directory");
 		}
 	});
 }
@@ -153,9 +157,7 @@ function triggerIngestion() {
 		const batchSize = pendingFiles.size;
 		if (batchSize === 0) return;
 
-		console.log(
-			`🔄 Debounce settle. Starting Batch Ingestion (${batchSize} files)...`,
-		);
+		log.info({ batchSize }, "🔄 Debounce settle. Starting Batch Ingestion...");
 
 		// Drain the set
 		const batch = Array.from(pendingFiles);
@@ -168,7 +170,7 @@ function triggerIngestion() {
 			// OPTIMIZATION: Pass only the changed files
 			await ingestor.run({ files: batch });
 
-			console.log("✅ Batch Ingestion Complete.");
+			log.info("✅ Batch Ingestion Complete.");
 			// Clear retry counts for successful files
 			for (const file of batch) {
 				retryQueue.delete(file);
@@ -176,7 +178,7 @@ function triggerIngestion() {
 			await notify("PolyVis Resonance", `Graph Updated (${batchSize} files).`);
 		} catch (e) {
 			const errorMsg = e instanceof Error ? e.message : String(e);
-			console.error("❌ Ingestion Failed:", errorMsg);
+			log.error({ err: e }, "❌ Ingestion Failed");
 
 			// Re-queue failed files with retry logic
 			const now = Date.now();
@@ -202,13 +204,20 @@ function triggerIngestion() {
 						triggerIngestion();
 					}, RETRY_BACKOFF_MS * nextAttempt);
 
-					console.warn(
-						`🔄 RETRY: ${file} will retry (attempt ${nextAttempt}/${MAX_RETRIES}) in ${RETRY_BACKOFF_MS * nextAttempt}ms`,
+					log.warn(
+						{
+							file,
+							attempt: nextAttempt,
+							max: MAX_RETRIES,
+							delayMs: RETRY_BACKOFF_MS * nextAttempt,
+						},
+						"🔄 Scheduling Retry",
 					);
 				} else {
 					// Abandon after max retries
-					console.error(
-						`⛔ ABANDONED: ${file} failed ${MAX_RETRIES} times. Last error: ${retryInfo.lastError}`,
+					log.error(
+						{ file, lastError: retryInfo.lastError },
+						"⛔ ABANDONED: File failed max retries",
 					);
 					retryQueue.delete(file); // Remove from tracking
 				}

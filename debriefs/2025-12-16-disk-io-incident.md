@@ -32,3 +32,5 @@ SQLite in WAL mode relies on three files working in unison: `.db`, `.db-shm` (Sh
 ## 3. Resolution
 The code is correct. The configuration is hardened. The "fix" is simply to terminate the zombie process.
 Restarting the IDE/Agent environment will kill PID 9622 and resolve the issue permanently.
+
+<!-- tags: [concept: auto-generated-tag], [concept: debrief] -->

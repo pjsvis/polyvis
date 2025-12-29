@@ -12,6 +12,7 @@ import { TokenizerService } from "@src/resonance/services/tokenizer";
 import { PipelineValidator } from "@src/utils/validator";
 import { Glob } from "bun";
 import settings from "@/polyvis.settings.json";
+import { getLogger } from "@src/utils/Logger";
 
 export interface IngestorOptions {
 	file?: string;
@@ -49,6 +50,7 @@ export class Ingestor {
 	private embedder: Embedder;
 	private tokenizer: TokenizerService;
 	private dbPath: string;
+	private log = getLogger("Ingestor");
 
 	constructor(dbPath?: string) {
 		this.dbPath = dbPath
@@ -82,7 +84,7 @@ export class Ingestor {
 	 * Ingests Core Ontology (Lexicon) and Directives (CDA).
 	 */
 	async runPersona(): Promise<LexiconItem[]> {
-		console.log("🧩 [Phase 1] Starting Persona Ingestion...");
+		this.log.info("🧩 [Phase 1] Starting Persona Ingestion...");
 
 		this.db.beginTransaction();
 		try {
@@ -93,11 +95,14 @@ export class Ingestor {
 			await this.ingestCDA();
 
 			this.db.commit();
-			console.log("✅ [Phase 1] Persona Ingestion Complete.");
+			this.log.info("✅ [Phase 1] Persona Ingestion Complete.");
 			return lexicon;
 		} catch (e) {
 			this.db.rollback();
-			console.error("❌ [Phase 1] Persona Ingestion Failed, rolled back.");
+			this.log.error(
+				{ err: e },
+				"❌ [Phase 1] Persona Ingestion Failed, rolled back.",
+			);
 			throw e;
 		}
 	}
@@ -111,7 +116,7 @@ export class Ingestor {
 		lexicon: LexiconItem[] = [],
 		sqliteDb: Database,
 	) {
-		console.log("📚 [Phase 2] Starting Experience Ingestion...");
+		this.log.info("📚 [Phase 2] Starting Experience Ingestion...");
 
 		// REMOVED: Global Transaction (prevents 100% data loss on 99% crash)
 		try {
@@ -171,7 +176,7 @@ export class Ingestor {
 				this.db.commit();
 			} catch (e) {
 				this.db.rollback();
-				console.error("❌ Weaving failed, partial rollback:", e);
+				this.log.error({ err: e }, "❌ Weaving failed, partial rollback");
 				// Continue, as ingestion is primary
 			}
 
@@ -191,7 +196,7 @@ export class Ingestor {
 			// ------------------------------------------------------------------
 
 			// 1. Force WAL Checkpoint
-			console.log("💾 Persistence: Forcing WAL Checkpoint...");
+			this.log.info("💾 Persistence: Forcing WAL Checkpoint...");
 			this.db.getRawDb().run("PRAGMA wal_checkpoint(TRUNCATE);");
 
 			// 2. Pinch Check (Verification)
@@ -201,14 +206,15 @@ export class Ingestor {
 					"CRITICAL: Pinch Check Failed. Database file is 0 bytes.",
 				);
 			}
-			console.log(
-				`✅ Persistence: Verified (DB Size: ${(finalSize / 1024 / 1024).toFixed(2)} MB)`,
+			this.log.info(
+				{ dbSizeMB: (finalSize / 1024 / 1024).toFixed(2) },
+				"✅ Persistence Verified",
 			);
 
-			console.log("✅ [Phase 2] Experience Ingestion Complete.");
+			this.log.info("✅ [Phase 2] Experience Ingestion Complete.");
 		} catch (e) {
 			// No global rollback available (intentional)
-			console.error("❌ [Phase 2] Experience Ingestion Failed.");
+			this.log.error({ err: e }, "❌ [Phase 2] Experience Ingestion Failed.");
 			throw e;
 		}
 	}
@@ -216,7 +222,7 @@ export class Ingestor {
 	// --- Lifecycle Helpers ---
 
 	public async init(_options: IngestorOptions) {
-		console.log("🌉 <THE BRIDGE> Ingestion Protocol Initiated...");
+		this.log.info("🌉 <THE BRIDGE> Ingestion Protocol Initiated...");
 		// Ensure Embedder Init
 		await this.embedder.embed("init");
 		// Use Factory for safe validation connection
@@ -230,7 +236,7 @@ export class Ingestor {
 	}
 
 	private async loadLexiconFromDB(): Promise<LexiconItem[]> {
-		console.log("🧠 Loading Lexicon from Database...");
+		this.log.info("🧠 Loading Lexicon from Database...");
 		const rawLexicon = this.db.getLexicon();
 		const lexicon: LexiconItem[] = rawLexicon.map((item: RawLexiconItem) => ({
 			id: item.id,
@@ -275,13 +281,13 @@ export class Ingestor {
 								},
 							} as Node);
 						}
-						console.log(`📚 Bootstrapped Lexicon: ${lexicon.length} concepts.`);
+						this.log.info({ count: lexicon.length }, "📚 Bootstrapped Lexicon");
 						this.tokenizer.loadLexicon(lexicon);
 					}
 				}
 			}
 		} catch (e) {
-			console.warn("⚠️  Lexicon bootstrap failed:", e);
+			this.log.warn({ err: e }, "⚠️  Lexicon bootstrap failed");
 		}
 		return lexicon;
 	}
@@ -328,12 +334,12 @@ export class Ingestor {
 						}
 					}
 				}
-				console.log(`📋 Ingested CDA: ${directiveCount} directives.`);
+				this.log.info({ count: directiveCount }, "📋 Ingested CDA");
 			} else {
-				console.warn("⚠️  No enriched CDA found.");
+				this.log.warn("⚠️  No enriched CDA found.");
 			}
 		} catch (e) {
-			console.warn("⚠️  CDA ingestion failed:", e);
+			this.log.warn({ err: e }, "⚠️  CDA ingestion failed");
 		}
 	}
 
@@ -376,14 +382,14 @@ export class Ingestor {
 			const { TimelineWeaver } = await import("@src/core/TimelineWeaver");
 			TimelineWeaver.weave(this.db);
 		} catch (e) {
-			console.warn("⚠️ Timeline Weaver failed:", e);
+			this.log.warn({ err: e }, "⚠️ Timeline Weaver failed");
 		}
 
 		try {
 			const { SemanticWeaver } = await import("@src/core/SemanticWeaver");
 			SemanticWeaver.weave(this.db);
 		} catch (e) {
-			console.warn("⚠️ Semantic Weaver failed:", e);
+			this.log.warn({ err: e }, "⚠️ Semantic Weaver failed");
 		}
 	}
 
@@ -394,23 +400,25 @@ export class Ingestor {
 		throughput: number,
 		stats: IngestionStats,
 	) {
-		console.log(`🏁 Ingestion Complete.`);
-		console.log(`   Processed: ${count} files.`);
-		console.log(
-			`   Total Load: ${(chars / 1024).toFixed(2)} KB (${chars} chars)`,
+		this.log.info(
+			{
+				processed: {
+					files: count,
+					chars: chars,
+					sizeKB: (chars / 1024).toFixed(2),
+					durationSec: duration.toFixed(2),
+					throughput: throughput.toFixed(2),
+				},
+				db: {
+					nodes: stats.nodes,
+					vectors: stats.vectors,
+					edges: stats.edges,
+					semantic_tokens: stats.semantic_tokens,
+					sizeMB: (stats.db_size_bytes / 1024 / 1024).toFixed(2),
+				},
+			},
+			"🏁 Ingestion Complete",
 		);
-		console.log(`   Time Taken: ${duration.toFixed(2)}s`);
-		console.log(`   Throughput: ${throughput.toFixed(2)} chars/sec`);
-		console.log(`   ----------------------------------------`);
-		console.log(`   Database Stats:`);
-		console.log(`   - Nodes: ${stats.nodes}`);
-		console.log(`   - Vectors: ${stats.vectors}`);
-		console.log(`   - Edges: ${stats.edges}`);
-		console.log(`   - Semantic Tagged: ${stats.semantic_tokens}`);
-		console.log(
-			`   - DB Size: ${(stats.db_size_bytes / 1024 / 1024).toFixed(2)} MB`,
-		);
-		console.log("   ----------------------------------------");
 	}
 
 	// --- Processing Logic ---
@@ -500,7 +508,10 @@ export class Ingestor {
 
 		if (storedHash === currentHash) return;
 
-		console.log(`⚡️ [${id}] Ingesting (${content.length} chars)...`);
+		this.log.debug(
+			{ id, length: content.length },
+			"⚡️ Ingesting changed content",
+		);
 
 		// Removed hardcoded narrative allowlist.
 		// Logic: If it's mounted, we process & embed it.

@@ -1,4 +1,5 @@
-import pino from "pino";
+import pino, { type Logger } from "pino";
+export type { Logger };
 
 // Configure the base logger
 const loggerConfig: pino.LoggerOptions = {
