@@ -1,4 +1,4 @@
-import { spawn, type Subprocess } from "bun";
+import { type Subprocess, spawn } from "bun";
 import { EnlightenedTriad } from "./EnlightenedTriad"; // Re-using your existing interface
 
 // --- CONFIGURATION ---

@@ -1,7 +1,7 @@
+import { VectorEngine } from "@src/core/VectorEngine";
 import { Ingestor } from "@src/pipeline/Ingestor";
 import { ResonanceDB } from "@src/resonance/db";
 import { $ } from "bun";
-import { VectorEngine } from "@src/core/VectorEngine";
 
 const dbPath = "public/resonance.db";
 const db = new ResonanceDB(dbPath);
@@ -53,7 +53,7 @@ async function run() {
 			r.id.toLowerCase().includes("test_lifecycle_e2e"),
 	);
 	console.log(
-		`   [Vector] Found: ${hasVec ? "YES" : "NO"} (${vecResults.length > 0 ? vecResults[0]!.id : "none"})`,
+		`   [Vector] Found: ${hasVec ? "YES" : "NO"} (${vecResults.length > 0 ? vecResults[0]?.id : "none"})`,
 	);
 	if (!hasVec) throw new Error("Vector Verification Failed");
 
@@ -69,7 +69,8 @@ async function run() {
 
 	// We expect the trigger `nodes_ad` to handle FTS cleanup.
 	// We get the specific node ID that was inserted.
-	const fileId = vecResults[0]!.id; // Likely 'docs/test_lifecycle_E2E.md' or similar basename stuff
+	const fileId = vecResults[0]?.id;
+	if (!fileId) throw new Error("Could not find fileId to delete");
 	console.log(`   Removing Node ID: ${fileId}`);
 
 	db.getRawDb().run("DELETE FROM nodes WHERE id = ?", [fileId]);

@@ -1,6 +1,6 @@
+import { join } from "path";
 import { AutoTagger } from "../../src/gardeners/AutoTagger";
 import { ResonanceDB } from "../../src/resonance/db";
-import { join } from "path";
 
 async function main() {
 	const dbPath = join(process.cwd(), "public/resonance.db");

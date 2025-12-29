@@ -1,24 +1,24 @@
 #!/usr/bin/env bun
 /**
  * Documentation Consolidation Script
- * 
+ *
  * PURPOSE:
  * Consolidates documentation into a clear structure:
  * - docs/webdocs/ = Technical reference documentation
  * - docs/architecture/ = System design docs (unchanged)
- * 
+ *
  * WHAT IT DOES:
  * 1. Creates docs/webdocs/ directory
  * 2. Moves all .md files from docs/ root → docs/webdocs/
  * 3. Moves all files from public/docs/vectra-docs/ → docs/webdocs/
  * 4. Removes empty vectra-docs directory
  * 5. Leaves public/docs/ structure intact (website content)
- * 
+ *
  * WHAT IT DOES NOT DO:
  * - Does NOT modify public/docs/ (website content stays)
  * - Does NOT modify docs/architecture/ (stays as-is)
  * - Does NOT update code references (done separately)
- * 
+ *
  * RESULT:
  * docs/
  * ├── README.md (explains structure)
@@ -26,8 +26,15 @@
  * └── architecture/ (unchanged)
  */
 
-import { readdirSync, statSync, renameSync, mkdirSync, existsSync, rmdirSync } from "fs";
-import { join } from "path";
+import {
+	existsSync,
+	mkdirSync,
+	readdirSync,
+	renameSync,
+	rmdirSync,
+	statSync,
+} from "node:fs";
+import { join } from "node:path";
 import settings from "@/polyvis.settings.json";
 
 const ROOT = process.cwd();
@@ -87,19 +94,23 @@ function main() {
 
 	// Group by source directory
 	const fromDocs = operations.filter((op) => op.source.startsWith(DOCS_DIR));
-	const fromVectra = operations.filter((op) => op.source.startsWith(PUBLIC_VECTRA));
+	const fromVectra = operations.filter((op) =>
+		op.source.startsWith(PUBLIC_VECTRA),
+	);
 
 	console.log(`📁 From docs/ → docs/webdocs/ (${fromDocs.length} files):`);
 	fromDocs.slice(0, 5).forEach((op) => {
-		console.log(`   ${op.source.replace(ROOT + "/", "")}`);
+		console.log(`   ${op.source.replace(`${ROOT}/`, "")}`);
 	});
 	if (fromDocs.length > 5) {
 		console.log(`   ... and ${fromDocs.length - 5} more`);
 	}
 
-	console.log(`\n📁 From public/docs/vectra-docs/ → docs/webdocs/ (${fromVectra.length} files):`);
+	console.log(
+		`\n📁 From public/docs/vectra-docs/ → docs/webdocs/ (${fromVectra.length} files):`,
+	);
 	fromVectra.slice(0, 5).forEach((op) => {
-		console.log(`   ${op.source.replace(ROOT + "/", "")}`);
+		console.log(`   ${op.source.replace(`${ROOT}/`, "")}`);
 	});
 	if (fromVectra.length > 5) {
 		console.log(`   ... and ${fromVectra.length - 5} more`);
@@ -117,7 +128,7 @@ function main() {
 	console.log("\n");
 
 	// Confirm with user
-	const readline = require("readline");
+	const readline = require("node:readline");
 	const rl = readline.createInterface({
 		input: process.stdin,
 		output: process.stdout,
@@ -130,7 +141,7 @@ function main() {
 			// Create webdocs directory
 			if (!existsSync(WEBDOCS_DIR)) {
 				mkdirSync(WEBDOCS_DIR, { recursive: true });
-				console.log(`✅ Created ${WEBDOCS_DIR.replace(ROOT + "/", "")}`);
+				console.log(`✅ Created ${WEBDOCS_DIR.replace(`${ROOT}/`, "")}`);
 			}
 
 			// Move files
@@ -154,7 +165,9 @@ function main() {
 						rmdirSync(PUBLIC_VECTRA);
 						console.log("✅ Removed empty vectra-docs directory");
 					} else {
-						console.log(`⚠️  vectra-docs not empty (${remaining.length} files remain)`);
+						console.log(
+							`⚠️  vectra-docs not empty (${remaining.length} files remain)`,
+						);
 					}
 				} catch (error) {
 					console.warn("⚠️  Could not remove vectra-docs:", error);

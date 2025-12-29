@@ -3,8 +3,8 @@
  * Measures performance of full ingestion pipeline with detailed metrics
  */
 
-import { performance } from "node:perf_hooks";
 import { existsSync, rmSync } from "node:fs";
+import { performance } from "node:perf_hooks";
 import { Ingestor } from "../src/pipeline/Ingestor";
 import { ResonanceDB } from "../src/resonance/db";
 
@@ -67,7 +67,7 @@ async function runBenchmark(runNumber: number): Promise<BenchmarkMetrics> {
 	const t1 = performance.now();
 	const ingestor = new Ingestor();
 	// Init returns the raw sqliteDb connection used for validation later
-	const sqliteDb = await ingestor.init({}); 
+	const sqliteDb = await ingestor.init({});
 	const lexicon = await ingestor.runPersona();
 	const t2 = performance.now();
 	const personaDuration = (t2 - t1) / 1000;
@@ -123,7 +123,7 @@ async function runBenchmark(runNumber: number): Promise<BenchmarkMetrics> {
 	};
 
 	// Print summary
-	console.log("\n" + "─".repeat(80));
+	console.log(`\n${"─".repeat(80)}`);
 	console.log("📊 RUN SUMMARY");
 	console.log("─".repeat(80));
 	console.log(`Total Duration:      ${totalDuration.toFixed(2)}s`);
@@ -154,9 +154,9 @@ async function runBenchmark(runNumber: number): Promise<BenchmarkMetrics> {
 
 async function main() {
 	console.log("\n");
-	console.log("╔" + "═".repeat(78) + "╗");
-	console.log("║" + " ".repeat(20) + "INGESTION BENCHMARK SUITE" + " ".repeat(33) + "║");
-	console.log("╚" + "═".repeat(78) + "╝");
+	console.log(`╔${"═".repeat(78)}╗`);
+	console.log(`║${" ".repeat(20)}INGESTION BENCHMARK SUITE${" ".repeat(33)}║`);
+	console.log(`╚${"═".repeat(78)}╝`);
 	console.log("\n📋 Configuration:");
 	console.log("   - Runs: 3");
 	console.log("   - Database: public/resonance.db");
@@ -189,13 +189,12 @@ async function main() {
 
 	// Print aggregate statistics
 	console.log("\n\n");
-	console.log("╔" + "═".repeat(78) + "╗");
-	console.log("║" + " ".repeat(25) + "AGGREGATE RESULTS" + " ".repeat(36) + "║");
-	console.log("╚" + "═".repeat(78) + "╝");
+	console.log(`╔${"═".repeat(78)}╗`);
+	console.log(`║${" ".repeat(25)}AGGREGATE RESULTS${" ".repeat(36)}║`);
+	console.log(`╚${"═".repeat(78)}╝`);
 
 	const avgTotal =
-		allMetrics.reduce((sum, m) => sum + m.totalDuration, 0) /
-		allMetrics.length;
+		allMetrics.reduce((sum, m) => sum + m.totalDuration, 0) / allMetrics.length;
 	const avgPersona =
 		allMetrics.reduce((sum, m) => sum + m.personaDuration, 0) /
 		allMetrics.length;
@@ -222,10 +221,13 @@ async function main() {
 	}
 
 	console.log("\n📝 Final Graph State:");
-	const lastMetrics = allMetrics[allMetrics.length - 1]!;
+	const lastMetrics = allMetrics[allMetrics.length - 1];
+	if (!lastMetrics) throw new Error("No metrics available");
 	console.log(`   Nodes:           ${lastMetrics.nodeCount.toLocaleString()}`);
 	console.log(`   Edges:           ${lastMetrics.edgeCount.toLocaleString()}`);
-	console.log(`   Vectors:         ${lastMetrics.vectorCount.toLocaleString()}`);
+	console.log(
+		`   Vectors:         ${lastMetrics.vectorCount.toLocaleString()}`,
+	);
 	console.log(
 		`   DB Size:         ${(lastMetrics.dbSizeBytes / 1024 / 1024).toFixed(2)} MB`,
 	);
@@ -233,10 +235,8 @@ async function main() {
 	// Calculate variance
 	const totalTimes = allMetrics.map((m) => m.totalDuration);
 	const variance =
-		totalTimes.reduce(
-			(sum, t) => sum + Math.pow(t - avgTotal, 2),
-			0,
-		) / totalTimes.length;
+		totalTimes.reduce((sum, t) => sum + (t - avgTotal) ** 2, 0) /
+		totalTimes.length;
 	const stdDev = Math.sqrt(variance);
 
 	console.log("\n📉 Consistency:");
@@ -264,10 +264,7 @@ async function main() {
 		runs: allMetrics,
 	};
 
-	await Bun.write(
-		"benchmark-results.json",
-		JSON.stringify(results, null, 2),
-	);
+	await Bun.write("benchmark-results.json", JSON.stringify(results, null, 2));
 	console.log("📄 Results exported to: benchmark-results.json\n");
 }
 

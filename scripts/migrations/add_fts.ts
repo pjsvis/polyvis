@@ -2,16 +2,16 @@ import { DatabaseFactory } from "@/src/resonance/DatabaseFactory";
 
 /**
  * Database Migration: Add Full-Text Search (FTS5) Capability
- * 
+ *
  * This migration adds FTS5 virtual tables and triggers to enable
  * fast, ranked full-text search on node content and titles.
- * 
+ *
  * IDEMPOTENT: Safe to run multiple times (uses IF NOT EXISTS).
  */
 
 async function addFTS() {
 	console.log(`🔧 Adding FTS5 to Resonance DB...`);
-	
+
 	const db = DatabaseFactory.connectToResonance();
 
 	try {
@@ -39,7 +39,7 @@ async function addFTS() {
 
 		// Create triggers to keep FTS in sync
 		console.log("⚡ Creating sync triggers...");
-		
+
 		// INSERT trigger
 		db.run(`
 			CREATE TRIGGER IF NOT EXISTS nodes_fts_insert AFTER INSERT ON nodes BEGIN
@@ -65,20 +65,28 @@ async function addFTS() {
 		`);
 
 		// Verify FTS setup
-		const ftsCount = db.query("SELECT COUNT(*) as c FROM nodes_fts").get() as { c: number };
-		const nodesCount = db.query("SELECT COUNT(*) as c FROM nodes").get() as { c: number };
+		const ftsCount = db.query("SELECT COUNT(*) as c FROM nodes_fts").get() as {
+			c: number;
+		};
+		const nodesCount = db.query("SELECT COUNT(*) as c FROM nodes").get() as {
+			c: number;
+		};
 
 		console.log("\n✅ FTS5 Migration Complete!");
 		console.log(`   - Nodes in main table: ${nodesCount.c}`);
 		console.log(`   - Nodes in FTS index: ${ftsCount.c}`);
-		
+
 		if (ftsCount.c !== nodesCount.c) {
-			console.warn(`⚠️  WARNING: FTS count (${ftsCount.c}) != nodes count (${nodesCount.c})`);
+			console.warn(
+				`⚠️  WARNING: FTS count (${ftsCount.c}) != nodes count (${nodesCount.c})`,
+			);
 		}
 
 		// Example search query
 		console.log("\n📚 Example FTS Query:");
-		console.log('   SELECT id, title FROM nodes_fts WHERE nodes_fts MATCH "graph OR vector" LIMIT 5;');
+		console.log(
+			'   SELECT id, title FROM nodes_fts WHERE nodes_fts MATCH "graph OR vector" LIMIT 5;',
+		);
 
 		db.close();
 		return true;

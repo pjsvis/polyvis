@@ -4,8 +4,8 @@
  * Usage: bun run scripts/test-classifier.ts
  */
 
-import { $ } from "bun";
 import { join } from "node:path";
+import { $ } from "bun";
 
 const VENV_PYTHON = join(process.cwd(), "ingest", ".venv", "bin", "python");
 

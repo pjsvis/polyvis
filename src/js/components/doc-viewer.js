@@ -21,12 +21,12 @@ export default () => ({
 	experience: [],
 	playbooks: [],
 	debriefs: [],
-	activeAnchor: window.location.hash || '',
+	activeAnchor: window.location.hash || "",
 
 	async init() {
 		// Track hash changes for active anchor
-		window.addEventListener('hashchange', () => {
-			this.activeAnchor = window.location.hash || '';
+		window.addEventListener("hashchange", () => {
+			this.activeAnchor = window.location.hash || "";
 		});
 
 		try {
@@ -270,7 +270,7 @@ export default () => ({
 		return html;
 	},
 
-			groupIntoCards(htmlString) {
+	groupIntoCards(htmlString) {
 		const parser = new DOMParser();
 		const doc = parser.parseFromString(htmlString, "text/html");
 		const body = doc.body;

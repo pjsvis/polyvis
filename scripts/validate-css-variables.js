@@ -9,8 +9,8 @@
  * - Proper theme.css usage
  */
 
-import { readFileSync, readdirSync, statSync } from "fs";
-import { join, extname } from "path";
+import { readdirSync, readFileSync, statSync } from "fs";
+import { extname, join } from "path";
 
 const CSS_DIR = "src/css";
 const THEME_FILE = join(CSS_DIR, "layers/theme.css");

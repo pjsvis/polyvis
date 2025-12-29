@@ -1,6 +1,5 @@
+import { createInterface } from "node:readline";
 import { Glob } from "bun";
-
-import { createInterface } from "readline";
 
 const rl = createInterface({
 	input: process.stdin,

@@ -1,10 +1,16 @@
 import { describe, expect, test } from "bun:test";
-import type { ResonanceDB } from "@src/resonance/db";
 import { EdgeWeaver } from "@src/core/EdgeWeaver";
+import type { ResonanceDB } from "@src/resonance/db";
 
 // Mock ResonanceDB
+interface MockEdge {
+	sourceId: string;
+	targetId: string;
+	type: string;
+}
+
 class MockDB {
-	public edges: any[] = [];
+	public edges: MockEdge[] = [];
 	insertEdge(sourceId: string, targetId: string, type: string) {
 		this.edges.push({ sourceId, targetId, type });
 	}

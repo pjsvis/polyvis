@@ -1,7 +1,6 @@
+import { parseArgs } from "node:util";
 import { BentoNormalizer } from "@src/core/BentoNormalizer";
 import { Glob } from "bun";
-import { basename, join } from "path";
-import { parseArgs } from "util";
 
 // Parse CLI args
 const { values } = parseArgs({
@@ -15,7 +14,7 @@ const { values } = parseArgs({
 	allowPositionals: true,
 });
 
-const LIMIT = values.limit ? parseInt(values.limit) : 10;
+const LIMIT = values.limit ? parseInt(values.limit, 10) : 10;
 const DRY_RUN = values.dryRun ?? false;
 
 async function main() {

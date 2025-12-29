@@ -10,10 +10,10 @@
  * await harvester.loadIntoResonance(graph);
  */
 
-import { $ } from "bun";
-import { join } from "node:path";
 import { existsSync } from "node:fs";
+import { join } from "node:path";
 import { getLogger } from "@src/utils/Logger";
+import { $ } from "bun";
 
 export interface SemanticNode {
 	name: string;

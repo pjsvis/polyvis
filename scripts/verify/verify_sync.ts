@@ -1,5 +1,5 @@
-import { ResonanceDB } from "@src/resonance/db";
 import { nodes as schemaNodes } from "@src/db/schema.js";
+import { ResonanceDB } from "@src/resonance/db";
 
 const db = ResonanceDB.init();
 console.log("🔍 Verifying Ingestion...");

@@ -1,5 +1,5 @@
-import { DatabaseFactory } from "@/src/resonance/DatabaseFactory";
 import { PipelineValidator } from "@src/utils/validator";
+import { DatabaseFactory } from "@/src/resonance/DatabaseFactory";
 
 console.log("🔍 Running Database Validation Check...\n");
 

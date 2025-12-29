@@ -1,17 +1,17 @@
 #!/usr/bin/env bun
 /**
  * Debrief Naming Convention Enforcer
- * 
+ *
  * Scans debriefs/ directory and renames files to follow the convention:
  * YYYY-MM-DD-topic.md
- * 
+ *
  * Extracts dates from:
  * 1. Front matter (**Date:** field)
  * 2. File modification time (fallback)
  */
 
-import { readdirSync, statSync, renameSync, readFileSync } from "fs";
-import { join } from "path";
+import { readdirSync, readFileSync, renameSync, statSync } from "node:fs";
+import { join } from "node:path";
 
 const DEBRIEFS_DIR = join(process.cwd(), "debriefs");
 const DATE_PATTERN = /^(\d{4})-(\d{2})-(\d{2})-/;
@@ -26,7 +26,7 @@ interface RenameCandidate {
 function extractDateFromContent(filepath: string): string | null {
 	try {
 		const content = readFileSync(filepath, "utf-8");
-		
+
 		// Look for **Date:** YYYY-MM-DD pattern in first 50 lines
 		const lines = content.split("\n").slice(0, 50);
 		for (const line of lines) {
@@ -121,38 +121,35 @@ function main() {
 	}
 
 	// Confirm with user
-	const readline = require("readline");
+	const readline = require("node:readline");
 	const rl = readline.createInterface({
 		input: process.stdin,
 		output: process.stdout,
 	});
 
-	rl.question(
-		"Proceed with renaming? (y/n): ",
-		(answer: string) => {
-			if (answer.toLowerCase() === "y") {
-				console.log("\n🔧 Renaming files...\n");
+	rl.question("Proceed with renaming? (y/n): ", (answer: string) => {
+		if (answer.toLowerCase() === "y") {
+			console.log("\n🔧 Renaming files...\n");
 
-				for (const candidate of candidates) {
-					const oldPath = join(DEBRIEFS_DIR, candidate.current);
-					const newPath = join(DEBRIEFS_DIR, candidate.proposed);
+			for (const candidate of candidates) {
+				const oldPath = join(DEBRIEFS_DIR, candidate.current);
+				const newPath = join(DEBRIEFS_DIR, candidate.proposed);
 
-					try {
-						renameSync(oldPath, newPath);
-						console.log(`✅ ${candidate.current} → ${candidate.proposed}`);
-					} catch (error) {
-						console.error(`❌ Failed to rename ${candidate.current}:`, error);
-					}
+				try {
+					renameSync(oldPath, newPath);
+					console.log(`✅ ${candidate.current} → ${candidate.proposed}`);
+				} catch (error) {
+					console.error(`❌ Failed to rename ${candidate.current}:`, error);
 				}
-
-				console.log("\n✨ Done!");
-			} else {
-				console.log("\n❌ Cancelled.");
 			}
 
-			rl.close();
-		},
-	);
+			console.log("\n✨ Done!");
+		} else {
+			console.log("\n❌ Cancelled.");
+		}
+
+		rl.close();
+	});
 }
 
 if (import.meta.main) {

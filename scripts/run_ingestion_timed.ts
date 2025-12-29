@@ -39,7 +39,7 @@ async function main() {
 		await ingestor.runExperience({}, lexicon, sqliteDb);
 		const t4 = performance.now();
 		console.log(`✅ Experience: ${((t4 - t3) / 1000).toFixed(2)}s`);
-		
+
 		// Cleanup
 		ingestor.cleanup(sqliteDb);
 
@@ -52,7 +52,9 @@ async function main() {
 		console.log(`   Nodes: ${stats.nodes}`);
 		console.log(`   Edges: ${stats.edges}`);
 		console.log(`   Vectors: ${stats.vectors}`);
-		console.log(`   DB Size: ${(stats.db_size_bytes / 1024 / 1024).toFixed(2)} MB`);
+		console.log(
+			`   DB Size: ${(stats.db_size_bytes / 1024 / 1024).toFixed(2)} MB`,
+		);
 
 		const totalTime = (performance.now() - t0) / 1000;
 		const memAfter = process.memoryUsage();

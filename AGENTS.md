@@ -4,6 +4,103 @@ This document outlines the core operational protocols governing the actions of a
 
 ---
 
+## Protocol Stratification: Progressive Disclosure
+
+To reduce cognitive overhead while maintaining quality, protocols are organized into tiers. **Read only the tier appropriate to your experience level.**
+
+### 🎯 Quick Tasks First
+
+Before ANY protocol reading, check if your task qualifies as a **Quick Task**:
+
+| Criterion | Threshold |
+|-----------|-----------|
+| Files affected | < 3 files |
+| Lines changed | < 50 lines |
+| Architectural impact | None |
+
+If **YES**: Read `playbooks/quick-tasks-playbook.md` only. Skip all protocols below.
+
+If **NO**: Continue to tier selection below.
+
+---
+
+### TIER 1: Core Protocols (Always Active)
+
+**Who:** All agents, always.
+**Purpose:** Safety, correctness, and user alignment.
+
+**Read these 6 protocols before ANY task:**
+1. DOSP-CTX - Destructive Operation Safeguard (highest priority)
+2. FNIP - File Naming Integrity
+3. DCVP - Directive Comprehension & Verification
+4. UFP - User Finality
+5. NCVP - No Completion Without Verification
+6. BFP - Bun First (runtime requirement)
+
+**After 3+ successful sessions** → Unlock TIER 2.
+
+---
+
+### TIER 2: Development Protocols
+
+**Who:** Agents with 3+ successful sessions.
+**Purpose:** Code quality and development standards.
+
+**Additional protocols for development work:**
+7. AFP - Alpine.js First (UI interactions)
+8. CCP - Centralized Control (theming/design)
+9. VAP - Verification & Alignment (debugging/ground truth)
+10. GEP - Granular Execution (fixes)
+11. BVP - Browser Verification (browser environment)
+12. DSP - Design Sanity (visual work)
+13. SEP - Secret Exclusivity (security)
+14. PMP - Port Management (dev server)
+15. SWP - Session Wrap-up (cleanup)
+16. TTP - Task Tracking (project state)
+17. FLIP - File Length Integrity (refactoring)
+
+**For domain-specific work** → Load TIER 3 JIT.
+
+**Note:** Protocols 22-24 are consolidated versions of older protocols. Use the consolidated versions.
+
+---
+
+### TIER 3: Domain Playbooks (JIT Loading)
+
+**Who:** Any agent, loaded based on task context.
+**Purpose:** Deep domain knowledge.
+
+**Load these when task domain requires:**
+
+| Task Domain | Read Playbook |
+|-------------|---------------|
+| CSS/Styling | `playbooks/css-master-playbook.md` |
+| UI Interactions | `playbooks/alpinejs-playbook.md` |
+| Graph Logic | `playbooks/graphology-playbook.md` |
+| Data Ingestion | `playbooks/ingestion-pipeline-playbook.md` |
+| Bento Boxing | `playbooks/bento-box-playbook-*.md` |
+| Vector Embeddings | `playbooks/embeddings-and-fafcas-protocol-playbook.md` |
+| Database | `playbooks/sqlite-standards.md` |
+| Schema Changes | `playbooks/schema-playbook.md` |
+| Sigma/Visualization | `playbooks/sigma-playbook.md` |
+| MCP Integration | `src/mcp/README.md` |
+
+**OCIP Protocol (Tier 3):** Operational Context Initialization Protocol - loaded JIT for domain tasks.
+
+---
+
+### Protocol Unlock Criteria
+
+| Tier | Requirement | How to Track |
+|------|-------------|--------------|
+| TIER 1 | None (default) | Start here |
+| TIER 2 | 3 successful sessions | Agent self-tracks |
+| TIER 3 | Domain-specific task | Load JIT based on context |
+
+**Successful session:** Task completed without User point scored against Agent.
+
+---
+
 ## Quick Reference: The Work Cycle
 
 All work follows: **Brief → Code → Debrief → Playbook Updates**
@@ -32,9 +129,11 @@ All work follows: **Brief → Code → Debrief → Playbook Updates**
 
 Before declaring any task complete:
 - [ ] All brief checklist items complete
-- [ ] `tsc --noEmit` passes
+- [ ] `bun run precommit` passes (runs tsc + Biome check)
 - [ ] Console has no errors
 - [ ] Verification tests pass
+
+**Automated Verification:** The `bun run precommit` command combines TypeScript and Biome checks. Make this your final gate before declaring completion.
 
 ### SCOREBOARD Tracking
 
@@ -259,7 +358,7 @@ Create scratchpad: Document hypothesis, experiment, synthesize, apply
     6.  **Prohibition:** Do not, under any circumstances, write the secret value directly into a script, log file, or any other artifact that could be committed.
 
 
-**20. OCIP: Operational Context Initialization Protocol**
+## 20. OCIP: Operational Context Initialization Protocol
 
 * **Principle:** To prevent "vibe coding" and ensure adherence to the project's specific architecture (e.g., "Zero Magic," "Alpine-First"), the agent must perform **Constraint Stacking** and **Context Initialization** before executing any task. Intelligence is not in the model's weights; it is in the project's Playbooks.
 * **Workflow:**
@@ -271,11 +370,143 @@ Create scratchpad: Document hypothesis, experiment, synthesize, apply
         * *Graph Logic?* $\rightarrow$ Read `playbooks/graphology-playbook.md`.
     4.  **Confirmation:** The agent must explicitly state which Contexts have been initialized (e.g., *"Context Initialized: Loaded CSS & Alpine Playbooks"*).
 
-## 21. FLIP: File Length Integrity Protocol
+## 21. FLIP: File Length Integrity Protocol (v2.0)
 
-- **Principle:** Source files must remain small (target < 300 lines) to ensure AI agent comprehension, prevent context window overflows, and ensure safe refactoring. Monolithic files (> 500 lines) are a **critical failure state** that leads to "context blindness" and destructive hallucinations.
+- **Principle:** Source files should remain small enough to ensure AI agent comprehension and safe refactoring. However, cohesion sometimes justifies length. Use graduated targets rather than absolute thresholds.
+
+### Graduated Targets
+
+| Lines | Status | Action Required |
+|-------|--------|-----------------|
+| < 300 | 🟢 Ideal | No action. Target state. |
+| 300-500 | 🟡 Acceptable | Add comment at top: `<!-- TODO: Refactor into smaller modules -->` |
+| 500-700 | 🟠 Review | Requires ADR (Architecture Decision Record) justifying length. |
+| > 700 | 🔴 Critical | Must split before adding new features. |
+
+### Workflow
+
+1.  **Monitor:** Check file length during development (most editors show line count).
+2.  **Flag:** If crossing 300 lines, add TODO comment for future refactoring.
+3.  **Assess:** If crossing 500 lines, consider if cohesion justifies the length.
+    - **Yes:** Create ADR documenting why file should stay together.
+    - **No:** Split into logical modules (e.g., `data.js`, `ui.js`, `logic.js`).
+4.  **Critical:** If > 700 lines, split IS required before new features.
+
+### Rationale
+
+- **< 300 lines:** Fits comfortably in context window with room for changes
+- **300-500 lines:** Manageable but should be flagged for future attention
+- **500-700 lines:** Approaching "context blindness" zone - explicit justification needed
+- **> 700 lines:** High risk of AI agent hallucinations during edits
+
+### Anti-Patterns
+
+❌ **Artificial Splitting:** Don't split cohesive code just to hit a target.
+❌ **Premature Optimization:** Don't refactor during feature development.
+❌ **Anxiety:** Don't stress about 301 lines. The targets are guidelines, not laws.
+
+✅ **Cohesion First:** Keep related code together.
+✅ **Just-in-Time Refactor:** Split when adding features becomes painful.
+✅ **Document Decisions:** Use ADRs for intentional long files.
+
+### Example ADR
+
+```markdown
+# ADR: Why auth.ts is 650 lines
+
+## Context
+Authentication module handles OAuth, session management, and token refresh.
+
+## Decision
+Keeping together because:
+- All functions operate on shared Session state
+- Splitting would create circular dependencies
+- Module is self-contained with clear inputs/outputs
+
+## Consequences
+- Trade: Longer file for better cohesion
+- Mitigation: Clear section headers, exported interfaces only
+```
+
+---
+
+**Deprecates:** Original FLIP (v1.0) which used strict 300-line target.
+
+---
+
+## Consolidated Protocols (v2.0)
+
+The following protocols consolidate overlapping functionality from previous protocols. **Use these instead of the deprecated versions.**
+
+### 22. CCP: Centralized Control Protocol
+
+**Consolidates:** TFP (Theme First) + CVP (CSS Variables)
+
+- **Principle:** `src/css/layers/theme.css` is the **Control Center** for the application's design. All tweakable values must be centralized as CSS variables.
+
 - **Workflow:**
-    1.  **Monitor:** Actively monitor file length during development.
-    2.  **Trigger:** If a file approaches 300 lines, flag it for immediate refactoring.
-    3.  **Refactor:** Split logic into modular components (e.g., `data.js`, `ui.js`, `logic.js`) *before* adding new features.
-    4.  **Prohibition:** Do not attempt to "patch" a file that exceeds 500 lines using standard replacement tools. You **must** switch to a modular refactoring strategy immediately.
+    1.  **Check:** Before styling, check `theme.css` for an existing variable.
+    2.  **Tweak:** If a variable exists, adjust it there to propagate changes globally.
+    3.  **Define:** If no variable exists, create a new semantic variable in `theme.css`.
+    4.  **Use:** Reference variables with `var(--variable-name)` in component CSS.
+    5.  **Prohibit:** Never hardcode "magic numbers" (pixels, hex codes) in component CSS or HTML.
+
+**Deprecated References:** TFP (#14), CVP (#10)
+
+---
+
+### 23. VAP: Verification & Alignment Protocol
+
+**Consolidates:** EVP (Empirical Verification) + RAP (Reality Alignment)
+
+- **Principle:** The "truth" is what the environment actually does, not what you assume it does. Stop guessing when patterns indicate a flawed mental model.
+
+- **Workflow (UI Debugging):**
+    - **Action:** When diagnosing UI issues, you MUST use browser DevTools to inspect computed styles.
+    - **Reasoning:** Theoretical CSS debugging is prohibited when a live environment is available.
+
+- **Workflow (API/Library Integration):**
+    - **Stop Guessing Rule:** After maximum 2 failed attempts based on assumptions, HALT.
+    - **Ground Truth:** Read `.d.ts` type definitions in `node_modules/` - this is the primary source of truth.
+    - **Decode Errors:** Treat validation errors as explicit instructions. Analyze `path` and `expected` properties.
+    - **Isolate:** If unclear, create scratchpad (e.g., `SCRATCHPAD_api_discovery.ts`) for isolated testing.
+
+- **Workflow (Reality Alignment):**
+    - **Spin Cycle Detection:** If you've edited the same file 3+ times with different guesses, STOP.
+    - **Trigger:** If Attempt #3 fails to produce expected result: Revert and switch to isolation mode.
+    - **Clean Room:** Use `playbooks/problem-solving-playbook.md` to verify in isolation.
+
+**Deprecated References:** EVP (#12), RAP (#18)
+
+---
+
+### 24. BVP: Browser Verification Protocol
+
+**Consolidates:** CMP (Console Monitoring) + BCP (Browser Capabilities)
+
+- **Principle:** Browser environment must be explicitly verified. Assumptions about browser APIs and network boundaries lead to hidden bugs.
+
+- **Workflow (Console Monitoring):**
+    1.  **Capability Check:** If you can capture console logs (via browser tools), you MUST do so.
+    2.  **Initial Pass:** Check for presence of errors vs clean log (avoid data overload).
+    3.  **Error Investigation:** If errors present, investigate and resolve immediately.
+    4.  **Gatekeeper:** "No-errors" state is mandatory before marking frontend tasks complete.
+
+- **Workflow (Browser Capabilities):**
+    1.  **Verify:** When using browser APIs, verify they work in current environment.
+    2.  **Context:** `getComputedStyle` works on `localhost` without prompts. External domains may be accessible despite restrictions.
+    3.  **Monitor:** Watch for network requests. Note unexpected external access.
+    4.  **No Assumptions:** `browserAllowList.txt` doesn't guarantee isolation.
+
+**Deprecated References:** CMP (#6), BCP (#17)
+
+---
+
+## Migration Notes
+
+When updating code that references deprecated protocols:
+- Replace "Protocol 10 (CVP)" → "Protocol 22 (CCP)"
+- Replace "Protocol 12 (EVP)" → "Protocol 23 (VAP)"
+- Replace "Protocol 14 (TFP)" → "Protocol 22 (CCP)"
+- Replace "Protocol 17 (BCP)" → "Protocol 24 (BVP)"
+- Replace "Protocol 18 (RAP)" → "Protocol 23 (VAP)"

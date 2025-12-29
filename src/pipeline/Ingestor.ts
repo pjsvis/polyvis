@@ -9,10 +9,10 @@ import type { Node } from "@src/resonance/db";
 import { ResonanceDB } from "@src/resonance/db";
 import { Embedder } from "@src/resonance/services/embedder";
 import { TokenizerService } from "@src/resonance/services/tokenizer";
+import { getLogger } from "@src/utils/Logger";
 import { PipelineValidator } from "@src/utils/validator";
 import { Glob } from "bun";
 import settings from "@/polyvis.settings.json";
-import { getLogger } from "@src/utils/Logger";
 
 export interface IngestorOptions {
 	file?: string;
@@ -60,6 +60,10 @@ export class Ingestor {
 		this.db = new ResonanceDB(this.dbPath);
 		this.embedder = Embedder.getInstance();
 		this.tokenizer = TokenizerService.getInstance();
+	}
+
+	public getEmbedder(): Embedder {
+		return this.embedder;
 	}
 
 	/**

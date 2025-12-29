@@ -80,9 +80,9 @@ async function startInteractiveChat() {
 
 			conversationId = startResponse.conversationId;
 			const firstMessage = startResponse.outputs?.find(
-				(o: any) => o.type === "message.output",
+				(o) => o.type === "message.output",
 			);
-			const content = (firstMessage as any)?.content;
+			const content = (firstMessage as { content?: string })?.content;
 
 			if (content) {
 				console.log(`\n\x1b[32mAgent:\x1b[0m ${content}`);
@@ -133,9 +133,9 @@ async function startInteractiveChat() {
 
 				// The response structure of `append` is the same as `start`.
 				const reply = appendResponse.outputs?.find(
-					(o: any) => o.type === "message.output",
+					(o) => o.type === "message.output",
 				);
-				const content = (reply as any)?.content;
+				const content = (reply as { content?: string })?.content;
 
 				if (content) {
 					console.log(`\n\x1b[32mAgent:\x1b[0m ${content}`);

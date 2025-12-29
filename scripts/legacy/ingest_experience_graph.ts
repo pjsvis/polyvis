@@ -1,15 +1,14 @@
 import { Database } from "bun:sqlite";
+import { EdgeWeaver } from "@src/core/EdgeWeaver";
+import { SemanticMatcher } from "@src/core/SemanticMatcher";
+import { DatabaseFactory } from "@src/resonance/DatabaseFactory";
+import type { EnrichedLexiconDocument } from "@src/resonance/types/enriched-cda";
+import { PipelineValidator } from "@src/utils/validator";
 import { existsSync, readFileSync } from "fs";
 import { lexer } from "marked";
 import { join } from "path";
-import { DatabaseFactory } from "@src/resonance/DatabaseFactory";
-
 // --- Configuration ---
 import settings from "@/polyvis.settings.json";
-import { SemanticMatcher } from "@src/core/SemanticMatcher";
-import { EdgeWeaver } from "@src/core/EdgeWeaver";
-import { PipelineValidator } from "@src/utils/validator";
-import type { EnrichedLexiconDocument } from "@src/resonance/types/enriched-cda";
 
 // Types for Experience Index
 interface ExperienceNode {
@@ -28,7 +27,6 @@ async function ingest() {
 	// We assume current working directory is project root
 	const ROOT_DIR = process.cwd();
 	const EXP_INDEX_PATH = join(ROOT_DIR, "public/data/experience.json");
-	
 
 	if (!existsSync(EXP_INDEX_PATH)) {
 		console.error(
@@ -37,28 +35,32 @@ async function ingest() {
 		process.exit(1);
 	}
 
-    // Connect using Factory
-    const db = DatabaseFactory.connectToResonance();
+	// Connect using Factory
+	const db = DatabaseFactory.connectToResonance();
 	const indexData: ExperienceNode[] = await Bun.file(EXP_INDEX_PATH).json();
 
 	// Initialize Validator
 	const validator = new PipelineValidator();
 	validator.captureBaseline(db);
 
-    // Load Enriched Lexicon for Cross-Layer Linking
-    const lexPath = join(ROOT_DIR, ".resonance/artifacts/lexicon-enriched.json");
-    let lexicon: EnrichedLexiconDocument | null = null;
-    try {
-        lexicon = await Bun.file(lexPath).json();
-        console.log(`🧠 Loaded Lexicon: ${lexicon?.stats.total_concepts} concepts available for linking.`);
-    } catch (e) {
-        console.warn("⚠️ Could not load Enriched Lexicon. Cross-layer semantic linking will be skipped.");
-    }
+	// Load Enriched Lexicon for Cross-Layer Linking
+	const lexPath = join(ROOT_DIR, ".resonance/artifacts/lexicon-enriched.json");
+	let lexicon: EnrichedLexiconDocument | null = null;
+	try {
+		lexicon = await Bun.file(lexPath).json();
+		console.log(
+			`🧠 Loaded Lexicon: ${lexicon?.stats.total_concepts} concepts available for linking.`,
+		);
+	} catch (e) {
+		console.warn(
+			"⚠️ Could not load Enriched Lexicon. Cross-layer semantic linking will be skipped.",
+		);
+	}
 
-    // Initialize Semantic Matcher
-    const semanticMatcher = new SemanticMatcher();
-    const useSemanticLinking = lexicon !== null;
-    let semanticEdges = 0;
+	// Initialize Semantic Matcher
+	const semanticMatcher = new SemanticMatcher();
+	const useSemanticLinking = lexicon !== null;
+	let semanticEdges = 0;
 
 	console.log(`📥 Loading ${indexData.length} experience artifacts...`);
 
@@ -183,7 +185,7 @@ async function ingest() {
 			item.title,
 			item.type,
 			"experience", // Unified Domain
-			"structure",  // Layer: Structure/Telemetry
+			"structure", // Layer: Structure/Telemetry
 			narrative,
 			"[]",
 		);
@@ -341,27 +343,26 @@ async function ingest() {
 			}
 		}
 
-    
-    // D. Semantic Cross-Layer Linking (Experience -> Persona)
-    // DISABLED FOR SPEED: Semantic linking takes ~100s. Re-enable for production builds.
-    /*
+		// D. Semantic Cross-Layer Linking (Experience -> Persona)
+		// DISABLED FOR SPEED: Semantic linking takes ~100s. Re-enable for production builds.
+		/*
     if (useSemanticLinking && lexicon && content.length > 50) {
         // ... (mgrep logic hidden) ...
     }
     */
-   
-    // MOCK: Inject a semantic edge to prove pipeline works
-    if (item.id === "sigma-playbook" && item.title.includes("Graph")) {
-        insertEdge.run(item.id, "term-001", "MENTIONS"); // Connects to "Graph" term
-        semanticEdges++;
-        console.log(`      🔗 [MOCK] Semantic Link: ${item.id} -> term-001`);
-    }
-    }
+
+		// MOCK: Inject a semantic edge to prove pipeline works
+		if (item.id === "sigma-playbook" && item.title.includes("Graph")) {
+			insertEdge.run(item.id, "term-001", "MENTIONS"); // Connects to "Graph" term
+			semanticEdges++;
+			console.log(`      🔗 [MOCK] Semantic Link: ${item.id} -> term-001`);
+		}
+	}
 
 	console.log(`✅ Ingestion Complete.`);
 	console.log(`   + Nodes: ${nodesAdded}`);
 	console.log(`   + Edges: ${edgesAdded}`);
-    console.log(`   + Semantic Links: ${semanticEdges}`);
+	console.log(`   + Semantic Links: ${semanticEdges}`);
 
 	// Validation
 	validator.expect({
@@ -369,13 +370,13 @@ async function ingest() {
 		min_nodes_added: indexData.length, // At least 1 node per experience artifact
 		required_vector_coverage: "none", // This pipeline doesn't create vectors
 	});
-	
+
 	const report = validator.validate(db);
 	validator.printReport(report);
 
 	db.close();
 
-    console.log(`📦 Database updated in place.`);
+	console.log(`📦 Database updated in place.`);
 	console.log(`🎉 Done.`);
 
 	// Exit with error code if validation failed

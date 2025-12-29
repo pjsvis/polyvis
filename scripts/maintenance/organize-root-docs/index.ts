@@ -1,14 +1,14 @@
 #!/usr/bin/env bun
 /**
  * Root Documentation Organizer
- * 
+ *
  * Scans root directory for documentation files and organizes them properly:
  * - Keep: README.md, LICENSE, .md files that must stay in root
  * - Move to docs/: Analysis files, walkthroughs, reviews, prompts
  * - Archive: Temporary/completed task docs
  */
 
-import { readdirSync, statSync, renameSync, existsSync, mkdirSync } from "fs";
+import { existsSync, mkdirSync, readdirSync, renameSync, statSync } from "fs";
 import { join } from "path";
 
 const ROOT_DIR = process.cwd();
@@ -116,7 +116,9 @@ function analyzeRootDocs(): MoveCandidate[] {
 
 function ensureDirectories(candidates: MoveCandidate[]) {
 	const dirs = new Set(
-		candidates.map((c) => join(ROOT_DIR, c.destination.split("/").slice(0, -1).join("/"))),
+		candidates.map((c) =>
+			join(ROOT_DIR, c.destination.split("/").slice(0, -1).join("/")),
+		),
 	);
 
 	for (const dir of dirs) {

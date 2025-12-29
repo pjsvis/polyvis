@@ -50,7 +50,7 @@ function magnitude(vec: Float32Array): number {
 /**
  * FAFCAS Protocol: Search Engine
  * Pure Dot Product (since vectors are unit-length).
- * 
+ *
  * Returns 0 for zero-magnitude vectors (failed embeddings) to prevent
  * false matches in search results.
  */

@@ -24,6 +24,7 @@
 	},
 	"scripts": {
 		"preinstall": "npx only-allow bun",
+		"precommit": "bun run scripts/maintenance/pre-commit.ts",
 		"dev": "bun run scripts/cli/dev.ts",
 		"build:css": "tailwindcss -i ./src/css/main.css -o ./public/css/app.css",
 		"watch:css": "tailwindcss -i ./src/css/main.css -o ./public/css/app.css --watch",

@@ -23,20 +23,24 @@ console.log(`\nFound ${orphans.length} Orphans.`);
 const stats: Record<string, number> = {};
 const samples: Record<string, string[]> = {};
 
-orphans.forEach(node => {
-    stats[node.type] = (stats[node.type] || 0) + 1;
-    const list = samples[node.type] || [];
-    if (list.length < 3) list.push(node.title || node.id);
-    samples[node.type] = list;
+orphans.forEach((node) => {
+	stats[node.type] = (stats[node.type] || 0) + 1;
+	const list = samples[node.type] || [];
+	if (list.length < 3) list.push(node.title || node.id);
+	samples[node.type] = list;
 });
 
 // 3. Report
 console.log("\nOrphans by Type:");
-console.table(Object.entries(stats).sort((a,b) => b[1] - a[1]).map(([type, count]) => ({
-    Type: type,
-    Count: count,
-    "Sample Nodes": (samples[type] || []).join(", ")
-})));
+console.table(
+	Object.entries(stats)
+		.sort((a, b) => b[1] - a[1])
+		.map(([type, count]) => ({
+			Type: type,
+			Count: count,
+			"Sample Nodes": (samples[type] || []).join(", "),
+		})),
+);
 
 // 4. Calculate Percentage (Context)
 const totalNodes = (db.query("SELECT COUNT(*) as c FROM nodes").get() as any).c;

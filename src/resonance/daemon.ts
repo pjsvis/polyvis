@@ -2,10 +2,10 @@ import { watch } from "node:fs";
 import { join } from "node:path";
 import settings from "@/polyvis.settings.json";
 import { Ingestor } from "../pipeline/Ingestor";
+import { EnvironmentVerifier } from "../utils/EnvironmentVerifier";
+import { getLogger } from "../utils/Logger";
 import { ServiceLifecycle } from "../utils/ServiceLifecycle";
 import { Embedder } from "./services/embedder";
-import { getLogger } from "../utils/Logger";
-import { EnvironmentVerifier } from "../utils/EnvironmentVerifier";
 
 const args = process.argv.slice(2);
 const command = args[0] || "serve";

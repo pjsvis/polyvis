@@ -11,8 +11,8 @@ import {
 import { VectorEngine } from "@src/core/VectorEngine";
 import { ResonanceDB } from "@src/resonance/db";
 import { EnvironmentVerifier } from "../utils/EnvironmentVerifier";
-import { ServiceLifecycle } from "../utils/ServiceLifecycle";
 import { getLogger } from "../utils/Logger";
+import { ServiceLifecycle } from "../utils/ServiceLifecycle";
 
 const args = process.argv.slice(2);
 const command = args[0] || "serve";

@@ -1,7 +1,7 @@
-import { ResonanceDB } from "@src/resonance/db";
 import { Database } from "bun:sqlite";
-import { Embedder } from "@src/resonance/services/embedder";
 import { VectorEngine } from "@src/core/VectorEngine";
+import { ResonanceDB } from "@src/resonance/db";
+import { Embedder } from "@src/resonance/services/embedder";
 
 async function main() {
 	console.log("🔍 Verifying Unification...");

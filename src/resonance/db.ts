@@ -1,8 +1,8 @@
 import type { Database } from "bun:sqlite";
+import { getLogger } from "@src/utils/Logger";
 import settings from "@/polyvis.settings.json";
 import { DatabaseFactory } from "./DatabaseFactory";
 import { CURRENT_SCHEMA_VERSION, MIGRATIONS } from "./schema";
-import { getLogger } from "@src/utils/Logger";
 
 const log = getLogger("ResonanceDB");
 

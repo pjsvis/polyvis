@@ -5,9 +5,17 @@
 **Last Updated**: 2025-12-29
 
 ## Objective
-System maintenance and protocol compliance
+Awaiting next directive
 
 ## Recently Completed ✅
+- **Protocol Complexity Reduction (2025-12-29):**
+  - **Pre-commit Automation:** Created `bun run precommit` hook combining tsc + Biome checks
+  - **Quick Tasks Protocol:** New playbook for simple work (<3 files, <50 lines) - no brief/debrief required
+  - **Protocol Stratification:** 3-tier progressive disclosure system in AGENTS.md (T1: 6 core, T2: 17 dev, T3: JIT domain)
+  - **Protocol Consolidation:** Merged TFP+CVP→CCP, EVP+RAP→VAP, CMP+BCP→BVP (Protocols 22-24)
+  - **FLIP v2.0:** Revised with graduated targets (🟢<300, 🟡300-500, 🟠500-700 with ADR, 🔴>700)
+  - Debrief: `debriefs/2025-12-29-protocol-complexity-reduction.md`
+
 - **Structured Logging & Hollow Node Completion (2025-12-29):**
   - **Protocol Safety:** Implemented Pino logging to `stderr`, protecting MCP JSON-RPC on `stdout`.
   - **Hollow Node:** Finalized migration by removing legacy FTS engine (`searchText`, triggers), reducing DB size by ~60%.

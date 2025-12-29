@@ -1,9 +1,9 @@
-import { DatabaseFactory } from "@/src/resonance/DatabaseFactory";
 import { edges, nodes } from "@src/db/schema.js";
 import type { IngestionArtifact } from "@src/types/artifact.js";
 import assert from "assert";
 import { join } from "path";
 import settings from "@/polyvis.settings.json";
+import { DatabaseFactory } from "@/src/resonance/DatabaseFactory";
 
 console.log("Starting Round-Trip Verification...");
 

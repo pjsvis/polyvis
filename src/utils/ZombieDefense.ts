@@ -127,7 +127,7 @@ export class ZombieDefense {
 	/**
 	 * Helper: Extract PIDs from report lines
 	 */
-	private static extractPids(lines: string[]): string[] {
+	public static extractPids(lines: string[]): string[] {
 		const pids = new Set<string>();
 		lines.forEach((line) => {
 			const match = line.match(/\s+(\d+)\s+/);
@@ -161,7 +161,8 @@ export class ZombieDefense {
 		try {
 			await execAsync(`kill -9 ${targets.join(" ")}`);
 			console.error("   ✅ Zombies terminated.");
-		} catch (e: any) {
+		} catch (err) {
+			const e = err as Error;
 			console.error(`   ❌ Failed to kill zombies: ${e.message}`);
 		}
 	}

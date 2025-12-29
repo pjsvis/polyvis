@@ -1,8 +1,7 @@
-
 import { ResonanceDB } from "@src/resonance/db";
-import { EdgeWeaver } from "../../src/core/EdgeWeaver";
-import { join } from "path";
 import { existsSync, rmSync } from "fs";
+import { join } from "path";
+import { EdgeWeaver } from "../../src/core/EdgeWeaver";
 
 // Mock Data Generation
 function generateMockData(count: number) {
@@ -11,9 +10,18 @@ function generateMockData(count: number) {
 		// Create a "Super Node" candidate (e.g., 'concept-core')
 		// and many "Leaf Nodes"
 		if (i === 0) {
-			nodes.push({ id: "concept-core", type: "concept", title: "Core Concept" });
+			nodes.push({
+				id: "concept-core",
+				type: "concept",
+				title: "Core Concept",
+			});
 		} else {
-			nodes.push({ id: `note-${i}`, type: "note", title: `Note ${i}`, content: `This refers to [[Core Concept]]` });
+			nodes.push({
+				id: `note-${i}`,
+				type: "note",
+				title: `Note ${i}`,
+				content: `This refers to [[Core Concept]]`,
+			});
 		}
 	}
 	return nodes;
@@ -31,9 +39,9 @@ async function verify() {
 
 	// 1. Ingest nodes
 	const nodes = generateMockData(100);
-	
+
 	// Insert 'concept-core' first
-	db.insertNode(nodes[0]); 
+	db.insertNode(nodes[0]);
 
 	// Insert 100 notes that all link to 'concept-core'
 	// Without gating, 'concept-core' would have degree 99.
@@ -51,40 +59,44 @@ async function verify() {
 
 	// Check Degree of 'concept-core'
 	const edges = db.getStats().edges;
-    // We can't easily get degree of specific node from getStats, 
-    // let's query DB directly or assume total edges = degree of concept-core (since only that being linked)
-    
-    // Actually, getting degree of concept-core:
-    // ResonanceDB doesn't expose raw SQL easily outside, but we can rely on verifying edges count.
-    // In this specific topology, all edges are source->concept-core.
-    
-    console.log(`Submitted ${linksAttempted} links to 'concept-core'.`);
-    console.log(`Total Edges in DB: ${edges}`);
+	// We can't easily get degree of specific node from getStats,
+	// let's query DB directly or assume total edges = degree of concept-core (since only that being linked)
 
-    // Expectation: Edges should be around 51 (threshold)
-    // The implementation in ResonanceDB uses threshold=50 (default).
-    // So roughly 50 edges allowed.
-    
-    // Wait, the logic is: if (isSuperNode(target)) -> check neighbor.
-    // isSuperNode checks count > threshold.
-    // So distinct edges will grow until > 50.
-    // So we expect ~51 edges.
-    
+	// Actually, getting degree of concept-core:
+	// ResonanceDB doesn't expose raw SQL easily outside, but we can rely on verifying edges count.
+	// In this specific topology, all edges are source->concept-core.
+
+	console.log(`Submitted ${linksAttempted} links to 'concept-core'.`);
+	console.log(`Total Edges in DB: ${edges}`);
+
+	// Expectation: Edges should be around 51 (threshold)
+	// The implementation in ResonanceDB uses threshold=50 (default).
+	// So roughly 50 edges allowed.
+
+	// Wait, the logic is: if (isSuperNode(target)) -> check neighbor.
+	// isSuperNode checks count > threshold.
+	// So distinct edges will grow until > 50.
+	// So we expect ~51 edges.
+
 	if (edges > 60) {
-		console.error(`FAIL: Hairball detected! 'concept-core' has ${edges} edges (expected <= ~51).`);
+		console.error(
+			`FAIL: Hairball detected! 'concept-core' has ${edges} edges (expected <= ~51).`,
+		);
 		process.exit(1);
 	} else if (edges < 40) {
-        console.warn(`WARNING: Too few edges? (${edges}). Logic might be too aggressive or something else is wrong.`);
-    } else {
-        console.log(`PASS: Super-node contained. Edges: ${edges}.`);
-    }
+		console.warn(
+			`WARNING: Too few edges? (${edges}). Logic might be too aggressive or something else is wrong.`,
+		);
+	} else {
+		console.log(`PASS: Super-node contained. Edges: ${edges}.`);
+	}
 
-    // Cleanup
-    db.close();
-    rmSync(dbPath);
+	// Cleanup
+	db.close();
+	rmSync(dbPath);
 }
 
-verify().catch(e => {
+verify().catch((e) => {
 	console.error(e);
 	process.exit(1);
 });

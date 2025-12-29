@@ -50,9 +50,9 @@ describe("ResonanceDB Schema & Migration", () => {
 
 		const nodes = db.getNodes({ domain: "test" });
 		expect(nodes.length).toBe(1);
-		expect(nodes[0]!.id).toBe("test-node");
-		expect(nodes[0]!.label).toBe("Test Label");
-		expect(nodes[0]!.meta.key).toBe("value");
+		expect(nodes[0]?.id).toBe("test-node");
+		expect(nodes[0]?.label).toBe("Test Label");
+		expect(nodes[0]?.meta.key).toBe("value");
 	});
 
 	test("Lexicon accessor works", () => {
@@ -67,8 +67,8 @@ describe("ResonanceDB Schema & Migration", () => {
 
 		const lexicon = db.getLexicon();
 		expect(lexicon.length).toBe(1);
-		expect(lexicon[0]!.id).toBe("term-1");
-		expect(lexicon[0]!.aliases).toContain("t1");
+		expect(lexicon[0]?.id).toBe("term-1");
+		expect(lexicon[0]?.aliases).toContain("t1");
 	});
 
 	test("should handle basic operations without FTS", () => {

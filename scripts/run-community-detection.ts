@@ -9,9 +9,9 @@
  *   bun run scripts/run-community-detection.ts --resolution 0.5
  */
 
-import { $ } from "bun";
-import { join } from "node:path";
 import { existsSync } from "node:fs";
+import { join } from "node:path";
+import { $ } from "bun";
 
 const VENV_PYTHON = join(process.cwd(), "ingest", ".venv", "bin", "python");
 const SCRIPT = join(process.cwd(), "ingest", "calc_communities.py");
