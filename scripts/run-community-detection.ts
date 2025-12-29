@@ -102,7 +102,7 @@ async function main() {
 				.query("SELECT meta FROM nodes WHERE id = ?")
 				.all(nodeId) as Array<{ meta: string | null }>;
 
-			if (rows.length > 0) {
+			if (rows.length > 0 && rows[0]) {
 				const meta = rows[0].meta ? JSON.parse(rows[0].meta) : {};
 				meta.community = communityId;
 

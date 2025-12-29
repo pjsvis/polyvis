@@ -12,9 +12,11 @@ import { VectorEngine } from "@src/core/VectorEngine";
 import { ResonanceDB } from "@src/resonance/db";
 import { EnvironmentVerifier } from "../utils/EnvironmentVerifier";
 import { ServiceLifecycle } from "../utils/ServiceLifecycle";
+import { getLogger } from "../utils/Logger";
 
 const args = process.argv.slice(2);
 const command = args[0] || "serve";
+const log = getLogger("MCP");
 
 // --- Service Lifecycle ---
 
@@ -39,7 +41,7 @@ async function runServer() {
 	// 0. Verify Environment
 	await EnvironmentVerifier.verifyOrExit();
 
-	// console.error("🚀 PolyVis MCP Server Initializing..."); // Silenced to prevent MCP protocol pollution
+	log.info("🚀 PolyVis MCP Server Initializing...");
 
 	// 1. Setup Server
 	const server = new Server(
@@ -144,7 +146,7 @@ async function runServer() {
 						}
 					} catch (e: unknown) {
 						const msg = e instanceof Error ? e.message : String(e);
-						console.error(`Vector Search Error: ${msg}`);
+						log.error({ err: e }, "Vector Search Error");
 						errors.push(msg);
 					}
 
@@ -272,7 +274,7 @@ async function runServer() {
 				isError: true,
 			};
 		} catch (error) {
-			console.error("Tool execution failed:", error);
+			log.error({ err: error, tool: name }, "Tool execution failed");
 			return {
 				content: [{ type: "text", text: `Error: ${error}` }],
 				isError: true,
@@ -312,22 +314,24 @@ async function runServer() {
 	// 4. Connect Transport
 	const transport = new StdioServerTransport();
 	await server.connect(transport);
-	// console.error("✅ PolyVis MCP Server Running (Per-Request Connections)"); // Silenced
+	log.info("✅ PolyVis MCP Server Running (Per-Request Connections)");
 }
 
 // --- Global Error Handling ---
 
 process.on("uncaughtException", (error) => {
+	log.fatal({ err: error }, "UNKNOWN MCP ERROR");
+	// Original crash log logic preserved for safety? Or redundant?
+	// Let's keep specific crash log as backup for now, but log via pino too
 	const msg = `[${new Date().toISOString()}] UNKNOWN MCP ERROR: ${error instanceof Error ? error.stack : error}\n`;
-	console.error(msg);
 	try {
 		appendFileSync(".mcp.crash.log", msg);
 	} catch {}
 });
 
 process.on("unhandledRejection", (reason) => {
+	log.fatal({ err: reason }, "UNHANDLED REJECTION");
 	const msg = `[${new Date().toISOString()}] UNHANDLED REJECTION: ${reason}\n`;
-	console.error(msg);
 	try {
 		appendFileSync(".mcp.crash.log", msg);
 	} catch {}
@@ -335,6 +339,4 @@ process.on("unhandledRejection", (reason) => {
 
 // --- Dispatch ---
 
-// Pass false to disable strict zombie checking for the serve command
-// We rely on the internal logic of runServer + improved ZombieDefense
 await lifecycle.run(command, runServer, false);

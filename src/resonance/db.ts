@@ -2,6 +2,9 @@ import type { Database } from "bun:sqlite";
 import settings from "@/polyvis.settings.json";
 import { DatabaseFactory } from "./DatabaseFactory";
 import { CURRENT_SCHEMA_VERSION, MIGRATIONS } from "./schema";
+import { getLogger } from "@src/utils/Logger";
+
+const log = getLogger("ResonanceDB");
 
 // Types matching Schema
 export interface Node {
@@ -77,7 +80,7 @@ export class ResonanceDB {
 
 		if (currentVersion >= CURRENT_SCHEMA_VERSION) return;
 
-		console.log(
+		log.info(
 			`📦 ResonanceDB: Migrating from v${currentVersion} to v${CURRENT_SCHEMA_VERSION}...`,
 		);
 
@@ -112,7 +115,7 @@ export class ResonanceDB {
 						node.embedding.buffer,
 						node.embedding.byteOffset,
 						node.embedding.byteLength,
-				  )
+					)
 				: null;
 
 			stmt.run({
@@ -127,15 +130,19 @@ export class ResonanceDB {
 				$meta: node.meta ? JSON.stringify(node.meta) : null,
 			});
 		} catch (err) {
-			console.error("❌ Failed to insert node:", {
-				id: node.id,
-				blobSize: node.embedding ? node.embedding.byteLength : 0,
-				blobType: node.embedding
-					? node.embedding instanceof Float32Array
-						? "F32"
-						: "Other"
-					: "Null",
-			});
+			log.error(
+				{
+					err,
+					id: node.id,
+					blobSize: node.embedding ? node.embedding.byteLength : 0,
+					blobType: node.embedding
+						? node.embedding instanceof Float32Array
+							? "F32"
+							: "Other"
+						: "Null",
+				},
+				"❌ Failed to insert node",
+			);
 			throw err;
 		}
 	}
@@ -322,42 +329,7 @@ export class ResonanceDB {
 		return this.getNodes({ type });
 	}
 
-	/**
-	 * Full-Text Search using FTS5
-	 * @param query - Search query (supports FTS5 syntax: AND, OR, NOT, phrases)
-	 * @param limit - Maximum number of results
-	 * @returns Array of matching nodes with BM25 ranking
-	 */
-	searchText(
-		query: string,
-		limit = 10,
-	): Array<{ id: string; title: string; snippet: string; rank: number }> {
-		try {
-			const sql = `
-				SELECT 
-					n.id,
-					n.title,
-					snippet(nodes_fts, 2, '<mark>', '</mark>', '...', 32) as snippet,
-					bm25(nodes_fts) as rank
-				FROM nodes_fts
-				JOIN nodes n ON nodes_fts.rowid = n.rowid
-				WHERE nodes_fts MATCH ?
-				ORDER BY rank
-				LIMIT ?
-			`;
-
-			const rows = this.db.query(sql).all(query, limit) as any[];
-			return rows.map((row) => ({
-				id: row.id,
-				title: row.title || row.id,
-				snippet: row.snippet || "",
-				rank: row.rank,
-			}));
-		} catch (error) {
-			console.warn("⚠️ FTS search failed. Is FTS5 enabled?", error);
-			return [];
-		}
-	}
+	// searchText method removed (Hollow Node Simplification)
 
 	/**
 	 * Transaction Management
@@ -404,7 +376,7 @@ export function dotProduct(a: Float32Array, b: Float32Array): number {
 	const magB = magnitude(b);
 
 	if (magA < 1e-6 || magB < 1e-6) {
-		console.warn("⚠️  Zero vector detected in dot product, skipping comparison");
+		// log.warn("⚠️ Zero vector detected in dot product, skipping comparison"); // Too noisy for tight loops
 		return 0;
 	}
 
