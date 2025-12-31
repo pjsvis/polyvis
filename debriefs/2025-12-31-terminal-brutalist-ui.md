@@ -15,7 +15,9 @@ The goal was to transition PolyVis from a generic web app aesthetic to a special
 - **Semantic Components:** Buttons, inputs, and navbars now strictly adhere to semantic variable usage (`var(--ansi-black)` vs `var(--bg-canvas)`).
 - **Physical Integrity Checks:** Created `src/utils/style-auditor.js` to allow the system to "self-diagnose" design violations (curves, soft fonts, low contrast).
 - **Agent Vision:** Injected `window.__AGENT_THEME__` into `index.html` so agents can resolve the theme configuration programmatically without computer vision guesswork.
-- **Theme Stability:** Implemented "Hard Inversion" logic for Light/Dark mode, ensuring perfect contrast in both "Terminal" and "Paper" modes.
+- **Theme Stability:** Implemented "Semantic Inversion" logic for Hover states, ensuring perfect contrast in both "Terminal" and "Paper" modes.
+- **System Identity:** Introduced `--ansi-cyan` (#00FFFF) for strict PolyVis branding.
+- **Layout Rigor:** Standardized Home Page to a "Vertical Monolith" (5:8 Aspect Ratio) with uniform integer gaps.
 
 ## 3. Results
 - **Visual:** The application now looks like a rigorous technical instrument.

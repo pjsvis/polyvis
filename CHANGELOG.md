@@ -18,6 +18,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - **UI:** Replaced generic color palette with strict **ANSI Standard** variables (`basecoat-css`).
 - **UI:** Enforced `border-radius: 0px` global reset.
+- **UI:** Refactored Home Page to "Vertical Monolith" layout (5:8 Aspect Ratio).
+- **UI:** Updated Navbar Brand to use `--ansi-cyan` (System Identity).
+- **UI:** Implemented "Semantic Inversion" for hover states (High Contrast).
 - **Arch:** Initiated migration from `fastembed` to `model2vec` (Pending Benchmark results).
 - **Arch:** Deprecated "Context Engineering" in favor of "Constraint Stacking" for Agent prompts.
 

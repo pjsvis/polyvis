@@ -9,31 +9,18 @@ A list of UI/UX issues, edge cases, and layout bugs discovered after the "Termin
 
 ## Issues to Investigate
 
-### All Pages
+### Investigation Log
+- [x] **Home Page:** Ensure "Polyvis" in header is visible. (Fixed: Added `.nav-brand` class).
+- [x] **Home Page:** Center content and remove horizontal line.
+- [x] **Home Page:** Ensure font consistency.
+- [x] **Home Page:** Remove Graph Explorer arrow and dotted line.
+- [x] **Home Page:** Fix button hover contrast (Fixed: Semantic Inversion).
+- [x] **Home Page:** Reorder buttons (Docs, Graph, About).
+- [x] **Home Page:** "Vertical Monolith" Layout (5:8 Ratio).
+- [x] **Home Page:** Uniform Gaps (Integer Scale).
+- [x] **Docs:** Fix `showSource` error.
+- [x] **All Pages:** Update CSS Playbooks.
 
-- [ ] we need to review and update our css playbooks 
-- [ ] We need to be workable on touch devices
-- [ ] The about page is problematic
-
-### Home Page
-
-- [ ] Polyvis in header is bot visible
-- [ ] Polyvis in card should be centered horizontally
-- [ ] Remove horizontal line in card
-- [ ] font for Compexity Unfolder should be same as rest of page
-- [ ] graph explorer button: remove the arrow
-- [ ] remove dotted line under graph explorer button
-- [ ] the system active text is not visible
-- [ ] the hover on the buttons is light on light or dark on dark
-- [ ] the copyright should be the last item in the card
-- [ ] reorder the buttons Docs, Graph, About
-
-### About Page
-
-- [ ] we need a cool back button or way to get back to the home page
-- [ ] the 
-
-
-
-
-
+## Outstanding
+- [ ] **Mobile:** Ensure workable on touch devices.
+- [ ] **About Page:** Implement "Back" button and align visual system (currently FAFCAS Core specific).

@@ -98,23 +98,26 @@
 
 .home-title {
 	font-family: var(--font-mono);
-	font-size: var(--font-size-6);
+	font-size: 48px; /* Strict Size */
 	font-weight: 900;
 	text-transform: uppercase;
 	margin: 0;
 	line-height: 1;
+    border: none;
 }
 
 .home-subtitle {
-	font-family: var(--font-sans);
-	font-size: var(--font-size-2);
-	color: var(--text-2);
+	font-family: var(--font-mono);
+	font-size: 14px;
+	color: var(--ansi-green);
 	text-transform: uppercase;
-	border-bottom: var(--border-base) solid var(--primary);
-	padding-bottom: var(--size-4);
-	display: inline-block;
+    letter-spacing: 0.1em;
+	padding-bottom: 0;
+	display: block; /* Stack behavior */
 	font-weight: 700;
+    border: none;
 }
+
 
 .tagline {
 	font-family: var(--font-serif);
