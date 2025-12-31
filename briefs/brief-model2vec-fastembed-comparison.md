@@ -1,5 +1,7 @@
 # Agent Task: The "FAFCAS" Protocol (Model2Vec vs FastEmbed)
 
+[Ref: make sentence transformers smaller and faaster](https://medium.com/coding-nexus/make-sentence-transformers-50-smaller-and-500-faster-with-model2vec-ad2b1fb002aa)
+
 **Context:**
 We are benchmarking a potential migration from `fastembed` to `model2vec` for the **PolyVis** architecture.
 
