@@ -11,6 +11,7 @@ export class HarvesterPipeline {
 		console.log("🌾 Resonance Harvester: Scanning...");
 
 		// 1. Load Settings
+		// biome-ignore lint/suspicious/noExplicitAny: config structure is dynamic
 		let settings: any = {};
 		try {
 			const settingsRaw = await Bun.file("polyvis.settings.json").text();
@@ -40,7 +41,7 @@ export class HarvesterPipeline {
 				const lex = JSON.parse(lexRaw);
 				const items = Array.isArray(lex) ? lex : lex.concepts || [];
 
-				items.forEach((t: any) => {
+				items.forEach((t: { id: string }) => {
 					knownIds.add(t.id);
 					if (t.id.startsWith("term-")) knownIds.add(t.id.replace("term-", ""));
 				});
@@ -56,7 +57,7 @@ export class HarvesterPipeline {
 		const scanDirs = target
 			? [target]
 			: Array.isArray(settings.paths?.sources?.experience)
-				? settings.paths.sources.experience.map((s: any) => s.path)
+				? settings.paths.sources.experience.map((s: { path: string }) => s.path)
 				: ["docs"];
 
 		console.log(`Scanning: ${scanDirs.join(", ")}`);

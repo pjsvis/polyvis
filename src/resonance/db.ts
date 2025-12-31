@@ -16,7 +16,7 @@ export interface Node {
 	layer?: string;
 	embedding?: Float32Array;
 	hash?: string;
-	meta?: any; // JSON object for flexible metadata
+	meta?: Record<string, unknown>; // JSON object for flexible metadata
 }
 
 export class ResonanceDB {
@@ -62,7 +62,9 @@ export class ResonanceDB {
 				.get();
 			if (tables) {
 				// DB exists but has version 0. Detect schema state.
-				const cols = this.db.query("PRAGMA table_info(nodes)").all() as any[];
+				const cols = this.db.query("PRAGMA table_info(nodes)").all() as {
+					name: string;
+				}[];
 				const hasHash = cols.some((c) => c.name === "hash");
 				const hasMeta = cols.some((c) => c.name === "meta");
 
@@ -216,7 +218,7 @@ export class ResonanceDB {
 			: "*";
 
 		let sql = `SELECT ${cols} FROM nodes WHERE 1=1`;
-		const params: any[] = [];
+		const params: (string | number)[] = [];
 
 		if (options.domain) {
 			sql += " AND domain = ?";
@@ -236,11 +238,16 @@ export class ResonanceDB {
 			params.push(options.offset);
 		}
 
-		const rows = this.db.query(sql).all(...params) as any[];
+		const rows = this.db.query(sql).all(...params) as Record<string, unknown>[];
 		return rows.map((row) => this.mapRowToNode(row));
 	}
 
-	getLexicon(): any[] {
+	getLexicon(): {
+		id: string;
+		label: string;
+		aliases: string[];
+		definition: string;
+	}[] {
 		// Optimized: Exclude content/embedding since we only need ID, Title, Aliases
 		const _sql =
 			"SELECT id, title, meta, content FROM nodes WHERE domain = 'lexicon' AND type = 'concept'";
@@ -251,7 +258,7 @@ export class ResonanceDB {
 			.query(
 				"SELECT id, title, meta, content FROM nodes WHERE domain = 'lexicon' AND type = 'concept'",
 			)
-			.all() as any[];
+			.all() as { id: string; title: string; meta: string; content: string }[];
 
 		return rows.map((row) => {
 			const meta = row.meta ? JSON.parse(row.meta) : {};
@@ -265,6 +272,7 @@ export class ResonanceDB {
 		});
 	}
 
+	// biome-ignore lint/suspicious/noExplicitAny: row is raw DB result
 	private mapRowToNode(row: any): Node {
 		return {
 			id: row.id,
@@ -289,28 +297,28 @@ export class ResonanceDB {
 	getNodeHash(id: string): string | null {
 		const row = this.db
 			.prepare("SELECT hash FROM nodes WHERE id = ?")
-			.get(id) as any;
+			.get(id) as { hash: string } | undefined;
 		return row ? row.hash : null;
 	}
 
 	getStats() {
 		const nodesCount = (
-			this.db.query("SELECT COUNT(*) as c FROM nodes").get() as any
+			this.db.query("SELECT COUNT(*) as c FROM nodes").get() as { c: number }
 		).c;
 		const edgesCount = (
-			this.db.query("SELECT COUNT(*) as c FROM edges").get() as any
+			this.db.query("SELECT COUNT(*) as c FROM edges").get() as { c: number }
 		).c;
 		const vectorsCount = (
 			this.db
 				.query("SELECT COUNT(*) as c FROM nodes WHERE embedding IS NOT NULL")
-				.get() as any
+				.get() as { c: number }
 		).c;
 		const semanticTokensCount = (
 			this.db
 				.query(
 					"SELECT COUNT(*) as c FROM nodes WHERE meta LIKE '%semantic_tokens%'",
 				)
-				.get() as any
+				.get() as { c: number }
 		).c;
 
 		return {
@@ -319,8 +327,10 @@ export class ResonanceDB {
 			vectors: vectorsCount,
 			semantic_tokens: semanticTokensCount,
 			db_size_bytes:
-				(this.db.query("PRAGMA page_count").get() as any).page_count *
-				(this.db.query("PRAGMA page_size").get() as any).page_size,
+				(this.db.query("PRAGMA page_count").get() as { page_count: number })
+					.page_count *
+				(this.db.query("PRAGMA page_size").get() as { page_size: number })
+					.page_size,
 		};
 	}
 

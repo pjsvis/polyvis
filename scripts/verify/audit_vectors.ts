@@ -16,7 +16,12 @@ const rows = db
     FROM nodes 
     GROUP BY type, domain
 `)
-	.all() as any[];
+	.all() as {
+	type: string;
+	domain: string;
+	total: number;
+	vectorized: number;
+}[];
 
 console.log("\n📊 Coverage Report:");
 console.table(
@@ -31,7 +36,7 @@ console.table(
 const sources = settings.paths.sources.experience;
 console.log("\n📂 Checking Settings Sources:");
 
-sources.forEach((src: any) => {
+sources.forEach((src: { path: string; name: string }) => {
 	// Map folder name to probable node type or path check
 	// Assuming 'type' matches singlet name (Debrief -> debrief) roughly, or checking path in metadata?
 	// Let's check generally by type for now.

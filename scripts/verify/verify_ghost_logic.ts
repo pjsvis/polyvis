@@ -12,7 +12,7 @@ const db = DatabaseFactory.connectToResonance({ readonly: true });
 // 1. Fetch nodes directly (no UDF)
 const nodes = db
 	.query("SELECT id, embedding FROM nodes WHERE embedding IS NOT NULL")
-	.all() as any[];
+	.all() as { id: string; embedding: Uint8Array }[];
 
 if (nodes.length < 2) {
 	console.error("❌ Need at least 2 nodes with embeddings.");
@@ -20,6 +20,7 @@ if (nodes.length < 2) {
 }
 
 const source = nodes[0];
+if (!source) throw new Error("Unexpected error: Source node is undefined");
 console.log(`🎯 Source: [${source.id}]`);
 
 // 2. Compute similarity in JS (Simulating UDF)

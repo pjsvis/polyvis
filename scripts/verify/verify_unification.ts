@@ -22,16 +22,16 @@ async function main() {
 	const aliases = db
 		.getRawDb()
 		.query("SELECT * FROM edges WHERE type = 'alias'")
-		.all() as any[];
+		.all() as { source: string; target: string; type: string }[];
 	console.log(`   Aliases Found: ${aliases.length}`);
 
 	// 5. Check 'cites' edges (WikiLinks)
 	const cites = db
 		.getRawDb()
 		.query("SELECT * FROM edges WHERE type = 'CITES'")
-		.all() as any[];
+		.all() as { source: string; target: string; type: string }[];
 	console.log(`   Citations Found: ${cites.length}`);
-	if (cites.length > 0) {
+	if (cites.length > 0 && cites[0]) {
 		console.log(`      Example: ${cites[0].source} -> ${cites[0].target}`);
 	}
 
@@ -67,11 +67,11 @@ async function main() {
 
 	// Check if we have mixed domains
 	const domains = new Set(
-		results.map((r: any) => {
+		results.map((r: { id: string }) => {
 			const node = db
 				.getRawDb()
 				.query("SELECT domain FROM nodes WHERE id = ?")
-				.get(r.id) as any;
+				.get(r.id) as { domain: string };
 			return node.domain;
 		}),
 	);

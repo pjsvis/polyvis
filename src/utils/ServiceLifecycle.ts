@@ -97,9 +97,10 @@ export class ServiceLifecycle {
 
 		try {
 			await unlink(this.config.pidFile);
-		} catch (e: any) {
-			if (e.code !== "ENOENT") {
-				console.warn(`⚠️ Failed to remove PID file: ${e.message}`);
+		} catch (e: unknown) {
+			const err = e as { code?: string; message: string };
+			if (err.code !== "ENOENT") {
+				console.warn(`⚠️ Failed to remove PID file: ${err.message}`);
 			}
 		}
 	}

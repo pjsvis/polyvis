@@ -15,7 +15,11 @@ const sql = `
       AND n.type != 'domain' -- Exclude domain markers
 `;
 
-const orphans = db.query(sql).all() as any[];
+const orphans = db.query(sql).all() as {
+	id: string;
+	type: string;
+	title: string; // Title might be null, but let's assume string for now or string | null if strict
+}[];
 
 console.log(`\nFound ${orphans.length} Orphans.`);
 
@@ -43,6 +47,8 @@ console.table(
 );
 
 // 4. Calculate Percentage (Context)
-const totalNodes = (db.query("SELECT COUNT(*) as c FROM nodes").get() as any).c;
+const totalNodes = (
+	db.query("SELECT COUNT(*) as c FROM nodes").get() as { c: number }
+).c;
 const orphanRate = ((orphans.length / totalNodes) * 100).toFixed(1);
 console.log(`\nOrphan Rate: ${orphanRate}% of ${totalNodes} total nodes.`);

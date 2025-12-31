@@ -11,8 +11,8 @@ import settings from "../../polyvis.settings.json";
  * Usage:
  * await EnvironmentVerifier.verifyOrExit();
  */
-export class EnvironmentVerifier {
-	public static async verifyOrExit(): Promise<void> {
+export const EnvironmentVerifier = {
+	async verifyOrExit(): Promise<void> {
 		const errors: string[] = [];
 		const cwd = process.cwd();
 
@@ -53,7 +53,9 @@ export class EnvironmentVerifier {
 
 		if (errors.length > 0) {
 			console.error("\n❌ Environment Verification Failed:");
-			errors.forEach((e) => console.error(`   - ${e}`));
+			errors.forEach((e) => {
+				console.error(`   - ${e}`);
+			});
 			console.error(
 				"\nPlease ensure you are running from the project root and all assets are present.",
 			);
@@ -61,5 +63,5 @@ export class EnvironmentVerifier {
 		}
 
 		console.error("   ✅ Environment Verified.");
-	}
-}
+	},
+};

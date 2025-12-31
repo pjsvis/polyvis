@@ -228,7 +228,7 @@ async function runServer() {
 					const rows = db
 						.getRawDb()
 						.query(sql)
-						.all(...params) as any[];
+						.all(...params) as Record<string, unknown>[];
 					return {
 						content: [{ type: "text", text: JSON.stringify(rows, null, 2) }],
 					};

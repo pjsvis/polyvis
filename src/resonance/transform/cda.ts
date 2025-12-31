@@ -196,7 +196,7 @@ async function main() {
 	console.log("\n🧠 Transforming Lexicon...");
 	const lexiconConcepts = (
 		Array.isArray(lexiconData) ? lexiconData : lexiconData.concepts
-	) as any[];
+	) as EnrichedLexiconConcept[];
 
 	const enrichedConcepts: EnrichedLexiconConcept[] = lexiconConcepts.map(
 		(c) => ({

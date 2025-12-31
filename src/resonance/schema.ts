@@ -26,11 +26,13 @@ export const GENESIS_SQL = `
     CREATE INDEX IF NOT EXISTS idx_edges_target ON edges(target);
 `;
 
+import type { Database } from "bun:sqlite";
+
 export interface Migration {
 	version: number;
 	description: string;
 	sql?: string;
-	up?: (db: any) => void;
+	up?: (db: Database) => void;
 }
 
 export const MIGRATIONS: Migration[] = [
@@ -79,8 +81,9 @@ export const MIGRATIONS: Migration[] = [
 		up: (db) => {
 			try {
 				db.run("ALTER TABLE nodes ADD COLUMN hash TEXT");
-			} catch (e: any) {
-				if (!e.message.includes("duplicate column")) throw e;
+			} catch (e: unknown) {
+				const err = e as { message: string };
+				if (!err.message.includes("duplicate column")) throw e;
 			}
 		},
 	},
@@ -90,8 +93,9 @@ export const MIGRATIONS: Migration[] = [
 		up: (db) => {
 			try {
 				db.run("ALTER TABLE nodes ADD COLUMN meta TEXT");
-			} catch (e: any) {
-				if (!e.message.includes("duplicate column")) throw e;
+			} catch (e: unknown) {
+				const err = e as { message: string };
+				if (!err.message.includes("duplicate column")) throw e;
 			}
 		},
 	},
@@ -108,8 +112,9 @@ export const MIGRATIONS: Migration[] = [
 			]) {
 				try {
 					db.run(`ALTER TABLE edges ADD COLUMN ${col}`);
-				} catch (e: any) {
-					if (!e.message.includes("duplicate column")) throw e;
+				} catch (e: unknown) {
+					const err = e as { message: string };
+					if (!err.message.includes("duplicate column")) throw e;
 				}
 			}
 		},

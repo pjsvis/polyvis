@@ -37,9 +37,11 @@ const genesis = {
 };
 
 try {
+	// biome-ignore lint/suspicious/noExplicitAny: genesis is a partial node matching the schema
 	db.insertNode(genesis as any);
-} catch (e: any) {
-	console.warn("Genesis injection failed:", e.message);
+} catch (e: unknown) {
+	const err = e as { message: string };
+	console.warn("Genesis injection failed:", err.message);
 }
 
 // 4. Connect Genesis to Heads

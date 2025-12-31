@@ -185,7 +185,7 @@ export default () => ({
 	parseMarkdown(raw) {
 		// Configure marked to add IDs to headers for ToC linking
 		const renderer = new marked.Renderer();
-		renderer.heading = function ({ tokens, depth, raw }) {
+		renderer.heading = function ({ tokens, depth }) {
 			const text = this.parser.parseInline(tokens);
 			const cleanText = text.replace(/<[^>]*>/g, ""); // Strip HTML tags
 			let slug = cleanText
@@ -197,7 +197,7 @@ export default () => ({
 		};
 
 		// Custom Code Renderer for DOT
-		renderer.code = ({ text, lang, escaped }) => {
+		renderer.code = ({ text, lang }) => {
 			if (lang === "dot" || lang === "graphviz") {
 				try {
 					// Use Viz.js (assumed to be loaded globally via script tag in index.html)

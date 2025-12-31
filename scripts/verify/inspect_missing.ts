@@ -7,7 +7,7 @@ const missing = db
 	.query(
 		"SELECT id, type, title, domain FROM nodes WHERE type = 'document' AND embedding IS NULL",
 	)
-	.all() as any[];
+	.all() as { id: string; type: string; title: string; domain: string }[];
 
 if (missing.length > 0) {
 	console.log("⚠️  Nodes without Embeddings:");

@@ -24,7 +24,15 @@ const rows = db
     WHERE type IN ('playbook', 'debrief')
     ORDER BY id ASC
 `)
-	.all() as any[];
+	.all() as {
+	id: string;
+	type: "playbook" | "debrief";
+	title: string;
+	content: string;
+	domain: string;
+	layer: string;
+	metadata: string;
+}[];
 
 // 3. Reconstruct
 const recovered: IngestionArtifact[] = rows.map((row) => ({

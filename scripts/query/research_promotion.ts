@@ -31,13 +31,13 @@ async function main() {
 
 		console.log(`   ⏱️  Time: ${duration}ms`);
 		console.log(`\nPromoting Research:`);
-		results.forEach((r: any) => {
+		results.forEach((r: { score: number; label?: string; id: string }) => {
 			console.log(`   - [${r.score.toFixed(2)}] ${r.label}`);
 			// Peek at content
 			const row = db
 				.getRawDb()
 				.query("SELECT content FROM nodes WHERE id = ?")
-				.get(r.id) as any;
+				.get(r.id) as { content: string } | null;
 			if (row) {
 				const snippet = row.content.slice(0, 150).replace(/\n/g, " ");
 				console.log(`     "${snippet}..."`);
@@ -55,7 +55,7 @@ async function main() {
         WHERE content LIKE '%TODO%' AND (content LIKE '%src%' OR content LIKE '%refactor%')
         LIMIT 5
     `)
-		.all() as any[];
+		.all() as { id: string; content: string }[];
 
 	todos.forEach((t) => {
 		const match = t.content.match(/TODO:?.*?(?=\n|$)/i);

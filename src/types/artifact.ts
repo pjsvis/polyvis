@@ -7,6 +7,6 @@ export interface IngestionArtifact {
 		content: string;
 		domain: string;
 		layer: string;
-		metadata?: any;
+		metadata?: Record<string, unknown>;
 	};
 }

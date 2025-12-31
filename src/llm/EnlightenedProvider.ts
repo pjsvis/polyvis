@@ -68,8 +68,10 @@ export class EnlightenedProvider {
 				);
 			}
 
-			const data = (await response.json()) as any;
-			return data.choices[0].message.content.trim();
+			const data = (await response.json()) as {
+				choices: { message: { content: string } }[];
+			};
+			return data?.choices?.[0]?.message?.content?.trim() || "";
 		} catch (error) {
 			console.error("🏴󠁧󠁢󠁳󠁣󠁴󠁿 The Philosopher is silent (Connection Error).", error);
 			throw error;

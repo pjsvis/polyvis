@@ -16,11 +16,15 @@ export const TimelineWeaver = {
 		// 2. Extract Dates & Sort
 		const datedNodes = nodes
 			.map((node) => {
-				let dateStr = node.meta?.date;
+				let dateStr =
+					typeof node.meta?.date === "string" ? node.meta.date : undefined;
 
 				// Fallback: Filename (e.g. 2025-12-14-foo.md)
-				if (!dateStr && node.meta?.source) {
-					const basename = node.meta.source.split("/").pop() || "";
+				const source =
+					typeof node.meta?.source === "string" ? node.meta.source : undefined;
+
+				if (!dateStr && source) {
+					const basename = source.split("/").pop() || "";
 					const match = basename.match(/^(\d{4}-\d{2}-\d{2})/);
 					if (match) dateStr = match[1];
 				}

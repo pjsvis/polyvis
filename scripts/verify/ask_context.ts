@@ -27,9 +27,13 @@ async function main() {
 	const results = await ve.searchByVector(vector, 5); // Domain filtering temporarily removed
 
 	console.log(`\nFound ${results.length} matches:`);
-	results.forEach((r: any, i: number) => {
-		console.log(`   ${i + 1}. [${r.id}] (${r.score.toFixed(4)}) - ${r.label}`);
-	});
+	results.forEach(
+		(r: { id: string; score: number; label?: string }, i: number) => {
+			console.log(
+				`   ${i + 1}. [${r.id}] (${r.score.toFixed(4)}) - ${r.label}`,
+			);
+		},
+	);
 
 	if (results.length === 0) {
 		console.log("   (No matches found in 'experience' domain)");

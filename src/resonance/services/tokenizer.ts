@@ -114,7 +114,9 @@ export class TokenizerService {
 		return result;
 	}
 
-	public loadLexicon(lexicon: any[]) {
+	public loadLexicon(
+		lexicon: { id: string; title: string; type?: string; category?: string }[],
+	) {
 		// Reset
 		this.vocabulary.clear();
 

@@ -47,4 +47,5 @@ tags: [tag1, tag2, tag3]
 
 ## Post-Debrief Checklist
 - [ ] **Archive Brief:** Move the completed brief from `briefs/` to `briefs/archive/`.
+- [ ] **Update Changelog:** Add a summary of changes to `CHANGELOG.md` under the `[Unreleased]` section.
 - [ ] **Update Current Task:** Update `_CURRENT_TASK.md` to reflect the completion of the current objective and readiness for the next.

@@ -10,36 +10,36 @@ export interface ZombieReport {
 	clean: boolean;
 }
 
-export class ZombieDefense {
-	// Services intended to run as singletons
-	private static WHITELIST = [
-		"src/resonance/daemon.ts",
-		"src/mcp/index.ts",
-		"scripts/cli/dev.ts",
-		"src/resonance/cli/ingest.ts",
-		"bun run build:data",
-		"bun run mcp",
-		"bun run daemon",
-		"bun run dev",
-		"bun run watch:css",
-		"bun run watch:js",
-		"scripts/verify/test_mcp_query.ts",
-		"src/services/olmo3.ts",
-		"src/services/phi.ts",
-		"src/services/llama.ts",
-		"src/services/llamauv.ts",
-		"scripts/cli/servers.ts",
-		"bun run olmo3",
-		"bun run phi",
-		"bun run llama",
-		"bun run llamauv",
-		"bun run servers",
-	];
+// Services intended to run as singletons
+const WHITELIST = [
+	"src/resonance/daemon.ts",
+	"src/mcp/index.ts",
+	"scripts/cli/dev.ts",
+	"src/resonance/cli/ingest.ts",
+	"bun run build:data",
+	"bun run mcp",
+	"bun run daemon",
+	"bun run dev",
+	"bun run watch:css",
+	"bun run watch:js",
+	"scripts/verify/test_mcp_query.ts",
+	"src/services/olmo3.ts",
+	"src/services/phi.ts",
+	"src/services/llama.ts",
+	"src/services/llamauv.ts",
+	"scripts/cli/servers.ts",
+	"bun run olmo3",
+	"bun run phi",
+	"bun run llama",
+	"bun run llamauv",
+	"bun run servers",
+];
 
+export const ZombieDefense = {
 	/**
 	 * Scan the environment for unauthorized or stale processes.
 	 */
-	static async scan(excludePids: string[] = []): Promise<ZombieReport> {
+	async scan(excludePids: string[] = []): Promise<ZombieReport> {
 		const report: ZombieReport = {
 			ghosts: [],
 			duplicates: [],
@@ -81,12 +81,10 @@ export class ZombieDefense {
 				// Strict Filter: Must be in our CWD or explicit bun run
 				if (!p.includes(process.cwd()) && !p.includes("bun run")) return;
 
-				const isWhitelisted = ZombieDefense.WHITELIST.some((w) =>
-					p.includes(w),
-				);
+				const isWhitelisted = WHITELIST.some((w) => p.includes(w));
 
 				if (isWhitelisted) {
-					ZombieDefense.WHITELIST.forEach((w) => {
+					WHITELIST.forEach((w) => {
 						if (p.includes(w)) {
 							// HEURISTIC: Don't count "bun run scripts/foo.ts" and "bun scripts/foo.ts" as duplicates of each other if they are the same PID (obviously),
 							// but here we already filtered by PID.
@@ -122,12 +120,12 @@ export class ZombieDefense {
 		}
 
 		return report;
-	}
+	},
 
 	/**
 	 * Helper: Extract PIDs from report lines
 	 */
-	public static extractPids(lines: string[]): string[] {
+	extractPids(lines: string[]): string[] {
 		const pids = new Set<string>();
 		lines.forEach((line) => {
 			const match = line.match(/\s+(\d+)\s+/);
@@ -136,16 +134,16 @@ export class ZombieDefense {
 			}
 		});
 		return Array.from(pids);
-	}
+	},
 
 	/**
 	 * Terminate identified zombie PIDs
 	 */
-	static async killZombies(report: ZombieReport) {
+	async killZombies(report: ZombieReport) {
 		let targets = [
 			...new Set([
-				...ZombieDefense.extractPids(report.ghosts),
-				...ZombieDefense.extractPids(report.duplicates),
+				...this.extractPids(report.ghosts),
+				...this.extractPids(report.duplicates),
 			]),
 		];
 
@@ -165,19 +163,19 @@ export class ZombieDefense {
 			const e = err as Error;
 			console.error(`   ❌ Failed to kill zombies: ${e.message}`);
 		}
-	}
+	},
 
 	/**
 	 * Enforce a clean state. Exits process if zombies found.
 	 * @param serviceName Name of the service calling this guard
 	 * @param interactive If true, prompts user to kill zombies.
 	 */
-	static async assertClean(serviceName: string, interactive = false) {
+	async assertClean(serviceName: string, interactive = false) {
 		if (process.env.SKIP_ZOMBIE_CHECK === "true") {
 			return;
 		}
 		console.error(`🛡️  [${serviceName}] Running Zombie Defense Protocol...`);
-		let report = await ZombieDefense.scan();
+		let report = await this.scan();
 
 		if (report.clean) {
 			console.error("   ✅ Environment Clean.");
@@ -188,23 +186,29 @@ export class ZombieDefense {
 
 		if (report.ghosts.length > 0) {
 			console.error("\n👻 GHOSTS (Holding deleted files):");
-			report.ghosts.forEach((g) => console.error(`   ${g}`));
+			report.ghosts.forEach((g) => {
+				console.error(`   ${g}`);
+			});
 		}
 
 		if (report.duplicates.length > 0) {
 			console.error("\n👯 DUPLICATES (Service already running?):");
-			report.duplicates.forEach((d) => console.error(`   ${d}`));
+			report.duplicates.forEach((d) => {
+				console.error(`   ${d}`);
+			});
 		}
 
 		if (report.unknowns.length > 0) {
 			console.error(
 				"\n👽 UNKNOWNS (Rogue processes - Manual Check Recommended):",
 			);
-			report.unknowns.forEach((u) => console.error(`   ${u}`));
+			report.unknowns.forEach((u) => {
+				console.error(`   ${u}`);
+			});
 		}
 
 		if (interactive) {
-			const targets = ZombieDefense.extractPids([
+			const targets = this.extractPids([
 				...report.ghosts,
 				...report.duplicates,
 			]);
@@ -219,9 +223,9 @@ export class ZombieDefense {
 				});
 
 				if (answer.toLowerCase() === "y" || answer.toLowerCase() === "yes") {
-					await ZombieDefense.killZombies(report);
+					await this.killZombies(report);
 					// Re-scan to verify
-					report = await ZombieDefense.scan();
+					report = await this.scan();
 					if (report.clean) {
 						console.error("   ✅ Environment Cleared. Proceeding...");
 						return;
@@ -236,5 +240,5 @@ export class ZombieDefense {
 		}
 
 		process.exit(1);
-	}
-}
+	},
+};

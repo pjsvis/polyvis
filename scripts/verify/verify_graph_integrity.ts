@@ -42,7 +42,9 @@ async function verify() {
 	const nodes = generateMockData(100);
 
 	// Insert 'concept-core' first
-	db.insertNode(nodes[0]!);
+	const coreNode = nodes[0];
+	if (!coreNode) throw new Error("Mock generation failed");
+	db.insertNode(coreNode);
 
 	// Insert 100 notes that all link to 'concept-core'
 	// Without gating, 'concept-core' would have degree 99.
@@ -52,7 +54,8 @@ async function verify() {
 
 	let linksAttempted = 0;
 	for (let i = 1; i < nodes.length; i++) {
-		const node = nodes[i]!;
+		const node = nodes[i];
+		if (!node) continue;
 		db.insertNode(node);
 		weaver.weave(node.id, node.content || "");
 		linksAttempted++;
