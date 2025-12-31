@@ -10,6 +10,7 @@ export default () => ({
 	leftOpen: false, // Mobile sidebar state
 	rightOpen: false, // Mobile sidebar state
 	showTocNumbers: false, // Hide section numbers by default
+    showSource: false, // Toggle Raw JSON View
 
 	// Content
 	contentMain: "",

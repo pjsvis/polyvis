@@ -1,272 +1,171 @@
 @theme {
 	/* 
-   * CONTROL CENTER (OKLCH EDITION)
+   * TERMINAL BRUTALIST THEME (ANSI STANDARD)
    */
 
-	/* SPACING (UNCHANGED) */
-	--spacing-0: var(--size-00);
+	/* --- THE ANSI PALETTE (Raw) --- */
+	--ansi-black: #0c0c0c; /* CRT Black */
+	--ansi-white: #cccccc; /* System Grey */
+	--ansi-bright-white: #ffffff; /* High Intensity */
+	--ansi-red: #c50f1f; /* Fatal Error */
+	--ansi-green: #16c60c; /* Success/Valid */
+	--ansi-yellow: #c19c00; /* Warning/Process */
+	--ansi-orange: #ff8c00; /* THE AGENT (Distinct) */
+    --ansi-cyan: #00ffff; /* SYSTEM IDENTITY */
+    
+    /* E-INK PALETTE (Light Mode) */
+    --paper-white: #f0f0f0;
+    --ink-black: #111111;
+
+	/* --- SEMANTIC MAPPING (Functional) --- */
+	--bg-canvas: var(--ansi-black);
+	--bg-panel: var(--ansi-black);
+
+	--text-primary: var(--ansi-white);
+	--text-highlight: var(--ansi-bright-white);
+	--text-error: var(--ansi-red);
+	--text-agent: var(--ansi-orange);
+	--text-success: var(--ansi-green);
+	--text-warning: var(--ansi-yellow);
+
+	/* --- BORDERS & STRUCTURE --- */
+	--border-default: 2px solid var(--ansi-white);
+	--border-active: 2px solid var(--ansi-green);
+	--border-agent: 2px solid var(--ansi-orange);
+	--border-error: 2px solid var(--ansi-red);
+	--border-muted: 1px dashed var(--ansi-white);
+
+	/* --- TYPOGRAPHY --- */
+	--font-mono: "JetBrains Mono", "Courier New", monospace;
+	--font-sans: var(--font-mono); /* OVERRIDE: Everything is mono */
+
+	/* SPACING (Preserved for compatibility) */
+	--spacing-0: 0px;
 	--spacing-1: 4px;
 	--spacing-2: 8px;
 	--spacing-3: 12px;
 	--spacing-4: 16px;
 	--spacing-5: 20px;
 	--spacing-6: 24px;
-	--spacing-7: var(--size-7);
-	--spacing-8: var(--size-8);
-	--spacing-9: var(--size-9);
-	--spacing-10: var(--size-10);
-	--spacing-11: var(--size-11);
-	--spacing-12: var(--size-12);
+	--spacing-7: 32px;
+	--spacing-8: 48px;
 
-	--spacing-fluid-1: var(--size-fluid-1);
-	--spacing-fluid-2: var(--size-fluid-2);
-	--spacing-fluid-3: var(--size-fluid-3);
+	--radius-component: 0px; /* HARD RESET */
 
-	/* TYPOGRAPHY (UNCHANGED) */
-	--font-sans:
-		"Geist Sans", Inter, system-ui, -apple-system, BlinkMacSystemFont,
-		"Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-	--font-mono:
-		"Geist Mono", "JetBrains Mono", "Roboto Mono", "Fira Code", Menlo, Monaco,
-		Consolas, "Liberation Mono", "Courier New", monospace;
-	--font-size-xs: 0.75rem;
-	--font-size-sm: 0.875rem;
-	--font-size-base: 1rem;
-	--font-size-lg: 1.125rem;
-	--font-size-xl: 1.25rem;
-	--font-size-2xl: 1.5rem;
-	--font-size-fluid-1: var(--font-size-fluid-1);
-	--font-size-fluid-2: var(--font-size-fluid-2);
-	--font-size-fluid-3: var(--font-size-fluid-3);
-	--font-size-h1: var(--font-size-2xl);
-	--font-size-h2: var(--font-size-xl);
-	--font-size-h3: var(--font-size-lg);
-	--font-size-h4: var(--font-size-base);
-	--font-size-xxs: 0.625rem;
+	/* LAYOUT */
+	--header-height: auto;
+	--footer-height: 48px;
+	--width-sidebar-base: 320px;
 
-	/* RADII */
-	--radius-component: var(--radius-2);
+	/* SCROLLBAR */
+	--scrollthumb-color: var(--ansi-white);
+	--scrollthumb-hover-color: var(--ansi-green);
 
-	/* BREAKPOINTS */
-	--breakpoint-sm: 640px;
-	--breakpoint-md: 768px;
-	--breakpoint-lg: 1024px;
+	/* GRAPH COLORS */
+	--graph-background: var(--ansi-black);
+	--graph-edge-default: var(--ansi-white);
+	--graph-node-orphan: var(--ansi-white);
+	--graph-edge-ghost: var(--ansi-yellow);
 
-	/* MOBILE LAYOUT */
-	--sidebar-mobile-width: 80%;
-
-	/* MISC */
-	--width-stats: 200px;
-	--z-tooltip: 100;
-
-	/* GRAPH COLORS (Semantic) */
-	--graph-background: oklch(95% 0 0);
-	--graph-edge-default: oklch(100% 0 0);
-	--graph-node-orphan: oklch(60% 0.3 20);
-	--graph-edge-ghost: #ffd700;
+    /* LEGACY/COMPATIBILITY MAPPING */
+    --surface-1: var(--bg-canvas);
+    --surface-2: var(--bg-canvas);
+    --surface-3: var(--bg-canvas);
+    --primary: var(--text-primary);
+    --accent: var(--text-highlight);
+    --border-base: var(--ansi-white);
 }
 
 :root {
-	/* 
-     * GLOBAL SETTINGS
-     */
-	font-family: var(--font-sans);
-	--threshold: 60%; /* Switch point for contrast (0.6 in calc) */
-
-	/* 
-     * OKLCH COLOR PALETTE DEFINITIONS 
-     * Defines Channels: L (Lightness), C (Chroma), H (Hue)
-     */
-
-	/* PRIMARY: Google Dark Gray #202124 (base) */
-	--primary-l: 25%;
-	--primary-c: 0.02;
-	--primary-h: 260;
-	--primary: oklch(var(--primary-l) var(--primary-c) var(--primary-h));
-	--primary-fg: oklch(
-		clamp(0%, calc((var(--primary-l) - var(--threshold)) * -1000), 100%) 0 0
-	);
-
-	/* SECONDARY: Crisp White #ffffff (base) */
-	--secondary-l: 100%;
-	--secondary-c: 0;
-	--secondary-h: 0;
-	--secondary: oklch(var(--secondary-l) var(--secondary-c) var(--secondary-h));
-	--secondary-fg: oklch(
-		clamp(0%, calc((var(--secondary-l) - var(--threshold)) * -1000), 100%) 0 0
-	);
-
-	/* ACCENT: Light Gray #f8f9fa (base) */
-	--accent-l: 98%;
-	--accent-c: 0;
-	--accent-h: 0;
-	--accent: oklch(var(--accent-l) var(--accent-c) var(--accent-h));
-	--accent-fg: oklch(
-		clamp(0%, calc((var(--accent-l) - var(--threshold)) * -1000), 100%) 0 0
-	);
-
-	/* SURFACE 1: App Background */
-	--surface-1-l: 100%;
-	--surface-1-c: 0;
-	--surface-1-h: 0;
-	--surface-1: oklch(var(--surface-1-l) var(--surface-1-c) var(--surface-1-h));
-	--surface-1-fg: oklch(
-		clamp(0%, calc((var(--surface-1-l) - var(--threshold)) * -1000), 100%) 0 0
-	);
-
-	/* SURFACE 2: Panels/Cards */
-	--surface-2-l: 98%;
-	--surface-2-c: 0;
-	--surface-2-h: 0;
-	--surface-2: oklch(var(--surface-2-l) var(--surface-2-c) var(--surface-2-h));
-	--surface-2-fg: oklch(
-		clamp(0%, calc((var(--surface-2-l) - var(--threshold)) * -1000), 100%) 0 0
-	);
-
-	/* SURFACE 3: Hover/Active/Input */
-	--surface-3-l: 96%;
-	--surface-3-c: 0;
-	--surface-3-h: 0;
-	--surface-3: oklch(var(--surface-3-l) var(--surface-3-c) var(--surface-3-h));
-	--surface-3-fg: oklch(
-		clamp(0%, calc((var(--surface-3-l) - var(--threshold)) * -1000), 100%) 0 0
-	);
-
-	/* TEXT (Explicitly defined for nuances beyond pure B/W) */
-	--text-1-l: 13%; /* Blackish */
-	--text-1: oklch(var(--text-1-l) 0 0);
-
-	--text-2-l: 45%; /* Grayish */
-	--text-2: oklch(var(--text-2-l) 0 0);
-
-	/* BORDERS */
-	--border-base-l: 88%; /* #dadce0 approx */
-	--border-base: oklch(var(--border-base-l) 0 0);
-	--border-width: 1px;
-
-	/* SHADOWS */
-	--shadow-offset: var(--size-1);
-	--shadow-strength: 10%;
-	--shadow-color: 220 40% 2%;
-	--shadow-sm: 0 1px 2px 0 oklch(var(--shadow-color) / 0.05);
-	--shadow-md:
-		0 4px 6px -1px oklch(var(--shadow-color) / 0.1), 0 2px 4px -2px
-		oklch(var(--shadow-color) / 0.1);
-	--shadow-lg:
-		0 10px 15px -3px oklch(var(--shadow-color) / 0.1), 0 4px 6px -4px
-		oklch(var(--shadow-color) / 0.1);
-
-	/* Layout Dimensions */
-	--width-sidebar-base: var(--size-content-2);
-	--sidebar-width-left: var(--width-sidebar-base);
-	--sidebar-width-right: var(--width-sidebar-base);
-	--sidebar-content-align: stretch;
-	--sidebar-padding: 0;
-	--header-height: auto;
-	--footer-height: var(--size-10);
-	--width-wrapper: var(--size-content-3);
-	--width-home-box: var(--size-content-3);
-	--app-padding: var(--size-4);
-	--gap-standard: var(--size-4);
-
-	/* TOC */
-	--toc-gap-section: var(--size-4);
-	--toc-gap-item: var(--size-2);
-	--toc-indent: var(--size-4);
-	--scroll-offset: var(--size-5);
-
-	/* ========================================
-	   SCROLLBAR STYLING
-	   ======================================== */
-
-	--scrollthumb-color: oklch(88% 0 0);
-	--scrollthumb-hover-color: oklch(80% 0 0);
-
-	/* Legacy compatibility - migrate away from these */
-	--gray-2: var(--surface-3);
-	--gray-8: var(--surface-3);
-	--gray-9: var(--text-2);
-	--color-brand: var(--primary);
-
-	/* ========================================
-	   LEGACY ALIASES (DEPRECATED - MIGRATE AWAY)
-	   ======================================== */
-
-	--surface-panel: var(--surface-2);
-	--surface-panel-fg: var(--surface-2-fg);
-	--surface-hover: var(--surface-3);
-	/* SEMANTIC GRAPH COLORS */
-	--color-ghost-edge: #ffd700; /* Gold */
-}
-
-/* 
- * DARK MODE OVERRIDES
- * Only changing Lightness (L) channels where possible.
- */
-@media (prefers-color-scheme: dark) {
-	:root {
-		/* Primary becomes White in Dark Mode */
-		--primary-l: 100%;
-
-		/* Secondary becomes Dark Gray */
-		--secondary-l: 25%;
-
-		/* Accent/Sidebar becomes darker gray */
-		--accent-l: 20%;
-
-		/* Surface 1 (App BG) -> Dark */
-		--surface-1-l: 25%; /* #202124 */
-
-		/* Surface 2 (Panels) -> Slightly Lighter Dark */
-		--surface-2-l: 20%; /* #303134 */
-
-		/* Surface 3 (Hover) -> Distinctly Lighter */
-		--surface-3-l: 30%; /* #3c4043 */
-
-		/* Text Inversion */
-		--text-1-l: 100%; /* White */
-		--text-2-l: 80%; /* Light Gray */
-
-		/* Borders */
-		--border-base-l: 45%; /* #5f6368 */
-
-		/* Scrollbar */
-		--scrollthumb-color: oklch(45% 0 0);
-		--scrollthumb-hover-color: oklch(60% 0 0);
-
-		--link: #8ab4f8;
-		--link-visited: #c58af9;
-	}
-}
-
-/* 
- * DATA ATTRIBUTE OVERRIDES (For JS Toggling) 
- */
-html[data-theme="light"] {
-	color-scheme: light;
-	--surface-1-l: 100%;
-	--surface-2-l: 98%;
-	--surface-3-l: 96%;
-	--text-1-l: 13%;
-	--text-2-l: 45%;
-	--primary-l: 25%;
-	--secondary-l: 100%;
-	--accent-l: 98%;
-	--border-base-l: 88%;
-}
-
-html[data-theme="dark"] {
+	/* GLOBAL SETTINGS (DEFAULT: DARK TERMINAL) */
+	font-family: var(--font-mono);
 	color-scheme: dark;
-	--surface-1-l: 25%;
-	--surface-2-l: 20%;
-	--surface-3-l: 30%;
-	--text-1-l: 100%;
-	--text-2-l: 80%;
-	--primary-l: 100%;
-	--secondary-l: 25%;
-	--accent-l: 20%;
-	--border-base-l: 45%;
+    background-color: var(--bg-canvas);
+    color: var(--text-primary);
+}
 
-	--link: #8ab4f8;
-	--link-visited: #c58af9;
+/* 
+ * LIGHT MODE (PAPER / E-INK) 
+ * Strict inversion. No grays. Black Ink on Off-White Paper.
+ */
+@media (prefers-color-scheme: light) {
+    :root {
+        color-scheme: light;
+        
+        --bg-canvas: var(--paper-white);
+        --bg-panel: var(--paper-white);
+
+        --text-primary: var(--ink-black);
+        --text-highlight: #000000;
+        
+        /* Keep accents, but ensure visibility */
+        --text-agent: #cc4400; /* Darker Orange for White BG */
+        --text-success: #008800; /* Darker Green for White BG */
+        
+        --ansi-white: var(--ink-black); /* Flip semantic "White" to Black for borders */
+        --ansi-black: var(--paper-white); /* Flip semantic "Black" to White for inversions */
+
+        /* Re-map borders using the flipped semantics */
+        --border-default: 2px solid var(--ink-black);
+        --border-active: 2px solid var(--text-success);
+        --border-agent: 2px solid var(--text-agent);
+        --border-muted: 1px dashed #666;
+
+        --graph-background: var(--paper-white);
+        --graph-edge-default: var(--ink-black);
+        
+        /* Update Legacy Maps */
+        --surface-1: var(--paper-white);
+        --surface-2: var(--paper-white);
+        --surface-3: #e5e5e5; /* Slight gray for hover */
+        --primary: var(--ink-black);
+        --accent: #000000;
+        --border-base: var(--ink-black);
+    }
+}
+
+/* MANUAL OVERRIDES (Data Attributes) */
+/* MANUAL OVERRIDES (Data Attributes) */
+html[data-theme="light"],
+:root:has(html[data-theme="light"]) {
+    color-scheme: light;
+    
+    --bg-canvas: var(--paper-white);
+    --bg-panel: var(--paper-white);
+
+    --text-primary: var(--ink-black);
+    --text-highlight: #000000;
+    
+    --text-agent: #cc4400; /* Darker Orange */
+    --text-success: #008800; /* Darker Green */
+    
+    --ansi-white: var(--ink-black); 
+    --ansi-black: var(--paper-white);
+
+    --border-default: 2px solid var(--ink-black);
+    --border-active: 2px solid var(--text-success);
+    --border-agent: 2px solid var(--text-agent);
+    --border-muted: 1px dashed #666;
+
+    --graph-background: var(--paper-white);
+    --graph-edge-default: var(--ink-black);
+    
+    --surface-1: var(--paper-white);
+    --surface-2: var(--paper-white);
+    --surface-3: #e5e5e5;
+    --primary: var(--ink-black);
+    --accent: #000000;
+    --border-base: var(--ink-black);
+}
+
+html[data-theme="dark"],
+:root:has(html[data-theme="dark"]) {
+    color-scheme: dark;
+    --bg-canvas: #0c0c0c;
+    /* Reset to defaults if overridden */
+    --text-primary: #cccccc;
+    --ansi-white: #cccccc;
+    --ansi-black: #0c0c0c;
+    --border-default: 2px solid #cccccc;
+     /* ... rest matches @theme defaults ... */
 }

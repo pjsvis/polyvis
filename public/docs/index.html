@@ -12,17 +12,12 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/geist@1.3.0/dist/fonts/geist-mono/style.css" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     
-    <!-- Inline Theme Init to prevent FOUC -->
+    <!-- Theme Init -->
     <script>
         (() => {
             const stored = localStorage.getItem('polyvis-theme');
             if (stored) {
                 document.documentElement.setAttribute('data-theme', stored);
-                if (stored === 'dark') {
-                    document.documentElement.classList.add('dark');
-                } else {
-                    document.documentElement.classList.remove('dark');
-                }
             }
         })();
     </script>
@@ -30,88 +25,6 @@
 
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="/js/app.js" defer></script>
-
-    <style>
-        /* Basecoat Alignment */
-        :root {
-            --app-sidebar-width: 260px;
-            --app-right-sidebar-width: 300px;
-            --accent-green: #22c55e;
-            --font-sans: "Geist Sans", Inter, system-ui, sans-serif;
-            --font-mono: "Geist Mono", "JetBrains Mono", monospace;
-        }
-        body { font-family: var(--font-sans); }
-
-        /* App Shell - Holy Grail Grid */
-        .app-shell {
-            display: grid;
-            height: 100vh;
-            width: 100vw;
-            grid-template-rows: auto 1fr auto;
-            grid-template-areas:
-                "header header header"
-                "left   main   right"
-                "footer footer footer";
-            transition: grid-template-columns 0.3s ease;
-        }
-
-        header { grid-area: header; border-bottom: 1px solid var(--border-base); background: var(--surface-2); }
-        aside.left { grid-area: left; border-right: 1px solid var(--border-base); background: var(--surface-1); width: var(--app-sidebar-width); }
-        main { grid-area: main; background: var(--surface-1); overflow-y: auto; }
-        aside.right { grid-area: right; border-left: 1px solid var(--border-base); background: var(--surface-1); width: var(--app-right-sidebar-width); }
-        footer { grid-area: footer; border-top: 1px solid var(--border-base); background: var(--surface-2); color: var(--text-2); padding: 0.5rem; text-align: center; font-size: 0.75rem; }
-
-        /* Dynamic Columns based on state */
-        .shell-left-closed { grid-template-columns: 0px 1fr var(--app-right-sidebar-width); }
-        .shell-right-closed { grid-template-columns: var(--app-sidebar-width) 1fr 0px; }
-        .shell-both-closed { grid-template-columns: 0px 1fr 0px; }
-        .shell-both-open { grid-template-columns: var(--app-sidebar-width) 1fr var(--app-right-sidebar-width); }
-
-        .sidebar-content { padding: 1rem; }
-        .placeholder-text { color: #94a3b8; font-family: monospace; }
-        
-        /* Ensure sidebar content disappears when collapsed */
-        aside { overflow: hidden; }
-
-        /* Navbar Items */
-        .nav-item { color: var(--text-2); display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; border-radius: 0.375rem; transition: all 0.2s; font-weight: 500; }
-        .nav-item:hover { background: var(--surface-3); color: var(--accent-green); }
-        .nav-item.active { background: var(--surface-3); color: var(--accent-green); font-weight: bold; position: relative; }
-        .nav-item.active::after { content: ''; position: absolute; bottom: 0; left: 1rem; right: 1rem; height: 2px; background: var(--accent-green); }
-        
-        /* Icon Specifics */
-        .nav-item i, .nav-item svg { stroke-width: 2px; transition: color 0.2s; }
-        .nav-item:hover i, .nav-item:hover svg { color: var(--accent-green); }
-
-        /* Floating Toggle Buttons */
-        .floating-toggle {
-            position: fixed;
-            top: 4.2rem;
-            z-index: 50;
-            background: var(--surface-2);
-            border: 1px solid var(--border-base);
-            color: var(--text-2);
-            padding: 0.5rem;
-            border-radius: 0.375rem;
-            box-shadow: var(--shadow-md);
-            transition: all 0.2s;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .toggle-right { 
-            right: 1rem; 
-        }
-        .toggle-left { 
-            left: 1rem; 
-        }
-        .floating-toggle:hover { 
-            background: var(--surface-3); 
-            color: var(--accent-green); 
-            transform: scale(1.1);
-        }
-    </style>
 </head>
 
 <body class="overflow-hidden bg-background text-foreground antialiased" x-data="docViewer()">
@@ -137,70 +50,73 @@
 
         
         <!-- HEADER -->
-        <header class="flex items-center justify-between px-6 py-2">
-            <div class="flex items-center gap-8">
-                <span class="font-black text-xl tracking-tighter text-foreground">POLYVIS</span>
-                <nav class="hidden md:flex gap-1">
-                    <a href="/" class="nav-item">
-                        <i data-lucide="home" class="w-4 h-4"></i> HQ
-                    </a>
-                    <a href="/docs/" class="nav-item active">
-                        <i data-lucide="book-open" class="w-4 h-4"></i> Docs
-                    </a>
-                    <a href="/sigma-explorer/" class="nav-item">
-                        <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Sigma Explorer
-                    </a>
-                    <a href="/about" class="nav-item">
-                        <i data-lucide="info" class="w-4 h-4"></i> About
-                    </a>
-                </nav>
-            </div>
+        <header class="app-header">
+            <nav class="nav-wrapper">
+                <div style="display: flex; align-items: center; width: 100%; height: 100%;">
+                    <a href="/" class="nav-item" style="font-weight: 900; letter-spacing: -0.05em; border-left: none;">POLYVIS</a>
+                    
+                    <div class="nav-links" style="display: flex; height: 100%;">
+                        <a href="/" class="nav-item">
+                            <i data-lucide="home" class="w-4 h-4" style="margin-right: 8px;"></i> HQ
+                        </a>
+                        <a href="/docs/" class="nav-item active">
+                            <i data-lucide="book-open" class="w-4 h-4" style="margin-right: 8px;"></i> Docs
+                        </a>
+                        <a href="/sigma-explorer/" class="nav-item">
+                            <i data-lucide="layout-dashboard" class="w-4 h-4" style="margin-right: 8px;"></i> Graph
+                        </a>
+                    </div>
 
-            <div class="flex items-center gap-2">
-                <!-- Action Buttons (Theme) -->
-                <button onclick="window.toggleTheme()" class="nav-item" title="Toggle Theme">
-                    <i data-lucide="sun" class="w-4 h-4"></i>
-                </button>
-            </div>
+                    <div style="flex-grow: 1;"></div>
+
+                    <button onclick="window.toggleTheme()" class="nav-item" style="cursor: pointer; background: transparent; border: none; font-family: inherit;">
+                         <i data-lucide="sun" class="w-4 h-4" style="margin-right: 8px;"></i> Theme
+                    </button>
+
+                    <a href="/about" class="nav-item" style="border-right: none;">
+                        <i data-lucide="info" class="w-4 h-4" style="margin-right: 8px;"></i> About
+                    </a>
+                </div>
+            </nav>
         </header>
 
         <!-- LEFT SIDEBAR -->
-        <aside class="left overflow-hidden">
+        <aside class="app-sidebar-left">
             <div class="flex h-full flex-col" style="scrollbar-gutter: stable;" x-show="leftOpen" x-transition>
                 <!-- SIDEBAR HEADER WITH CHEVRON -->
-                <div class="flex items-center justify-between p-3 border-b bg-muted/30 shrink-0">
-                    <span class="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Documents</span>
-                    <button @click="leftOpen = false" class="hover:bg-primary/10 p-1 rounded transition-colors text-primary" title="Close Sidebar">
+                <div class="flex items-center justify-between pb-4 border-b border-white mb-4 shrink-0">
+                    <span class="text-[12px] font-bold uppercase tracking-widest text-white">Documents</span>
+                    <button @click="leftOpen = false" class="btn-text" title="Close Sidebar">
                         <i data-lucide="chevron-left" class="w-4 h-4"></i>
                     </button>
                 </div>
                 <!-- TABS -->
-                <div class="flex gap-2 p-2 border-b bg-muted/10 shrink-0 overflow-x-auto no-scrollbar">
+                <div class="flex border-b border-white shrink-0 overflow-x-auto no-scrollbar mb-4">
                     <button @click="navTab = 'index'"
-                        class="flex-1 py-2 px-3 text-[10px] font-bold uppercase tracking-widest text-center border-b-2 transition-all whitespace-nowrap rounded-sm"
-                        :class="navTab === 'index' ? 'border-green-500 text-green-500 bg-background shadow-sm' : 'border-transparent text-muted-foreground hover:bg-green-500/10 hover:text-green-600'">
+                        class="flex-1 py-1 px-2 text-[10px] font-bold uppercase tracking-widest text-center transition-all whitespace-nowrap"
+                        :class="navTab === 'index' ? 'bg-white text-black' : 'text-gray-400 hover:text-white'">
                         Index
                     </button>
                     <button @click="navTab = 'playbooks'"
-                        class="flex-1 py-2 px-3 text-[10px] font-bold uppercase tracking-widest text-center border-b-2 transition-all whitespace-nowrap rounded-sm"
-                        :class="navTab === 'playbooks' ? 'border-green-500 text-green-500 bg-background shadow-sm' : 'border-transparent text-muted-foreground hover:bg-green-500/10 hover:text-green-600'">
+                        class="flex-1 py-1 px-2 text-[10px] font-bold uppercase tracking-widest text-center transition-all whitespace-nowrap"
+                        :class="navTab === 'playbooks' ? 'bg-white text-black' : 'text-gray-400 hover:text-white'">
                         Guides
                     </button>
                     <button @click="navTab = 'debriefs'"
-                        class="flex-1 py-2 px-3 text-[10px] font-bold uppercase tracking-widest text-center border-b-2 transition-all whitespace-nowrap rounded-sm"
-                        :class="navTab === 'debriefs' ? 'border-green-500 text-green-500 bg-background shadow-sm' : 'border-transparent text-muted-foreground hover:bg-green-500/10 hover:text-green-600'">
+                        class="flex-1 py-1 px-2 text-[10px] font-bold uppercase tracking-widest text-center transition-all whitespace-nowrap"
+                        :class="navTab === 'debriefs' ? 'bg-white text-black' : 'text-gray-400 hover:text-white'">
                         Debriefs
                     </button>
                 </div>
 
                 <!-- CONTENT -->
-                <div class="flex-grow overflow-y-auto custom-scrollbar px-2 pt-4 pb-2">
+                <div class="flex-grow overflow-y-auto custom-scrollbar pt-2 pb-2">
                     <!-- Index Tab -->
                     <nav x-show="navTab === 'index'" class="space-y-1">
                                 <template x-for="doc in docs" :key="doc.file">
                                     <button @click="loadMain(doc.file)"
-                                        class="w-full text-left px-3 py-2 text-xs rounded transition-all hover:bg-green-500/10 hover:text-green-600 group"
-                                        :class="activeDoc === doc.file ? 'bg-green-500/10 text-green-600 font-bold border-l-2 border-green-500' : 'text-foreground/80'">
+                                        class="w-full text-left px-2 py-1 text-xs transition-all hover:bg-white hover:text-black group mono"
+                                        :class="activeDoc === doc.file ? 'bg-white text-black font-bold' : 'text-gray-400'">
                                         <span x-text="doc.title || doc.file"></span>
                                     </button>
                                 </template>
@@ -210,9 +126,9 @@
                     <nav x-show="navTab === 'playbooks'" class="space-y-2">
                         <template x-for="book in playbooks" :key="book.path">
                             <button @click="loadMain(book.path)"
-                                class="w-full text-left p-3 rounded border border-transparent transition-all hover:bg-green-500/10 group"
-                                :class="activeDoc === book.path ? 'bg-background border-green-500 shadow-sm ring-1 ring-green-500/20' : 'bg-muted/10 px-3 py-2'">
-                                <div class="font-bold text-xs group-hover:text-green-600 tracking-tight" :class="activeDoc === book.path ? 'text-green-600' : ''" x-text="book.title"></div>
+                                class="w-full text-left p-2 border border-transparent transition-all hover:border-white group"
+                                :class="activeDoc === book.path ? 'border-white bg-white text-black' : ''">
+                                <div class="font-bold text-xs group-hover:underline tracking-tight" x-text="book.title"></div>
                                 <div class="text-[10px] opacity-60 font-mono mt-1" x-text="book.id"></div>
                             </button>
                         </template>
@@ -222,9 +138,9 @@
                     <nav x-show="navTab === 'debriefs'" class="space-y-2">
                         <template x-for="db in debriefs" :key="db.path">
                             <button @click="loadMain(db.path)"
-                                class="w-full text-left p-3 rounded border border-transparent transition-all hover:bg-green-500/10 group"
-                                :class="activeDoc === db.path ? 'bg-background border-green-500 shadow-sm ring-1 ring-green-500/20' : 'bg-muted/10 px-3 py-2'">
-                                <div class="font-bold text-xs group-hover:text-green-600 tracking-tight" :class="activeDoc === db.path ? 'text-green-600' : ''" x-text="db.title"></div>
+                                class="w-full text-left p-2 border border-transparent transition-all hover:border-white group"
+                                :class="activeDoc === db.path ? 'border-white bg-white text-black' : ''">
+                                <div class="font-bold text-xs group-hover:underline tracking-tight" x-text="db.title"></div>
                                 <div class="text-[10px] opacity-60 font-mono mt-1" x-text="db.date || 'No Date'"></div>
                             </button>
                         </template>
@@ -232,71 +148,88 @@
                 </div>
             </div>
         </aside>
-        <!-- MAIN SECTION -->
-        <main class="app-main relative !p-0" @click="handleContentClick($event)">
-            
 
-            <div class="pt-0 pb-12 px-6 lg:px-12">
+        <!-- MAIN SECTION -->
+        <main class="app-main relative" @click="handleContentClick($event)">
+            <div class="pt-0 pb-12 px-6 lg:px-12 w-full max-w-4xl mx-auto">
                 <article id="main-content" 
-                         class="markdown-body prose dark:prose-invert" 
+                         class="markdown-body prose dark:prose-invert max-w-none" 
                          x-html="contentMain">
                     <!-- Loading State -->
                     <div class="flex h-64 flex-col items-center justify-center">
-                        <i data-lucide="loader-2" class="w-8 h-8 animate-spin text-muted-foreground"></i>
-                        <p class="mt-4 font-mono text-xs text-muted-foreground uppercase tracking-widest">Initialising Knowledge Mesh...</p>
+                        <i data-lucide="loader-2" class="w-8 h-8 animate-spin text-white"></i>
+                        <p class="mt-4 font-mono text-xs text-white uppercase tracking-widest">Initialising Knowledge Mesh...</p>
                     </div>
                 </article>
             </div>
         </main>
 
         <!-- RIGHT SIDEBAR -->
-        <aside class="right overflow-hidden">
+        <aside class="app-sidebar-right">
             <div class="flex h-full flex-col" x-show="rightOpen" x-transition>
                 <!-- SIDEBAR HEADER WITH CHEVRON -->
-                <div class="flex items-center justify-between p-3 border-b bg-muted/30 shrink-0">
-                    <button @click="rightOpen = false" class="hover:bg-green-500/10 p-1 rounded transition-colors text-green-600" title="Close Sidebar">
+                <div class="flex items-center justify-between pb-4 border-b border-white mb-4 shrink-0">
+                    <button @click="rightOpen = false" class="btn-text" title="Close Sidebar">
                         <i data-lucide="chevron-right" class="w-4 h-4"></i>
                     </button>
-                    <span class="text-[10px] font-bold uppercase tracking-widest text-muted-foreground" x-text="contentRef ? 'Reference' : 'Outline'"></span>
+                    <!-- Toggle Switch -->
+                    <div class="flex border border-white">
+                         <button @click="showSource = false" 
+                                 class="px-2 py-1 text-[9px] font-bold uppercase tracking-widest transition-colors"
+                                 :class="!showSource ? 'bg-white text-black' : 'text-gray-400 hover:text-white'">
+                             OUTLINE
+                         </button>
+                         <button @click="showSource = true" 
+                                 class="px-2 py-1 text-[9px] font-bold uppercase tracking-widest transition-colors"
+                                 :class="showSource ? 'bg-white text-black' : 'text-gray-400 hover:text-white'">
+                             JSON
+                         </button>
+                    </div>
+
                     <button x-show="contentRef" @click="goBack()"
-                        class="flex items-center gap-1 text-[10px] font-bold px-2 py-1 rounded hover:bg-green-500/10 text-green-600 transition-colors">
+                        class="flex items-center gap-1 text-[10px] font-bold px-2 py-1 border border-white hover:bg-white hover:text-black transition-colors">
                         <i data-lucide="arrow-left" class="w-3 h-3"></i> BACK
                     </button>
                 </div>
 
                 <!-- CONTENT -->
-                <div class="flex-grow overflow-y-auto custom-scrollbar bg-muted/5">
+                <div class="flex-grow overflow-y-auto custom-scrollbar">
                     <!-- Reference Content (High-Fidelity Reader) -->
                     <div x-show="contentRef" 
-                         class="p-6 prose dark:prose-invert max-w-none bg-background/50 prose-a:text-green-500" 
+                         class="p-4 prose dark:prose-invert max-w-none prose-a:text-green-500" 
                          style="--markdown-font-size: 13px; font-size: 13px;"
                          x-html="contentRef"></div>
 
+                    <!-- Raw JSON Source View -->
+                    <div x-show="showSource && !contentRef" class="p-4 font-mono text-[10px] text-green-500 whitespace-pre-wrap leading-tight select-all">
+                        <div x-text="JSON.stringify(toc, null, 2)"></div>
+                    </div>
+
                     <!-- Outline Content (Structural Mapping) -->
-                    <nav x-show="!contentRef" class="divide-y divide-border/40">
+                    <nav x-show="!contentRef && !showSource" class="divide-y divide-white/20">
                         <template x-for="(group, idx) in toc" :key="idx">
-                            <div class="px-4 py-3 hover:bg-green-500/[0.02] transition-colors group">
+                            <div class="px-2 py-3 hover:bg-white hover:text-black transition-colors group">
                                 <!-- H2 Mapping -->
                                 <template x-if="group.header">
                                     <a :href="'#' + group.header.id"
                                         @click="activeAnchor = '#' + group.header.id"
-                                        class="flex items-start gap-3 text-[13px] font-bold tracking-tight text-green-600 hover:text-green-500 transition-all"
-                                        :class="activeAnchor === '#' + group.header.id ? 'uppercase' : ''">
+                                        class="flex items-start gap-3 text-[13px] font-bold tracking-tight hover:underline transition-all"
+                                        :class="activeAnchor === '#' + group.header.id ? 'uppercase underline' : ''">
                                         <span x-text="group.header.number || idx + 1"
-                                              class="font-mono text-[10px] text-green-500 mt-1 shrink-0 w-4"></span>
+                                              class="font-mono text-[10px] opacity-70 mt-1 shrink-0 w-4"></span>
                                         <span x-text="group.header.text"></span>
                                     </a>
                                 </template>
 
                                 <!-- Structural Trace (H3+ children) -->
-                                <div class="mt-2 ml-[3.5px] pl-4 border-l border-green-500/20 space-y-2" x-show="group.children.length > 0">
+                                <div class="mt-2 ml-[3.5px] pl-4 border-l-2 border-dashed border-white/40 space-y-2" x-show="group.children.length > 0">
                                     <template x-for="child in group.children" :key="child.id">
                                         <a :href="'#' + child.id"
                                             @click="activeAnchor = '#' + child.id"
-                                            class="flex items-start gap-2 py-0.5 text-[12px] text-foreground hover:text-green-500 transition-all group/link"
-                                            :class="activeAnchor === '#' + child.id ? 'uppercase' : ''">
+                                            class="flex items-start gap-2 py-0.5 text-[12px] hover:underline transition-all group/link"
+                                            :class="activeAnchor === '#' + child.id ? 'uppercase underline' : ''">
                                             <span x-text="child.number || '»'"
-                                                  class="font-mono text-[9px] text-green-500/40 mt-1 shrink-0 w-3 group-hover/link:text-green-500"></span>
+                                                  class="font-mono text-[9px] opacity-50 mt-1 shrink-0 w-3"></span>
                                             <span x-text="child.text" class="leading-snug"></span>
                                         </a>
                                     </template>
@@ -306,7 +239,7 @@
                         
                         <div x-show="toc.length === 0" class="py-12 text-center">
                             <i data-lucide="binary" class="w-10 h-10 mx-auto opacity-10 mb-3"></i>
-                            <p class="text-[10px] font-mono uppercase tracking-[0.2em] text-muted-foreground">Mapping... No Markers found</p>
+                            <p class="text-[10px] font-mono uppercase tracking-[0.2em] opacity-50">Mapping... No Markers found</p>
                         </div>
                     </nav>
                 </div>
@@ -315,8 +248,8 @@
 
 
         <!-- FOOTER -->
-        <footer>
-            <div class="flex justify-between items-center px-4">
+        <footer class="app-footer">
+            <div class="flex justify-between items-center w-full px-4">
                 <span>&copy; 2025 PolyVis</span>
                 <span class="opacity-50 font-mono tracking-widest uppercase">System Status: Active</span>
             </div>
@@ -325,12 +258,12 @@
 
     <!-- Global Floating Toggles -->
     <button x-show="!leftOpen" @click="leftOpen = true"
-        class="floating-toggle toggle-left" title="Open Navigation">
+        class="fixed top-20 left-4 z-50 p-2 bg-black border-2 border-white text-white hover:bg-white hover:text-black transition-colors" title="Open Navigation">
         <i data-lucide="chevron-right" class="w-4 h-4"></i>
     </button>
 
     <button x-show="!rightOpen" @click="rightOpen = true"
-        class="floating-toggle toggle-right" title="Open Reference">
+        class="fixed top-20 right-4 z-50 p-2 bg-black border-2 border-white text-white hover:bg-white hover:text-black transition-colors" title="Open Reference">
         <i data-lucide="chevron-left" class="w-4 h-4"></i>
     </button>
 

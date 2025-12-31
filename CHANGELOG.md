@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased] - 2025-12-31
 ### Added
 - **UI:** Implemented "Terminal Brutalist" design system (High-Contrast / Low-Noise).
+- **UI:** Added "Vision Helper" (`window.__AGENT_THEME__`) for programmatic theme detection by agents.
+- **UI:** Added "Style Auditor" (`window.runStyleAudit()`) for runtime CSS integrity checks.
 - **UI:** Added "Hollow" vs "Full" node visualization states in `sigma.js` renderer.
 - **UI:** Added "Agent Activity" indicator color (`--ansi-orange` / `#FF8C00`).
 - **Arch:** Added "FAFCAS" Protocol (Feature Alignment / Frequency Correction / Amplitude Scaling) for normalized embeddings.

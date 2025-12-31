@@ -2,6 +2,36 @@
    MISCELLANEOUS COMPONENTS
    ======================================== */
 
+/* Navbar Brand */
+.nav-brand {
+    font-family: var(--font-mono);
+    font-weight: 900;
+    font-size: 1.25rem;
+    letter-spacing: -0.02em;
+    color: var(--ansi-cyan); /* SYSTEM IDENTITY */
+    text-decoration: none;
+    /* Hard Reset */
+    padding: var(--spacing-1) var(--spacing-2);
+    margin: 0 calc(var(--spacing-2) * -1); /* Compensate padding */
+
+    &:hover {
+        background-color: var(--text-primary);
+        color: var(--bg-canvas);
+        text-decoration: none;
+    }
+
+    &:visited {
+        color: var(--ansi-cyan);
+    }
+}
+
+/* Home Page Override: No Hover, Static Cyan */
+.home-layout .nav-brand:hover {
+    background-color: transparent;
+    color: var(--ansi-cyan);
+    cursor: default;
+}
+
 /* Sidenotes */
 .sidenote {
 	display: block;

@@ -1,97 +1,79 @@
 /* ========================================
-   BASE STYLES & RESETS
+   BASE STYLES & RESETS (TERMINAL EDITION)
    ======================================== */
+
+/* GLOBAL HARD RESET */
+* {
+	border-radius: 0 !important;
+	box-shadow: none !important;
+	transition: none !important; /* NO SOFTNESS */
+}
 
 html {
 	scrollbar-gutter: stable both-edges;
 	height: 100%;
 	overflow: hidden;
-	/* Strict app-shell behavior */
-	background-color: var(--surface-1);
-	color-scheme: light dark;
+	background-color: var(--bg-canvas);
+	color-scheme: dark;
 }
-
-h1,
-h2,
-h3,
-h4 {
-	text-wrap: balance;
-	scroll-margin-top: var(--scroll-offset);
-}
-
-p {
-	text-wrap: pretty;
-	max-width: var(--size-content-3);
-}
-
-img {
-	/* Responsiveness */
-	max-width: 100%;
-	height: auto;
-
-	/* Error handling */
-	position: relative;
-	font-style: italic;
-	background-color: var(--surface-2);
-}
-
-/* 
- * MIGRATED STYLES (from public/css/style.css)
- */
 
 body {
-	font-family: var(--font-sans);
-	background-color: var(--accent);
-	color: var(--primary);
+	font-family: var(--font-mono);
+	background-color: var(--bg-canvas);
+	color: var(--text-primary);
 	margin: 0;
-	line-height: 1.5;
+	line-height: 1.4; /* Tighter for code */
 	height: 100%;
 	overflow: hidden;
-	/* Strict app-shell behavior */
 }
 
-/* Brutalist Link Reset */
-a,
-a:visited {
-	color: var(--link);
-	text-decoration: none;
+/* HEADERS */
+h1, h2, h3, h4, h5, h6 {
+	font-family: var(--font-mono);
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	border-bottom: var(--border-default);
+	padding-bottom: var(--spacing-2);
+	margin-bottom: var(--spacing-4);
+    font-weight: bold;
+}
+
+/* LINKS */
+a, a:visited {
+	color: var(--text-highlight);
+	text-decoration: underline;
+    text-underline-offset: 4px;
 }
 
 a:hover {
-	text-decoration: none;
+	background-color: var(--ansi-white);
+    color: var(--ansi-black);
+    text-decoration: none;
 }
 
-/* Restore Button Pointer (Tailwind Preflight removes this) */
-button {
-	cursor: pointer;
+/* SCROLLBARS */
+::-webkit-scrollbar {
+	width: 12px;
+    background: var(--bg-canvas);
+    border-left: 2px solid var(--ansi-white);
 }
 
-/* Monospace accents */
+::-webkit-scrollbar-thumb {
+	background-color: var(--ansi-white);
+    border: 2px solid var(--bg-canvas); /* Creates a 'block' look */
+}
+
+::-webkit-scrollbar-thumb:hover {
+	background-color: var(--ansi-green);
+}
+
+/* MONOSPACE UTILITY */
 .mono {
 	font-family: var(--font-mono);
 }
 
-/* Page Transitions */
-/* Page Transitions Removed for Zero Magic Rule */
-body {
-	opacity: 1;
-}
-
-/* Custom Scrollbar for Sidebars */
-/* Custom Scrollbar for Sidebars */
-::-webkit-scrollbar {
-	width: var(--size-1);
-}
-
-::-webkit-scrollbar-track {
-	background: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-	background-color: var(--scrollthumb-color);
-	border-radius: var(--radius-1);
-}
-
-::-webkit-scrollbar-thumb:hover {
-	background-color: var(--scrollthumb-hover-color);
+/* BUTTON RESET */
+button {
+    cursor: pointer;
+    font-family: var(--font-mono);
 }

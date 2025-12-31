@@ -1,166 +1,105 @@
 /* ========================================
-   BUTTON STYLES
+   BUTTON STYLES (TERMINAL)
    ======================================== */
 
-.badge {
-	width: fit-content;
-	margin-inline: auto;
-}
-
-/* Base Button Styling - Applied to all buttons automatically */
-button {
+button,
+.btn-structural,
+.btn-ghost,
+.btn-search {
 	/* Layout Essentials */
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	gap: var(--size-2);
-	padding: var(--size-2) var(--size-3);
+	gap: var(--spacing-2);
+	padding: var(--spacing-2) var(--spacing-3);
+    height: 32px; /* Fixed height for consistency */
 
 	/* Typography */
 	font-family: var(--font-mono);
-	font-size: var(--font-size-sm);
-	font-weight: 500;
+	font-size: 12px;
+	font-weight: bold;
 	text-transform: uppercase;
 	text-decoration: none;
-	letter-spacing: 0.025em;
+	letter-spacing: 0.05em;
 
 	/* Visual Definition */
-	background-color: var(--surface-1);
-	border: 1px solid var(--border-base);
-	border-radius: var(--radius-component);
-	color: var(--text-2);
-	box-shadow: var(--shadow-sm);
-	transition: all 0.15s ease;
+	background-color: var(--bg-canvas);
+	border: var(--border-default);
+	color: var(--ansi-white);
+    
+    /* HARD RESET */
+	border-radius: 0;
+	box-shadow: none;
+	transition: none;
 	cursor: pointer;
 
 	/* States */
 	&:hover {
-		color: var(--text-1);
-		background-color: var(--surface-hover);
-		border-color: var(--primary);
-		box-shadow: var(--shadow-md);
-		transform: translateY(-1px);
+		color: var(--ansi-black); /* Use semantic black */
+		background-color: var(--ansi-white); /* Use semantic white */
+        border-color: var(--ansi-white);
+        text-decoration: none; /* No underline on hover */
 	}
 
 	&:active,
 	&.active {
-		color: var(--primary);
-		font-weight: bold;
-		background-color: var(--surface-2);
-		border-color: var(--primary);
-		box-shadow: var(--shadow-sm);
-		transform: translateY(0);
+		color: var(--ansi-black);
+		background-color: var(--ansi-green);
+		border-color: var(--ansi-green);
 	}
 
 	&:focus-visible {
-		outline: 2px solid var(--primary);
+		outline: 2px solid var(--ansi-orange);
 		outline-offset: 2px;
 	}
+
+    /* Disabled */
+    &:disabled {
+        border-color: #333;
+        color: #333;
+        background: transparent;
+        cursor: not-allowed;
+    }
 }
 
-/* Button Variants - Override base styles when needed */
-.btn-square {
-	aspect-ratio: 1;
-	padding: var(--size-1);
-	font-size: var(--font-size-xxs);
-	min-width: auto;
-	width: auto;
+/* Specific class for home page navigation cards */
+.btn-structural {
+    width: 100%;
+    height: auto; /* Allow growth */
+    min-height: 48px;
+    padding: 16px;
+    justify-content: space-between;
+    border: 2px solid var(--ansi-white);
 }
 
+/* Button Variants */
 .btn-small {
-	padding: var(--size-1) var(--size-2);
-	font-size: var(--font-size-xxs);
-}
-
-.btn-sidebar {
-	padding: var(--size-1);
-	border-radius: 0;
-	position: absolute;
-
-	&.absolute.left-0 {
-		border-radius: 0 var(--radius-component) var(--radius-component) 0;
-	}
-
-	&.absolute.right-0 {
-		border-radius: var(--radius-component) 0 0 var(--radius-component);
-	}
-}
-
-.btn-close {
-	padding: var(--size-1);
-	min-width: auto;
-	width: auto;
+    height: 24px;
+	padding: 0 var(--spacing-2);
+	font-size: 10px;
 }
 
 .btn-text {
+    /* Like a link but in button form */
 	background-color: transparent;
 	border: none;
-	box-shadow: none;
-	color: var(--primary);
-	text-transform: none;
-	font-weight: bold;
-	font-size: var(--font-size-xxs);
-	padding: 0;
-	min-width: auto;
+	color: var(--ansi-white);
+    text-decoration: underline;
 
 	&:hover {
-		background-color: transparent;
-		box-shadow: none;
-		text-decoration: underline;
-		transform: none;
+		background-color: var(--ansi-white);
+		color: var(--ansi-black);
+        text-decoration: none;
 	}
 }
 
-.btn-search {
-	text-align: left;
-	text-transform: none;
-	font-weight: normal;
-	font-family: var(--font-sans);
-	justify-content: flex-start;
-	padding: var(--size-2) var(--size-3);
-	border-radius: 0;
-	border: none;
-	border-bottom: 1px solid var(--border-base);
+/* AGENT ACTION BUTTON (Orange) */
+.btn-agent {
+    border-color: var(--ansi-orange);
+    color: var(--ansi-orange);
 
-	&:hover {
-		border-bottom-color: var(--primary);
-		transform: none;
-		box-shadow: none;
-	}
-
-	&:last-child {
-		border-bottom: none;
-	}
-}
-
-.btn-ghost {
-	background-color: var(--color-ghost-edge);
-	color: oklch(100% 0 0);
-	border-color: oklch(0% 0 0 / 0.1);
-	font-weight: bold;
-	text-transform: none;
-
-	&:hover {
-		background-color: oklch(from var(--color-ghost-edge) calc(l + 0.1) c h);
-		transform: none;
-	}
-}
-
-.btn-similar {
-	text-align: left;
-	text-transform: none;
-	font-weight: normal;
-	font-family: var(--font-sans);
-	justify-content: space-between;
-	padding: var(--size-1) var(--size-2);
-	font-size: var(--font-size-xs);
-	border-radius: var(--radius-component);
-	border: none;
-	box-shadow: none;
-
-	&:hover {
-		background-color: var(--surface-3);
-		transform: none;
-		box-shadow: none;
-	}
+    &:hover {
+        background-color: var(--ansi-orange);
+        color: var(--ansi-black);
+    }
 }

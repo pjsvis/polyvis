@@ -1,32 +1,42 @@
 /* ========================================
-   FORM INPUT STYLES
+   FORM INPUT STYLES (TERMINAL)
    ======================================== */
 
-.structural-input {
+input, textarea, select {
 	font-family: var(--font-mono);
-	font-size: var(--font-size-sm);
-	border: var(--border-base) solid var(--primary);
+	font-size: 14px;
+    background-color: var(--bg-canvas);
+    color: var(--ansi-white);
+	border: var(--border-default);
 	border-radius: 0;
-	box-shadow: inset var(--size-1) var(--size-1) 0px 0px oklch(0% 0 0 / 0.05);
+    padding: var(--spacing-2);
+    box-shadow: none;
 
 	&:focus {
 		outline: none;
-		border-color: var(--primary);
-		box-shadow: inset var(--size-1) var(--size-1) 0px 0px oklch(0% 0 0 / 0.1);
+		border-color: var(--ansi-green);
+        background-color: #1a1a1a;
 	}
+
+    &::placeholder {
+        color: #555;
+        font-style: italic;
+    }
 }
 
+/* Search Bar Specifics */
 .search-input {
 	width: 100%;
 	font-family: var(--font-mono);
-	font-size: var(--font-size-xl);
-	border: none;
-	border-bottom: var(--border-size-2) solid var(--primary);
-	padding: var(--size-4);
-	background: transparent;
+	font-size: 18px; /* Big text */
+    text-transform: uppercase;
+	border: 2px solid var(--ansi-white);
+	padding: var(--spacing-4);
+	background: var(--bg-canvas);
+    color: var(--ansi-white);
 
 	&:focus {
 		outline: none;
-		border-bottom: var(--size-1) solid var(--primary);
+		border-color: var(--ansi-orange); /* Search is often an agent action */
 	}
 }

@@ -1,37 +1,39 @@
 # Current Task
 
-**Status**: Ready for Next Task
-**Started**: 2024-12-11
-**Last Updated**: 2025-12-29
+**Status**: Completed ✅
+**Started**: 2025-12-31
+**Completed**: 2025-12-31
 
 ## Objective
-Awaiting next directive
+Implement **Terminal-Brutalist Design System** ("The Visor") to maximize data legibility and reflect the "bare metal" nature of the architecture.
+
+## Directives
+- **Palette**: ANSI Standard (Black/White/Red/Green/Yellow/Orange). Context: High-Contrast.
+- **Geometry**: "Hard" only (0px border-radius, 2px solid borders).
+- **Typography**: Monospace only.
+- **Interaction**: "Hard" inversions (No transitions).
+
+## Implementation Plan
+
+### Phase 1: Foundation (CSS Variables & Reset)
+- [x] **Theme Update:** Replace `:root` variables in `src/css/layers/theme.css` with the ANSI Palette.
+- [x] **Global Reset:** Enforce `border-radius: 0px` and `font-family: monospace` in `src/css/layers/base.css`.
+- [x] **Clean Up:** Remove all shadow and gradient variables.
+
+### Phase 2: Component Overhaul
+- [x] **Buttons:** Update `src/css/layers/buttons.css` to strict "Wireframe" style (Border/No-Fill -> Invert on Hover).
+- [x] **Layout:** Update `src/css/layers/layout.css` to use 2px solid borders for structural elements instead of gaps/shadows.
+- [x] **Components:** Hard-line style for Modals, Cards, and Inputs (`src/css/layers/components.css`, `forms.css`).
+
+### Phase 3: Agent Visibility & Hollow Node Viz
+- [x] **Agent Indicators:** Define `--text-agent` and `--border-agent` (Safety Orange) usage for "Machine" actions in `theme.css`.
+- [x] **Vision Helper:** Injected `window.__AGENT_THEME__` for programmatic theme detection.
+- [x] **Style Auditor:** Implemented `runStyleAudit()` for runtime verification.
+
+### Phase 4: Verification
+- [x] **Visual Check:** Verified with Browser Subagent (Screen Capture & Audit Run).
+- [x] **Debrief:** Documented the aesthetic shift in `debriefs/2025-12-31-terminal-brutalist-ui.md`.
 
 ## Recently Completed ✅
-- **Protocol Complexity Reduction (2025-12-29):**
-  - **Pre-commit Automation:** Created `bun run precommit` hook combining tsc + Biome checks
-  - **Quick Tasks Protocol:** New playbook for simple work (<3 files, <50 lines) - no brief/debrief required
-  - **Protocol Stratification:** 3-tier progressive disclosure system in AGENTS.md (T1: 6 core, T2: 17 dev, T3: JIT domain)
-  - **Protocol Consolidation:** Merged TFP+CVP→CCP, EVP+RAP→VAP, CMP+BCP→BVP (Protocols 22-24)
-  - **FLIP v2.0:** Revised with graduated targets (🟢<300, 🟡300-500, 🟠500-700 with ADR, 🔴>700)
-  - Debrief: `debriefs/2025-12-29-protocol-complexity-reduction.md`
-
-- **Structured Logging & Hollow Node Completion (2025-12-29):**
-  - **Protocol Safety:** Implemented Pino logging to `stderr`, protecting MCP JSON-RPC on `stdout`.
-  - **Hollow Node:** Finalized migration by removing legacy FTS engine (`searchText`, triggers), reducing DB size by ~60%.
-  - **Component Migration:** Refactored MCP Server, Daemon, Ingestor, Harvester, and Gardeners to use structured logging.
-  - **Verification:** Validated protocol safety with `debug_mcp_protocol.ts` and successfully verified ingestion/harvesting pipelines.
-  - Debrief: `debriefs/2025-12-29-structured-logging-and-hollow-node.md`
-
-- **FAFCAS Protocol Normalization Refactor (2025-12-28):**
-  - Fixed embeddings pipeline inconsistency by enforcing normalization at generation boundary
-  - Removed redundant normalization from storage layer
-  - Created compliance test suite (4 tests, 388 assertions, all passing)
-  - Achieved 100% FAFCAS protocol adherence
-  - Debrief: `debriefs/2025-12-28-fafcas-normalization-fix.md`
-
-## Current Focus 🎯
-- Awaiting next directive
-
-## Notes
-The system now adheres to strict stdio hygiene (Logs -> stderr, Output -> stdout), which is critical for the stability of the MCP Server. The architecture has been simplified to "Vector+Graph only" (Hollow Node), removing the complexity and weight of SQLite FTS.
+- **UI Overhaul (2025-12-31):** Migrated entire application to Terminal Brutalist design system with Agent Visibility tools.
+- **Linting & Hygiene (2025-12-31):** Resolved all Biome/TS issues.

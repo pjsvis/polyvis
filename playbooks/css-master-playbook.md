@@ -3,44 +3,45 @@
 **Status:** Authoritative
 **Context:** PolyVis Frontend Architecture
 
-## 1. Core Philosophy
+## 1. Core Philosophy: Brutalist Rigor
 
-### The "Zero-Magic" Mandate
-*   **No Magic Numbers:** Arbitrary pixel values (e.g., `37px`) are forbidden. All values must derive from the Design System tokens (Open Props).
-*   **No Brittle Selectors:** Avoid deeply nested or DOM-structure-dependent selectors.
-*   **Visual Verification:** "If you haven't seen it in the browser, it doesn't exist." Visual regression testing is mandatory for CSS changes.
+### The "Terminal Brutalist" Mandate
+*   **Zero Ambiguity:** Interfaces must be high-contrast, strictly monotonic, and geometrically precise.
+*   **Raw Aesthetics:** No border-radius, no soft shadows, no blur effects. `border-radius: 0 !important`.
+*   **ANSI Loyalty:** All colors must derive from the standard ANSI palette (Black, White, Red, Green, Yellow, Orange, Cyan). Use these semantically (e.g., Orange = Agent).
+*   **Verification:** Runtime integrity is enforced via `runStyleAudit()`. If the CSS drifts, the system warns the user.
 
-### Definesive CSS
-*   **Assume Overflow:** Content is dynamic. Labels will wrap. Titles will be long.
-*   **Assume Flex:** Containers change size. Use `minmax`, `flex-wrap`, and `clamp()` to handle fluidity.
+### Defensive CSS (Legacy but Valid)
+*   **Assume Overflow:** Content is dynamic. Labels will wrap.
+*   **Assume Flex:** Containers change size.
 
 ## 2. Architecture: The Stack
 
-We use a **Hybrid Architecture** combining Utility-First speed with Component Maintainability.
-
 | Layer | Technology | Role |
 | :--- | :--- | :--- |
-| **Tokens** | Open Props | The "Source of Truth" for spacing, colors, typography. |
-| **Theme** | CSS Variables | Semantic abstracttion (`--text-1` vs `#000`). Handles Light/Dark mode. |
-| **Utilities** | Tailwind CSS | Layout primitives and one-off adjustments. |
-| **Logic** | Alpine.js | Reactive state styling via ARIA attributes and CSS Variables. |
+| **Tokens** | `theme.css` | The "Source of Truth". Defines ANSI Palette and Spacing Scale (`--spacing-*`). |
+| **Theme** | CSS Variables | Semantic abstraction (`--bg-canvas`, `--text-primary`). Handles Inversion (Light/Dark). |
+| **Utilities** | Tailwind CSS | Layout primitives (`flex`, `grid`). |
+| **Logic** | Alpine.js | Reactive state styling. |
 
 ## 3. Design System (Tokens)
 
-All design decisions map to variables in `src/css/layers/theme.css`.
+All design decisions map to variables in `src/css/layers/theme.css`. **Open Props is Deprecated.**
 
-### Colors (Semantic)
-*   `--surface-1` to `--surface-3`: Background hierarchy.
-*   `--text-1`, `--text-2`: Content hierarchy.
-*   `--primary`, `--secondary`: Brand/Structural elements.
+### Colors (ANSI Semantic)
+*   `--ansi-black` / `--ansi-white`: The Core.
+*   `--ansi-green`: Success/Valid (System OK).
+*   `--ansi-red`: Error/Fatal (System Fail).
+*   `--ansi-orange`: The Agent (AI Logic).
+*   `--ansi-cyan`: System Identity (PolyVis).
 
-### Spacing (Open Props)
-*   Use `var(--size-1)` through `var(--size-15)`.
-*   **Fluid:** Use `var(--size-fluid-*)` for responsive padding/gaps.
+### Spacing (Integer Scale)
+*   Use `var(--spacing-1)` (4px) through `var(--spacing-8)` (48px).
+*   **Gap Theory:** Layouts are defined by gaps, not padding.
 
 ### Typography
-*   **Families:** `--font-sans` (UI), `--font-mono` (Data/Code), `--font-serif` (Narrative).
-*   **Sizes:** `--font-size-*` scale.
+*   **Monospace Only:** `var(--font-mono)` is the default. Every piece of text is data.
+*   **Uppercase:** Key headers and actions should be `text-transform: uppercase`.
 
 ## 4. Layout Patterns
 
