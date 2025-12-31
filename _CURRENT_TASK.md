@@ -30,10 +30,12 @@ Implement **Terminal-Brutalist Design System** ("The Visor") to maximize data le
 - [x] **Vision Helper:** Injected `window.__AGENT_THEME__` for programmatic theme detection.
 - [x] **Style Auditor:** Implemented `runStyleAudit()` for runtime verification.
 
-### Phase 4: Verification
-- [x] **Visual Check:** Verified with Browser Subagent (Screen Capture & Audit Run).
-- [x] **Debrief:** Documented the aesthetic shift in `debriefs/2025-12-31-terminal-brutalist-ui.md`.
+### Phase 4: Refinement & Protocols (The Final Polish)
+- [x] **Home Page:** "Vertical Monolith" Layout (5:8 Aspect Ratio) & Cyan Identity.
+- [x] **Protocols:** Rewrote `HUMANS.md` to be an elegant Agent Driver Manual.
+- [x] **Documentation:** Updated `CHANGELOG.md` and `css-master-playbook.md`.
 
 ## Recently Completed ✅
-- **UI Overhaul (2025-12-31):** Migrated entire application to Terminal Brutalist design system with Agent Visibility tools.
+- **UI Overhaul (2025-12-31):** Migrated entire application to Terminal Brutalist design system.
+- **Protocol Refinement (2025-12-31):** Established `HUMANS.md` and strict CSS Playbooks.
 - **Linting & Hygiene (2025-12-31):** Resolved all Biome/TS issues.
