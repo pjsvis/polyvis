@@ -1,41 +1,32 @@
 # Current Task
 
-**Status**: Completed ✅
-**Started**: 2025-12-31
-**Completed**: 2025-12-31
+**Status**: Active 🟢
+**Started**: 2026-01-01
+**Objective**: Implement "Slab & Grid" (Holy Grail) Layout
 
-## Objective
-Implement **Terminal-Brutalist Design System** ("The Visor") to maximize data legibility and reflect the "bare metal" nature of the architecture.
+We are replacing the current application shell with a strict **3-Slab (Header/Stage/Footer)** architecture using **CSS Grid** and **Flexbox** to achieve a robust "Viewport Lock".
 
 ## Directives
-- **Palette**: ANSI Standard (Black/White/Red/Green/Yellow/Orange). Context: High-Contrast.
-- **Geometry**: "Hard" only (0px border-radius, 2px solid borders).
-- **Typography**: Monospace only.
-- **Interaction**: "Hard" inversions (No transitions).
+- **Viewport Lock**: `100vh` / `overflow: hidden` on body. No global scroll.
+- **Slabs**: 
+  1. Header (Fixed)
+  2. Stage (Flex-Grow + Grid)
+  3. Footer (Fixed)
+- **Grid**: 3-Column Stage (`250px` | `1fr` | `350px`).
+- **Resilience**: Use `min-height: 0` on flex children and `grid-column` locking to prevent layout shifts.
 
 ## Implementation Plan
 
-### Phase 1: Foundation (CSS Variables & Reset)
-- [x] **Theme Update:** Replace `:root` variables in `src/css/layers/theme.css` with the ANSI Palette.
-- [x] **Global Reset:** Enforce `border-radius: 0px` and `font-family: monospace` in `src/css/layers/base.css`.
-- [x] **Clean Up:** Remove all shadow and gradient variables.
+### Phase 1: Prototyping (Experiment)
+- [x] **Brief**: Analyze `briefs/brief-slab-and-grid-layout.md`.
+- [x] **Prototype**: Build `experiments/slab-and-grid/index.html`.
+- [x] **Validation**: Verify "Slab" behavior and "Grid" collapse logic with Alpine.js.
+- [x] **Fix**: Resolve Grid auto-placement bug when sidebars are hidden.
 
-### Phase 2: Component Overhaul
-- [x] **Buttons:** Update `src/css/layers/buttons.css` to strict "Wireframe" style (Border/No-Fill -> Invert on Hover).
-- [x] **Layout:** Update `src/css/layers/layout.css` to use 2px solid borders for structural elements instead of gaps/shadows.
-- [x] **Components:** Hard-line style for Modals, Cards, and Inputs (`src/css/layers/components.css`, `forms.css`).
+### Phase 2: Integration (PolyVis Core)
+- [ ] **Styles**: Port layout CSS to `src/css/layers/layout.css` and `main.css`.
+- [ ] **Shell**: Update `public/index.html` to match the "Slab" structure.
+- [ ] **Logic**: Port Alpine.js sidebar toggles to strict javascript or maintain Alpine if permitted (User requested Alpine for proto, need to confirm for App).
 
-### Phase 3: Agent Visibility & Hollow Node Viz
-- [x] **Agent Indicators:** Define `--text-agent` and `--border-agent` (Safety Orange) usage for "Machine" actions in `theme.css`.
-- [x] **Vision Helper:** Injected `window.__AGENT_THEME__` for programmatic theme detection.
-- [x] **Style Auditor:** Implemented `runStyleAudit()` for runtime verification.
-
-### Phase 4: Refinement & Protocols (The Final Polish)
-- [x] **Home Page:** "Vertical Monolith" Layout (5:8 Aspect Ratio) & Cyan Identity.
-- [x] **Protocols:** Rewrote `HUMANS.md` to be an elegant Agent Driver Manual.
-- [x] **Documentation:** Updated `CHANGELOG.md` and `css-master-playbook.md`.
-
-## Recently Completed ✅
-- **UI Overhaul (2025-12-31):** Migrated entire application to Terminal Brutalist design system.
-- **Protocol Refinement (2025-12-31):** Established `HUMANS.md` and strict CSS Playbooks.
-- **Linting & Hygiene (2025-12-31):** Resolved all Biome/TS issues.
+## Context
+The "Slab & Grid" layout is the foundational architecture for the PolyVis IDE, ensuring that the Graph Canvas never fights with the document scrollbar.

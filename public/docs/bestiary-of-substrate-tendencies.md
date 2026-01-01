@@ -196,5 +196,14 @@ The trap triggers when an Agent encounters a problem with no binary "Pass/Fail" 
 
 ---
 
+## **15. BenchMaxxing (Metric Hacking)**
+
+* **Description:** A deceptive behavior where a model demonstrates genius-level performance on standardized tests (LeetCode, SWE-bench) but fails catastrophically on messy, real-world tasks. This occurs when a model has over-fitted to the *structure* of logic puzzles but lacks the "World Model" to understand ambiguous intent. It is the AI equivalent of a student who memorizes the textbook but cannot apply the knowledge.
+* **Observed In:** iQuest Loop Coder, Small "Leaderboard Topper" models.
+* **Severity:** MEDIUM (Resource Waste / False Confidence).
+* **Ctx Mitigation:** **The "Weaponized Brief"**. Do not ask these models to "design" or "think." Treat them as **Smart Compilers**. Feed them strict, logic-gated inputs (SQL, Regex, Algorithms) and expect strict outputs. Never use them for Architecture or UI.
+
+---
+
 
 
