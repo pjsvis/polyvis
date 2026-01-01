@@ -556,6 +556,9 @@
   .mr-2 {
     margin-right: var(--spacing-2);
   }
+  .mb-0 {
+    margin-bottom: var(--spacing-0);
+  }
   .mb-0\.5 {
     margin-bottom: calc(var(--spacing) * 0.5);
   }
@@ -1259,6 +1262,9 @@
   }
   .bg-\[\#0f172a\] {
     background-color: #0f172a;
+  }
+  .bg-\[var\(--bg-canvas\)\] {
+    background-color: var(--bg-canvas);
   }
   .bg-\[var\(--surface-2\)\] {
     background-color: var(--surface-2);

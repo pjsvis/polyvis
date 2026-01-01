@@ -11,7 +11,6 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/geist@1.3.0/dist/fonts/geist-sans/style.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/geist@1.3.0/dist/fonts/geist-mono/style.css" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="stylesheet" href="/css/slab-layout.css" />
     
     <!-- Theme Init -->
     <script>
@@ -28,97 +27,100 @@
     <script src="/js/app.js" defer></script>
 </head>
 
-<!-- USER: Slab & Grid Layout (Holy Grail) -->
-<body class="layout-locked" x-data="docViewer()" x-init="
-    leftOpen = window.innerWidth > 1200;
-    rightOpen = window.innerWidth > 1024;
-    showTocNumbers = true;
-    window.addEventListener('resize', () => {
-        if (window.innerWidth <= 1024) {
-            leftOpen = false;
-            rightOpen = false;
-        } else if (window.innerWidth <= 1200) {
-            leftOpen = false;
-        }
-    })
-">
+<body class="overflow-hidden bg-background text-foreground antialiased" x-data="docViewer()">
 
-    <!-- SLAB 1: HEADER -->
-    <header class="slab-header">
-        <nav class="nav-wrapper" style="width: 100%;">
-            <div style="display: flex; align-items: center; width: 100%; height: 100%;">
-                <a href="/" class="nav-item" style="font-weight: 900; letter-spacing: -0.05em; border-left: none;">POLYVIS</a>
-                
-                <div class="nav-links" style="display: flex; height: 100%;">
-                    <a href="/" class="nav-item">
-                        <i data-lucide="home" class="w-4 h-4" style="margin-right: 8px;"></i> HQ
-                    </a>
-                    <a href="/docs/" class="nav-item active">
-                        <i data-lucide="book-open" class="w-4 h-4" style="margin-right: 8px;"></i> Docs
-                    </a>
-                    <a href="/sigma-explorer/" class="nav-item">
-                        <i data-lucide="layout-dashboard" class="w-4 h-4" style="margin-right: 8px;"></i> Graph
+    <div class="app-shell" :class="{
+        'shell-both-open': leftOpen && rightOpen,
+        'shell-left-closed': !leftOpen && rightOpen,
+        'shell-right-closed': leftOpen && !rightOpen,
+        'shell-both-closed': !leftOpen && !rightOpen
+    }" x-init="
+        leftOpen = window.innerWidth > 1200;
+        rightOpen = window.innerWidth > 1024;
+        showTocNumbers = true;
+        window.addEventListener('resize', () => {
+            if (window.innerWidth <= 1024) {
+                leftOpen = false;
+                rightOpen = false;
+            } else if (window.innerWidth <= 1200) {
+                leftOpen = false;
+            }
+        })
+    ">
+
+        
+        <!-- HEADER -->
+        <header class="app-header">
+            <nav class="nav-wrapper">
+                <div style="display: flex; align-items: center; width: 100%; height: 100%;">
+                    <a href="/" class="nav-item" style="font-weight: 900; letter-spacing: -0.05em; border-left: none;">POLYVIS</a>
+                    
+                    <div class="nav-links" style="display: flex; height: 100%;">
+                        <a href="/" class="nav-item">
+                            <i data-lucide="home" class="w-4 h-4" style="margin-right: 8px;"></i> HQ
+                        </a>
+                        <a href="/docs/" class="nav-item active">
+                            <i data-lucide="book-open" class="w-4 h-4" style="margin-right: 8px;"></i> Docs
+                        </a>
+                        <a href="/sigma-explorer/" class="nav-item">
+                            <i data-lucide="layout-dashboard" class="w-4 h-4" style="margin-right: 8px;"></i> Graph
+                        </a>
+                    </div>
+
+                    <div style="flex-grow: 1;"></div>
+
+                    <button onclick="window.toggleTheme()" class="nav-item" style="cursor: pointer; background: transparent; border: none; font-family: inherit;">
+                         <i data-lucide="sun" class="w-4 h-4" style="margin-right: 8px;"></i> Theme
+                    </button>
+
+                    <a href="/about" class="nav-item" style="border-right: none;">
+                        <i data-lucide="info" class="w-4 h-4" style="margin-right: 8px;"></i> About
                     </a>
                 </div>
+            </nav>
+        </header>
 
-                <div style="flex-grow: 1;"></div>
-
-                <button onclick="window.toggleTheme()" class="nav-item" style="cursor: pointer; background: transparent; border: none; font-family: inherit;">
-                        <i data-lucide="sun" class="w-4 h-4" style="margin-right: 8px;"></i> Theme
-                </button>
-
-                <a href="/about" class="nav-item" style="border-right: none;">
-                    <i data-lucide="info" class="w-4 h-4" style="margin-right: 8px;"></i> About
-                </a>
-            </div>
-        </nav>
-    </header>
-
-    <!-- SLAB 2: STAGE (Dynamic Grid) -->
-    <main class="slab-stage" :style="`grid-template-columns: ${leftOpen ? '250px' : '0px'} 1fr ${rightOpen ? '350px' : '0px'};`">
-        
-        <!-- LEFT PANEL (Navigation) -->
-        <aside class="panel-left" x-show="leftOpen" style="grid-column: 1;">
-            <div class="flex h-full flex-col" style="scrollbar-gutter: stable;">
-                <!-- SIDEBAR HEADER -->
-                <div class="flex items-center justify-between p-4 border-b border-white mb-0 shrink-0 bg-[var(--bg-canvas)] sticky top-0 z-10">
-                    <span class="text-[12px] font-bold uppercase tracking-widest">Documents</span>
+        <!-- LEFT SIDEBAR -->
+        <aside class="app-sidebar-left">
+            <div class="flex h-full flex-col" style="scrollbar-gutter: stable;" x-show="leftOpen" x-transition>
+                <!-- SIDEBAR HEADER WITH CHEVRON -->
+                <div class="flex items-center justify-between pb-4 border-b border-white mb-4 shrink-0">
+                    <span class="text-[12px] font-bold uppercase tracking-widest text-white">Documents</span>
                     <button @click="leftOpen = false" class="btn-text" title="Close Sidebar">
                         <i data-lucide="chevron-left" class="w-4 h-4"></i>
                     </button>
                 </div>
-
                 <!-- TABS -->
-                <div class="flex border-b border-white shrink-0 overflow-x-auto no-scrollbar">
+                <div class="flex border-b border-white shrink-0 overflow-x-auto no-scrollbar mb-4">
                     <button @click="navTab = 'index'"
-                        class="flex-1 py-2 px-2 text-[10px] font-bold uppercase tracking-widest text-center transition-all whitespace-nowrap"
+                        class="flex-1 py-1 px-2 text-[10px] font-bold uppercase tracking-widest text-center transition-all whitespace-nowrap"
                         :class="navTab === 'index' ? 'bg-white text-black' : 'text-gray-400 hover:text-white'">
                         Index
                     </button>
                     <button @click="navTab = 'playbooks'"
-                        class="flex-1 py-2 px-2 text-[10px] font-bold uppercase tracking-widest text-center transition-all whitespace-nowrap"
+                        class="flex-1 py-1 px-2 text-[10px] font-bold uppercase tracking-widest text-center transition-all whitespace-nowrap"
                         :class="navTab === 'playbooks' ? 'bg-white text-black' : 'text-gray-400 hover:text-white'">
                         Guides
                     </button>
                     <button @click="navTab = 'debriefs'"
-                        class="flex-1 py-2 px-2 text-[10px] font-bold uppercase tracking-widest text-center transition-all whitespace-nowrap"
+                        class="flex-1 py-1 px-2 text-[10px] font-bold uppercase tracking-widest text-center transition-all whitespace-nowrap"
                         :class="navTab === 'debriefs' ? 'bg-white text-black' : 'text-gray-400 hover:text-white'">
                         Debriefs
                     </button>
                 </div>
 
-                <!-- CONTENT LIST -->
+                <!-- CONTENT -->
                 <div class="flex-grow overflow-y-auto custom-scrollbar pt-2 pb-2">
                     <!-- Index Tab -->
                     <nav x-show="navTab === 'index'" class="space-y-1">
-                        <template x-for="doc in docs" :key="doc.file">
-                            <button @click="loadMain(doc.file)"
-                                class="w-full text-left px-2 py-1 text-xs transition-all hover:bg-white hover:text-black group mono"
-                                :class="activeDoc === doc.file ? 'bg-white text-black font-bold' : 'text-gray-400'">
-                                <span x-text="doc.title || doc.file"></span>
-                            </button>
-                        </template>
-                    </nav>
+                                <template x-for="doc in docs" :key="doc.file">
+                                    <button @click="loadMain(doc.file)"
+                                        class="w-full text-left px-2 py-1 text-xs transition-all hover:bg-white hover:text-black group mono"
+                                        :class="activeDoc === doc.file ? 'bg-white text-black font-bold' : 'text-gray-400'">
+                                        <span x-text="doc.title || doc.file"></span>
+                                    </button>
+                                </template>
+                            </nav>
 
                     <!-- Guides Tab -->
                     <nav x-show="navTab === 'playbooks'" class="space-y-2">
@@ -147,10 +149,9 @@
             </div>
         </aside>
 
-        <!-- CENTER STAGE (Reader Canvas) -->
-        <section class="stage-canvas is-reader" id="doc-canvas" style="grid-column: 2; padding: 0 48px;">
-             <!-- Markdown Content Area -->
-             <main class="w-full max-w-4xl mx-auto py-12" @click="handleContentClick($event)">
+        <!-- MAIN SECTION -->
+        <main class="app-main relative" @click="handleContentClick($event)">
+            <div class="pt-0 pb-12 px-6 lg:px-12 w-full max-w-4xl mx-auto">
                 <article id="main-content" 
                          class="markdown-body prose dark:prose-invert max-w-none" 
                          x-html="contentMain">
@@ -160,29 +161,29 @@
                         <p class="mt-4 font-mono text-xs text-white uppercase tracking-widest">Initialising Knowledge Mesh...</p>
                     </div>
                 </article>
-            </main>
-        </section>
+            </div>
+        </main>
 
-        <!-- RIGHT PANEL (TOC & References) -->
-        <aside class="panel-right" x-show="rightOpen" style="grid-column: 3;">
-            <div class="flex h-full flex-col">
-                <!-- SIDEBAR HEADER -->
-                <div class="flex items-center justify-between p-4 border-b border-white mb-0 shrink-0 bg-[var(--bg-canvas)] sticky top-0 z-10 w-full">
+        <!-- RIGHT SIDEBAR -->
+        <aside class="app-sidebar-right">
+            <div class="flex h-full flex-col" x-show="rightOpen" x-transition>
+                <!-- SIDEBAR HEADER WITH CHEVRON -->
+                <div class="flex items-center justify-between pb-4 border-b border-white mb-4 shrink-0">
                     <button @click="rightOpen = false" class="btn-text" title="Close Sidebar">
                         <i data-lucide="chevron-right" class="w-4 h-4"></i>
                     </button>
                     <!-- Toggle Switch -->
                     <div class="flex border border-white">
-                            <button @click="showSource = false" 
-                                    class="px-2 py-1 text-[9px] font-bold uppercase tracking-widest transition-colors"
-                                    :class="!showSource ? 'bg-white text-black' : 'text-gray-400 hover:text-white'">
-                                OUTLINE
-                            </button>
-                            <button @click="showSource = true" 
-                                    class="px-2 py-1 text-[9px] font-bold uppercase tracking-widest transition-colors"
-                                    :class="showSource ? 'bg-white text-black' : 'text-gray-400 hover:text-white'">
-                                JSON
-                            </button>
+                         <button @click="showSource = false" 
+                                 class="px-2 py-1 text-[9px] font-bold uppercase tracking-widest transition-colors"
+                                 :class="!showSource ? 'bg-white text-black' : 'text-gray-400 hover:text-white'">
+                             OUTLINE
+                         </button>
+                         <button @click="showSource = true" 
+                                 class="px-2 py-1 text-[9px] font-bold uppercase tracking-widest transition-colors"
+                                 :class="showSource ? 'bg-white text-black' : 'text-gray-400 hover:text-white'">
+                             JSON
+                         </button>
                     </div>
 
                     <button x-show="contentRef" @click="goBack()"
@@ -195,9 +196,9 @@
                 <div class="flex-grow overflow-y-auto custom-scrollbar">
                     <!-- Reference Content (High-Fidelity Reader) -->
                     <div x-show="contentRef" 
-                            class="p-4 prose dark:prose-invert max-w-none prose-a:text-green-500" 
-                            style="--markdown-font-size: 13px; font-size: 13px;"
-                            x-html="contentRef"></div>
+                         class="p-4 prose dark:prose-invert max-w-none prose-a:text-green-500" 
+                         style="--markdown-font-size: 13px; font-size: 13px;"
+                         x-html="contentRef"></div>
 
                     <!-- Raw JSON Source View -->
                     <div x-show="showSource && !contentRef" class="p-4 font-mono text-[10px] text-green-500 whitespace-pre-wrap leading-tight select-all">
@@ -215,7 +216,7 @@
                                         class="flex items-start gap-3 text-[13px] font-bold tracking-tight hover:underline transition-all"
                                         :class="activeAnchor === '#' + group.header.id ? 'uppercase underline' : ''">
                                         <span x-text="group.header.number || idx + 1"
-                                                class="font-mono text-[10px] opacity-70 mt-1 shrink-0 w-4"></span>
+                                              class="font-mono text-[10px] opacity-70 mt-1 shrink-0 w-4"></span>
                                         <span x-text="group.header.text"></span>
                                     </a>
                                 </template>
@@ -228,7 +229,7 @@
                                             class="flex items-start gap-2 py-0.5 text-[12px] hover:underline transition-all group/link"
                                             :class="activeAnchor === '#' + child.id ? 'uppercase underline' : ''">
                                             <span x-text="child.number || '»'"
-                                                    class="font-mono text-[9px] opacity-50 mt-1 shrink-0 w-3"></span>
+                                                  class="font-mono text-[9px] opacity-50 mt-1 shrink-0 w-3"></span>
                                             <span x-text="child.text" class="leading-snug"></span>
                                         </a>
                                     </template>
@@ -245,17 +246,17 @@
             </div>
         </aside>
 
-    </main>
 
-    <!-- SLAB 3: FOOTER -->
-    <footer class="slab-footer">
-        <div class="flex justify-between items-center w-full">
-            <span>&copy; 2025 PolyVis</span>
-            <span class="opacity-50 font-mono tracking-widest uppercase">System Status: Active</span>
-        </div>
-    </footer>
+        <!-- FOOTER -->
+        <footer class="app-footer">
+            <div class="flex justify-between items-center w-full px-4">
+                <span>&copy; 2025 PolyVis</span>
+                <span class="opacity-50 font-mono tracking-widest uppercase">System Status: Active</span>
+            </div>
+        </footer>
+    </div>
 
-    <!-- Global Floating Actions (When panels are closed) -->
+    <!-- Global Floating Toggles -->
     <button x-show="!leftOpen" @click="leftOpen = true"
         class="fixed top-20 left-4 z-50 p-2 bg-black border-2 border-white text-white hover:bg-white hover:text-black transition-colors" title="Open Navigation">
         <i data-lucide="chevron-right" class="w-4 h-4"></i>
@@ -273,4 +274,5 @@
         });
     </script>
 </body>
+
 </html>
