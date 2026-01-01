@@ -24,6 +24,8 @@
             justify-content: center;
             overflow: hidden;
             text-transform: uppercase;
+            cursor: crosshair;
+            user-select: none;
         }
 
         /* BRUTALIST CONTAINER */
@@ -33,7 +35,9 @@
             border: 2px solid var(--fg);
             padding: 2rem;
             position: relative;
-            box-shadow: 0 0 20px rgba(51, 255, 0, 0.2);
+            box-shadow: 0 0 20px rgba(51, 255, 0, 0.1);
+            background: rgba(10, 10, 10, 0.95);
+            z-index: 20;
         }
 
         .header {
@@ -42,21 +46,17 @@
             margin-bottom: 2rem;
             display: flex;
             justify-content: space-between;
+            font-weight: bold;
+            letter-spacing: 2px;
         }
 
-        /* BREATHING TYPOGRAPHY */
-        @keyframes breathe {
-            0% { text-shadow: 0 0 2px var(--dim); opacity: 0.9; }
-            50% { text-shadow: 0 0 10px var(--fg); opacity: 1; letter-spacing: 1px; }
-            100% { text-shadow: 0 0 2px var(--dim); opacity: 0.9; }
-        }
-
+        /* THE TEXT CONTAINER */
         .quote-display {
             font-size: 1.5rem;
             line-height: 1.4;
             min-height: 150px;
-            animation: breathe 4s infinite ease-in-out;
-            white-space: pre-wrap; /* Preserve formatting */
+            white-space: pre-wrap;
+            /* No CSS animation here; the JS handles the movement */
         }
 
         /* CRT SCANLINE EFFECT */
@@ -84,6 +84,7 @@
             border: 1px solid var(--fg);
             padding: 0.5rem 1rem;
             font-family: var(--font-stack);
+            font-weight: bold;
             cursor: pointer;
             transition: all 0.1s;
         }
@@ -91,6 +92,7 @@
         button:hover {
             background: var(--fg);
             color: var(--bg);
+            box-shadow: 0 0 10px var(--fg);
         }
 
         button:active {
@@ -114,9 +116,7 @@
             <span id="clock">00:00:00</span>
         </div>
 
-        <div id="output" class="quote-display">
-            INITIALIZING SQLITE MEMORY BUFFER...
-        </div>
+        <div id="output" class="quote-display"></div>
 
         <div class="controls">
             <button onclick="runQuery()">EXECUTE_RANDOM()</button>
@@ -126,7 +126,18 @@
     </div>
 
     <script>
-        // 1. THE DATA (Hutcheson's Source Code)
+        // 1. THE POLYGLOT CHAR SETS (The Noise)
+        const CHARS = {
+            math: "∀∁∂∃∄∅∆∇∈∉∋∎∏∑−∕∙√∝∞∟∠",
+            cyrillic: "БГДЖИЙЛПФЦЧШЩЪЫЭЮЯ",
+            numeric: "0123456789",
+            // The Jitter Source: Wider characters cause string expansion/contraction
+            japanese: "アイウエオカキクケコサシスセソタチツテト" 
+        };
+        
+        const SCRAMBLE_POOL = CHARS.math + CHARS.cyrillic + CHARS.numeric + CHARS.japanese;
+
+        // 2. THE DATA (The Signal)
         const SEED_DATA = [
             "That action is best, which procures the greatest happiness for the greatest numbers.",
             "Wisdom denotes the pursuing of the best ends by the best means.",
@@ -142,53 +153,99 @@
         ];
 
         let db = null;
+        let scrambleInterval = null;
 
-        // 2. THE RUNTIME (Loading SQL.js)
+        // 3. THE SCRAMBLER ENGINE (Right-to-Left Decryption)
+        function setText(targetText) {
+            const el = document.getElementById('output');
+            const duration = 1200; // Slower unfold
+            const fps = 30;
+            const steps = duration / (1000 / fps);
+            let currentStep = 0;
+            
+            if (scrambleInterval) clearInterval(scrambleInterval);
+
+            scrambleInterval = setInterval(() => {
+                const progress = currentStep / steps; // 0.0 to 1.0
+                let outputStr = "";
+
+                // For each character in the target string
+                for (let i = 0; i < targetText.length; i++) {
+                    // Preserve spaces to maintain word shape
+                    if (targetText[i] === " ") {
+                        outputStr += " ";
+                        continue;
+                    }
+
+                    // RIGHT-TO-LEFT LOGIC
+                    // We check distance from the END of the string
+                    const distFromEnd = targetText.length - 1 - i;
+                    
+                    // The "Wave" covers the string as progress increases.
+                    // Add randomness to the threshold for "glitching" edge
+                    const threshold = distFromEnd + (Math.random() * 4);
+
+                    // If the wave has passed this index (from the right)
+                    if (progress * targetText.length > threshold) {
+                        // Stabilized
+                        outputStr += targetText[i];
+                    } else {
+                        // Scrambling
+                        const r = Math.floor(Math.random() * SCRAMBLE_POOL.length);
+                        outputStr += SCRAMBLE_POOL[r];
+                    }
+                }
+
+                el.innerText = outputStr;
+                currentStep++;
+
+                if (currentStep > steps) {
+                    clearInterval(scrambleInterval);
+                    el.innerText = targetText; // Final clean lock
+                }
+            }, 1000 / fps);
+        }
+
+        // 4. THE RUNTIME (SQL.js Wrapper)
         async function initSQL() {
             const status = document.getElementById('status');
-            const output = document.getElementById('output');
-
             try {
                 const SQL = await initSqlJs({
                     locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/${file}`
                 });
-
+                
                 // Create DB in Memory
                 db = new SQL.Database();
                 
                 // Schema
-                db.run("CREATE TABLE wisdom (id INTEGER PRIMARY KEY, text TEXT, sentiment INTEGER);");
+                db.run("CREATE TABLE wisdom (id INTEGER PRIMARY KEY, text TEXT);");
                 
                 // Seed
-                const stmt = db.prepare("INSERT INTO wisdom (text, sentiment) VALUES (?, ?)");
-                SEED_DATA.forEach(quote => {
-                    stmt.run([quote, Math.floor(Math.random() * 100)]);
-                });
+                const stmt = db.prepare("INSERT INTO wisdom (text) VALUES (?)");
+                SEED_DATA.forEach(quote => stmt.run([quote]));
                 stmt.free();
 
                 status.innerText = "STATUS: MOUNTED (IN-MEMORY)";
-                runQuery(); // Show first quote
+                runQuery(); // Initial load
                 
             } catch (err) {
                 status.innerText = "ERROR: " + err.message;
-                output.innerText = "FATAL: FAILED TO LOAD ENLIGHTENMENT MODULE.";
             }
         }
 
-        // 3. THE QUERY ENGINE
         function runQuery(customQuery) {
             if (!db) return;
-            
             const sql = customQuery || "SELECT text FROM wisdom ORDER BY RANDOM() LIMIT 1";
             const result = db.exec(sql);
-
             if (result.length > 0) {
                 const row = result[0].values[0][0];
-                document.getElementById('output').innerText = row;
+                setText(row.toString());
+            } else {
+                setText("QUERY RETURNED NULL");
             }
         }
 
-        // 4. THE CLOCK
+        // Clock Update
         setInterval(() => {
             document.getElementById('clock').innerText = new Date().toISOString().split('T')[1].split('.')[0];
         }, 1000);
