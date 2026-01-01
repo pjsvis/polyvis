@@ -7,26 +7,25 @@
 We are replacing the current application shell with a strict **3-Slab (Header/Stage/Footer)** architecture using **CSS Grid** and **Flexbox** to achieve a robust "Viewport Lock".
 
 ## Directives
-- **Viewport Lock**: `100vh` / `overflow: hidden` on body. No global scroll.
-- **Slabs**: 
-  1. Header (Fixed)
-  2. Stage (Flex-Grow + Grid)
-  3. Footer (Fixed)
-- **Grid**: 3-Column Stage (`250px` | `1fr` | `350px`).
-- **Resilience**: Use `min-height: 0` on flex children and `grid-column` locking to prevent layout shifts.
+# Current Task: Data Star Reactor Experiment (COMPLETED)
 
-## Implementation Plan
+## Status: **COMPLETED**
 
-### Phase 1: Prototyping (Experiment)
-- [x] **Brief**: Analyze `briefs/brief-slab-and-grid-layout.md`.
-- [x] **Prototype**: Build `experiments/slab-and-grid/index.html`.
-- [x] **Validation**: Verify "Slab" behavior and "Grid" collapse logic with Alpine.js.
-- [x] **Fix**: Resolve Grid auto-placement bug when sidebars are hidden.
+The "Reactor" experiment successfully demonstrated the viability of a **Hollow Node** architecture. We proved that a high-frequency (10Hz) UI can be driven entirely by server-side logic using Server-Sent Events (SSE) and Datastar, with zero custom client-side JavaScript.
 
-### Phase 2: Integration (PolyVis Core)
-- [ ] **Styles**: Port layout CSS to `src/css/layers/layout.css` and `main.css`.
-- [ ] **Shell**: Update `public/index.html` to match the "Slab" structure.
-- [ ] **Logic**: Port Alpine.js sidebar toggles to strict javascript or maintain Alpine if permitted (User requested Alpine for proto, need to confirm for App).
+### Objectives Achieved
+- [x] **Hollow Client**: `index.html` uses only HTML attributes (`data-text`, `data-attr-style`).
+- [x] **Reactor Core**: `reactor.ts` (Bun) streams telemetry at 10Hz.
+- [x] **Custom Bundling**: Solved plugin loading issues by creating a custom `datastar.bundle.js` with `bun build`.
+- [x] **Protocol Decoding**: Reverse-engineered Datastar v1's SSE protocol (Line-based Key-Value pairs).
+- [x] **Cloud Deployment**: Deployed successfully to **Cloudflare Pages** (`polyvis-reactor.pages.dev`) using Edge Functions.
 
-## Context
-The "Slab & Grid" layout is the foundational architecture for the PolyVis IDE, ensuring that the Graph Canvas never fights with the document scrollbar.
+### Key Artifacts
+- **Experiment Code**: `experiments/data-star-dashboard/`
+- **Playbooks**:
+    - `playbooks/playbook-data-star.md`: Guide to Raw SSE & Datastar bundling.
+    - `playbooks/playbook-cloudflare.md`: Guide to Pages Direct Uploads & Functions.
+
+### Next Actions
+- Review the experiment results and determine how to integrate "Hollow Node" patterns into the main PolyVis architecture (e.g., for the Agent Status monitors).
+- Considerations for production: Use stable bundling, handle SSE reconnections gracefully.

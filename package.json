@@ -43,6 +43,7 @@
 		"phi": "bun run src/services/phi.ts",
 		"llama": "bun run src/services/llama.ts",
 		"llamauv": "bun run src/services/llamauv.ts",
+		"reactor": "bun run experiments/data-star-dashboard/reactor.ts",
 		"servers": "bun run scripts/cli/servers.ts"
 	},
 	"peerDependencies": {
@@ -51,6 +52,7 @@
 	"dependencies": {
 		"@mistralai/mistralai": "1.10.0",
 		"@modelcontextprotocol/sdk": "1.25.0",
+		"@starfederation/datastar": "^1.0.0-beta.11",
 		"alpinejs": "3.15.2",
 		"basecoat-css": "^0.3.7",
 		"compromise": "14.14.4",

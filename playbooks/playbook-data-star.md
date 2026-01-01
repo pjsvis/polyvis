@@ -3,104 +3,98 @@
 **Philosophy:**
 
 * **Hollow Node:** The Client has NO logic. It only has "Bindings."
-* **The Server is the Engine:** All state transitions happen in Bun.
-* **The Transport:** Server-Sent Events (SSE) push HTML fragments or Signal updates.
+*   **Hollow Node:** The Client has NO logic. It only has "Bindings."
+*   **The Server is the Engine:** All state transitions happen in Bun.
+*   **The Transport:** Server-Sent Events (SSE) push HTML fragments or Signal updates.
 
 ## 1. The Stack
 
-* **Runtime:** Bun
-* **Library:** `@gavriguy/datastar-sdk` (Official TS SDK)
-* **Client:** Single `script` tag (No Build Step needed for dev).
+*   **Runtime:** Bun
+*   **Library:** `datastar` (Custom Bundle)
+*   **Client:** `index.html` loading a local `datastar.bundle.js`.
 
-## 2. Core Concepts
+## 2. Lessons Learned (The "Reactor" Experiment)
 
-### A. Signals (`data-signals`)
+### A. Bundling is Critical
+Do not rely on the CDN for production or stability. The official bundle may be "slim" and attempt to dynamically fetch plugins.
+**Best Practice:** Create a custom entry point and build a self-contained bundle.
 
-Global state variables on the client.
+**entry.ts**:
+```typescript
+import { apply, load } from '@starfederation/datastar/dist/engine/engine.js';
+import { GET } from '@starfederation/datastar/dist/plugins/official/backend/actions/get.js';
+import { MergeSignals } from '@starfederation/datastar/dist/plugins/official/backend/watchers/mergeSignals.js';
+import { Text } from '@starfederation/datastar/dist/plugins/official/dom/attributes/text.js';
+import { OnLoad } from '@starfederation/datastar/dist/plugins/official/browser/attributes/onLoad.js';
+// ... Import other attribute plugins (Attr, Bind, Class, On) ...
 
-```html
-<div data-signals="{ cpu: 0, status: 'IDLE' }">...</div>
+load(GET, MergeSignals, Text, OnLoad); // Explicitly load everything
+apply();
+```
+Build with: `bun build entry.ts --outfile datastar.bundle.js --target browser`.
 
-<input data-bind-cpu />
-
-<span data-text="$cpu"></span>
+### B. The Protocol is NOT JSON
+Datastar's SSE `data` payload uses a custom line-based key-value format.
+**DO NOT send:** `data: { "signals": { "foo": 1 } }`
+**DO SEND:**
+```text
+event: datastar-merge-signals
+data: signals { "foo": 1 }
+data: onlyIfMissing false
 
 ```
+*Note: The value for `signals` MUST be a stringified object representation.*
 
-### B. The "Reactor" (SSE Stream)
+### C. Signal Initialization
+Initialize signals on the client to ensure bindings are active immediately.
+```html
+<body 
+    data-signals='{"rpm": 0, "status": "INIT"}' 
+    data-on-load="@get('/feed')">
+```
 
-The server pushes updates. It doesn't just send data; it sends **Instructions**.
+### D. Style Binding
+If the standalone `Style` plugin is missing or problematic, use `data-attr` as a robust fallback:
+```html
+<div data-attr-style="`height: ${$height}%`"></div>
+```
 
-* `MergeFragments`: "Here is a new `<div>`. Put it inside `#dashboard`."
-* `MergeSignals`: "Update variable `$cpu` to `99`."
+## 3. The "Hello World" (Bun + Raw SSE)
 
-## 3. The "Hello World" (Bun + Datastar)
-
-**server.ts**
+**server.ts** (No SDK required)
 
 ```typescript
-import { ServerSentEventGenerator } from "@gavriguy/datastar-sdk";
-
 const server = Bun.serve({
   port: 3000,
-  async fetch(req) {
+  fetch(req) {
     const url = new URL(req.url);
-
-    // 1. Serve the Shell
     if (url.pathname === "/") return new Response(Bun.file("index.html"));
 
-    // 2. The Reactor Stream
     if (url.pathname === "/feed") {
-      const { stream, send } = ServerSentEventGenerator.stream();
-      
-      // Heartbeat Loop (The Reactor)
-      const timer = setInterval(() => {
-        // Option A: Update Data (Cheaper)
-        send("datastar-merge-signals", { 
-            signals: { time: new Date().toLocaleTimeString() } 
-        });
+      const stream = new ReadableStream({
+        start(controller) {
+            const send = (evt, dataLines) => {
+                let block = "";
+                for(const [k,v] of Object.entries(dataLines)) block += `data: ${k} ${v}\n`;
+                controller.enqueue(new TextEncoder().encode(`event: ${evt}\n${block}\n\n`));
+            };
 
-        // Option B: Update UI (More Powerful)
-        send("datastar-merge-fragments", {
-            fragments: `<div id="status">Systems Nominal: ${Math.random()}</div>`
-        });
-      }, 100);
-
-      // Cleanup
-      req.signal.addEventListener("abort", () => clearInterval(timer));
-      return stream;
+            setInterval(() => {
+                const json = JSON.stringify({ time: Date.now() });
+                send("datastar-merge-signals", { signals: json });
+            }, 100);
+        }
+      });
+      return new Response(stream, { headers: { "Content-Type": "text/event-stream" }});
     }
   }
 });
-
 ```
 
-**index.html**
+## 4. Troubleshooting
 
-```html
-<!DOCTYPE html>
-<html>
-<head>
-    <script type="module" src="https://cdn.jsdelivr.net/gh/starfederation/datastar/bundles/datastar.js"></script>
-</head>
-<body data-on-load="@get('/feed')">
-    
-    <div data-signals="{ time: 'Loading...' }">
-        <h1>Reactor Time: <span data-text="$time"></span></h1>
-    </div>
-
-    <div id="status">Waiting for link...</div>
-
-</body>
-</html>
-
-```
-
-## 4. The "Gotchas" (Bestiary Candidates)
-
-* **ID is King:** Every element you want to update via `MergeFragments` **MUST** have an `id`. No ID = No Update.
-* **Global Signals:** Signals are global to the page. If you have two widgets using `$count`, they will sync. Namespace them (`$widget1_count`) if needed.
-* **SSE Connection Limit:** Browsers have a limit on concurrent SSE connections (usually 6 per domain). Don't open a new stream for every component; use **One Stream to Rule Them All**.
+*   **No Activity?** Check if `OnLoad` plugin is loaded. Without it, `@get` does nothing.
+*   **404 Errors?** Your bundle is trying to fetch plugins. Build a full bundle.
+*   **Silent Failures?** Add a "Ping" event (`datastar-execute-script`) to your loop to verify the connection is alive in the browser console.
 
 ---
-

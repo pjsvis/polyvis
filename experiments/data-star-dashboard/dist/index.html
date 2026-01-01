@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>POLYVIS | REACTOR CORE</title>
+    
+    <!-- DATASTAR -->
+    <!-- DATASTAR (Local) -->
+    <script type="module" src="/datastar.bundle.js"></script>
+
+    <!-- FONT -->
+    <link href="https://fonts.googleapis.com/css2?family=Jersey+10&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+
+    <!-- STYLES (Inline for Containment) -->
+    <style>
+        :root {
+            --bg: #050505;
+            --glass: rgba(20, 20, 20, 0.8);
+            --border: 2px solid #333;
+            --text-main: #E0E0E0;
+            --text-dim: #666;
+            
+            --signal-red: #FF2A2A;
+            --signal-green: #00FF41;
+            --signal-cyan: #00F3FF;
+            --signal-yellow: #FFB800;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background: var(--bg);
+            color: var(--text-main);
+            font-family: 'Share Tech Mono', monospace;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            display: grid;
+            grid-template-rows: 60px 1fr 40px;
+        }
+
+        /* HEADER */
+        header {
+            border-bottom: var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            background: rgba(0,0,0,0.5);
+        }
+
+        .brand {
+            font-family: 'Jersey 10', sans-serif;
+            font-size: 32px;
+            color: var(--signal-cyan);
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px rgba(0, 243, 255, 0.3);
+        }
+
+        .status {
+            font-size: 14px;
+            color: var(--signal-green);
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .status::before {
+            content: '';
+            display: block;
+            width: 8px;
+            height: 8px;
+            background: var(--signal-green);
+            border-radius: 50%;
+            box-shadow: 0 0 8px var(--signal-green);
+        }
+
+        /* MAIN GRID */
+        main {
+            display: grid;
+            grid-template-columns: 300px 1fr 300px;
+            overflow: hidden;
+        }
+
+        aside {
+            border-right: var(--border);
+            background: rgba(255,255,255,0.02);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        aside:last-child {
+            border-right: none;
+            border-left: var(--border);
+        }
+
+        section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            background-image: 
+                linear-gradient(rgba(0, 243, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 243, 255, 0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+
+        /* COMPONENTS */
+        .card {
+            border: var(--border);
+            padding: 16px;
+            background: #000;
+        }
+
+        .card h3 {
+            margin: 0 0 8px 0;
+            font-size: 12px;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .metric-big {
+            font-size: 48px;
+            color: white;
+            line-height: 1;
+        }
+
+        .metric-unit {
+            font-size: 14px;
+            color: var(--text-dim);
+            margin-left: 4px;
+        }
+
+        /* THE REACTOR BAR */
+        .rod-container {
+            width: 100px;
+            height: 400px;
+            border: 2px solid var(--text-dim);
+            padding: 4px;
+            position: relative;
+            background: rgba(0,0,0,0.5);
+        }
+        
+        .fuel-rod {
+            width: 100%;
+            height: 0%; /* Driven by Server */
+            background: var(--signal-cyan);
+            position: absolute;
+            bottom: 4px;
+            left: 4px;
+            width: calc(100% - 8px);
+            transition: height 0.1s linear, background-color 0.2s;
+            box-shadow: 0 0 20px var(--signal-cyan);
+        }
+
+        /* FOOTER */
+        footer {
+            border-top: var(--border);
+            display: flex;
+            align-items: center;
+            padding: 0 24px;
+            font-size: 12px;
+            color: var(--text-dim);
+            justify-content: space-between;
+        }
+
+    </style>
+</head>
+<!-- 
+    DATASTAR BINDINGS 
+    1. Signals: Define global state
+    2. On Load: Connect to SSE stream
+-->
+<body 
+    data-signals='{"ingest_rpm":0,"cpu_temp":0,"core_status":"INIT","rod_height":"0%"}'
+    data-on-load="@get('/feed')"
+>
+
+    <header>
+        <div class="brand">POLYVIS // REACTOR</div>
+        <div class="status">CONNECTED</div>
+    </header>
+
+    <main>
+        <!-- LEFT PANEL: METRICS -->
+        <aside>
+            <div class="card">
+                <h3>Ingestion Rate</h3>
+                <div>
+                    <span class="metric-big" data-text="$ingest_rpm">0000</span>
+                    <span class="metric-unit">RPM</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Core Temp</h3>
+                <div>
+                    <span class="metric-big" data-text="$cpu_temp">00.0</span>
+                    <span class="metric-unit">°C</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>System Status</h3>
+                <div style="font-size: 24px; color: var(--signal-yellow);" data-text="$core_status">
+                    INIT
+                </div>
+            </div>
+        </aside>
+
+        <!-- CENTER STAGE: VISUALIZATION -->
+        <section>
+            <div class="rod-container">
+                <!-- BINDS HEIGHT TO SIGNAL -->
+                <div class="fuel-rod" data-attr-style="`height: ${$rod_height}`"></div>
+            </div>
+            <div style="margin-top: 20px; font-size: 12px; color: var(--signal-cyan);">
+                REACTOR CORE LEVEL
+            </div>
+        </section>
+
+        <!-- RIGHT PANEL: LOGS (Static for now) -->
+        <aside>
+            <div style="font-size: 12px; line-height: 1.5; color: var(--text-dim);">
+                <div style="color: var(--signal-green)">[SYSTEM] Uplink established.</div>
+                <div>[SYSTEM] Listening for Datastar signals...</div>
+                <br>
+                <div>Waiting for telemetry steam...</div>
+            </div>
+        </aside>
+    </main>
+
+    <footer>
+        <div>BUN RUNTIME: ACTIVE</div>
+        <div>NO CLIENT JS DETECTED</div>
+    </footer>
+
+</body>
+</html>

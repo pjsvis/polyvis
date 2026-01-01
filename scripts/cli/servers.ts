@@ -12,6 +12,12 @@ const SERVICES = [
 		port: "8085",
 		command: "llamauv",
 	},
+	{
+		name: "Reactor",
+		pidFile: ".reactor.pid",
+		port: "3050",
+		command: "reactor",
+	},
 ];
 
 async function isRunning(pid: number): Promise<boolean> {
