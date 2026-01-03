@@ -1,6 +1,5 @@
-
 // POLYVIS REACTOR CORE
-// Uses raw SSE (Server-Sent Events) to drive Datastar
+// Uses raw SSE (Server-Sent Events) to drive Datastar UI updates
 
 console.log(`[REACTOR] Booting up...`);
 
@@ -28,38 +27,39 @@ const server = Bun.serve({
     // 2. The Reactor Stream (SSE)
     if (url.pathname === "/feed") {
         console.log(`[REACTOR] Client connected: ${req.headers.get("user-agent")}`);
-        
+
         let timer: Timer;
 
         const stream = new ReadableStream({
             start(controller) {
-                // Helper to send events
+                // Helper to send Datastar-formatted SSE events
                 const send = (event: string, dataLines: Record<string, string>) => {
                     let dataBlock = "";
                     for (const [key, value] of Object.entries(dataLines)) {
                         dataBlock += `data: ${key} ${value}\n`;
                     }
                     const payload = `event: ${event}\n${dataBlock}\n`;
-                    // console.log(`[REACTOR] Sending ${event}:`, JSON.stringify(dataLines).substring(0, 50) + "...");
                     controller.enqueue(new TextEncoder().encode(payload));
                 };
 
-                // SIMULATION LOOP (10Hz)
+                // SIMULATION LOOP (10Hz = 100ms)
                 timer = setInterval(() => {
-                    const rpm = Math.floor(2000 + Math.random() * 3000); 
-                    const temp = (40 + Math.random() * 60).toFixed(1);   
-                    const height = Math.min(100, Math.max(0, (parseFloat(temp) - 20) * 1.2)); 
-                    
-                    let status = "NOMINAL";
+                    // Generate random metrics as per brief specifications
+                    const cpu_temp = (Math.random() * 100).toFixed(1);
+                    const ingestion_rate = Math.floor(Math.random() * 5000);
 
-                    if (parseFloat(temp) > 80) status = "WARNING";
-                    if (parseFloat(temp) > 95) status = "CRITICAL";
+                    // Random status enum from brief: IDLE, PROCESSING, FLUSHING
+                    const STATUS_VALUES = ["IDLE", "PROCESSING", "FLUSHING"];
+                    const status = STATUS_VALUES[Math.floor(Math.random() * STATUS_VALUES.length)];
+
+                    // Calculate visual height for CSS graph based on cpu_temp
+                    const rod_height = `${Math.min(100, Math.max(0, parseFloat(cpu_temp)))}%`;
 
                     const signalJSON = JSON.stringify({
-                        ingest_rpm: rpm,
-                        cpu_temp: temp,
-                        core_status: status,
-                        rod_height: `${height}%`
+                        cpu_temp: cpu_temp,
+                        ingestion_rate: ingestion_rate,
+                        status: status,
+                        rod_height: rod_height
                     });
 
                     send("datastar-merge-signals", {
@@ -67,7 +67,7 @@ const server = Bun.serve({
                         onlyIfMissing: "false"
                     });
 
-                }, 100); 
+                }, 100);
             },
             cancel() {
                  console.log("[REACTOR] Client disconnected.");

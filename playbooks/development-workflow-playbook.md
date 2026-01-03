@@ -43,7 +43,114 @@ bun run dev
 > If the server fails to start because the port is in use, kill the existing process:
 > `lsof -ti:3000 | xargs kill -9`
 
-## 2. Manual Workflow (Advanced)
+## 2.1. Server Management
+
+Polyvis uses a unified `ServiceLifecycle` API for all background services. This provides consistent commands for starting, stopping, and monitoring services.
+
+### Status Dashboard
+
+Check all services at once:
+
+```bash
+bun run servers
+```
+
+Output example:
+```
+📡 PolyVis Service Status
+----------------------------------------------------------------------
+SERVICE         PORT       COMMAND         STATUS           PID
+----------------------------------------------------------------------
+Dev Server      3000       dev             🟢 RUNNING       12345
+Daemon          3010       daemon          ⚪️ STOPPED       -
+MCP             Stdio      mcp             🟢 RUNNING       12346
+Reactor         3050       reactor         🔴 STALE          12340 (?)
+...
+```
+
+### Individual Service Commands
+
+Each service supports four lifecycle commands:
+
+| Command | Action |
+|---------|--------|
+| `start` | Launch service in background (detached) |
+| `stop` | Graceful shutdown (SIGTERM → SIGKILL if needed) |
+| `restart` | Stop + 500ms delay + Start |
+| `status` | Show current state and PID |
+
+### Available Services
+
+| Service | Command Base | Port | Purpose |
+|---------|--------------|------|---------|
+| Dev Server | `bun run dev` | 3000 | Web server + CSS/JS watchers |
+| Daemon | `bun run daemon` | 3010 | Vector embedding service |
+| MCP | `bun run mcp` | Stdio | Model Context Protocol server |
+| Reactor | `bun run reactor` | 3050 | Datastar SSE experiment |
+| Olmo-3 | `bun run olmo3` | 8084 | LLM service |
+| Phi-3.5 | `bun run phi` | 8082 | LLM service |
+| Llama-3 | `bun run llama` | 8083 | LLM service |
+| Llama-UV | `bun run llamauv` | 8085 | LLM service |
+
+### Common Workflows
+
+**Start development environment:**
+```bash
+bun run dev start
+bun run servers  # Verify it's running
+```
+
+**Start all backend services:**
+```bash
+bun run daemon start
+bun run mcp start
+bun run servers  # Check all services
+```
+
+**Restart a stuck service:**
+```bash
+bun run daemon restart
+```
+
+**Stop all services:**
+```bash
+bun run dev stop
+bun run daemon stop
+bun run mcp stop
+# ... etc for each service
+```
+
+### Service Artifacts
+
+Each service creates two files in the project root:
+
+- `.<service>.pid` - Process ID file (used for status tracking)
+- `.<service>.log` - Combined stdout + stderr logs
+
+**Example:** `.dev.pid` contains `12345` and `.dev.log` contains server output.
+
+### Viewing Logs
+
+To view a service's logs:
+
+```bash
+# Tail the log file
+tail -f .daemon.log
+
+# View entire log
+cat .daemon.log
+
+# Search for errors
+grep "error" .daemon.log
+```
+
+### Protocol Reference
+
+See **AGENTS.md Protocol 25 (SLP)** for the full Server Lifecycle Protocol specification, including the `ServiceLifecycle` class API and guidance on creating new services.
+
+---
+
+## 2.2. Manual Workflow (Advanced)
 If you prefer to run processes separately:
 
 ### CSS Development

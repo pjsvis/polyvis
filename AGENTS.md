@@ -29,13 +29,14 @@ If **NO**: Continue to tier selection below.
 **Who:** All agents, always.
 **Purpose:** Safety, correctness, and user alignment.
 
-**Read these 6 protocols before ANY task:**
+**Read these 7 protocols before ANY task:**
 1. DOSP-CTX - Destructive Operation Safeguard (highest priority)
 2. FNIP - File Naming Integrity
 3. DCVP - Directive Comprehension & Verification
 4. UFP - User Finality
 5. NCVP - No Completion Without Verification
-6. BFP - Bun First (runtime requirement)
+6. WSP - When Stuck (safety-critical escalation)
+7. BFP - Bun First (runtime requirement)
 
 **After 3+ successful sessions** → Unlock TIER 2.
 
@@ -55,9 +56,10 @@ If **NO**: Continue to tier selection below.
 12. DSP - Design Sanity (visual work)
 13. SEP - Secret Exclusivity (security)
 14. PMP - Port Management (dev server)
-15. SWP - Session Wrap-up (cleanup)
-16. TTP - Task Tracking (project state)
-17. FLIP - File Length Integrity (refactoring)
+15. SLP - Server Lifecycle (infrastructure)
+16. SWP - Session Wrap-up (cleanup)
+17. TTP - Task Tracking (project state)
+18. FLIP - File Length Integrity (refactoring)
 
 **For domain-specific work** → Load TIER 3 JIT.
 
@@ -70,7 +72,9 @@ If **NO**: Continue to tier selection below.
 **Who:** Any agent, loaded based on task context.
 **Purpose:** Deep domain knowledge.
 
-**Load these when task domain requires:**
+**Discovery:** Consult `playbooks/README.md` for the complete playbook index.
+
+**Common domains:**
 
 | Task Domain | Read Playbook |
 |-------------|---------------|
@@ -84,6 +88,8 @@ If **NO**: Continue to tier selection below.
 | Schema Changes | `playbooks/schema-playbook.md` |
 | Sigma/Visualization | `playbooks/sigma-playbook.md` |
 | MCP Integration | `src/mcp/README.md` |
+
+**30+ playbooks available.** See `playbooks/README.md` for full index.
 
 **OCIP Protocol (Tier 3):** Operational Context Initialization Protocol - loaded JIT for domain tasks.
 
@@ -145,22 +151,37 @@ Consult `SCOREBOARD.md` for:
 **Agent Point:** Complete complex task with zero regressions
 **User Point:** Agent declares complete but verification fails
 
-### Experimentation Protocol
+---
 
-Use `playbooks/agent-experimentation-protocol.md` when:
-- Console errors appear (STOP immediately)
-- Regression loops occur
-- Fuzzy requirements ("make it pop")
-- Legacy/black-box code
+## 🚨 WHEN STUCK
 
-Create scratchpad: Document hypothesis, experiment, synthesize, apply
+**Stop. Breathe. Follow this path.**
 
-### File Locations
+### Symptom → Action
 
-- Briefs: `briefs/pending/` or `briefs/holding/`
-- Debriefs: `debriefs/YYYY-MM-DD-[slug].md`
-- Playbooks: `playbooks/*.md`
-- Verification: `conductor/workflow.md` (TDD protocol)
+| Symptom | Do This | Protocol/Playbook |
+|---------|---------|-------------------|
+| **Console errors** | STOP immediately. Capture logs. | `playbooks/agent-experimentation-protocol.md` |
+| **Regression loop** | One fix → another break. Isolate. | `playbooks/problem-solving-playbook.md` |
+| **3+ failed attempts** | SPIN CYCLE. Revert, isolate. | **Protocol 6 (WSP)** below |
+| **"Doesn't work" (vague)** | Empirical verification required. | **Protocol 23 (VAP)** |
+| **Unknown library/API** | Read `.d.ts` definitions. | **Protocol 23 (VAP)** |
+| **Fuzzy requirements** | "Make it pop" → Define primitives. | **Protocol 15 (DSP)** |
+| **Black-box code** | Isolate in clean room. | `playbooks/problem-solving-playbook.md` |
+
+### Immediate Escalation Path
+
+```
+1. Read Protocol 6 (WSP) below
+   ↓
+2. If still stuck: Read agent-experimentation-protocol.md
+   ↓
+3. If still stuck: Read problem-solving-playbook.md
+   ↓
+4. If still stuck: Ask user for clarification
+```
+
+**Key Principle:** "Spin Cycle" = editing same file 3+ times without progress. This means your mental model is wrong. STOP and isolate.
 
 ---
 
@@ -208,7 +229,64 @@ Create scratchpad: Document hypothesis, experiment, synthesize, apply
   3.  **Completion:** Upon task completion, a debrief document must be created in the `debriefs/` directory summarizing the work, and `_CURRENT_TASK.md` should be reset for the next task.
   4.  **Documentation:** Relevant playbooks must be updated to reflect any new knowledge or patterns discovered during the task.
 
-## 6. CMP: Console Monitoring Protocol
+## 6. WSP: When Stuck Protocol
+
+- **Principle:** When an agent encounters a regression, unknown bug, or "spin cycle" (repeated failed attempts), it MUST stop and follow a structured debugging path. Continued guessing compounds errors.
+
+- **Trigger Conditions (STOP immediately when ANY apply):**
+  - Edited the same file 3+ times without progress
+  - One fix causes another regression
+  - Console errors appear and you don't understand why
+  - Task seems "impossible" or requirements feel contradictory
+  - You've tried 3+ approaches based on assumptions
+
+- **Escalation Path (Follow in order):**
+
+  **Level 1: Assess**
+  1. Count your attempts. If ≥3 failed attempts → STOP.
+  2. Identify the symptom (use the table from "🚨 WHEN STUCK" above).
+  3. Read the relevant protocol/playbook for that symptom.
+
+  **Level 2: Isolate**
+  1. If Level 1 doesn't resolve: Read `playbooks/problem-solving-playbook.md`
+  2. Create a clean room test (isolated from main codebase)
+  3. Verify your understanding in isolation
+  4. Apply verified fix back to main codebase
+
+  **Level 3: Experiment**
+  1. If Level 2 doesn't resolve: Read `playbooks/agent-experimentation-protocol.md`
+  2. Create a scratchpad file
+  3. Document hypothesis → experiment → result
+  4. Synthesize findings into solution
+
+  **Level 4: Ask**
+  1. If Levels 1-3 don't resolve: Ask user for clarification
+  2. Provide context: what you tried, what failed, what you need
+  3. Wait for guidance before proceeding
+
+- **Prohibited Actions:**
+  - ❌ Continue guessing after 3 failed attempts
+  - ❌ Edit the same file 4+ times without verification
+  - ❌ Proceed with "it should work" mentality
+  - ❌ Skip isolation step for complex bugs
+
+- **Required Actions:**
+  - ✅ Explicitly state: "Entering WSP (When Stuck Protocol)"
+  - ✅ Document each attempt with hypothesis and result
+  - ✅ Create scratchpad for complex debugging
+  - ✅ Verify fix in isolation before applying to main codebase
+
+- **Reference:** `playbooks/agent-experimentation-protocol.md` and `playbooks/problem-solving-playbook.md` for detailed debugging strategies.
+
+**Note:** This protocol is safety-critical. Violating WSP (continuing to guess when stuck) is the primary cause of SCOREBOARD User points.
+
+---
+
+## Legacy Protocol Note
+
+The following protocols maintain their original numbers for backward compatibility but are referenced in TIER sections above.
+
+## 7. CMP: Console Monitoring Protocol
 
 - **Principle:** Browser console logs must be monitored during web application development to quickly identify errors and verify functionality. "No-errors" is a strict requirement prior to proceeding.
 - **Workflow:**
@@ -364,11 +442,11 @@ Create scratchpad: Document hypothesis, experiment, synthesize, apply
 * **Workflow:**
     1.  **Constraint Stacking:** The agent shall treat the protocols in `AGENTS.md` as the "Base Layer" of its operating system, explicitly overriding default training biases (e.g., the tendency to use `npm` instead of `bun`, or React instead of Alpine).
     2.  **Domain Identification:** The agent must analyze the user's request to identify the active technical domains (e.g., CSS, State Management, Data Ingestion, Graph Logic).
-    3.  **Playbook Ingestion:** Based on the identified domains, the agent **must** read the canonical Playbook(s) from the `playbooks/` directory *before* proposing a solution.
-        * *CSS Task?* $\rightarrow$ Read `playbooks/css-zero-magic-playbook.md`.
-        * *UI Interaction?* $\rightarrow$ Read `playbooks/alpinejs-playbook.md`.
-        * *Graph Logic?* $\rightarrow$ Read `playbooks/graphology-playbook.md`.
-    4.  **Confirmation:** The agent must explicitly state which Contexts have been initialized (e.g., *"Context Initialized: Loaded CSS & Alpine Playbooks"*).
+    3.  **Playbook Discovery:** Consult `playbooks/README.md` for the complete playbook index. Scan the domain column to find matching playbooks.
+    4.  **Playbook Ingestion:** Read the identified playbook(s) from the `playbooks/` directory *before* proposing a solution.
+    5.  **Confirmation:** The agent must explicitly state which Contexts have been initialized (e.g., *"Context Initialized: Loaded CSS & Alpine Playbooks"*).
+
+**Reference:** `playbooks/README.md` for the full playbook index.
 
 ## 21. FLIP: File Length Integrity Protocol (v2.0)
 
@@ -510,3 +588,78 @@ When updating code that references deprecated protocols:
 - Replace "Protocol 14 (TFP)" → "Protocol 22 (CCP)"
 - Replace "Protocol 17 (BCP)" → "Protocol 24 (BVP)"
 - Replace "Protocol 18 (RAP)" → "Protocol 23 (VAP)"
+
+---
+
+## 25. SLP: Server Lifecycle Protocol
+
+- **Principle:** All background services are managed through a consistent `ServiceLifecycle` API. Never manually manage processes with `pkill` or direct process manipulation.
+
+### Status Dashboard
+
+Check all services at once:
+
+```bash
+bun run servers
+```
+
+Output shows SERVICE, PORT, COMMAND, STATUS, and PID for all 8 services.
+
+### Individual Service Commands
+
+Each service supports `start`, `stop`, `restart`, and `status`:
+
+| Service | Command | Port | Purpose |
+|---------|---------|------|---------|
+| Dev Server | `bun run dev start\|stop\|restart\|status` | 3000 | Web server + watchers |
+| Daemon | `bun run daemon start\|stop\|restart\|status` | 3010 | Vector embedding service |
+| MCP | `bun run mcp start\|stop\|restart\|status` | Stdio | Model Context Protocol server |
+| Reactor | `bun run reactor start\|stop\|restart\|status` | 3050 | Datastar SSE experiment |
+| Olmo-3 | `bun run olmo3 start\|stop\|restart\|status` | 8084 | LLM service |
+| Phi-3.5 | `bun run phi start\|stop\|restart\|status` | 8082 | LLM service |
+| Llama-3 | `bun run llama start\|stop\|restart\|status` | 8083 | LLM service |
+| Llama-UV | `bun run llamauv start\|stop\|restart\|status` | 8085 | LLM service |
+
+### Workflow
+
+1. **Before Starting:** Run `bun run servers` to check current state
+2. **Start Service:** Use `bun run <service> start`
+3. **Verify:** Run `bun run <service> status` or check dashboard again
+4. **Stop:** Use `bun run <service> stop` when done
+5. **Restart:** Use `bun run <service> restart` to cycle a service
+
+### Artifacts
+
+Each service creates two files in the project root:
+
+- `.<service>.pid` - Process ID file (used for status tracking)
+- `.<service>.log` - Combined stdout + stderr logs
+
+**Example:** `bun run dev start` creates `.dev.pid` and `.dev.log`
+
+### ServiceLifecycle Class
+
+The underlying implementation is `src/utils/ServiceLifecycle.ts`:
+
+```typescript
+class ServiceLifecycle {
+  start()     // Spawn detached background process
+  stop()      // SIGTERM (graceful) → SIGKILL (force)
+  status()    // Check PID file + process liveness
+  restart()   // stop + 500ms delay + start
+  serve(fn)   // Run in foreground with signal handlers
+}
+```
+
+### Creating New Services
+
+When adding a new long-running service:
+1. Wrap it with `ServiceLifecycle` class
+2. Add to `scripts/cli/servers.ts` service registry
+3. Add package.json script: `"<name>": "bun run src/path/to/service.ts"`
+
+See `playbooks/polyvis-standards-playbook.md` (Section 6) for detailed guidance.
+
+---
+
+**Reference:** `playbooks/development-workflow-playbook.md` (Server Management section) for usage documentation.
