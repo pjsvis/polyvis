@@ -18,9 +18,12 @@ function cosineSimilarity(a: Float32Array, b: Float32Array): number {
 	let normB = 0;
 
 	for (let i = 0; i < a.length; i++) {
-		dotProduct += a[i] * b[i];
-		normA += a[i] * a[i];
-		normB += b[i] * b[i];
+		const aVal = a[i];
+		const bVal = b[i];
+		if (aVal === undefined || bVal === undefined) continue;
+		dotProduct += aVal * bVal;
+		normA += aVal * aVal;
+		normB += bVal * bVal;
 	}
 
 	return dotProduct / (Math.sqrt(normA) * Math.sqrt(normB));
@@ -92,7 +95,8 @@ async function compareModels() {
 		const bgeStart = performance.now();
 		const bgeGen = bgeModel.embed([query]);
 		const bgeResult = await bgeGen.next();
-		const bgeEmbedding = new Float32Array(toFafcas(new Float32Array(bgeResult.value![0])).buffer);
+		if (!bgeResult.value?.[0]) throw new Error("BGE embedding failed");
+		const bgeEmbedding = new Float32Array(toFafcas(new Float32Array(bgeResult.value[0])).buffer);
 		const bgeTime = performance.now() - bgeStart;
 
 		const bgeScores = nodes.map((node) => ({
@@ -102,13 +106,17 @@ async function compareModels() {
 		bgeScores.sort((a, b) => b.score - a.score);
 
 		const bgeAvg = bgeScores.reduce((sum, s) => sum + s.score, 0) / bgeScores.length;
-		const bgeSpread = bgeScores[0].score - bgeScores[bgeScores.length - 1].score;
+		const bgeFirst = bgeScores[0];
+		const bgeLast = bgeScores[bgeScores.length - 1];
+		if (!bgeFirst || !bgeLast) throw new Error("No BGE scores");
+		const bgeSpread = bgeFirst.score - bgeLast.score;
 
 		// Test MiniLM
 		const miniLmStart = performance.now();
 		const miniLmGen = miniLmModel.embed([query]);
 		const miniLmResult = await miniLmGen.next();
-		const miniLmEmbedding = new Float32Array(toFafcas(new Float32Array(miniLmResult.value![0])).buffer);
+		if (!miniLmResult.value?.[0]) throw new Error("MiniLM embedding failed");
+		const miniLmEmbedding = new Float32Array(toFafcas(new Float32Array(miniLmResult.value[0])).buffer);
 		const miniLmTime = performance.now() - miniLmStart;
 
 		// For MiniLM, we need to re-embed all nodes (can't compare cross-model directly)
@@ -116,7 +124,7 @@ async function compareModels() {
 		
 		console.log("\nBGE Small EN v1.5:");
 		console.log(`  Query time:   ${bgeTime.toFixed(2)}ms`);
-		console.log(`  Best match:   ${bgeScores[0].id} (${(bgeScores[0].score * 100).toFixed(1)}%)`);
+		console.log(`  Best match:   ${bgeFirst.id} (${(bgeFirst.score * 100).toFixed(1)}%)`);
 		console.log(`  Avg score:    ${(bgeAvg * 100).toFixed(1)}%`);
 		console.log(`  Spread:       ${(bgeSpread * 100).toFixed(1)}%`);
 

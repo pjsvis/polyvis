@@ -193,18 +193,56 @@ Consider adding chunking if/when:
 
 ## Future Considerations
 
-### If Chunking Becomes Necessary
+### Recommended Approach: File Splitting (Not Runtime Chunking)
 
-**Approach to use:**
-- **Hybrid chunking:** Only chunk large docs (>10KB)
-- **By domain:** Research papers by section, API docs by endpoint
-- **Lazy chunking:** Chunk at query time, not ingestion
-- **Simpler logic:** Split by size, not complex AST traversal
+**If large documents (>15-20KB) become problematic, use simple file splitting:**
 
-**Don't repeat:**
-- Building infrastructure before validating need
-- Complex deduplication when unnecessary
-- Orphaned code not integrated with main pipeline
+**Strategy:**
+1. Parse document structure with `ast-grep` or `marked`
+2. Split at natural boundaries (H1/H2 headers)
+3. Create multiple markdown files (e.g., `agents-part-1.md`, `agents-part-2.md`)
+4. Add metadata: `<!-- Part 1 of 3 -->`
+5. Optional: Keep parent file as TOC with links to parts
+6. Commit split files to version control
+
+**Advantages:**
+- ✅ **Simple:** No infrastructure, just split files once
+- ✅ **Git-native:** Diffs are meaningful, history is granular
+- ✅ **Transparent:** Files are the chunks (source of truth)
+- ✅ **Reversible:** Reconstruct with `cat part-*.md > full.md`
+- ✅ **Lazy:** Only split the 5% of docs that need it
+
+**When to Split:**
+
+| Document Size | Action |
+|---------------|--------|
+| <10KB | Leave as-is |
+| 10-20KB | Consider if natural boundaries exist |
+| >20KB | Strong candidate for splitting |
+
+**Example: Splitting AGENTS.md (47KB)**
+```bash
+# Parse and split at H1 boundaries
+AGENTS.md → agents-tier1.md (protocols 1-6)
+          → agents-tier2.md (protocols 7-18)
+          → agents-tier3.md (playbooks index)
+
+# Keep parent as TOC
+AGENTS.md → "# Agent Protocols\n\nSee:\n- [Tier 1](agents-tier1.md)..."
+```
+
+**Anti-Patterns to Avoid:**
+- ❌ Premature splitting ("what if it grows?")
+- ❌ Runtime chunking infrastructure
+- ❌ Artificial boundaries (mid-paragraph splits)
+- ❌ Complex deduplication/mapping systems
+
+**Why This Works:**
+- Documents remain markdown files in git
+- Vector search ingests each part as separate node
+- Search results link to specific part files
+- Humans edit parts independently
+- Reconstruction is trivial when needed
 
 ---
 

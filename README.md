@@ -10,10 +10,42 @@ The application is built with HTML, CSS, and [Alpine.js](https://alpinejs.dev/),
 - **Data-Driven Suggestions:** The search box provides a curated list of high-value terms guaranteed to produce rich, interesting graphs.
 - **In-Browser Database:** The entire graph dataset is loaded into the browser via sql.js, requiring no active backend server for querying.
 - **Alpine.js Reactivity:** Uses [Alpine.js](https://alpinejs.dev/) for a lightweight, reactive UI without a complex build step.
-- **Alpine.js Reactivity:** Uses [Alpine.js](https://alpinejs.dev/) for a lightweight, reactive UI without a complex build step.
 - **Zero-Build Frontend:** Built with vanilla web technologies and Alpine.js for maximum simplicity and performance.
--   **Themable UI:** All design tokens (colors, dimensions) are centralized in `src/css/layers/theme.css` ("The Control Panel") for easy customization.
--   **Semantic Styling:** No magic numbers. All styles use semantic variables (e.g., `--surface-panel`, `--border-base`) for consistent theming.
+- **Themable UI:** All design tokens (colors, dimensions) are centralized in `src/css/layers/theme.css` ("The Control Panel") for easy customization.
+- **Semantic Styling:** No magic numbers. All styles use semantic variables (e.g., `--surface-panel`, `--border-base`) for consistent theming.
+- **Efficient Search:** Two-tier search architecture (vector embeddings + grep) - no FTS or chunking needed.
+
+## Search Architecture
+
+Polyvis uses a **two-tier search system** that eliminates the need for full-text search (FTS) or document chunking:
+
+### 1. Vector Search (Semantic)
+- **Purpose:** Semantic similarity, concept discovery
+- **Accuracy:** 85% average best match across diverse queries
+- **Speed:** <10ms per query
+- **Use case:** "Find documents about CSS patterns" or "Show me graph weaving logic"
+
+### 2. Grep/Ripgrep (Literal)
+- **Purpose:** Exact phrase matches, symbol lookup
+- **Accuracy:** 100% (literal text matching)
+- **Speed:** <1ms
+- **Use case:** "Find exact phrase 'function fooBar'" or "Where is BentoBoxer imported?"
+
+### Why No Chunking?
+
+**Document corpus characteristics:**
+- 80% of documents are <5KB (~1,000 words) - already "chunk-sized"
+- Average document: 2.7KB (~550 words)
+- Largest document: 47KB (~9,500 words) - still within LLM context windows
+
+**Results without chunking:**
+- Vector search achieves 85% accuracy on whole documents
+- Documents are well-structured markdown with clear headers
+- Natural granularity matches search needs
+
+**Future strategy:** If large documents (>20KB) become problematic, split them into multiple markdown files at natural boundaries (H1/H2 headers) and commit to version control. This keeps source files as the source of truth, maintains git-friendly diffs, and requires no runtime infrastructure.
+
+**See:** `docs/BENTO_BOXING_DEPRECATION.md` for full analysis and decision rationale.
 
 ## Design System (The Control Center)
 The application's visual design is strictly controlled by **`src/css/layers/theme.css`**. This file acts as a configuration panel for:

@@ -30,7 +30,7 @@ interface Brief {
  */
 function getTitle(content: string): string {
 	const match = content.match(/^title:\s*(.+)$/m);
-	return match ? match[1].trim() : "";
+	return match?.[1]?.trim() ?? "";
 }
 
 /**

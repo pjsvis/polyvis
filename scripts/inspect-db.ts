@@ -214,6 +214,7 @@ async function inspectDatabase(dbPath: string) {
 				console.log(colorize("\n  Sample rows:", "yellow"));
 				for (let i = 0; i < table.sampleRows.length; i++) {
 					const row = table.sampleRows[i];
+					if (!row) continue;
 					console.log(colorize(`\n    Row ${i + 1}:`, "dim"));
 					
 					// Show each column value
@@ -285,4 +286,8 @@ if (args.length === 0) {
 }
 
 const dbPath = args[0];
+if (!dbPath) {
+	console.error("Error: Database path is required");
+	process.exit(1);
+}
 await inspectDatabase(dbPath);

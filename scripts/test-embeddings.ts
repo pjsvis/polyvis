@@ -16,9 +16,12 @@ function cosineSimilarity(a: Float32Array, b: Float32Array): number {
 	let normB = 0;
 
 	for (let i = 0; i < a.length; i++) {
-		dotProduct += a[i] * b[i];
-		normA += a[i] * a[i];
-		normB += b[i] * b[i];
+		const aVal = a[i];
+		const bVal = b[i];
+		if (aVal === undefined || bVal === undefined) continue;
+		dotProduct += aVal * bVal;
+		normA += aVal * aVal;
+		normB += bVal * bVal;
 	}
 
 	return dotProduct / (Math.sqrt(normA) * Math.sqrt(normB));
@@ -99,6 +102,7 @@ async function testEmbeddingEffectiveness() {
 		console.log("\nTop 5 matches:\n");
 		for (let i = 0; i < Math.min(5, results.length); i++) {
 			const r = results[i];
+			if (!r) continue;
 			const score = (r.similarity * 100).toFixed(1);
 			const title = r.title || r.id;
 			const truncated = title.length > 60 ? `${title.substring(0, 57)}...` : title;
@@ -108,8 +112,11 @@ async function testEmbeddingEffectiveness() {
 
 		// Calculate statistics
 		const avgSim = results.reduce((sum, r) => sum + r.similarity, 0) / results.length;
-		const maxSim = results[0].similarity;
-		const minSim = results[results.length - 1].similarity;
+		const firstResult = results[0];
+		const lastResult = results[results.length - 1];
+		if (!firstResult || !lastResult) throw new Error("No results");
+		const maxSim = firstResult.similarity;
+		const minSim = lastResult.similarity;
 		const spread = maxSim - minSim;
 
 		console.log("\n  Distribution:");
