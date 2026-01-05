@@ -80,6 +80,9 @@ reports/test-*.md
 public/resonance.db
 public/resonance.db-wal
 public/resonance.db-shm
+public/*.db
+public/*.db-wal
+public/*.db-shm
 
 # Enlightenment Experiment
 experiments/enlightenment/models/
@@ -98,3 +101,30 @@ ingest/checkpoints/
 *.pt
 *.safetensors
 public/*.backup*
+
+# Database Files (Generated Artifacts - Never Commit)
+*.db
+*.db-wal
+*.db-shm
+*.sqlite
+*.sqlite-wal
+*.sqlite-shm
+!scripts/schema.sql
+!scripts/*.sql
+
+# Database Backups (Use external backup solutions)
+backups/db/
+
+# Built/Bundled JavaScript
+**/dist/*.bundle.js
+**/dist/*.min.js
+experiments/**/dist/
+
+# Test Artifacts
+test-*.db
+test-*.db-wal
+canary-*.db
+
+# Large Research Papers (Link to external sources instead)
+*.pdf
+!docs/architecture-diagrams/*.pdf
