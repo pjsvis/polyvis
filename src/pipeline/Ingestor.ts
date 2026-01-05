@@ -2,7 +2,6 @@ import type { Database } from "bun:sqlite";
 import { join } from "node:path";
 import { EdgeWeaver } from "@src/core/EdgeWeaver";
 import { LouvainGate } from "@src/core/LouvainGate";
-import { LocusLedger } from "@src/data/LocusLedger";
 import { DatabaseFactory } from "@src/resonance/DatabaseFactory";
 // Types
 import type { Node } from "@src/resonance/db";
@@ -507,7 +506,10 @@ export class Ingestor {
 		tokenizer: TokenizerService,
 	) {
 		const tokens = tokenizer.extract(content);
-		const currentHash = LocusLedger.hashContent(content);
+		// MD5 hash for content change detection
+		const hasher = new Bun.CryptoHasher("md5");
+		hasher.update(content.trim());
+		const currentHash = hasher.digest("hex");
 		const storedHash = db.getNodeHash(id);
 
 		if (storedHash === currentHash) return;

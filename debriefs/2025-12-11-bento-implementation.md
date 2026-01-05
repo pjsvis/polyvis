@@ -3,6 +3,10 @@ date: 2025-12-11
 tags: [bento-box, cli, typescript, bun, sqlite, architecture]
 ---
 
+> ⚠️ **DEPRECATED (2026-01-05):** This work was superseded. The Bento Boxing system was never integrated into the main vector search pipeline and has been removed. Whole-document embeddings achieve 85% search accuracy without chunking. See `docs/BENTO_BOXING_DEPRECATION.md` for details.
+
+---
+
 ## Debrief: Bento-Boxing Implementation
 
 ## Accomplishments

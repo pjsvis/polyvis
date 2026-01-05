@@ -4,6 +4,12 @@
 **Topic:** Implementation of the Bento Box Protocol (Document Normalization)
 **Participants:** @antigravity, @user
 
+---
+
+> ⚠️ **DEPRECATED (2026-01-05):** This work was superseded. The Bento Boxing system was never integrated into the main vector search pipeline and has been removed. Whole-document embeddings achieve 85% search accuracy without chunking. See `docs/BENTO_BOXING_DEPRECATION.md` for details.
+
+---
+
 ## 1. Context
 The goal was to implement a "Normalization Layer" in the ingestion pipeline to ensure all markdown documents conform to a strict semantic hierarchy (The Bento Standard) before being parsed into the Knowledge Graph. This standard (Single H1, Atomic H2/H3 units) ensures consistent granularity and precise retrieval, preventing "graph fragmentation" caused by deep nesting.
 
