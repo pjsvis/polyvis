@@ -16,8 +16,15 @@ For the scale of a software project (< 100,000 nodes), the latency of a network 
 ---
 
 ## 2. The FAFCAS Protocol
-**Definition:** **F**ast **A**s **F***, **C**ool **A**s **S***.
+**Definition:** **F**ast **A**s **F*ck**, **C**ool **A**s **S**hit.
+
 A binary storage specification for semantic vectors optimized for zero-dependency environments.
+
+**But more importantly:** A philosophy. Everything we build must be both:
+1. **Fast** - Sub-100ms operations, zero network calls, in-memory search
+2. **Cool** - Elegant architecture, zero external services, aesthetically satisfying
+
+If it's fast but ugly, we refactor it. If it's cool but slow, we flense it.
 
 ### The Specification
 1.  **Data Type:** `Float32` (Little Endian).
@@ -26,6 +33,61 @@ A binary storage specification for semantic vectors optimized for zero-dependenc
 4.  **Retrieval (Algebra):** Similarity is calculated via pure **Dot Product** ($A \cdot B$).
     * *Why?* Cosine Similarity is $\frac{A \cdot B}{\|A\| \|B\|}$. Since $\|A\|$ and $\|B\|$ are always $1$, the divisor is $1$. The formula simplifies to just $A \cdot B$.
     * *Benefit:* Removes expensive `sqrt()` and `div` operations from the hot loop.
+
+### FAFCAS In Practice
+
+What does this look like in the wild?
+
+**Example 1: Real-time Ingestion**
+- You save a markdown file
+- Daemon detects change in 2ms (file watcher)
+- Embedding generated in 10ms (fastembed)
+- Vector normalized and stored in 5ms
+- Graph edges woven in 30ms
+- Total: **~50ms** from save to searchable
+- **Fast:** Sub-100ms end-to-end
+- **Cool:** Zero manual steps, pure automation
+
+**Example 2: Vector Search**
+- Query arrives: "database corruption"
+- Embedding generated: 10ms
+- Scan 500 vectors (dot product): 8ms
+- Hydrate top 10 results: 2ms
+- Total: **<20ms** for semantic search
+- **Fast:** No network, no external DB
+- **Cool:** All in SQLite, portable single file
+
+**Example 3: The Stack**
+- Database: SQLite (built into Bun)
+- Embeddings: fastembed (ONNX, local)
+- Server: Bun.serve (zero dependencies)
+- UI: Alpine.js (16KB, no build step)
+- **Fast:** No docker, no services, no npm install hell
+- **Cool:** `git clone && bun install && bun run dev` - you're live
+
+**The Anti-Pattern:** Pinecone + Supabase + Vercel + Docker + 50 microservices = "enterprise architecture" = slow AND ugly.
+
+### FAFCAS + Harden and Flense
+
+These protocols work together:
+
+**Harden (Make it Fast):**
+- Enforce WAL mode + busy_timeout (concurrency)
+- Use DatabaseFactory (zero config drift)
+- Normalize vectors to unit length (pure dot product)
+- SIMD-optimized loops (let the JIT work)
+
+**Flense (Make it Cool):**
+- Remove external vector DBs (Pinecone → SQLite)
+- Remove chunking pipeline (documents are already chunk-sized)
+- Remove FTS (vector search is better anyway)
+- Remove magic numbers (semantic variables only)
+
+**Result:** Fast AND Cool.
+
+**See also:** 
+- `playbooks/harden-and-flense-protocol.md` - Process definition
+- `docs/sqlite-wal-readonly-trap.md` - Hardening example
 
 ---
 

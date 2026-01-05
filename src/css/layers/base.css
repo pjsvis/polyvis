@@ -4,9 +4,9 @@
 
 /* GLOBAL HARD RESET */
 * {
-	border-radius: 0 !important;
-	box-shadow: none !important;
-	transition: none !important; /* NO SOFTNESS */
+	border-radius: 0;
+	box-shadow: none;
+	transition: none; /* NO SOFTNESS */
 }
 
 html {
@@ -28,39 +28,45 @@ body {
 }
 
 /* HEADERS */
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
 	font-family: var(--font-mono);
 	text-transform: uppercase;
 	letter-spacing: 0.05em;
 	border-bottom: var(--border-default);
 	padding-bottom: var(--spacing-2);
 	margin-bottom: var(--spacing-4);
-    font-weight: bold;
+	font-weight: bold;
 }
 
 /* LINKS */
-a, a:visited {
+a,
+a:visited {
 	color: var(--text-highlight);
 	text-decoration: underline;
-    text-underline-offset: 4px;
+	text-underline-offset: 4px;
 }
 
 a:hover {
 	background-color: var(--ansi-white);
-    color: var(--ansi-black);
-    text-decoration: none;
+	color: var(--ansi-black);
+	text-decoration: none;
 }
 
 /* SCROLLBARS */
 ::-webkit-scrollbar {
 	width: 12px;
-    background: var(--bg-canvas);
-    border-left: 2px solid var(--ansi-white);
+	background: var(--bg-canvas);
+	border-left: 2px solid var(--ansi-white);
 }
 
 ::-webkit-scrollbar-thumb {
 	background-color: var(--ansi-white);
-    border: 2px solid var(--bg-canvas); /* Creates a 'block' look */
+	border: 2px solid var(--bg-canvas); /* Creates a 'block' look */
 }
 
 ::-webkit-scrollbar-thumb:hover {
@@ -74,6 +80,6 @@ a:hover {
 
 /* BUTTON RESET */
 button {
-    cursor: pointer;
-    font-family: var(--font-mono);
+	cursor: pointer;
+	font-family: var(--font-mono);
 }

@@ -8,7 +8,7 @@
  * - File organization status
  */
 
-import { readdirSync, existsSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
 // Configuration
@@ -16,10 +16,10 @@ const BRIEFS_DIR = "briefs";
 const DEBRIEFS_DIR = "debriefs";
 
 interface Brief {
-	id: string;           // brief-xxx
-	file: string;         // Full path
-	title: string;        // From frontmatter
-	location: string;     // root/, pending/, holding/
+	id: string; // brief-xxx
+	file: string; // Full path
+	title: string; // From frontmatter
+	location: string; // root/, pending/, holding/
 	hasDebrief: boolean;
 	debriefFile?: string;
 	debriefDate?: string;
@@ -123,7 +123,9 @@ function mapTerritory() {
 	if (completed.length === 0) {
 		console.log("   (none)");
 	} else {
-		for (const brief of completed.sort((a, b) => (b.debriefDate || "").localeCompare(a.debriefDate || ""))) {
+		for (const brief of completed.sort((a, b) =>
+			(b.debriefDate || "").localeCompare(a.debriefDate || ""),
+		)) {
 			console.log(`   ${brief.id}`);
 			console.log(`   → Title: ${brief.title || "(no title)"}`);
 			console.log(`   → Debrief: ${brief.debriefFile} (${brief.debriefDate})`);
@@ -150,7 +152,9 @@ function mapTerritory() {
 	const inHoldingPending = inHolding.filter((b) => !b.hasDebrief);
 
 	if (inRootPending.length > 0 || inHoldingPending.length > 0) {
-		console.log(`\n📁 MISPLACED (${inRootPending.length + inHoldingPending.length}): Should be in pending/`);
+		console.log(
+			`\n📁 MISPLACED (${inRootPending.length + inHoldingPending.length}): Should be in pending/`,
+		);
 		console.log(`─`.repeat(80));
 
 		if (inRootPending.length > 0) {
@@ -175,7 +179,9 @@ function mapTerritory() {
 	console.log(`   Total briefs: ${briefs.length}`);
 	console.log(`   Completed (ready for archive): ${completed.length}`);
 	console.log(`   Pending (keep in pending/): ${pending.length}`);
-	console.log(`   In wrong location: ${inRootPending.length + inHoldingPending.length}`);
+	console.log(
+		`   In wrong location: ${inRootPending.length + inHoldingPending.length}`,
+	);
 
 	console.log(`\n💡 RECOMMENDATIONS:`);
 
@@ -185,7 +191,9 @@ function mapTerritory() {
 	}
 
 	if (inRootPending.length > 0) {
-		console.log(`   2. Move ${inRootPending.length} pending briefs from root/ to pending/`);
+		console.log(
+			`   2. Move ${inRootPending.length} pending briefs from root/ to pending/`,
+		);
 	}
 
 	if (inHoldingPending.length > 0) {

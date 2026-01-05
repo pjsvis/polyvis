@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 /**
  * scripts/test-embeddings.ts
- * 
+ *
  * Test the effectiveness of vector embeddings in the resonance database
  * Runs semantic search queries and analyzes result quality
  */
@@ -79,7 +79,9 @@ async function testEmbeddingEffectiveness() {
 
 		// Get all nodes with embeddings
 		const nodes = db
-			.query("SELECT id, type, title, embedding FROM nodes WHERE embedding IS NOT NULL")
+			.query(
+				"SELECT id, type, title, embedding FROM nodes WHERE embedding IS NOT NULL",
+			)
 			.all() as Array<{
 			id: string;
 			type: string;
@@ -92,7 +94,10 @@ async function testEmbeddingEffectiveness() {
 			id: node.id,
 			type: node.type,
 			title: node.title,
-			similarity: cosineSimilarity(queryEmbedding, blobToFloats(node.embedding)),
+			similarity: cosineSimilarity(
+				queryEmbedding,
+				blobToFloats(node.embedding),
+			),
 		}));
 
 		// Sort by similarity (best first)
@@ -105,13 +110,15 @@ async function testEmbeddingEffectiveness() {
 			if (!r) continue;
 			const score = (r.similarity * 100).toFixed(1);
 			const title = r.title || r.id;
-			const truncated = title.length > 60 ? `${title.substring(0, 57)}...` : title;
+			const truncated =
+				title.length > 60 ? `${title.substring(0, 57)}...` : title;
 			console.log(`  ${i + 1}. [${score}%] ${truncated}`);
 			console.log(`     Type: ${r.type}, ID: ${r.id}`);
 		}
 
 		// Calculate statistics
-		const avgSim = results.reduce((sum, r) => sum + r.similarity, 0) / results.length;
+		const avgSim =
+			results.reduce((sum, r) => sum + r.similarity, 0) / results.length;
 		const firstResult = results[0];
 		const lastResult = results[results.length - 1];
 		if (!firstResult || !lastResult) throw new Error("No results");
@@ -144,9 +151,12 @@ async function testEmbeddingEffectiveness() {
 	console.log("━".repeat(80));
 	console.log();
 
-	const avgBest = allResults.reduce((sum, r) => sum + r.stats.best, 0) / allResults.length;
-	const avgAvg = allResults.reduce((sum, r) => sum + r.stats.avg, 0) / allResults.length;
-	const avgSpread = allResults.reduce((sum, r) => sum + r.stats.spread, 0) / allResults.length;
+	const avgBest =
+		allResults.reduce((sum, r) => sum + r.stats.best, 0) / allResults.length;
+	const avgAvg =
+		allResults.reduce((sum, r) => sum + r.stats.avg, 0) / allResults.length;
+	const avgSpread =
+		allResults.reduce((sum, r) => sum + r.stats.spread, 0) / allResults.length;
 
 	console.log("Across all queries:");
 	console.log(`  Average best match:     ${(avgBest * 100).toFixed(1)}%`);
@@ -165,7 +175,9 @@ async function testEmbeddingEffectiveness() {
 	}
 
 	if (avgSpread > 0.3) {
-		console.log("  ✅ Excellent: Strong differentiation between results (>30% spread)");
+		console.log(
+			"  ✅ Excellent: Strong differentiation between results (>30% spread)",
+		);
 	} else if (avgSpread > 0.15) {
 		console.log("  ⚠️  Good: Moderate differentiation (15-30% spread)");
 	} else {
@@ -184,9 +196,15 @@ async function testEmbeddingEffectiveness() {
 
 	// Interpretation
 	console.log("Interpretation:");
-	console.log("  • High best match % = Embeddings capture semantic meaning well");
-	console.log("  • Large spread % = Clear distinction between relevant/irrelevant");
-	console.log("  • Low average % = Corpus is diverse (not everything matches everything)");
+	console.log(
+		"  • High best match % = Embeddings capture semantic meaning well",
+	);
+	console.log(
+		"  • Large spread % = Clear distinction between relevant/irrelevant",
+	);
+	console.log(
+		"  • Low average % = Corpus is diverse (not everything matches everything)",
+	);
 	console.log();
 
 	db.close();

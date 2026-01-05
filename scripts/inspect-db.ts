@@ -1,10 +1,10 @@
 #!/usr/bin/env bun
 /**
  * scripts/inspect-db.ts
- * 
+ *
  * Quick SQLite database inspection tool
  * Shows schema, row counts, sample data, and statistics
- * 
+ *
  * Usage:
  *   bun run scripts/inspect-db.ts <database-file>
  *   bun run scripts/inspect-db.ts canary-persistence.db
@@ -76,7 +76,9 @@ async function inspectDatabase(dbPath: string) {
 	const file = Bun.file(dbPath);
 	const exists = await file.exists();
 	if (!exists) {
-		console.error(colorize(`\n❌ Error: Database file not found: ${dbPath}`, "red"));
+		console.error(
+			colorize(`\n❌ Error: Database file not found: ${dbPath}`, "red"),
+		);
 		process.exit(1);
 	}
 
@@ -95,7 +97,7 @@ async function inspectDatabase(dbPath: string) {
 
 	try {
 		// Get database metadata
-		const pragmaInfo = db.query("PRAGMA database_list").all() as Array<{
+		const _pragmaInfo = db.query("PRAGMA database_list").all() as Array<{
 			seq: number;
 			name: string;
 			file: string;
@@ -114,9 +116,7 @@ async function inspectDatabase(dbPath: string) {
 			return;
 		}
 
-		console.log(
-			colorize(`\nTables: ${tables.length}`, "green"),
-		);
+		console.log(colorize(`\nTables: ${tables.length}`, "green"));
 		console.log(colorize("─".repeat(80), "dim"));
 
 		const tableInfos: TableInfo[] = [];
@@ -126,7 +126,9 @@ async function inspectDatabase(dbPath: string) {
 			const tableName = table.name;
 
 			// Get column info
-			const columns = db.query(`PRAGMA table_info(${tableName})`).all() as Array<{
+			const columns = db
+				.query(`PRAGMA table_info(${tableName})`)
+				.all() as Array<{
 				cid: number;
 				name: string;
 				type: string;
@@ -142,7 +144,9 @@ async function inspectDatabase(dbPath: string) {
 			const rowCount = rowCountResult.count;
 
 			// Get indexes
-			const indexes = db.query(`PRAGMA index_list(${tableName})`).all() as Array<{
+			const indexes = db
+				.query(`PRAGMA index_list(${tableName})`)
+				.all() as Array<{
 				seq: number;
 				name: string;
 				unique: number;
@@ -168,11 +172,20 @@ async function inspectDatabase(dbPath: string) {
 		console.log(colorize("\n📊 Table Overview\n", "bold"));
 
 		const totalRows = tableInfos.reduce((sum, t) => sum + t.rowCount, 0);
-		console.log(colorize(`Total rows across all tables: ${formatNumber(totalRows)}`, "cyan"));
+		console.log(
+			colorize(
+				`Total rows across all tables: ${formatNumber(totalRows)}`,
+				"cyan",
+			),
+		);
 		console.log();
 
 		// Table summary
-		console.log(colorize("Table".padEnd(30), "bold") + colorize("Rows".padStart(15), "bold") + colorize("Columns".padStart(15), "bold"));
+		console.log(
+			colorize("Table".padEnd(30), "bold") +
+				colorize("Rows".padStart(15), "bold") +
+				colorize("Columns".padStart(15), "bold"),
+		);
 		console.log(colorize("─".repeat(60), "dim"));
 
 		for (const table of tableInfos) {
@@ -187,7 +200,7 @@ async function inspectDatabase(dbPath: string) {
 
 		for (const table of tableInfos) {
 			console.log(colorize(`\n▸ ${table.name}`, "cyan"));
-			console.log(colorize("  " + "─".repeat(78), "dim"));
+			console.log(colorize(`  ${"─".repeat(78)}`, "dim"));
 			console.log(colorize(`  Rows: ${formatNumber(table.rowCount)}`, "dim"));
 
 			// Columns
@@ -196,7 +209,9 @@ async function inspectDatabase(dbPath: string) {
 				const pk = col.pk ? colorize(" [PK]", "magenta") : "";
 				const notnull = col.notnull ? colorize(" NOT NULL", "red") : "";
 				const dflt = col.dflt_value ? ` DEFAULT ${col.dflt_value}` : "";
-				console.log(`    • ${colorize(col.name, "green")}: ${col.type}${pk}${notnull}${dflt}`);
+				console.log(
+					`    • ${colorize(col.name, "green")}: ${col.type}${pk}${notnull}${dflt}`,
+				);
 			}
 
 			// Indexes
@@ -204,7 +219,8 @@ async function inspectDatabase(dbPath: string) {
 				console.log(colorize("\n  Indexes:", "yellow"));
 				for (const idx of table.indexes) {
 					const unique = idx.unique ? colorize(" [UNIQUE]", "magenta") : "";
-					const origin = idx.origin === "pk" ? colorize(" [PRIMARY KEY]", "blue") : "";
+					const origin =
+						idx.origin === "pk" ? colorize(" [PRIMARY KEY]", "blue") : "";
 					console.log(`    • ${idx.name}${unique}${origin}`);
 				}
 			}
@@ -216,11 +232,11 @@ async function inspectDatabase(dbPath: string) {
 					const row = table.sampleRows[i];
 					if (!row) continue;
 					console.log(colorize(`\n    Row ${i + 1}:`, "dim"));
-					
+
 					// Show each column value
 					for (const col of table.columns) {
 						let value = row[col.name];
-						
+
 						// Format value
 						if (value === null) {
 							value = colorize("NULL", "dim");
@@ -229,11 +245,13 @@ async function inspectDatabase(dbPath: string) {
 						} else if (typeof value === "number") {
 							value = formatNumber(value);
 						} else if (typeof value === "boolean") {
-							value = value ? colorize("true", "green") : colorize("false", "red");
+							value = value
+								? colorize("true", "green")
+								: colorize("false", "red");
 						} else {
 							value = String(value);
 						}
-						
+
 						console.log(`      ${colorize(col.name, "dim")}: ${value}`);
 					}
 				}
@@ -244,26 +262,36 @@ async function inspectDatabase(dbPath: string) {
 
 		// Database statistics
 		console.log(colorize("\n\n📈 Database Statistics\n", "bold"));
-		
+
 		// Page size and counts
-		const pageSize = (db.query("PRAGMA page_size").get() as { page_size: number })?.page_size || 0;
-		const pageCount = (db.query("PRAGMA page_count").get() as { page_count: number })?.page_count || 0;
-		const freePages = (db.query("PRAGMA freelist_count").get() as { freelist_count: number })?.freelist_count || 0;
-		
+		const pageSize =
+			(db.query("PRAGMA page_size").get() as { page_size: number })
+				?.page_size || 0;
+		const pageCount =
+			(db.query("PRAGMA page_count").get() as { page_count: number })
+				?.page_count || 0;
+		const freePages =
+			(db.query("PRAGMA freelist_count").get() as { freelist_count: number })
+				?.freelist_count || 0;
+
 		console.log(colorize(`Page size: ${formatBytes(pageSize)}`, "dim"));
 		console.log(colorize(`Total pages: ${formatNumber(pageCount)}`, "dim"));
 		console.log(colorize(`Free pages: ${formatNumber(freePages)}`, "dim"));
-		console.log(colorize(`Estimated data size: ${formatBytes((pageCount - freePages) * pageSize)}`, "dim"));
-		
+		console.log(
+			colorize(
+				`Estimated data size: ${formatBytes((pageCount - freePages) * pageSize)}`,
+				"dim",
+			),
+		);
+
 		// Fragmentation
 		if (pageCount > 0) {
 			const fragmentation = ((freePages / pageCount) * 100).toFixed(2);
 			console.log(colorize(`Fragmentation: ${fragmentation}%`, "dim"));
 		}
 
-		console.log(colorize("\n" + "─".repeat(80), "dim"));
+		console.log(colorize(`\n${"─".repeat(80)}`, "dim"));
 		console.log(colorize("\n✅ Inspection complete\n", "green"));
-
 	} catch (error) {
 		console.error(colorize(`\n❌ Error during inspection: ${error}`, "red"));
 		throw error;

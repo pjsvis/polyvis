@@ -4,32 +4,32 @@
 
 /* Navbar Brand */
 .nav-brand {
-    font-family: var(--font-mono);
-    font-weight: 900;
-    font-size: 1.25rem;
-    letter-spacing: -0.02em;
-    color: var(--ansi-cyan); /* SYSTEM IDENTITY */
-    text-decoration: none;
-    /* Hard Reset */
-    padding: var(--spacing-1) var(--spacing-2);
-    margin: 0 calc(var(--spacing-2) * -1); /* Compensate padding */
+	font-family: var(--font-mono);
+	font-weight: 900;
+	font-size: 1.25rem;
+	letter-spacing: -0.02em;
+	color: var(--ansi-cyan); /* SYSTEM IDENTITY */
+	text-decoration: none;
+	/* Hard Reset */
+	padding: var(--spacing-1) var(--spacing-2);
+	margin: 0 calc(var(--spacing-2) * -1); /* Compensate padding */
 
-    &:hover {
-        background-color: var(--text-primary);
-        color: var(--bg-canvas);
-        text-decoration: none;
-    }
+	&:hover {
+		background-color: var(--text-primary);
+		color: var(--bg-canvas);
+		text-decoration: none;
+	}
 
-    &:visited {
-        color: var(--ansi-cyan);
-    }
+	&:visited {
+		color: var(--ansi-cyan);
+	}
 }
 
 /* Home Page Override: No Hover, Static Cyan */
 .home-layout .nav-brand:hover {
-    background-color: transparent;
-    color: var(--ansi-cyan);
-    cursor: default;
+	background-color: transparent;
+	color: var(--ansi-cyan);
+	cursor: default;
 }
 
 /* Sidenotes */
@@ -103,7 +103,7 @@
 	text-transform: uppercase;
 	margin: 0;
 	line-height: 1;
-    border: none;
+	border: none;
 }
 
 .home-subtitle {
@@ -111,13 +111,12 @@
 	font-size: 14px;
 	color: var(--ansi-green);
 	text-transform: uppercase;
-    letter-spacing: 0.1em;
+	letter-spacing: 0.1em;
 	padding-bottom: 0;
 	display: block; /* Stack behavior */
 	font-weight: 700;
-    border: none;
+	border: none;
 }
-
 
 .tagline {
 	font-family: var(--font-serif);

@@ -22,7 +22,9 @@
 		"left   main   right"
 		"footer footer footer";
 	grid-template-rows: auto minmax(0, 1fr) var(--footer-height);
-	grid-template-columns: var(--width-sidebar-base) minmax(0, 1fr) var(--width-sidebar-base);
+	grid-template-columns: var(--width-sidebar-base) minmax(0, 1fr) var(
+			--width-sidebar-base
+		);
 	height: 100vh;
 	width: 100vw;
 	background-color: var(--bg-canvas);
@@ -35,8 +37,8 @@
 	/* Border handled by .nav-wrapper internal definition now, or here?
        Let's keep it simple: no padding here, Nav handles itself. 
     */
-    background-color: var(--bg-canvas);
-    z-index: 10;
+	background-color: var(--bg-canvas);
+	z-index: 10;
 }
 
 .app-sidebar-left {
@@ -55,39 +57,47 @@
 	overflow: hidden;
 	display: flex;
 	flex-direction: column;
-    /* Optional: Dotted grid background */
-    background-image: radial-gradient(var(--ansi-white) 1px, transparent 0);
-    background-size: 20px 20px;
-    align-items: center; /* Center Content by default in main for Home/About */
-    justify-content: center;
+	/* Optional: Dotted grid background */
+	background-image: radial-gradient(var(--ansi-white) 1px, transparent 0);
+	background-size: 20px 20px;
+	align-items: center; /* Center Content by default in main for Home/About */
+	justify-content: center;
 }
 
 /* ========================================
    STACK UTILITIES (Vertical Rhythm)
    ======================================== */
 .stack-gap-small > * + * {
-    margin-top: var(--spacing-2);
+	margin-top: var(--spacing-2);
 }
 
 .stack-gap-medium > * + * {
-    margin-top: var(--spacing-4);
+	margin-top: var(--spacing-4);
 }
 
 .stack-gap-large > * + * {
-    margin-top: var(--spacing-8);
+	margin-top: var(--spacing-8);
 }
 
 /* Flex Stack (Alternative to Margin) */
 .flex-stack {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
+	display: flex;
+	flex-direction: column;
+	width: 100%;
 }
 
-.gap-1 { gap: var(--spacing-1); }
-.gap-2 { gap: var(--spacing-2); }
-.gap-4 { gap: var(--spacing-4); }
-.gap-8 { gap: var(--spacing-8); }
+.gap-1 {
+	gap: var(--spacing-1);
+}
+.gap-2 {
+	gap: var(--spacing-2);
+}
+.gap-4 {
+	gap: var(--spacing-4);
+}
+.gap-8 {
+	gap: var(--spacing-8);
+}
 
 .page-layout .app-sidebar-left,
 .page-layout .app-main {
@@ -111,9 +121,9 @@
 	padding: 0 var(--spacing-4);
 	height: var(--footer-height);
 	align-items: center;
-    border-top: var(--border-default);
-    font-size: 12px;
-    text-transform: uppercase;
+	border-top: var(--border-default);
+	font-size: 12px;
+	text-transform: uppercase;
 }
 
 /* 
@@ -127,7 +137,7 @@
 }
 
 .home-layout .app-header {
-    /* Floating header style for home? Or just sticking to grid?
+	/* Floating header style for home? Or just sticking to grid?
        Sticking to grid.
     */
 }
@@ -137,5 +147,5 @@
 	flex-direction: column;
 	justify-content: center;
 	align-items: center;
-    background-image: none; /* Clean for home */
+	background-image: none; /* Clean for home */
 }

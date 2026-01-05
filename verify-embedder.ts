@@ -1,5 +1,4 @@
 import { Embedder } from "./src/resonance/services/embedder.js";
-import { EmbeddingModel } from "fastembed";
 
 /**
  * Verification Script for Embedder Refactor
@@ -20,7 +19,8 @@ async function verify() {
 		// We force local usage to ensure we are testing the library, not the daemon
 		const embedder = Embedder.getInstance();
 
-		const testPhrase = "The Scottish Enlightenment was a period of intellectual outpouring.";
+		const testPhrase =
+			"The Scottish Enlightenment was a period of intellectual outpouring.";
 		console.log(`🧪 Embedding phrase: "${testPhrase.substring(0, 25)}..."`);
 
 		const start = performance.now();
@@ -35,13 +35,16 @@ async function verify() {
 		// 4. Model Specific Validation
 		// BGE-Small and AllMiniLM are both 384, but we verify we got a valid vector
 		if (vector.length === 384) {
-			console.log("✨ SUCCESS: Dimension matches expected 384 for BGE-Small/MiniLM.");
+			console.log(
+				"✨ SUCCESS: Dimension matches expected 384 for BGE-Small/MiniLM.",
+			);
 		} else {
-			console.warn(`⚠️ WARNING: Unexpected dimension ${vector.length}. Check model configuration.`);
+			console.warn(
+				`⚠️ WARNING: Unexpected dimension ${vector.length}. Check model configuration.`,
+			);
 		}
 
 		console.log("\n[Verification Complete]");
-
 	} catch (error) {
 		console.error("❌ FAILURE:", error);
 		process.exit(1);
