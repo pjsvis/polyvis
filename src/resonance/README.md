@@ -92,3 +92,57 @@ bun run scripts/compare-embedding-models.ts
 # Inspect database statistics
 bun run inspect-db public/resonance.db
 ```
+
+## Search Architecture
+
+### Current: Two-Tier Search (Post-Migration v5)
+
+Polyvis uses a **hybrid search strategy** optimized for semantic understanding and exact matches:
+
+**1. Vector Search (Primary)**
+- **Purpose:** Semantic similarity, concept discovery
+- **Accuracy:** 85.2% average best match
+- **Use cases:** "Find documents about CSS patterns", cross-domain queries
+- **Implementation:** BGE Small EN v1.5 embeddings + cosine similarity
+
+**2. Grep/Ripgrep (Secondary)**
+- **Purpose:** Exact phrase matches, literal text search
+- **Speed:** Instant (<1ms)
+- **Use cases:** "Find exact phrase", symbol search, filename patterns
+- **Implementation:** `rg "phrase" docs/` or `grep -r "pattern"`
+
+### Removed: SQLite FTS5 (Migration v5 - December 2025)
+
+**Why FTS was removed:**
+1. **Redundant** - Vector search handles semantic queries, grep handles exact matches
+2. **Complexity** - FTS required 5+ support tables, triggers, and sync logic
+3. **Storage overhead** - FTS duplicated content already in filesystem
+4. **Sync issues** - Triggers caused rowid drift errors
+5. **Architecture violation** - Broke "single source of truth" (filesystem)
+
+**FTS was the "middle ground" that wasn't needed:**
+- Semantic queries → Vector search is better (understands meaning)
+- Exact queries → grep is faster (no index overhead)
+- BM25 ranking → Overkill for 489 documents
+
+**Migration details:** See `briefs/archive/brief-hollow-node-simplification.md`
+
+### Search Decision Tree
+
+```
+Query type?
+├─ Semantic ("documents about X")     → Vector search
+├─ Exact phrase ("function fooBar")   → grep/ripgrep
+├─ Fuzzy concept ("styling patterns") → Vector search
+└─ Symbol/identifier search           → grep with regex
+```
+
+### Search Performance
+
+| Method | Speed | Accuracy | Use Case |
+|--------|-------|----------|----------|
+| Vector | <10ms | 85% | Semantic similarity |
+| grep | <1ms | 100% | Exact matches |
+| ~~FTS~~ | ~~5-20ms~~ | ~~70%~~ | ~~(Removed)~~ |
+
+**Conclusion:** Two-tier search is simpler, faster, and more accurate than FTS middle ground.

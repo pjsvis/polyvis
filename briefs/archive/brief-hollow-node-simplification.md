@@ -1,6 +1,8 @@
 # Brief: Hollow Node Simplification — Remove FTS
 
 **Locus Tag:** `[Locus: FTS_Removal_Hollow_Node]`
+**Status:** ✅ COMPLETED (Migration v5 - December 2025)
+**Outcome:** FTS removed, vector search (85% accuracy) + grep are sufficient
 
 ## Problem Statement
 
