@@ -2,13 +2,59 @@ import { join } from "node:path";
 import { toFafcas } from "@src/resonance/db";
 import { EmbeddingModel, FlagEmbedding } from "fastembed";
 
+export interface EmbedderConfig {
+	model?: EmbeddingModel;
+}
+
 export class Embedder {
 	private static instance: Embedder;
 	private nativeEmbedder: FlagEmbedding | null = null;
 	private daemonUrl = `http://localhost:${process.env.VECTOR_PORT || "3010"}`;
 	private useRemote = true;
 
-	private constructor() {}
+	// Default to a more modern model: BGE Small v1.5
+	// This offers a better balance of latency vs. semantic quality than AllMiniLML6V2
+	private currentModel: EmbeddingModel = EmbeddingModel.BGESmallENV15;
+
+	private constructor() {
+		this.configureModel();
+	}
+
+	/**
+	 * Determines which model to use based on environment variables.
+	 * Falls back to the class default (BGE Small) if not specified or invalid.
+	 */
+	private configureModel() {
+		const envModel = process.env.EMBEDDING_MODEL;
+		if (envModel) {
+			const resolved = this.resolveModel(envModel);
+			if (resolved) {
+				this.currentModel = resolved;
+			} else {
+				console.warn(
+					`[Embedder] Warning: Unknown model '${envModel}'. Falling back to default: ${this.currentModel}`,
+				);
+			}
+		}
+	}
+
+	/**
+	 * Helper to map string input to EmbeddingModel enum.
+	 * This allows for easy switching via .env without code changes.
+	 */
+	private resolveModel(modelName: string): EmbeddingModel | undefined {
+		// Normalize input to match enum keys or values roughly
+		const normalized = modelName.toLowerCase().replace(/[^a-z0-9]/g, "");
+		const map: Record<string, EmbeddingModel> = {
+			allminilml6v2: EmbeddingModel.AllMiniLML6V2,
+			bgesmallenv15: EmbeddingModel.BGESmallENV15,
+			bgebaseenv15: EmbeddingModel.BGEBaseENV15,
+			bgesmallen: EmbeddingModel.BGESmallEN,
+			bgebaseen: EmbeddingModel.BGEBaseEN,
+			// Add other supported models here as needed
+		};
+		return map[normalized];
+	}
 
 	public static getInstance(): Embedder {
 		if (!Embedder.instance) {
@@ -20,8 +66,11 @@ export class Embedder {
 	private async init() {
 		if (!this.nativeEmbedder) {
 			const cacheDir = join(process.cwd(), ".resonance/cache");
+			console.log(
+				`[Embedder] Initializing local embedding model: ${this.currentModel}`,
+			);
 			this.nativeEmbedder = await FlagEmbedding.init({
-				model: EmbeddingModel.AllMiniLML6V2,
+				model: this.currentModel,
 				cacheDir: cacheDir,
 				showDownloadProgress: true,
 			});
@@ -35,7 +84,10 @@ export class Embedder {
 				const response = await fetch(`${this.daemonUrl}/embed`, {
 					method: "POST",
 					headers: { "Content-Type": "application/json" },
-					body: JSON.stringify({ text }),
+					body: JSON.stringify({
+						text,
+						model: this.currentModel,
+					}),
 					signal: AbortSignal.timeout(200), // Fast timeout: 200ms
 				});
 

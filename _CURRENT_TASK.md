@@ -1,31 +1,36 @@
 # Current Task
 
-**Status**: Active 🟢
-**Started**: 2026-01-01
-**Objective**: Implement "Slab & Grid" (Holy Grail) Layout
+**Status**: Active 🟢  
+**Started**: 2026-01-03
+**Objective**: Refactor Embedder for Dynamic Model Selection
 
-We are replacing the current application shell with a strict **3-Slab (Header/Stage/Footer)** architecture using **CSS Grid** and **Flexbox** to achieve a robust "Viewport Lock".
+## Task: Refactor Embedder for Dynamic Model Selection
 
-## Directives
-# Current Task: Data Star Reactor Experiment (COMPLETED)
+**Objective**: Decouple the embedding model selection from the `Embedder` class logic to allow environment-driven configuration and upgrade the default model to `bge-small-en-v1.5` for improved semantic retrieval.
 
-## Status: **COMPLETED**
+### Key Results Achieved
 
-The "Reactor" experiment successfully demonstrated the viability of a **Hollow Node** architecture. We proved that a high-frequency (10Hz) UI can be driven entirely by server-side logic using Server-Sent Events (SSE) and Datastar, with zero custom client-side JavaScript.
+✅ **Configurability**: Model can now be set via `EMBEDDING_MODEL=allminilml6v2` environment variable  
+✅ **Modernization**: Default upgraded from AllMiniLML6V2 to BGE_SMALL_EN_V1_5 (better semantic quality)  
+✅ **Resilience**: "Daemon First → Local Fallback" reliability pattern maintained  
+✅ **Backward Compatibility**: Existing API calls remain unchanged  
 
-### Objectives Achieved
-- [x] **Hollow Client**: `index.html` uses only HTML attributes (`data-text`, `data-attr-style`).
-- [x] **Reactor Core**: `reactor.ts` (Bun) streams telemetry at 10Hz.
-- [x] **Custom Bundling**: Solved plugin loading issues by creating a custom `datastar.bundle.js` with `bun build`.
-- [x] **Protocol Decoding**: Reverse-engineered Datastar v1's SSE protocol (Line-based Key-Value pairs).
-- [x] **Cloud Deployment**: Deployed successfully to **Cloudflare Pages** (`polyvis-reactor.pages.dev`) using Edge Functions.
+### Verification Results
 
-### Key Artifacts
-- **Experiment Code**: `experiments/data-star-dashboard/`
-- **Playbooks**:
-    - `playbooks/playbook-data-star.md`: Guide to Raw SSE & Datastar bundling.
-    - `playbooks/playbook-cloudflare.md`: Guide to Pages Direct Uploads & Functions.
+- **Default Model**: BGE_SMALL_EN_V1_5 → 384 dimensions, 312ms generation
+- **Legacy Override**: AllMiniLML6V2 → 384 dimensions, functional fallback  
+- **Daemon**: Fully compatible, no changes required to daemon.ts
 
-### Next Actions
-- Review the experiment results and determine how to integrate "Hollow Node" patterns into the main PolyVis architecture (e.g., for the Agent Status monitors).
-- Considerations for production: Use stable bundling, handle SSE reconnections gracefully.
+### Files Modified
+
+1. `src/resonance/services/embedder.ts` - Core refactor with dynamic model selection
+2. `verify-embedder.ts` - Verification script for testing configurations
+
+### Configuration Logic
+
+Priority order for model selection:
+1. Runtime arguments (future enhancement)
+2. `process.env.EMBEDDING_MODEL` 
+3. Class default (`EmbeddingModel.BGESmallENV15`)
+
+The system now supports environment-driven model configuration while maintaining full backward compatibility and improved semantic retrieval quality through the modern BGE model.
