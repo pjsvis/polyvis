@@ -8,6 +8,9 @@
 | Onboarding | `development-workflow-playbook.md` | First time contributing |
 | Quick Tasks | `quick-tasks-playbook.md` | <3 files, <50 lines, no brief needed |
 | Standards | `polyvis-standards-playbook.md` | Creating source documents, new services |
+| **Issue Tracking** | | |
+| Beads (Agents) | `beads-agent-playbook.md` | AI agents creating/updating issues |
+| Beads (Humans) | `beads-human-playbook.md` | Developer guide to Beads workflow |
 | **CSS & Styling** | | |
 | CSS Master | `css-master-playbook.md` | Any CSS work |
 | Alpine.js | `alpinejs-playbook.md` | UI interactions, state management |

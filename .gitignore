@@ -64,6 +64,7 @@ resonance/dist
 .resonance/*.db-wal
 .resonance/*.db-shm
 .resonance/artifacts/
+.resonance/cache/
 
 # Fastembed cache
 local_cache/
