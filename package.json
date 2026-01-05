@@ -45,7 +45,8 @@
 		"llama": "bun run src/services/llama.ts",
 		"llamauv": "bun run src/services/llamauv.ts",
 		"reactor": "bun run experiments/data-star-dashboard/reactor.ts",
-		"servers": "bun run scripts/cli/servers.ts"
+		"servers": "bun run scripts/cli/servers.ts",
+		"inspect-db": "bun run scripts/inspect-db.ts"
 	},
 	"peerDependencies": {
 		"typescript": "5.9.3"
