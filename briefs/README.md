@@ -13,10 +13,10 @@ briefs/
 
 ## Convention
 
-- All briefs use `brief-{slug}.md` naming
-- Briefs are created in `pending/` when work begins
-- When a brief is completed, its debrief is written to `debriefs/YYYY-MM-DD-{slug}.md`
-- After debriefing, move the brief from `pending/` to `archive/`
+- Briefs use `YYYY-MM-DD-brief-[slug].md` naming (date first, matches debriefs convention)
+- Briefs are created in `pending/` when work begins, moved to `briefs/` root when active
+- When a brief is completed, its debrief is written to `debriefs/YYYY-MM-DD-[slug].md`
+- After debriefing, move the brief to `archive/`
 
 ## Workflow
 

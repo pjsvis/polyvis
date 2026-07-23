@@ -1,37 +1,73 @@
 # Briefs Playbook
 
 ## Purpose
-A brief is a concise document that outlines the objective, requirements, and plan for a specific task or feature. It serves as a contract between the user and the agent, ensuring alignment before work begins.
 
-## File Naming
-- **Format:** `brief-[slug].md`
+Project briefs define the **what** and **why** before any code is written. Each
+brief is a self-contained specification for a single feature, refactor, or
+tool. A brief is a contract between the user and the agent: it ensures
+alignment before work begins, and it **freezes** when the work starts —
+changes go in the debrief, not back into the brief.
+
+Reference: `playbooks/change-management-protocol.md` for the full
+Plan → Execute → Verify → Debrief cycle.
+
+## File Naming & Location
+
+- **Format:** `YYYY-MM-DD-brief-[slug].md` (date first, always — matches the
+  debriefs convention)
 - **Location:** `briefs/` directory
-- **Example:** `briefs/brief-sidebar-refinements.md`
+  - **Drafting:** `briefs/pending/` while awaiting work
+  - **Active:** moved to `briefs/` root when work starts
+  - **Archive:** moved to `briefs/archive/` after the debrief is written
+- **Example:** `briefs/2026-07-23-brief-self-organising-database.md`
 
 ## Template
 
 ```markdown
-## Task: [Task Name]
+# brief: [Short descriptive title]
 
-**Objective:** [Concise description of the main goal]
+**Created:** YYYY-MM-DD
+**TD:** td-xxxxx (optional)
+**Status:** pending | in-progress | complete
 
-- [ ] [High-level requirement 1]
-- [ ] [High-level requirement 2]
-- [ ] [High-level requirement 3]
+## What
+One-paragraph summary of the feature.
 
-## Key Actions Checklist:
+## Why
+Motivation — what problem does this solve?
 
-- [ ] [Actionable step 1]
-- [ ] [Actionable step 2]
-- [ ] [Actionable step 3]
+## How
+Implementation approach. High-level, not line-by-line.
+
+## Acceptance criteria
+- [ ] [Verifiable completion condition 1]
+- [ ] [Verifiable completion condition 2]
+- [ ] [Verifiable completion condition 3]
 
 ## Detailed Requirements / Visuals
+[Optional: detailed descriptions, ASCII art layouts, or specific constraints]
 
-[Optional: Add detailed descriptions, ASCII art layouts, or specific constraints here]
-
+## Out of scope
+What we explicitly are NOT building (to prevent scope creep).
 ```
 
-## Best Practices
-- **Keep it focused:** One brief per distinct task.
-- **Use checklists:** Checklists allow for tracking progress within the brief itself.
-- **Be visual:** Use ASCII art or diagrams to explain layout changes.
+## Conventions
+
+- **Assign a date and slug** as soon as the brief is created.
+- **Link the corresponding TD issue** when one exists.
+- **Update status** as work progresses.
+- **Briefs are not living documents** — they freeze when the project starts.
+  Mid-project changes are recorded in the debrief, not retroactively edited
+  into the brief.
+- **Keep briefs under 2KB.** If it's longer, split it into multiple briefs.
+- **Use checklists** so progress is trackable inside the brief itself.
+- **Be visual** — ASCII art or diagrams for layout changes.
+
+## Lifecycle
+
+```
+draft (pending/) → in-progress (briefs/) → complete
+                                                   │
+                                                   └─► debriefs/YYYY-MM-DD-[slug].md
+                                                          + brief → briefs/archive/
+```

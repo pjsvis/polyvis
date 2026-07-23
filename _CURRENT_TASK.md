@@ -1,36 +1,19 @@
 # Current Task
 
-**Status**: Active 🟢  
-**Started**: 2026-01-03
-**Objective**: Refactor Embedder for Dynamic Model Selection
+**Status**: No active task  
+**Last Session**: 2026-07-23 — repo provisioning (playbooks + AGENTS.md restructure + justfile retrofit)  
+**Next Focus**: See `briefs/` for pending work
 
-## Task: Refactor Embedder for Dynamic Model Selection
+## Recent Work
 
-**Objective**: Decouple the embedding model selection from the `Embedder` class logic to allow environment-driven configuration and upgrade the default model to `bge-small-en-v1.5` for improved semantic retrieval.
+### 2026-07-23: Repo Provisioning & Edinburgh Protocol Retrofit
 
-### Key Results Achieved
+✅ **Playbooks provisioned** — 11 new methodology playbooks copied from cool-pi-extensions, 2 overlapping playbooks merged (briefs + debriefs), playbooks/README.md index updated  
+✅ **AGENTS.md restructured** — Edinburgh Protocol identity header added, protocol numbering re-legislated (20 contiguous, de-duplicated), SCOREBOARD references removed, tier lists reference by name  
+✅ **Justfile retrofitted** — VEST entry points (orient, browse, read, about, help) + hygiene/build/service dispatches, backed by scripts/orient.sh + scripts/browse.sh  
+✅ **SCOREBOARD.md archived** — moved to `_misc/SCOREBOARD.md` for blog-post conversion (see briefs/2026-07-23-brief-scoreboard-to-blog-post.md)  
 
-✅ **Configurability**: Model can now be set via `EMBEDDING_MODEL=allminilml6v2` environment variable  
-✅ **Modernization**: Default upgraded from AllMiniLML6V2 to BGE_SMALL_EN_V1_5 (better semantic quality)  
-✅ **Resilience**: "Daemon First → Local Fallback" reliability pattern maintained  
-✅ **Backward Compatibility**: Existing API calls remain unchanged  
+## Pending Briefs
 
-### Verification Results
-
-- **Default Model**: BGE_SMALL_EN_V1_5 → 384 dimensions, 312ms generation
-- **Legacy Override**: AllMiniLML6V2 → 384 dimensions, functional fallback  
-- **Daemon**: Fully compatible, no changes required to daemon.ts
-
-### Files Modified
-
-1. `src/resonance/services/embedder.ts` - Core refactor with dynamic model selection
-2. `verify-embedder.ts` - Verification script for testing configurations
-
-### Configuration Logic
-
-Priority order for model selection:
-1. Runtime arguments (future enhancement)
-2. `process.env.EMBEDDING_MODEL` 
-3. Class default (`EmbeddingModel.BGESmallENV15`)
-
-The system now supports environment-driven model configuration while maintaining full backward compatibility and improved semantic retrieval quality through the modern BGE model.
+- `briefs/2026-07-23-brief-agents-md-edinburgh-restructure.md` — executed (this session)
+- `briefs/2026-07-23-brief-scoreboard-to-blog-post.md` — pending (draft the blog post from SCOREBOARD raw material)

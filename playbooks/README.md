@@ -8,6 +8,8 @@
 | Onboarding | `development-workflow-playbook.md` | First time contributing |
 | Quick Tasks | `quick-tasks-playbook.md` | <3 files, <50 lines, no brief needed |
 | Standards | `polyvis-standards-playbook.md` | Creating source documents, new services |
+| Repo Setup & Retrofit | `repo-setup-retrofit-playbook.md` | Reviewing/retrofitting a repo to the Edinburgh Protocol |
+| Task Management | `td-playbook.md` | td session startup, handoffs, newup discipline |
 | **Issue Tracking** | | |
 | Beads (Agents) | `beads-agent-playbook.md` | AI agents creating/updating issues |
 | Beads (Humans) | `beads-human-playbook.md` | Developer guide to Beads workflow |
@@ -19,7 +21,7 @@
 | **Data & Graph** | | |
 | Graphology | `graphology-playbook.md` | Graph operations, metrics |
 | Ingestion Pipeline | `ingestion-pipeline-playbook.md` | Data processing, ETL |
-| Bento Boxing | `bento-box-playbook-1.md` | Content fragmentation |
+| Bento Boxing | `bento-box-playbook-1.md` | **DEPRECATED** — see `docs/BENTO_BOXING_DEPRECATION.md` |
 | FAFCAS Protocol | `embeddings-and-fafcas-protocol-playbook.md` | Vector embeddings |
 | SQLite | `sqlite-standards.md` | Database queries, schema |
 | Schema | `schema-playbook.md` | Database migrations |
@@ -33,8 +35,9 @@
 | Change Management | `change-management-protocol.md` | Plan → Verify → Debrief |
 | Grep Strategy | `grep-strategy.md` | Searching codebase |
 | **Process** | | |
-| Briefs | `briefs-playbook.md` | Creating task briefs |
-| Debriefs | `debriefs-playbook.md` | Writing retrospectives |
+| Briefs | `briefs-playbook.md` | Creating feature specs (the *what/why*) |
+| Debriefs | `debriefs-playbook.md` | Writing retrospectives (the *what happened*) |
+| Decisions (ADRs) | `decisions-playbook.md` | Recording architectural choices (the *why*) |
 | Definition of Done | `definition-of-done-playbook.md` | Completion criteria |
 | UI Refactor | `ui-refactor-playbook.md` | UI restructuring |
 | **Specialized** | | |
@@ -47,6 +50,15 @@
 | Zero Magic Tokenization | `zero-magic-tokenization-playbook.md` | Text processing |
 | Harden & Flense | `harden-and-flense-protocol.md` | Content preparation |
 | Local-first Vector DB | `local-first-vector-db-playbook.md` | Vector storage |
+| **Methodology & Writing** | | |
+| Playbook for Playbooks | `playbooks-playbook.md` | How to author a new playbook |
+| Conceptual Lexicon | `conceptual-lexicon-playbook.md` | The term registry / prompt-compression mechanism |
+| Entropy Reduction | `entropy-reduction-playbook.md` | Stuff-into-Things problem-solving protocol |
+| Writing (Shannon Package) | `writing-playbook.md` | Voice & structure for produced assets |
+| Docs | `docs-playbook.md` | Translating machine artifacts to human prose |
+| Diagrams | `diagrams-playbook.md` | Mermaid (publication) vs DOT (analysis) |
+| Prompts | `prompts-playbook.md` | System prompts, eval fixtures, templates |
+| Project Insights | `insights-playbook.md` | The scraps pile for small observations |
 
 ---
 

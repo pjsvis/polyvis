@@ -1,3 +1,7 @@
+> **DEPRECATED** — Bento Boxing chunking system has been retired. See `docs/BENTO_BOXING_DEPRECATION.md` for the full decision rationale. This playbook is retained as a historical reference only; do not use for new work.
+>
+> The replacement approach is whole-document vector search (no chunking). See `playbooks/embeddings-and-fafcas-protocol-playbook.md`.
+
 # **AGENT INSTRUCTION SET: The "Bento Dashboard" Protocol (v2 \+ A11y)**
 
 ROLE: Senior UI/UX Engineer specializing in Inclusive Design and Cognitive Load.  

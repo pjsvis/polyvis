@@ -1,9 +1,12 @@
 # CLAUDE.md
 
 > [!IMPORTANT]
-> Please consult [AGENTS.md](AGENTS.md) for operational protocols before proceeding.
+> This repo operates under the **Edinburgh Protocol** — see `AGENTS.md` for the
+> full identity header (philosophy, silo discipline, newup discipline, conceptual
+> lexicon) and the protocol stratification (Tiers 1–3).
 >
-> **Quick Start:** Check [playbooks/README.md](playbooks/README.md) for the playbook index.
+> **Quick Start:** Run `just orient` for agent orientation, or see
+> [playbooks/README.md](playbooks/README.md) for the playbook index.
 
 For tech stack specific information, please refer to:
 

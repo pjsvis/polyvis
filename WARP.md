@@ -4,20 +4,21 @@ This file provides guidance to WARP (warp.dev) when working with code in this re
 
 ## Quick Start
 
-**First Time?** Read `AGENTS.md` for operational protocols. The TL;DR:
+**First Time?** Run `just orient` for a full orientation screen, or read `AGENTS.md` for the operational charter. The TL;DR:
 - This is a neuro-symbolic graph visualizer built with Bun, Alpine.js, and SQLite
-- All protocols are in `AGENTS.md` with a 3-tier system (quick tasks → core protocols → domain playbooks)
+- Operates under the **Edinburgh Protocol** — see `AGENTS.md` identity header
+- Protocols are stratified into 3 tiers (quick tasks → core protocols → domain playbooks)
 - **MANDATORY: Use Bun, not npm** (`bun run` commands only)
 
 **Development Server:**
 ```bash
-bun run dev start          # Start dev server + CSS/JS watchers (port 3000)
-bun run servers            # Check all service statuses
+just dev start            # Start dev server + CSS/JS watchers (port 3000)
+just servers              # Check all service statuses
 ```
 
 **Stop Server:**
 ```bash
-bun run dev stop
+just dev stop
 ```
 
 ---
@@ -28,11 +29,12 @@ bun run dev stop
 
 | Command | Purpose |
 |---------|---------|
-| `bun run dev start` | Start dev server + watchers (port 3000) |
-| `bun run dev stop` | Stop dev server |
-| `bun run dev status` | Check dev server status |
-| `bun run servers` | Status dashboard for all services |
-| `bun run precommit` | Run TypeScript + Biome checks (quality gate) |
+| `just orient` | Agent orientation (git, services, task memory, entry points) |
+| `just dev start` | Start dev server + watchers (port 3000) |
+| `just dev stop` | Stop dev server |
+| `just dev status` | Check dev server status |
+| `just servers` | Status dashboard for all services |
+| `just check` | Run TypeScript + Biome checks (quality gate) |
 
 ### Building & Testing
 
