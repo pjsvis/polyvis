@@ -162,7 +162,7 @@ export default () => ({
                     <h1 class="wiki-title">${ref.title}</h1>
                     <div class="wiki-meta">ID: ${ref.id}</div>
                 </div>
-                <div class="wiki-content prose prose-sm">
+                <div class="wiki-content">
                     ${marked.parse(ref.content)}
                 </div>
                 ${

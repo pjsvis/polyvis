@@ -152,7 +152,7 @@
              <!-- Markdown Content Area -->
              <main class="w-full max-w-4xl mx-auto py-12" @click="handleContentClick($event)">
                 <article id="main-content" 
-                         class="markdown-body prose dark:prose-invert max-w-none" 
+                         class="markdown-body max-w-none" 
                          x-html="contentMain">
                     <!-- Loading State -->
                     <div class="flex h-64 flex-col items-center justify-center">
@@ -195,7 +195,7 @@
                 <div class="flex-grow overflow-y-auto custom-scrollbar">
                     <!-- Reference Content (High-Fidelity Reader) -->
                     <div x-show="contentRef" 
-                            class="p-4 prose dark:prose-invert max-w-none prose-a:text-green-500" 
+                            class="p-4 max-w-none" 
                             style="--markdown-font-size: 13px; font-size: 13px;"
                             x-html="contentRef"></div>
 
