@@ -5,6 +5,7 @@
 **Status:** Actively used (DO NOT DELETE)  
 **Git:** `.gitignore`'d (local state, not committed)
 
+ref: [self organising daatbase post](https://medium.com/@dhilip.kumar/from-unstructured-chaos-to-queryable-knowledge-designing-ontology-backed-knowledge-graphs-for-9df031d97257)
 ---
 
 ## Structure

@@ -128,3 +128,18 @@ canary-*.db
 # Large Research Papers (Link to external sources instead)
 *.pdf
 !docs/architecture-diagrams/*.pdf
+.todos/
+.sidecar/
+.sidecar-agent
+.sidecar-task
+.sidecar-pr
+.sidecar-start.sh
+.sidecar-base
+.td-root
+
+# Runtime service artifacts (ServiceLifecycle .pid/.log)
+*.pid
+*.log
+
+# Bun-only (BFP): no second lockfile
+package-lock.json
