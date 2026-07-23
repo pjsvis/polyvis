@@ -36,6 +36,9 @@
 	"exclude": [
 		"public/docs",
 		"docs/webdocs",
+		"docs/examples",
+		"docs/archive",
+		"docs/conductor",
 		"node_modules",
 		"dist",
 		".resonance",
