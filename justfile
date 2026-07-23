@@ -52,6 +52,9 @@ build-data:
 dev *args:
     @bun run dev {{args}}
 
+serve *args:
+    @bun run dev serve {{args}}
+
 servers:
     @bun run servers
 

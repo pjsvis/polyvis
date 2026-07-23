@@ -25,8 +25,26 @@ export class ServiceLifecycle {
 	 * Start the service in the background (detached).
 	 */
 	async start() {
-		// Enforce clean state first (kill duplicates)
-		await ZombieDefense.assertClean(this.config.name, true);
+		// Advisory pre-flight: scan for stale/duplicate processes but do NOT abort.
+		// The pidFile check below is the precise guard against double-starting THIS
+		// service; a hard abort on heuristic false-positives made `start` brittle in
+		// non-TTY (agent/CI) contexts. For deliberate cleanup, run
+		// `bun run scripts/maintenance/detect_zombies.ts`.
+		if (process.env.SKIP_ZOMBIE_CHECK !== "true") {
+			const report = await ZombieDefense.scan();
+			if (!report.clean) {
+				const count =
+					report.ghosts.length +
+					report.duplicates.length +
+					report.unknowns.length;
+				console.warn(
+					`⚠️  ${this.config.name}: ${count} potential stale process(es) detected; advisory only, proceeding with start.`,
+				);
+				console.warn(
+					"   Investigate with: bun run scripts/maintenance/detect_zombies.ts",
+				);
+			}
+		}
 
 		// Check if already running based on PID file
 		if (await Bun.file(this.config.pidFile).exists()) {

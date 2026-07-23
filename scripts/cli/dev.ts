@@ -188,4 +188,6 @@ async function runServer() {
 
 // --- Dispatch ---
 
-await lifecycle.run(command, runServer);
+// Foreground `serve` skips the zombie sweep: you're watching it, and Bun.serve
+// throws EADDRINUSE on a port conflict. The sweep stays on `start` (backgrounded).
+await lifecycle.run(command, runServer, false);
