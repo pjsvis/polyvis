@@ -1455,7 +1455,7 @@ function entangle({ get: outerGet, set: outerSet }, { get: innerGet, set: innerS
         innerSet(cloneIfObject(outer));
       } else if (outerHashLatest !== innerHashLatest) {
         outerSet(cloneIfObject(inner));
-      } else {}
+      }
     }
     outerHash = JSON.stringify(outerGet());
     innerHash = JSON.stringify(innerGet());
@@ -4538,7 +4538,7 @@ var doc_viewer_default = () => ({
                     <h1 class="wiki-title">${ref.title}</h1>
                     <div class="wiki-meta">ID: ${ref.id}</div>
                 </div>
-                <div class="wiki-content prose prose-sm">
+                <div class="wiki-content">
                     ${d.parse(ref.content)}
                 </div>
                 ${ref.tags.length ? `
@@ -5226,7 +5226,7 @@ var NODE_ATTR_ALLOWLIST = new Set([
   "external_refs"
 ]);
 function adaptNode(row) {
-  if (!row || !row.id)
+  if (!row?.id)
     return null;
   const sigmaNode = {
     id: row.id,
@@ -5254,7 +5254,7 @@ function adaptNode(row) {
   return sigmaNode;
 }
 function adaptEdge(row) {
-  if (!row || !row.source || !row.target)
+  if (!row?.source || !row.target)
     return null;
   return {
     source: row.source,
@@ -6039,7 +6039,7 @@ function runStyleAudit() {
     }
     const theme = window.__AGENT_THEME__;
     if (theme) {
-      const expectedBg = theme.palette.canvas;
+      const _expectedBg = theme.palette.canvas;
     }
     if (btnStyle.backgroundColor === btnStyle.color) {
       errors.push("CONTRAST VIOLATION: Button text is invisible (BG == FG)");
@@ -6048,13 +6048,15 @@ function runStyleAudit() {
     panel.className = "container-box";
     sandbox.appendChild(panel);
     const panelStyle = window.getComputedStyle(panel);
-    if (parseInt(panelStyle.borderWidth) < 2) {
+    if (parseInt(panelStyle.borderWidth, 10) < 2) {
       errors.push(`STRUCTURE VIOLATION: Panel border too thin (${panelStyle.borderWidth}). Requires >= 2px.`);
     }
     if (errors.length > 0) {
       passed = false;
       console.group("%c[STYLE AUDIT] FAILED", "color: #C50F1F; font-weight: bold; font-size: 14px;");
-      errors.forEach((e) => console.error(e));
+      errors.forEach((e) => {
+        console.error(e);
+      });
       console.groupEnd();
     } else {
       console.log("%c[STYLE AUDIT] PASSED: System is Brutalist.", "color: #16C60C; font-weight: bold; font-size: 14px;");

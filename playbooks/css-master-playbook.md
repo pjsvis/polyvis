@@ -134,6 +134,66 @@ When integrating custom CSS with Tailwind v4:
 3. Verify `@layer` declarations are processed by your build tool
 4. Consider inline styles only for prototyping, then migrate to proper layers
 
+## 9. Island Isolation with `@scope` (added 2026-07-23)
+
+**Problem:** Cascade `@layer` orders files but does **not** isolate subtrees.
+Bare-element globals (`h1`, `a`, `button`) in `base.css` bleed into every
+context — including `.markdown-body` content where they're undesired. Piling
+`.markdown-body h*` prefixes on top is prefix soup: high-specificity selectors
+that are brittle and verbose.
+
+**Solution: `@scope` donuts.** Scope bare shell elements to everything *except*
+content islands via the `to ()` exclusion boundary:
+
+```css
+/* base.css — shell globals apply to body down to, but excluding, .markdown-body */
+@scope (body) to (.markdown-body) {
+  h1 { text-transform: uppercase; font-family: var(--font-mono); }
+  a:hover { /* shell hover treatment */ }
+  button { /* shell button treatment */ }
+}
+```
+
+```css
+/* markdown.css — the content island, fully fenced */
+@scope (.markdown-body) {
+  h1 { /* deliberate markdown design, e.g. uppercase mono */ }
+  h2 { /* NOT uppercase — markdown sets its own heading style */ }
+  p  { text-wrap: balance; }
+  :scope { /* targets the .markdown-body root itself (div or article) */ }
+}
+```
+
+### Why the donut beats a wrapper
+
+`@scope (body) to (.markdown-body)` creates an **exclusion boundary** without
+requiring a structural `.app-shell` wrapper around the shell. This matters when
+page topology varies — the docs page has no shell wrapper, so a
+`.app-shell :where(h1)` selector would miss it. The donut scopes by *what is
+excluded*, not by *what is wrapped*.
+
+### Specificity note
+
+Inside `@scope (.markdown-body)`, bare `h2` has specificity `(0,0,1)` vs the
+old `.markdown-body h2` at `(0,1,1)`. This drop is safe when:
+1. The scope isolates you from external competitors, and
+2. The only within-scope override is intentional (e.g. `.doc-card > h2:first-child`).
+
+Don't assume specificity is load-bearing — verify with computed styles after
+the change.
+
+### Build compatibility
+
+`@scope` survives the Tailwind v4 `@import`/`@layer` pipeline intact and
+appears in compiled `app.css` with correct semantics (verified 2026-07-23,
+4 phases). No special build config needed.
+
+### Token discipline
+
+Islands consume tokens from `theme.css` only. Open Props is **dropped**
+(removed 2026-07-23); the 32 formerly-imported tokens are now compat aliases
+in `theme.css :root`. See §3 — never re-introduce Open Props.
+
 ## 7. Workflow Checklist
 1.  **Plan:** Identify the Token needed. Do not invent a hex code.
 2.  **Edit:** Apply changes in the appropriate Layer (`layout.css` vs `components.css`).
