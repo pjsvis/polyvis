@@ -85,3 +85,25 @@ Not used anywhere yet. Phase 1 introduces it (shell scope for bare globals); Pha
 ## Phase 1 entry point
 
 Goal: bare `h1`/`a`/`button` → shell scope only. Touch: `base.css` + shell HTML. Likely approach: wrap bare globals in `@scope (.app-shell)` (or a shell container selector) so they stop hitting `.markdown-body`. Then `markdown.css` can drop redundant `text-transform: uppercase` re-declarations.
+
+## Phase 1 — Shell donut scope (DONE 2026-07-23)
+
+**Edit:** `src/css/layers/base.css` — wrapped bare `h1`–`h6`, `a`/`a:visited`/`a:hover`, and `button` in two `@scope (body) to (.markdown-body)` blocks. The `*` reset, `html`, `body`, scrollbar, and `.mono` stay global (they're uniform resets, not subtree bleed).
+
+**Approach:** donut scope (`@scope (body) to (.markdown-body)`) rather than `@scope (.app-shell)`. Reason: the docs page has no `.app-shell` ancestor — it uses `.layout-locked` + slab structure. The donut from `body` excluding `.markdown-body` achieves the intent ("shell globals stop at markdown content") with **zero HTML edits**. The brief's "touch shell HTML" was speculative; the donut makes it unnecessary.
+
+**Tailwind v4 build:** `@scope` passes through `tailwindcss -i` untouched (verified — 2 `@scope` blocks present in `public/css/app.css`, correctly nested in the `base` layer).
+
+**markdown.css:** NO edit. The brief's "drop redundant uppercase re-decls" is a no-op — markdown.css h1/h4 `text-transform: uppercase` use markdown-specific `--font-letterspacing-1` (not base.css's `0.05em`); they're deliberate markdown design, not bleed-defense. The donut makes them load-bearing (sole author), not redundant.
+
+**Behavior changes (all desired, per acceptance criteria):**
+- Markdown h2/h3/h5/h6: lose forced `uppercase` from shell → normal case (markdown.css only sets uppercase on h1, h4).
+- Markdown h1–h6: lose forced `font-mono` from shell → inherit `--font-sans` from `.markdown-body`.
+- Markdown `a:hover`: loses harsh shell invert (white bg / black text) → markdown.css border-bottom-color hover only.
+- Shell pages (index, sigma-explorer, docs chrome): unchanged — no `.markdown-body` present or chrome outside it.
+
+**Side benefit:** rebuilding `app.css` flushed stale `.ln` selectors (0 remaining) → `.markdown-body` (30 refs). The committed artifact was stale from a prior class rename.
+
+**Verification:** `just check` green. `bun run build:css` succeeds. Live browser verification deferred to Phase 5 gate (per phase 0 plan).
+
+**Next: Phase 2** — `markdown.css` → `@scope (.markdown-body)`; simplify the `.markdown-body h*` prefix soup now that the donut structurally excludes shell globals. `all: revert-layer` on the island root only if needed.

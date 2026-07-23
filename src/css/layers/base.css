@@ -27,34 +27,42 @@ body {
 	overflow: hidden;
 }
 
-/* HEADERS */
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-	font-family: var(--font-mono);
-	text-transform: uppercase;
-	letter-spacing: 0.05em;
-	border-bottom: var(--border-default);
-	padding-bottom: var(--spacing-2);
-	margin-bottom: var(--spacing-4);
-	font-weight: bold;
-}
+/* SHELL-SCOPED ELEMENT STYLES — donut scope
+   Applies bare h1/a/button globals to <body> descendants EXCEPT inside
+   .markdown-body, so shell chrome keeps brutalist mono/uppercase/invert
+   without bleeding into markdown content. Structural isolation replaces
+   the duplicative re-declarations markdown.css used to need.
+   See docs/strategy/css-island-phase0-baseline.md */
+@scope (body) to (.markdown-body) {
+	/* HEADERS */
+	h1,
+	h2,
+	h3,
+	h4,
+	h5,
+	h6 {
+		font-family: var(--font-mono);
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		border-bottom: var(--border-default);
+		padding-bottom: var(--spacing-2);
+		margin-bottom: var(--spacing-4);
+		font-weight: bold;
+	}
 
-/* LINKS */
-a,
-a:visited {
-	color: var(--text-highlight);
-	text-decoration: underline;
-	text-underline-offset: 4px;
-}
+	/* LINKS */
+	a,
+	a:visited {
+		color: var(--text-highlight);
+		text-decoration: underline;
+		text-underline-offset: 4px;
+	}
 
-a:hover {
-	background-color: var(--ansi-white);
-	color: var(--ansi-black);
-	text-decoration: none;
+	a:hover {
+		background-color: var(--ansi-white);
+		color: var(--ansi-black);
+		text-decoration: none;
+	}
 }
 
 /* SCROLLBARS */
@@ -78,8 +86,10 @@ a:hover {
 	font-family: var(--font-mono);
 }
 
-/* BUTTON RESET */
-button {
-	cursor: pointer;
-	font-family: var(--font-mono);
+/* BUTTON RESET — shell-scoped via donut above */
+@scope (body) to (.markdown-body) {
+	button {
+		cursor: pointer;
+		font-family: var(--font-mono);
+	}
 }
