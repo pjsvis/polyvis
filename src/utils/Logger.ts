@@ -1,4 +1,5 @@
 import pino, { type Logger } from "pino";
+
 export type { Logger };
 
 // Configure the base logger

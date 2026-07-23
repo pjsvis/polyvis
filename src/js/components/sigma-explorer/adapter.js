@@ -22,7 +22,7 @@ const NODE_ATTR_ALLOWLIST = new Set([
  * @returns {Object} - A sanitized Sigma Node object
  */
 export function adaptNode(row) {
-	if (!row || !row.id) return null;
+	if (!row?.id) return null;
 
 	// 1. Map Core Visual Properties
 	const sigmaNode = {
@@ -80,7 +80,7 @@ export function adaptNode(row) {
  * Adapts a raw DB row to a Sigma Graph Edge.
  */
 export function adaptEdge(row) {
-	if (!row || !row.source || !row.target) return null;
+	if (!row?.source || !row.target) return null;
 
 	return {
 		source: row.source,

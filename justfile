@@ -23,7 +23,7 @@ read file='':
     fi
 
 help:
-    @glow AGENTS.md
+    @glow SYSTEM.md
 
 # hygiene
 check:

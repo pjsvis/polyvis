@@ -36,4 +36,4 @@ Run `bun run map-briefs` to see:
 
 - **Brief Creation:** `playbooks/briefs-playbook.md`
 - **Debrief Writing:** `playbooks/debriefs-playbook.md`
-- **Task Tracking:** `_CURRENT_TASK.md`
+- **Task Tracking:** `td` (run `td current`)

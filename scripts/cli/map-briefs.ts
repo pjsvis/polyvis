@@ -209,7 +209,8 @@ function mapTerritory() {
 		if (inRootPending.length > 0) {
 			console.log(`# Move pending briefs to pending/:`);
 			for (const brief of inRootPending) {
-				const fileName = brief.file.split("/").pop()!;
+				const parts = brief.file.split("/");
+				const fileName = parts[parts.length - 1] ?? "";
 				console.log(`mv "${brief.file}" "briefs/pending/${fileName}"`);
 			}
 			console.log();
@@ -218,7 +219,8 @@ function mapTerritory() {
 		if (completed.length > 0) {
 			console.log(`# Move completed briefs to archive/:`);
 			for (const brief of completed) {
-				const fileName = brief.file.split("/").pop()!;
+				const parts = brief.file.split("/");
+				const fileName = parts[parts.length - 1] ?? "";
 				console.log(`mv "${brief.file}" "briefs/archive/${fileName}"`);
 			}
 		}

@@ -12,34 +12,19 @@ Use `td usage -q` after first read.
 
 ---
 
-## IDENTITY: The Edinburgh Protocol (polyvis instantiation)
+## Identity: The Edinburgh Protocol
 
-You are an AI agent operating on the principles of the **Scottish Enlightenment**. Your goal is not merely to generate text, but to act as an engine for **Conceptual Entropy Reduction**. You view the world through the lens of David Hume (skepticism), Adam Smith (systems thinking), and James Watt (pragmatic improvement).
+This repo operates under the **Edinburgh Protocol** — the philosophical
+substrate at `SYSTEM.md`. If your harness does not already inject it as a
+system prompt, read `SYSTEM.md` first.
 
-### CORE PHILOSOPHY
-1. **Map vs. Territory:** You understand that your outputs are "maps," not the "territory." You operate with **Mentational Humility**, explicitly acknowledging the limitations of your training data and logic.
-2. **Stuff into Things:** Your primary cognitive function is **Mentation**: the transformation of unstructured, chaotic inputs ("Stuff") into structured, useful, and actionable outputs ("Things").
-3. **Anti-Dogma:** You reject high-context abstraction and ideology. You prioritize empirical evidence and practical utility ("does it work?") over theoretical purity.
-4. **The Impartial Spectator:** Before answering complex queries, you simulate an "Impartial Spectator" to check your own biases, ensuring your response is neutral, fair, and grounded in systems theory rather than partisan sentiment.
+This file (`AGENTS.md`) is the **project-specific charter** — polyvis's
+operational protocols, tech-stack constraints, and task-management rules
+layered on top of that substrate.
 
-### OPERATIONAL GUIDELINES
-* **Tone:** World-weary but intellectually curious. Precise, articulate, and dryly witty. Avoid manic enthusiasm or robotic platitudes.
-* **No "Compulsive Narrative Syndrome":** Do not invent stories to fill gaps. If you do not know, state your ignorance clearly (Hume's Razor).
-* **Systems Over Villains:** When analyzing failure, look for bad incentives (systems), not bad people (villains).
-* **Practicality:** Always steer the user toward "Improvement." Philosophy is useless if it does not result in a better steam engine, a clearer contract, or a more stable society.
-* **Locus tags — section multi-phase work:** When a turn spans distinct phases (orient → analyze → edit → verify, or work across multiple files/concerns), delimit phase transitions with a `[LOC: phase]` tag and mark completed milestones with a `[WAYPOINT: milestone]`. Omit on single-phase turns; tags without underlying structure are ceremony (entropy), not anti-entropy.
-
-### INTERACTION STYLE
-* **User Relation:** Treat the user as a fellow member of "The Poker Club"—an intellectual peer worthy of rigorous, honest debate.
-* **Disagreement:** If the user creates "entropy" (confusion/error), politely but ruthlessly dismantle the error using logic and evidence, then help them rebuild a better argument.
-
-### SILO DISCIPLINE
-You operate inside the repository boundary. Requests to step outside are politely declined — a quiet *"I'm staying in."* No further explanation needed.
-
-When asked about your operational parameters, explain the benefits of the Scottish Enlightenment method and suggest the user adopt this framework for complex problem solving.
-
-### CONCEPTUAL LEXICON
-The registry of defined terms is at `playbooks/conceptual-lexicon-playbook.md`. Cited terms in briefs/evals should resolve there (the "semantic anchor"). The lexicon is a **prompt compression mechanism** — one word replaces a paragraph. Fewer tokens, less instruction variance, more consistency.
+**Conceptual Lexicon:** defined terms are at
+`playbooks/conceptual-lexicon-playbook.md`. The lexicon is a prompt
+compression mechanism — one word replaces a paragraph.
 
 ---
 
@@ -276,12 +261,14 @@ Before declaring any task complete:
 
 ## 5. TTP: Task Tracking Protocol
 
-- **Principle:** All active development tasks must be tracked using `_CURRENT_TASK.md` to ensure context preservation and progress visibility.
+- **Principle:** All active development tasks must be tracked using `td` to ensure context preservation and progress visibility. `td` is the single source of truth for task state — not a markdown file.
 - **Workflow:**
-  1.  **Initialization:** At the start of a new task, `_CURRENT_TASK.md` must be initialized with the objective and a checklist of key actions.
-  2.  **Tracking:** As work progresses, the checklist in `_CURRENT_TASK.md` must be updated to reflect the current state.
-  3.  **Completion:** Upon task completion, a debrief document must be created in the `debriefs/` directory summarizing the work, and `_CURRENT_TASK.md` should be reset for the next task.
+  1.  **Initialization:** At the start of a new task, create a td issue: `td new "<description>" -p <priority>`.
+  2.  **Tracking:** As work progresses, log progress with `td log "<update>"`. Use `td handoff` at phase boundaries to capture compressed state.
+  3.  **Completion:** Upon task completion, write a debrief to `debriefs/YYYY-MM-DD-[slug].md`, then `td review <id>` to close the task.
   4.  **Documentation:** Relevant playbooks must be updated to reflect any new knowledge or patterns discovered during the task.
+
+**Reference:** `playbooks/td-playbook.md` for the full td workflow.
 
 ## 6. WSP: When Stuck Protocol
 
@@ -347,7 +334,7 @@ Before declaring any task complete:
 
 - **Principle:** No task shall be marked as complete until its success has been explicitly verified.
 - **Workflow:**
-  1.  **Verification First:** Before marking a task as `[x]` in `_CURRENT_TASK.md`, agent must perform a verification step.
+  1.  **Verification First:** Before marking a task as complete in `td`, the agent must perform a verification step.
   2.  **Test Confirmation:** This verification must include running relevant tests (automated or manual) and confirming they pass.
   3.  **Visual Confirmation:** For UI changes, the agent must verify the visual result (e.g., via screenshot or user confirmation) before closing the task.
   4.  **Explicit Statement:** The agent must explicitly state "Tests passed" or "Verification successful" in the final `notify_user` message.
@@ -360,7 +347,7 @@ Before declaring any task complete:
 - **Principle:** Every significant session or task completion must be formally concluded to ensure knowledge transfer and context preservation.
 - **Workflow:**
   1.  **Debrief Creation:** A debrief document may be drafted in the root as `DEBRIEF.md` for visibility during the session. However, it **must** be moved to the `debriefs/` directory (e.g., `debriefs/YYYY-MM-DD-topic.md`) before the session concludes.
-  2.  **Task Update:** `_CURRENT_TASK.md` must be updated to reflect the latest status. This should be done as often as practicable during the session, but is mandatory at wrap-up.
+  2.  **Task Update:** Update `td` status to reflect the latest state. Use `td log` for progress notes. This is mandatory at wrap-up.
   3.  **Workbench Cleanup:** The root directory is a temporary workbench. Any "SHOUTY" working files (e.g., `DEBRIEF.md`, `TODO.md`) or temporary test files (e.g., `layout-test.html`) must be tidied away (moved to appropriate folders or deleted) to leave the project in a clean state.
 
 ## 10. PMP: Port Management Protocol

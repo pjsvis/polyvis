@@ -16,7 +16,7 @@ export class EdgeWeaver {
 		// Build efficient lookup map (Slug -> ID)
 		if (Array.isArray(context)) {
 			for (const item of context) {
-				if (!item || !item.id) continue;
+				if (!item?.id) continue;
 
 				const id = item.id;
 				// Index by ID

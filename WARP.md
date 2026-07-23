@@ -336,7 +336,7 @@ describe("Feature Name", () => {
 1. Check current status: `bun run servers`
 2. Start dev server: `bun run dev start`
 3. Open browser: `http://localhost:3000`
-4. Check for active brief: `briefs/pending/` or `_CURRENT_TASK.md`
+4. Check for active brief: `briefs/pending/` or run `td current`
 
 ### During Work
 - Make incremental changes
@@ -347,7 +347,7 @@ describe("Feature Name", () => {
 1. Run all quality gates
 2. Stop services: `bun run dev stop`
 3. Clean up root workbench files
-4. Update `_CURRENT_TASK.md`
+4. Update `td` status (`td log`, `td handoff`)
 5. Write debrief to `debriefs/YYYY-MM-DD-topic.md`
 
 ---
@@ -393,7 +393,7 @@ describe("Feature Name", () => {
 | `src/css/layers/theme.css` | Design tokens | The Control Panel |
 | `src/resonance/schema.ts` | DB schema | Current version: 5 |
 | `tsconfig.json` | Path aliases | Import resolution |
-| `_CURRENT_TASK.md` | Active work | Task tracking |
+| `td` | Active work | Task tracking (run `td current`) |
 | `SCOREBOARD.md` | Agent history | Learn from past sessions |
 
 ---
