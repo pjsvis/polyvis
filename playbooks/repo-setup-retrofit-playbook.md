@@ -38,7 +38,7 @@ behaves, and where the boundaries are.
 ```markdown
 # MANDATORY: Use td for Task Management
 
-Run td usage --new-session at conversation start (or after /clear).
+Run td usage --new-session at conversation start (or after /new).
 Use td usage -q after first read.
 
 ## <Project-specific rules here>
@@ -154,7 +154,7 @@ td add "Init td in repo" --priority P1
 td start <id>
 # ... work ...
 td handoff <id>
-# /clear — new up
+# /new — new up
 td context <id>
 # ... continue ...
 td review <id>
@@ -192,7 +192,7 @@ This playbook's phases are bounded by design. Each phase is a logical unit of
 work. Between phases, the agent hands off and new up:
 
 - `td handoff` captures the compressed state.
-- `/clear` or a fresh session drops the accumulated transcript.
+- `/new` drops the accumulated transcript (fresh session).
 - `td context` resumes from the handoff.
 
 This is not optional. A retrofit that runs as a single long session is the

@@ -2,7 +2,7 @@
 
 ## MANDATORY: Use td for Task Management
 
-Run `td usage --new-session` at conversation start (or after `/clear`). This tells you what to work on next.
+Run `td usage --new-session` at conversation start (or after `/new`). This tells you what to work on next.
 
 Sessions are automatic (based on terminal/agent context). Optional:
 - `td session "name"` to label the current session
@@ -45,7 +45,7 @@ Work in **bounded phases**. At a phase boundary:
 
 1. `td handoff` — capture compressed state (ground truth, rejected
    hypotheses, remaining debt). The handoff is the lossy compression.
-2. **New up** — `/clear` or a fresh session. Drop the megabytes.
+2. **New up** — `/new` (fresh session). Drop the megabytes.
 3. Resume from `td context`. The handoff is the seed; the raw transcript is
    the entropy.
 

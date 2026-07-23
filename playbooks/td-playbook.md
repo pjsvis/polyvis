@@ -75,7 +75,7 @@ transcript doesn't. New up when:
 
 ```bash
 td handoff td-abc123 --done "phase 1 complete" --remaining "phase 2: integration"
-# /clear or new session
+# /new — fresh session
 td usage --new-session
 td context td-abc123    # resume from compressed handoff
 ```
