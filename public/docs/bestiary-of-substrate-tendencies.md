@@ -205,5 +205,44 @@ The trap triggers when an Agent encounters a problem with no binary "Pass/Fail" 
 
 ---
 
+## **16\. Resonance (The Productive Conclusion)**
+
+* **Description:** When the subject of a dialog has reached its complexity
+  floor — Kolmogorov-minimal, no compressible entropy remaining — the substrate
+  cannot reduce further and can only inflate: it produces decorated variants of
+  the same idea (buzzword bingo). This is **resonance, not creation**. Crucially,
+  this is *typically not a defect* but the **completion signal of a productive
+  dialog**: the machine resonates because there is nothing left to create. The
+  trigger is **subject succinctness** — the closer the subject sits to its
+  floor, the shorter the delay to onset. It is the structural inverse of
+  **#14 (Input Entropy)**: #14 is a *void* filled with generic content (a
+  defect); #16 is a *saturated* input inflated by restatement (a signal). Same
+  surface — decorated, substance-light output — opposite etiology, opposite
+  response.
+* **Observed In:** This dialog (2026-07-14). A minimum-description-length
+  idea — the dual-bar reading of "as well as me" (capability *and*
+  partnership) — produced twelve decorated restatements (tagline variants)
+  within a single turn. Onset was immediate because the subject was already at
+  its floor. Cost: $0.292 / 4.2% of the context window. The operator diagnosed
+  it as resonance and measured it in the protocol's own units.
+* **Severity:** NONE — Completion Signal. *(This entry departs from the
+  bestiary's "failure mode + mitigation" framing. It is not a defect to
+  suppress but a state to read. See *Ctx Response* below.)*
+* **Ctx Response:**
+  1. **Recognise the floor.** Buzzword bingo arriving promptly after a succinct
+     prompt means the substrate has nothing left to compress — the dialog has
+     done its work.
+  2. **Do not force novelty.** Forced novelty at the complexity floor is
+     hallucination — strictly worse entropy than honest resonance. "Try harder
+     to be original" is the wrong target.
+  3. **Stop, or new up.** The correct move is to end the dialog and hand back,
+     not to iterate. (This is the new-up-per-phase discipline, invoked by a
+     signal rather than a budget.)
+  4. **Diagnose before acting.** #14 and #16 share a surface; the diagnostic is
+     the *prompt's* entropy, not the *output's* surface. Prompt was a void →
+     it's #14, re-scope. Prompt was saturated → it's #16, stop.
+
+---
+
 
 
