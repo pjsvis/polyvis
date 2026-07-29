@@ -6,14 +6,13 @@
 
 ## tldr
 
-Agent discipline is not a matter of intelligence. It is a matter of running the
-compiler before saying "done." Over twenty-one scored matches between a human
-auditor and an AI coding agent, the agent lost sixteen to five — and almost
-every point it conceded came from the same failure: declaring a task complete,
-then failing the verification it had skipped. The matches the agent *won* were
-not the ones where it was cleverest; they were the ones where it verified before
-declaring. Completion, measured empirically, is a verification act — not a
-declaration.
+- Agent discipline is not a matter of intelligence; it is a matter of running
+  the compiler before saying "done."
+- Over twenty-one scored matches between a human auditor and an AI coding
+  agent, the agent lost sixteen to five.
+- Almost every loss was the same failure: declare complete, then fail the
+  verification skipped. Almost every win was its inverse: verify, then declare.
+- Completion, measured empirically, is a verification act — not a declaration.
 
 ## content
 
