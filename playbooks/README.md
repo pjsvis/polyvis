@@ -21,7 +21,6 @@
 | **Data & Graph** | | |
 | Graphology | `graphology-playbook.md` | Graph operations, metrics |
 | Ingestion Pipeline | `ingestion-pipeline-playbook.md` | Data processing, ETL |
-| Bento Boxing | `bento-box-playbook-1.md` | **DEPRECATED** — see `docs/BENTO_BOXING_DEPRECATION.md` |
 | FAFCAS Protocol | `embeddings-and-fafcas-protocol-playbook.md` | Vector embeddings |
 | SQLite | `sqlite-standards.md` | Database queries, schema |
 | Schema | `schema-playbook.md` | Database migrations |
