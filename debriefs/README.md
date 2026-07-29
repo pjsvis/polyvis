@@ -6,6 +6,21 @@
 
 ---
 
+## Structure
+
+```
+debriefs/            # Current-era debriefs (live)
+└── YYYY-MM-DD-topic-name.md
+
+archive/
+└── debriefs/        # Historical debriefs (pre-2026-07)
+    └── YYYY-MM-DD-topic-name.md
+```
+
+**Epoch split:** debriefs dated ≤ `2026-01-05` are in `archive/debriefs/`; debriefs from `2026-07-23` onward stay live in `debriefs/`. The gap reflects the project's v1 → Edinburgh Protocol restructure.
+
+---
+
 ## What Are Debriefs?
 
 **Debriefs** are post-execution documents that record:
@@ -196,5 +211,5 @@ $ rg "^# Debrief:" debriefs/ --type md | wc -l
 
 ---
 
-**Last Updated:** 2025-12-12  
-**Reason:** Initial documentation (Friday cleanup session)
+**Last Updated:** 2026-07-29  
+**Reason:** Tidy-up — historical debriefs moved to `archive/debriefs/`

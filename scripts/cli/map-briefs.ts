@@ -221,7 +221,7 @@ function mapTerritory() {
 			for (const brief of completed) {
 				const parts = brief.file.split("/");
 				const fileName = parts[parts.length - 1] ?? "";
-				console.log(`mv "${brief.file}" "briefs/archive/${fileName}"`);
+				console.log(`mv "${brief.file}" "archive/briefs/${fileName}"`);
 			}
 		}
 	}
