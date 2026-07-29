@@ -12,12 +12,12 @@
 debriefs/            # Current-era debriefs (live)
 └── YYYY-MM-DD-topic-name.md
 
-archive/
+.archive/
 └── debriefs/        # Historical debriefs (pre-2026-07)
     └── YYYY-MM-DD-topic-name.md
 ```
 
-**Epoch split:** debriefs dated ≤ `2026-01-05` are in `archive/debriefs/`; debriefs from `2026-07-23` onward stay live in `debriefs/`. The gap reflects the project's v1 → Edinburgh Protocol restructure.
+**Epoch split:** debriefs dated ≤ `2026-01-05` are in `.archive/debriefs/`; debriefs from `2026-07-23` onward stay live in `debriefs/`. The gap reflects the project's v1 → Edinburgh Protocol restructure.
 
 ---
 
@@ -212,4 +212,4 @@ $ rg "^# Debrief:" debriefs/ --type md | wc -l
 ---
 
 **Last Updated:** 2026-07-29  
-**Reason:** Tidy-up — historical debriefs moved to `archive/debriefs/`
+**Reason:** Tidy-up — historical debriefs moved to `.archive/debriefs/`

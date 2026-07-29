@@ -31,7 +31,7 @@ Playbooks referencing the pre-consolidation names (TFP, CVP, EVP, RAP, CMP, BCP)
 - [ ] **Identify orphans:** Flag playbooks not referenced by AGENTS.md or any other playbook
 - [ ] **Identify duplicates:** Flag playbooks covering the same domain (e.g., multiple CSS playbooks)
 - [ ] **Triage decision:** For each flagged playbook, decide: keep / archive / delete / merge
-- [ ] **Execute:** Move archived playbooks to `archive/playbooks/`; delete dead ones (with user confirmation per DOSP)
+- [ ] **Execute:** Move archived playbooks to `.archive/playbooks/`; delete dead ones (with user confirmation per DOSP)
 - [ ] **Update `playbooks/README.md`:** Reflect the consolidated state
 - [ ] **Verify:** `just check` passes; no broken cross-references in AGENTS.md or other playbooks
 

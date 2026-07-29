@@ -241,7 +241,7 @@ async function runServer() {
 				const structure = [
 					"briefs/",
 					"debriefs/",
-					"archive/",
+					".archive/",
 					"playbooks/",
 					"docs/",
 					"notes/",

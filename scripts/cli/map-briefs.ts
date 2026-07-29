@@ -118,7 +118,7 @@ function mapTerritory() {
 	console.log(`   In holding/: ${inHolding.length}\n`);
 
 	// Report: Completed briefs that should be archived
-	console.log(`✅ COMPLETED (${completed.length}): Should be in archive/`);
+	console.log(`✅ COMPLETED (${completed.length}): Should be in .archive/`);
 	console.log(`─`.repeat(80));
 	if (completed.length === 0) {
 		console.log("   (none)");
@@ -186,7 +186,7 @@ function mapTerritory() {
 	console.log(`\n💡 RECOMMENDATIONS:`);
 
 	if (completed.length > 0) {
-		console.log(`   1. Move ${completed.length} completed briefs to archive/`);
+		console.log(`   1. Move ${completed.length} completed briefs to .archive/`);
 		console.log(`      (They have corresponding debriefs)`);
 	}
 
@@ -217,11 +217,11 @@ function mapTerritory() {
 		}
 
 		if (completed.length > 0) {
-			console.log(`# Move completed briefs to archive/:`);
+			console.log(`# Move completed briefs to .archive/:`);
 			for (const brief of completed) {
 				const parts = brief.file.split("/");
 				const fileName = parts[parts.length - 1] ?? "";
-				console.log(`mv "${brief.file}" "archive/briefs/${fileName}"`);
+				console.log(`mv "${brief.file}" ".archive/briefs/${fileName}"`);
 			}
 		}
 	}
