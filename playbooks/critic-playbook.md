@@ -13,7 +13,7 @@ Invoked when the User provides a new feature request or bug report.
 
 ### 1. Analysis
 - Read the User Brief.
-- Consult `AGENTS.md` and `SCOREBOARD.md` for historical constraints.
+- Consult `AGENTS.md` for historical constraints.
 - Identify the "Atomic Units" of the task.
 
 ### 2. The Canary Script
