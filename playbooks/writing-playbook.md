@@ -32,6 +32,19 @@ Every produced asset is a **Shannon Package** — a doc with a checksum. Three s
 
 The tldr and body are **detection** — redundancy catches inconsistency (the model says X in one place, not-X in another). The narrativised-bibliography is **correction** — it forces a different mode of engagement. You can pattern-match the tldr and body from a biased retrieval, but you can't narrate source relationships without actually encountering the sources. Detection says "these sections don't agree." Correction says "let me look at what the sources actually say." You need both.
 
+**The package as a reader-decision funnel.** The checksum framing is the
+producer's view. The reader's view is a decision funnel: the title invites (do
+I care?), the tldr pre-appraises (is this worth my time?), the
+narrativised-bibliography checks provenance (are the ideas grounded?), and only
+then does the reader invest in the content. The reader bails at each stage with
+near-zero sunk cost. This is why the tldr favours **bulleted assertions** over a
+paragraph: a paragraph demands the same commitment as the content it gates,
+defeating the pre-appraisal stage; a bulleted tldr lets the reader scan in
+seconds. The guardrail: each bullet must be a complete, rejectable *claim*
+("the agent lost sixteen to five"), not a topic-word label ("the match
+results") — a bulleted tldr of topic-words scans fast because it says nothing,
+and the checksum property breaks with it.
+
 Origin: `blog/2026-07-14-shannon-package-and-the-derrida-question.md` (Wodge 6).
 
 ## The attitude

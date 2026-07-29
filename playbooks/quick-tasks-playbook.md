@@ -95,7 +95,6 @@ If you're unsure whether a task qualifies as "Quick":
 Quick Tasks should NOT be recorded in:
 - `_CURRENT_TASK.md`
 - `debriefs/` directory
-- SCOREBOARD match history
 
 Quick Tasks MAY be noted in:
 - Git commit messages
