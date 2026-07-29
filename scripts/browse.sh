@@ -24,7 +24,7 @@ done
 echo ""
 
 echo "▸ root agent files"
-for f in SYSTEM.md AGENTS.md HUMANS.md README.md WARP.md; do
+for f in SYSTEM.md AGENTS.md HUMANS.md README.md; do
   [ -f "$f" ] && printf "  %-45s %s\n" "$f" "$(head -1 "$f" | sed 's/^#\+ *//')"
 done
 echo ""
