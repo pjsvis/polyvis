@@ -158,6 +158,9 @@
     --border-active: 2px solid var(--ansi-green);
     --border-agent: 2px solid var(--ansi-orange);
     --border-error: 2px solid var(--ansi-red);
+    --border-muted: 1px dashed var(--ansi-white);
+    --monobox-font-size: 16px;
+    --monobox-line-height: 1.2;
     --spacing-0: 0px;
     --spacing-1: 4px;
     --spacing-2: 8px;
@@ -1449,8 +1452,14 @@
   .text-indigo-700 {
     color: var(--color-indigo-700);
   }
+  .text-muted {
+    color: var(--color-muted);
+  }
   .text-pink-400 {
     color: var(--color-pink-400);
+  }
+  .text-primary {
+    color: var(--color-primary);
   }
   .text-red-500 {
     color: var(--color-red-500);
@@ -5683,6 +5692,32 @@ html[data-theme="dark"], :root:has(html[data-theme="dark"]) {
     display: flex;
     flex-direction: column;
     overflow: hidden;
+  }
+}
+@layer components {
+  .monobox {
+    --cpl: 60;
+    --rows: 10;
+    --scale: 1;
+    box-sizing: content-box;
+    font-size: calc(var(--monobox-font-size) * var(--scale));
+    line-height: var(--monobox-line-height);
+    font-family: var(--font-mono);
+    color: var(--text-primary);
+    background-color: var(--bg-canvas);
+    width: calc(var(--cpl) * 1ch);
+    height: calc(var(--rows) * var(--monobox-line-height) * 1em);
+    overflow: hidden;
+    white-space: pre-wrap;
+    word-break: break-all;
+    contain: layout style;
+    & .monobox-content {
+      margin: 0;
+    }
+  }
+  .monobox[data-debug] {
+    outline: 1px dashed var(--ansi-cyan);
+    outline-offset: 2px;
   }
 }
 @layer graph {

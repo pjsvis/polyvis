@@ -39,6 +39,10 @@
 	--font-mono: "JetBrains Mono", "Courier New", monospace;
 	--font-sans: var(--font-mono); /* OVERRIDE: Everything is mono */
 
+	/* MONOBOX — fixed-aspect monospace scalar primitive (ADR-001, Option B) */
+	--monobox-font-size: 16px; /* native render size; scale S enters via font-size */
+	--monobox-line-height: 1.2; /* unitless -> row height tracks font-size */
+
 	/* SPACING (Preserved for compatibility) */
 	--spacing-0: 0px;
 	--spacing-1: 4px;

@@ -54,7 +54,7 @@ Review aspect-ratio locking, sub-pixel rendering artifacting at ultra-low scales
 ## Acceptance criteria
 
 * [ ] Bounding box width and height remain strictly proportional to text scale factor ($S$).
-* [ ] Line wraps and row counts remain 100% constant across all scale states ($S \in [0.15, 1.0]$).
+* [ ] Line wraps and row counts remain 100% constant across all scale states ($S \in [0.15, 2.0]$).
 * [ ] Zero layout thrash / dynamic text recalculation detected during real-time scaling.
 * [ ] Sub-pixel text Greeking/rendering remains visual-stable at icon scale ($S = 0.15$).
 

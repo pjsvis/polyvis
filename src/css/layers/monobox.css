@@ -1,0 +1,51 @@
+/* ========================================
+   MONOBOX — Fixed-Aspect Monospace Scalar Primitive
+   ADR-001 (Option B: variable font-size scaling).
+
+   The bounding box tracks character scale S through font-size alone: 1ch and
+   1em are relative to font-size, so width (cpl·1ch) and height (rows·lh·1em)
+   are both proportional to S. Line count and cpl never change. No hardcoded
+   box pixels. See decisions/001-monobox-scale-strategy.md.
+   ======================================== */
+
+.monobox {
+	/* --- per-instance geometry (set inline per element) --- */
+	--cpl: 60; /* characters per line */
+	--rows: 10; /* visible rows */
+	--scale: 1; /* S ∈ [0.15, 2.0] — 1.0 = native render; extended from [0.15, 1.0] per Phase-1 review (ADR-001) */
+
+	/* content-box is mandatory: the global model (Tailwind preflight) is
+	   border-box, under which a border would shrink the content area and break
+	   the exact cpl-glyph fit. Visual frames use `outline` (no layout impact),
+	   never border. */
+	box-sizing: content-box;
+
+	/* S enters here -> drives 1ch, 1em, and the unitless line-height downstream */
+	font-size: calc(var(--monobox-font-size) * var(--scale));
+	line-height: var(--monobox-line-height);
+	font-family: var(--font-mono);
+	color: var(--text-primary);
+	background-color: var(--bg-canvas);
+
+	/* width  = cpl · 1ch               (1ch scales with font-size -> cpl·ch16·S) */
+	width: calc(var(--cpl) * 1ch);
+	/* height = rows · line-height · 1em (1em = font-size -> rows·1.2·16·S) */
+	height: calc(var(--rows) * var(--monobox-line-height) * 1em);
+
+	overflow: hidden;
+	white-space: pre-wrap; /* preserve spaces; wrap at cpl */
+	word-break: break-all; /* monospace: every glyph is a break opportunity */
+	contain: layout style; /* harden reflow boundary (perf insurance, ADR-001) */
+
+	& .monobox-content {
+		margin: 0;
+	}
+}
+
+/* Debug boundary — opt-in via [data-debug]. Visualises the exact bounding box
+   so reviewers can watch width/height track S. outline (not border) = no layout
+   impact, so geometry stays honest. */
+.monobox[data-debug] {
+	outline: 1px dashed var(--ansi-cyan);
+	outline-offset: 2px;
+}

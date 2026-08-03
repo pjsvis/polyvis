@@ -13,6 +13,7 @@
 @import "./layers/forms.css" layer(components);
 @import "./layers/navigation.css" layer(components);
 @import "./layers/components.css" layer(components);
+@import "./layers/monobox.css" layer(components);
 
 @import "./layers/graph.css" layer(graph);
 @import "./layers/utilities.css" layer(utilities);

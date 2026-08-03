@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PolyVis | MonoBox — Phase 1 Primitive</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="stylesheet" href="/css/app.css" />
+  <script src="/js/app.js" defer></script>
+  <!-- Inline Theme Init (prevents flash) -->
+  <script>
+    (() => {
+      const stored = localStorage.getItem('polyvis-theme');
+      if (stored) document.documentElement.setAttribute('data-theme', stored);
+    })();
+  </script>
+  <script type="module" src="/js/utils/theme.js"></script>
+</head>
+
+<body class="monobox-page">
+
+  <header class="mb-header">
+    <a href="/" class="nav-brand">POLYVIS</a>
+    <nav class="mb-header-right">
+      <a href="/" class="mb-link">← BACK</a>
+      <button type="button" onclick="window.toggleTheme()" class="mb-link">THEME</button>
+    </nav>
+  </header>
+
+  <!-- Single Alpine root: cpl/rows/scale shared between controls and the live box -->
+  <main class="mb-main" x-data="{ cpl: 60, rows: 12, scale: 1 }" x-cloak>
+
+    <section class="mb-controls">
+      <h1 class="mb-title">MONOBOX <span class="mb-title-sub">// PHASE 1 PRIMITIVE</span></h1>
+      <p class="mb-lede">
+        Fixed-aspect monospace scalar box. Drag <strong>SCALE</strong> — the box
+        resizes while line wraps and row count stay constant. ADR-001 · Option B.
+      </p>
+
+      <label class="mb-field">
+        <span class="mb-field-label">CPL <output class="mb-val" x-text="cpl"></output></span>
+        <input type="range" min="20" max="100" step="4" x-model="cpl" />
+      </label>
+
+      <label class="mb-field">
+        <span class="mb-field-label">ROWS <output class="mb-val" x-text="rows"></output></span>
+        <input type="range" min="4" max="24" step="1" x-model="rows" />
+      </label>
+
+      <label class="mb-field">
+        <span class="mb-field-label">SCALE <output class="mb-val" x-text="Number(scale).toFixed(2)"></output></span>
+        <input type="range" min="0.15" max="2" step="0.01" x-model="scale" />
+      </label>
+
+      <dl class="mb-readout">
+        <div><dt>FONT-SIZE</dt><dd x-text="(16 * Number(scale)).toFixed(1) + ' px'"></dd></div>
+        <div><dt>WIDTH</dt><dd>cpl · 1ch</dd></div>
+        <div><dt>HEIGHT</dt><dd>rows · 1.2 · 1em</dd></div>
+      </dl>
+
+      <p class="mb-hint">
+        Geometry is a pure function of <code>--cpl</code>, <code>--rows</code>,
+        <code>--scale</code>. No hardcoded pixel widths.
+      </p>
+    </section>
+
+    <section class="mb-stage">
+      <div class="mb-stage-label">LIVE — bound to controls</div>
+      <div class="mb-stage-surface">
+        <div class="monobox" data-debug
+             :style="{ '--cpl': cpl, '--rows': rows, '--scale': scale }">
+          <div class="monobox-content">MonoBox renders monospaced text inside a bounding box whose width and height are strict functions of the character scale. Drag the SCALE control and watch the box resize while line wrapping and row count stay perfectly constant. At S=0.15 the text Greeks into an icon-sized glyph block, the stashed-document end state. Width equals characters-per-line times one ch; height equals rows times line-height times the scaled font-size. No pixel widths are hardcoded anywhere in the geometry.</div>
+        </div>
+      </div>
+
+      <div class="mb-refrow">
+        <figure class="mb-ref">
+          <div class="mb-stage-surface">
+            <div class="monobox" data-debug style="--cpl: 60; --rows: 8; --scale: 0.5;">
+              <div class="monobox-content">Reference box at S=0.50. Same cpl and rows as the live box, half the scale. Wrapping is identical; only the footprint shrinks.</div>
+            </div>
+          </div>
+          <figcaption>S = 0.50</figcaption>
+        </figure>
+
+        <figure class="mb-ref">
+          <div class="mb-stage-surface">
+            <div class="monobox" data-debug style="--cpl: 60; --rows: 8; --scale: 0.15;">
+              <div class="monobox-content">Reference box at S=0.15, the icon / stashed end state. Text Greeks but layout stays stable.</div>
+            </div>
+          </div>
+          <figcaption>S = 0.15 · icon</figcaption>
+        </figure>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="mb-footer">
+    <span class="mb-meta">ADR: decisions/001-monobox-scale-strategy.md</span>
+    <span class="mb-meta">Brief: briefs/2026-08-02-brief-fixed-aspect-monobox.md</span>
+    <span class="mb-meta">Phase 2 harness: td-87a031</span>
+  </footer>
+
+  <!-- Page chrome only (experimental route). The MonoBox primitive itself lives
+       in src/css/layers/monobox.css, compiled into /css/app.css. -->
+  <style>
+    [x-cloak] { display: none !important; }
+
+    .monobox-page {
+      font-family: var(--font-mono);
+      background-color: var(--bg-canvas);
+      color: var(--text-primary);
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .mb-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: var(--border-default);
+      padding: var(--spacing-2) var(--spacing-4);
+    }
+    .mb-header-right { display: flex; gap: var(--spacing-4); align-items: center; }
+    .mb-link {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-primary);
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-family: var(--font-mono);
+      text-decoration: none;
+    }
+    .mb-link:hover { background-color: var(--ansi-white); color: var(--ansi-black); }
+
+    .mb-main {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: var(--spacing-6);
+      padding: var(--spacing-6);
+      align-items: start;
+    }
+    @media (max-width: 760px) {
+      .mb-main { grid-template-columns: 1fr; }
+    }
+
+    .mb-title {
+      font-size: var(--font-size-3);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin: 0 0 var(--spacing-2) 0;
+    }
+    .mb-title-sub { color: var(--text-agent); font-size: var(--font-size-1); }
+    .mb-lede { font-size: var(--font-size-1); line-height: 1.4; margin: 0 0 var(--spacing-5) 0; }
+    .mb-lede strong { color: var(--text-highlight); }
+
+    .mb-field { display: block; margin-bottom: var(--spacing-4); }
+    .mb-field-label {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: var(--spacing-1);
+    }
+    .mb-val { color: var(--ansi-cyan); font-size: var(--font-size-1); }
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--ansi-cyan);
+      cursor: pointer;
+    }
+
+    .mb-readout {
+      margin: var(--spacing-5) 0 0 0;
+      display: grid;
+      gap: var(--spacing-1);
+    }
+    .mb-readout div {
+      display: flex;
+      justify-content: space-between;
+      border-bottom: var(--border-muted);
+      padding: var(--spacing-1) 0;
+      font-size: var(--font-size-1);
+    }
+    .mb-readout dt { text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-primary); }
+    .mb-readout dd { margin: 0; color: var(--text-highlight); }
+    .mb-hint { font-size: 10px; line-height: 1.4; color: var(--ansi-white); margin-top: var(--spacing-4); opacity: 0.8; }
+    .mb-hint code { color: var(--ansi-green); }
+
+    .mb-stage-label,
+    .mb-ref figcaption {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--ansi-cyan);
+      margin-bottom: var(--spacing-2);
+    }
+    .mb-stage-surface {
+      background-color: var(--bg-panel);
+      border: var(--border-default);
+      padding: var(--spacing-4);
+      display: flex; /* monobox is block; flex lets it sit predictably */
+    }
+    .mb-refrow {
+      display: flex;
+      gap: var(--spacing-5);
+      margin-top: var(--spacing-6);
+      flex-wrap: wrap;
+      align-items: flex-start;
+    }
+    .mb-ref { margin: 0; }
+
+    .mb-footer {
+      border-top: var(--border-default);
+      padding: var(--spacing-3) var(--spacing-4);
+      display: flex;
+      gap: var(--spacing-5);
+      flex-wrap: wrap;
+    }
+    .mb-meta { font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ansi-white); opacity: 0.7; }
+  </style>
+
+</body>
+</html>
