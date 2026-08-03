@@ -1,7 +1,7 @@
 # brief: Fixed-Aspect Monospace Scale Box (MonoBox)
 
 **Created:** 2026-08-03
-**Status:** pending
+**Status:** complete (2026-08-03) — see `debriefs/2026-08-03-monobox.md`
 
 ## What
 Build an isolated text-box primitive (`MonoBox`) using monospaced typography where bounding box dimensions strictly track character scale, keeping line lengths, line counts, and aspect ratios invariant during resizing.
@@ -53,10 +53,10 @@ Review aspect-ratio locking, sub-pixel rendering artifacting at ultra-low scales
 
 ## Acceptance criteria
 
-* [ ] Bounding box width and height remain strictly proportional to text scale factor ($S$).
-* [ ] Line wraps and row counts remain 100% constant across all scale states ($S \in [0.15, 2.0]$).
-* [ ] Zero layout thrash / dynamic text recalculation detected during real-time scaling.
-* [ ] Sub-pixel text Greeking/rendering remains visual-stable at icon scale ($S = 0.15$).
+* [x] Bounding box width and height remain strictly proportional to text scale factor ($S$). — ratios 2.0000 / 0.1500 / 0.1499 (sub-px)
+* [x] Line wraps and row counts remain 100% constant across all scale states ($S \in [0.15, 2.0]$). — 9 lines constant; interference 3→3 / 5→5
+* [x] Zero layout thrash / dynamic text recalculation detected during real-time scaling. — 60.0 avg fps, 0 jank; `contain: layout style`
+* [x] Sub-pixel text Greeking/rendering remains visual-stable at icon scale ($S = 0.15$). — geometry stable; greeked at 2.4px (debrief §sub-pixel)
 
 ## Out of scope
 
