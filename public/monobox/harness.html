@@ -1,0 +1,574 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PolyVis | MonoBox — Phase 2 Harness</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="stylesheet" href="/css/app.css" />
+  <script src="/js/app.js" defer></script>
+  <!-- Inline Theme Init (prevents flash) -->
+  <script>
+    (() => {
+      const stored = localStorage.getItem('polyvis-theme');
+      if (stored) document.documentElement.setAttribute('data-theme', stored);
+    })();
+  </script>
+  <script type="module" src="/js/utils/theme.js"></script>
+</head>
+
+<body class="monobox-page hx-page">
+
+  <header class="mb-header">
+    <a href="/" class="nav-brand">POLYVIS</a>
+    <nav class="mb-header-right">
+      <a href="/monobox/" class="mb-link">← PHASE 1</a>
+      <a href="/" class="mb-link">← BACK</a>
+      <button type="button" onclick="window.toggleTheme()" class="mb-link">THEME</button>
+    </nav>
+  </header>
+
+  <!-- Single Alpine root: harnessApp (registered via alpine:init below).
+       Keeps the shared /js/app.js bundle untouched. -->
+  <main class="hx-main" x-data="harnessApp()" x-cloak>
+
+    <section class="hx-controls">
+      <h1 class="mb-title">MONOBOX <span class="mb-title-sub">// PHASE 2 HARNESS</span></h1>
+      <p class="mb-lede">
+        Three instances side-by-side in a CSS Grid. Stress-tests reflow isolation,
+        60fps scalar mutation, and sub-pixel rounding. ADR-001 · Option B.
+      </p>
+
+      <div class="hx-field-row">
+        <label class="mb-field">
+          <span class="mb-field-label">CPL <output class="mb-val" x-text="cpl"></output></span>
+          <input type="range" min="20" max="100" step="4" x-model="cpl" />
+        </label>
+        <label class="mb-field">
+          <span class="mb-field-label">ROWS <output class="mb-val" x-text="rows"></output></span>
+          <input type="range" min="4" max="24" step="1" x-model="rows" />
+        </label>
+        <label class="mb-field">
+          <span class="mb-field-label">SHARED SCALE <output class="mb-val" x-text="Number(scale).toFixed(2)"></output></span>
+          <input type="range" min="0.15" max="2" step="0.01" x-model="scale" @input="syncScales()" />
+        </label>
+      </div>
+
+      <div class="hx-buttons">
+        <button type="button" class="hx-btn" @click="runStress()" :disabled="running">
+          <span x-text="running && results.kind==='stress' ? 'RUNNING…' : 'RUN STRESS (3s · all boxes)'"></span>
+        </button>
+        <button type="button" class="hx-btn" @click="runInterference()" :disabled="running">
+          <span x-text="running && results.kind==='interference' ? 'RUNNING…' : 'RUN INTERFERENCE (box A only)'"></span>
+        </button>
+        <button type="button" class="hx-btn" @click="measureSubpixel()" :disabled="running">
+          <span x-text="running && results.kind==='subpixel' ? 'MEASURING…' : 'MEASURE SUB-PIXEL'"></span>
+        </button>
+      </div>
+
+      <p class="mb-hint">
+        Stress mutates <code>--scale</code> directly via RAF (raw CSS perf, not Alpine
+        reactivity). Interference scales box A only and measures B/C rects + line counts.
+        Sub-pixel sweeps S 0.15→2.0 and reports width/height proportionality.
+      </p>
+    </section>
+
+    <section class="hx-stage">
+      <div class="hx-stage-label">3 INSTANCES — CSS GRID · repeat(3, 1fr)</div>
+      <div class="hx-grid">
+        <div class="hx-cell">
+          <div class="hx-cell-label">A · S=<span x-text="Number(scaleA).toFixed(2)"></span></div>
+          <div class="monobox" data-debug data-box="A"
+               :style="{ '--cpl': cpl, '--rows': rows, '--scale': scaleA }">
+            <div class="monobox-content" x-text="textA"></div>
+          </div>
+        </div>
+        <div class="hx-cell">
+          <div class="hx-cell-label">B · S=<span x-text="Number(scaleB).toFixed(2)"></span></div>
+          <div class="monobox" data-debug data-box="B"
+               :style="{ '--cpl': cpl, '--rows': rows, '--scale': scaleB }">
+            <div class="monobox-content" x-text="textB"></div>
+          </div>
+        </div>
+        <div class="hx-cell">
+          <div class="hx-cell-label">C · S=<span x-text="Number(scaleC).toFixed(2)"></span></div>
+          <div class="monobox" data-debug data-box="C"
+               :style="{ '--cpl': cpl, '--rows': rows, '--scale': scaleC }">
+            <div class="monobox-content" x-text="textC"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="hx-results">
+      <div class="hx-results-label">RESULTS</div>
+      <div class="hx-results-body" x-show="results.kind">
+        <template x-if="results.kind === 'stress'">
+          <div>
+            <p class="hx-result-line">
+              STRESS — all 3 boxes scaled 0.15↔2.0 over
+              <span x-text="results.durationMs"></span> ms.
+              <span x-text="results.note"></span>
+            </p>
+            <dl class="hx-stats">
+              <div><dt>FRAMES</dt><dd x-text="results.frames"></dd></div>
+              <div><dt>AVG FPS</dt><dd x-text="results.avgFps.toFixed(1)"></dd></div>
+              <div><dt>MIN FPS</dt><dd x-text="results.minFps.toFixed(1)"></dd></div>
+              <div><dt>MAX FRAME</dt><dd x-text="results.maxFrameMs.toFixed(2) + ' ms'"></dd></div>
+              <div><dt>JANK (&gt;20ms)</dt><dd x-text="results.jank"></dd></div>
+              <div><dt>VERDICT</dt><dd :class="results.verdict === 'PASS' ? 'hx-pass' : 'hx-fail'" x-text="results.verdict"></dd></div>
+            </dl>
+            <p class="hx-note">Gate: avgFPS ≥ 58 and max frame &lt; 50 ms (one-dropped-frame tolerance).</p>
+          </div>
+        </template>
+
+        <template x-if="results.kind === 'interference'">
+          <div>
+            <p class="hx-result-line">INTERFERENCE — box A scaled 0.15↔2.0, B &amp; C measured.</p>
+            <dl class="hx-stats">
+              <div><dt>B max Δ (px)</dt><dd x-text="results.bMaxDelta.toFixed(3)"></dd></div>
+              <div><dt>C max Δ (px)</dt><dd x-text="results.cMaxDelta.toFixed(3)"></dd></div>
+              <div><dt>B lines (start→end)</dt><dd x-text="results.bLinesStart + ' → ' + results.bLinesEnd"></dd></div>
+              <div><dt>C lines (start→end)</dt><dd x-text="results.cLinesStart + ' → ' + results.cLinesEnd"></dd></div>
+              <div><dt>FRAMES</dt><dd x-text="results.frames"></dd></div>
+              <div><dt>VERDICT</dt><dd :class="results.verdict === 'PASS' ? 'hx-pass' : 'hx-fail'" x-text="results.verdict"></dd></div>
+            </dl>
+            <p class="hx-note">Gate: B/C max-rect Δ &lt; 0.5 px and line counts unchanged. Grid cells are 1fr, so neighbour positions are fixed regardless of A's footprint.</p>
+          </div>
+        </template>
+
+        <template x-if="results.kind === 'subpixel'">
+          <div>
+            <p class="hx-result-line">
+              SUB-PIXEL — box A, cpl=<span x-text="results.cpl"></span>, rows=<span x-text="results.rowsCount"></span>.
+              wPerS = width / S / cpl (should be constant = 1ch@16px).
+            </p>
+            <div class="hx-table-scroll">
+              <table class="hx-table">
+                <thead>
+                  <tr><th>S</th><th>fontPx</th><th>width</th><th>wPerS</th><th>height</th><th>h/baseH</th></tr>
+                </thead>
+                <tbody>
+                  <template x-for="row in results.rows" :key="row.S.toFixed(2)">
+                    <tr>
+                      <td x-text="row.S.toFixed(2)"></td>
+                      <td x-text="row.fontPx.toFixed(2)"></td>
+                      <td x-text="row.width.toFixed(3)"></td>
+                      <td x-text="row.wPerS.toFixed(3)"></td>
+                      <td x-text="row.height.toFixed(3)"></td>
+                      <td x-text="row.hRatio.toFixed(4)"></td>
+                    </tr>
+                  </template>
+                </tbody>
+              </table>
+            </div>
+            <dl class="hx-stats">
+              <div><dt>wPerS range</dt><dd x-text="results.wPerSMin.toFixed(3) + ' – ' + results.wPerSMax.toFixed(3)"></dd></div>
+              <div><dt>wPerS drift</dt><dd x-text="(results.wPerSMax - results.wPerSMin).toFixed(3) + ' px'"></dd></div>
+              <div><dt>h dev from S</dt><dd x-text="results.maxHDev.toFixed(4)"></dd></div>
+              <div><dt>VERDICT</dt><dd :class="results.verdict === 'PASS' ? 'hx-pass' : 'hx-fail'" x-text="results.verdict"></dd></div>
+            </dl>
+            <p class="hx-note">wPerS drift &lt; 1 px and |h/baseH − S| ≤ 0.02 = strict proportionality.</p>
+          </div>
+        </template>
+      </div>
+      <p class="hx-empty" x-show="!results.kind">Run a test to see results.</p>
+    </section>
+
+  </main>
+
+  <footer class="mb-footer">
+    <span class="mb-meta">ADR: decisions/001-monobox-scale-strategy.md</span>
+    <span class="mb-meta">Brief: briefs/2026-08-02-brief-fixed-aspect-monobox.md</span>
+    <span class="mb-meta">Phase 1: /monobox/</span>
+    <span class="mb-meta">Task: td-87a031</span>
+  </footer>
+
+  <!-- Page chrome only. The MonoBox primitive lives in src/css/layers/monobox.css. -->
+  <style>
+    [x-cloak] { display: none !important; }
+
+    .monobox-page {
+      font-family: var(--font-mono);
+      background-color: var(--bg-canvas);
+      color: var(--text-primary);
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .mb-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: var(--border-default);
+      padding: var(--spacing-2) var(--spacing-4);
+    }
+    .mb-header-right { display: flex; gap: var(--spacing-4); align-items: center; }
+    .mb-link {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-primary);
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-family: var(--font-mono);
+      text-decoration: none;
+    }
+    .mb-link:hover { background-color: var(--ansi-white); color: var(--ansi-black); }
+
+    .mb-title {
+      font-size: var(--font-size-3);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin: 0 0 var(--spacing-2) 0;
+    }
+    .mb-title-sub { color: var(--text-agent); font-size: var(--font-size-1); }
+    .mb-lede { font-size: var(--font-size-1); line-height: 1.4; margin: 0 0 var(--spacing-5) 0; }
+    .mb-lede strong { color: var(--text-highlight); }
+    .mb-hint { font-size: 10px; line-height: 1.4; color: var(--ansi-white); margin-top: var(--spacing-4); opacity: 0.8; }
+    .mb-hint code { color: var(--ansi-green); }
+
+    .mb-field { display: block; margin-bottom: var(--spacing-4); }
+    .mb-field-label {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: var(--spacing-1);
+    }
+    .mb-val { color: var(--ansi-cyan); font-size: var(--font-size-1); }
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--ansi-cyan);
+      cursor: pointer;
+    }
+
+    .hx-main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-6);
+      padding: var(--spacing-6);
+      align-items: stretch;
+      max-width: 1400px;
+      margin: 0 auto;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .hx-field-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--spacing-5);
+    }
+    @media (max-width: 760px) {
+      .hx-field-row { grid-template-columns: 1fr; }
+    }
+
+    .hx-buttons {
+      display: flex;
+      gap: var(--spacing-3);
+      flex-wrap: wrap;
+    }
+    .hx-btn {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: var(--spacing-2) var(--spacing-4);
+      background-color: var(--bg-panel);
+      color: var(--ansi-cyan);
+      border: 1px solid var(--ansi-cyan);
+      cursor: pointer;
+    }
+    .hx-btn:hover:not(:disabled) {
+      background-color: var(--ansi-cyan);
+      color: var(--ansi-black);
+    }
+    .hx-btn:disabled { opacity: 0.5; cursor: wait; }
+
+    .hx-stage-label,
+    .hx-results-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--ansi-cyan);
+      margin-bottom: var(--spacing-2);
+    }
+
+    .hx-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--spacing-5);
+      background-color: var(--bg-panel);
+      border: var(--border-default);
+      padding: var(--spacing-5);
+      align-items: start;
+      justify-items: start;
+    }
+    .hx-cell {
+      min-width: 0; /* allow grid item to shrink; monobox has its own fixed width */
+    }
+    .hx-cell-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-agent);
+      margin-bottom: var(--spacing-2);
+    }
+
+    .hx-results {
+      border-top: var(--border-default);
+      padding-top: var(--spacing-5);
+    }
+    .hx-results-body { font-size: var(--font-size-1); }
+    .hx-result-line { margin: 0 0 var(--spacing-3) 0; color: var(--text-highlight); }
+    .hx-empty { font-size: var(--font-size-1); color: var(--ansi-white); opacity: 0.7; }
+
+    .hx-stats {
+      margin: var(--spacing-3) 0;
+      display: grid;
+      gap: var(--spacing-1);
+      max-width: 520px;
+    }
+    .hx-stats div {
+      display: flex;
+      justify-content: space-between;
+      border-bottom: var(--border-muted);
+      padding: var(--spacing-1) 0;
+    }
+    .hx-stats dt { text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-primary); }
+    .hx-stats dd { margin: 0; color: var(--text-highlight); }
+    .hx-pass { color: var(--ansi-green) !important; }
+    .hx-fail { color: var(--ansi-red) !important; }
+    .hx-note { font-size: 10px; line-height: 1.4; color: var(--ansi-white); opacity: 0.7; margin-top: var(--spacing-2); }
+
+    .hx-table-scroll { overflow-x: auto; max-height: 320px; overflow-y: auto; }
+    .hx-table {
+      border-collapse: collapse;
+      font-size: var(--font-size-1);
+      width: 100%;
+    }
+    .hx-table th, .hx-table td {
+      border-bottom: var(--border-muted);
+      padding: var(--spacing-1) var(--spacing-2);
+      text-align: right;
+      white-space: nowrap;
+    }
+    .hx-table th {
+      color: var(--ansi-cyan);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-size: 10px;
+      position: sticky;
+      top: 0;
+      background-color: var(--bg-panel);
+    }
+
+    .mb-footer {
+      border-top: var(--border-default);
+      padding: var(--spacing-3) var(--spacing-4);
+      display: flex;
+      gap: var(--spacing-5);
+      flex-wrap: wrap;
+    }
+    .mb-meta { font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ansi-white); opacity: 0.7; }
+  </style>
+
+  <!-- Page-local Alpine component. Registered before Alpine.start() via the
+       alpine:init event, so the shared /js/app.js bundle stays untouched. -->
+  <script>
+    document.addEventListener('alpine:init', () => {
+      Alpine.data('harnessApp', () => ({
+        cpl: 60,
+        rows: 10,
+        scale: 1,
+        scaleA: 1, scaleB: 1, scaleC: 1,
+        running: false,
+        results: { kind: null },
+
+        // Three distinct samples (soft-wrap under break-all; no hard newlines).
+        textA: 'MonoBox A — the scalar primitive under stress. Dragging scale mutates font-size and the ch/em grid tracks it exactly. This paragraph is long enough to wrap across several lines at sixty characters per line, and the wrap count must not change as the box shrinks toward the icon scale or grows toward two-x. The harness measures frame cadence while all three boxes scale together to expose any layout thrash.',
+        textB: 'MonoBox B — a shorter neighbour. It sits in its own one-fr grid cell and must not reflow when box A scales. Its intrinsic line count is a function of cpl alone.',
+        textC: 'MonoBox C — third instance, medium length text sample to occupy an independent grid cell. The interference probe verifies that scaling A leaves both B and C positionally and structurally untouched, which is the contain-layout-style isolation guarantee made observable.',
+
+        init() {
+          this.syncScales();
+        },
+
+        syncScales() {
+          this.scaleA = this.scale;
+          this.scaleB = this.scale;
+          this.scaleC = this.scale;
+        },
+
+        boxEl(which) {
+          return document.querySelector('.monobox[data-box="' + which + '"]');
+        },
+
+        // Intrinsic wrapped line count = content scrollHeight / (fontPx · 1.2).
+        // Uses the unitless line-height factor from --monobox-line-height.
+        measureLines(box) {
+          const content = box.querySelector('.monobox-content');
+          const cs = getComputedStyle(box);
+          const fontPx = parseFloat(cs.fontSize);
+          const lhPx = fontPx * 1.2;
+          return Math.round(content.scrollHeight / lhPx);
+        },
+
+        // Triangle wave 0.15 <-> 2.0, period 2s. Returns S for a given elapsed ms.
+        _wave(elapsedMs) {
+          const phase = (elapsedMs / 1000) % 2;
+          const tri = Math.abs(phase - 1); // 1 -> 0 -> 1
+          return 0.15 + (1 - tri) * 1.85;
+        },
+
+        runStress() {
+          if (this.running) return;
+          this.running = true;
+          this.results = { kind: 'stress' };
+          const boxes = [this.boxEl('A'), this.boxEl('B'), this.boxEl('C')];
+          const duration = 3000;
+          const frames = [];
+          const start = performance.now();
+
+          const tick = (t) => {
+            const elapsed = t - start;
+            const S = this._wave(elapsed);
+            for (const b of boxes) b.style.setProperty('--scale', String(S));
+            frames.push(t);
+            if (elapsed < duration) {
+              requestAnimationFrame(tick);
+            } else {
+              const deltas = [];
+              for (let i = 1; i < frames.length; i++) deltas.push(frames[i] - frames[i - 1]);
+              const avgDelta = deltas.reduce((a, b) => a + b, 0) / deltas.length;
+              const maxDelta = Math.max.apply(null, deltas);
+              const avgFps = 1000 / avgDelta;
+              const minFps = 1000 / maxDelta;
+              const jank = deltas.filter((d) => d > 20).length;
+              const verdict = avgFps >= 58 && maxDelta < 50 ? 'PASS' : 'FAIL';
+              // restore shared scale on the boxes
+              for (const b of boxes) b.style.setProperty('--scale', String(this.scale));
+              this.results = {
+                kind: 'stress',
+                durationMs: Math.round(duration),
+                frames: frames.length,
+                avgFps, minFps, maxFrameMs: maxDelta, jank, verdict,
+                note: 'Headless/CDP numbers are indicative; re-run in a real browser for the authoritative gate.'
+              };
+              this.running = false;
+            }
+          };
+          requestAnimationFrame(tick);
+        },
+
+        runInterference() {
+          if (this.running) return;
+          this.running = true;
+          this.results = { kind: 'interference' };
+          const a = this.boxEl('A'), b = this.boxEl('B'), c = this.boxEl('C');
+          const b0 = b.getBoundingClientRect();
+          const c0 = c.getBoundingClientRect();
+          const bLinesStart = this.measureLines(b);
+          const cLinesStart = this.measureLines(c);
+          let bMaxDelta = 0, cMaxDelta = 0;
+          const duration = 3000;
+          const start = performance.now();
+          let frameCount = 0;
+
+          const tick = (t) => {
+            const elapsed = t - start;
+            const S = this._wave(elapsed);
+            a.style.setProperty('--scale', String(S)); // only A
+            const br = b.getBoundingClientRect();
+            const cr = c.getBoundingClientRect();
+            const bd = Math.max(
+              Math.abs(br.width - b0.width), Math.abs(br.height - b0.height),
+              Math.abs(br.left - b0.left), Math.abs(br.top - b0.top)
+            );
+            const cd = Math.max(
+              Math.abs(cr.width - c0.width), Math.abs(cr.height - c0.height),
+              Math.abs(cr.left - c0.left), Math.abs(cr.top - c0.top)
+            );
+            if (bd > bMaxDelta) bMaxDelta = bd;
+            if (cd > cMaxDelta) cMaxDelta = cd;
+            frameCount++;
+            if (elapsed < duration) {
+              requestAnimationFrame(tick);
+            } else {
+              const bLinesEnd = this.measureLines(b);
+              const cLinesEnd = this.measureLines(c);
+              const verdict =
+                bMaxDelta < 0.5 && cMaxDelta < 0.5 &&
+                bLinesEnd === bLinesStart && cLinesEnd === cLinesStart
+                  ? 'PASS' : 'FAIL';
+              a.style.setProperty('--scale', String(this.scaleA));
+              this.results = {
+                kind: 'interference',
+                bMaxDelta, cMaxDelta,
+                bLinesStart, bLinesEnd, cLinesStart, cLinesEnd,
+                frames: frameCount, verdict
+              };
+              this.running = false;
+            }
+          };
+          requestAnimationFrame(tick);
+        },
+
+        measureSubpixel() {
+          if (this.running) return;
+          this.running = true;
+          this.results = { kind: 'subpixel' };
+          const box = this.boxEl('A');
+          const rows = [];
+          // base geometry at S=1
+          box.style.setProperty('--scale', '1');
+          const baseR = box.getBoundingClientRect();
+          const baseH = baseR.height;
+          const wPerSvals = [];
+          const hRatios = [];
+          for (let S = 0.15; S <= 2.001; S += 0.05) {
+            const Sv = Math.round(S * 100) / 100;
+            box.style.setProperty('--scale', String(Sv));
+            const r = box.getBoundingClientRect();
+            const cs = getComputedStyle(box);
+            const fontPx = parseFloat(cs.fontSize);
+            const wPerS = r.width / Sv / this.cpl; // = 1ch at 16px, should be constant
+            const hRatio = r.height / baseH;        // should equal Sv
+            rows.push({ S: Sv, fontPx, width: r.width, wPerS, height: r.height, hRatio });
+            wPerSvals.push(wPerS);
+            hRatios.push(hRatio);
+          }
+          const wPerSMin = Math.min.apply(null, wPerSvals);
+          const wPerSMax = Math.max.apply(null, wPerSvals);
+          const hRatioMin = Math.min.apply(null, hRatios);
+          const hRatioMax = Math.max.apply(null, hRatios);
+          const wDrift = wPerSMax - wPerSMin;
+          // Height ratio (h/baseH) should equal S, not 1. Compare per-row.
+          let maxHDev = 0;
+          for (const row of rows) {
+            maxHDev = Math.max(maxHDev, Math.abs(row.hRatio - row.S));
+          }
+          const verdict = wDrift < 1.0 && maxHDev <= 0.02 ? 'PASS' : 'FAIL';
+          box.style.setProperty('--scale', String(this.scaleA));
+          this.results = {
+            kind: 'subpixel',
+            cpl: this.cpl, rowsCount: this.rows,
+            rows: rows,
+            wPerSMin, wPerSMax, hRatioMin, hRatioMax, maxHDev, verdict
+          };
+          this.running = false;
+        },
+      }));
+    });
+  </script>
+
+</body>
+</html>
