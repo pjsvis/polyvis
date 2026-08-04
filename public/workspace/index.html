@@ -1,0 +1,416 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PolyVis | Workspace — Spatial Canvas (Phase 1)</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="stylesheet" href="/css/app.css" />
+  <script src="/js/app.js" defer></script>
+  <!-- Inline Theme Init (prevents flash) -->
+  <script>
+    (() => {
+      const stored = localStorage.getItem('polyvis-theme');
+      if (stored) document.documentElement.setAttribute('data-theme', stored);
+    })();
+  </script>
+  <script type="module" src="/js/utils/theme.js"></script>
+</head>
+
+<body class="ws-page">
+
+  <header class="ws-header">
+    <a href="/" class="nav-brand">POLYVIS</a>
+    <nav class="ws-header-right">
+      <a href="/monobox/" class="ws-link">← MONOBOX</a>
+      <a href="/" class="ws-link">← BACK</a>
+      <button type="button" onclick="window.toggleTheme()" class="ws-link">THEME</button>
+    </nav>
+  </header>
+
+  <!-- Single Alpine root: workspaceApp (registered via alpine:init below).
+       The workspace layer owns (x,y) + state; MonoBox --cpl/--rows/--scale
+       drive each box. No drag yet — buttons only. Phase 1 of td-bb916c. -->
+  <main class="ws-main" x-data="workspaceApp()" x-cloak>
+
+    <section class="ws-controls">
+      <h1 class="ws-title">SPATIAL CANVAS <span class="ws-title-sub">// PHASE 1 — CANVAS + RAIL</span></h1>
+      <p class="ws-lede">
+        N MonoBox instances on a free-form canvas plus a stash rail of greeked
+        S=0.15 icons. CYCLE walks <strong>stashed → active → expanded</strong>.
+        The workspace owns <code>(x,y)</code> + state; the box owns geometry.
+        No drag — buttons only. Epic <code>td-bb916c</code>.
+      </p>
+
+      <div class="ws-field-row">
+        <label class="ws-field">
+          <span class="ws-field-label">DEBUG OUTLINES</span>
+          <button type="button" class="ws-toggle" :class="{ 'is-on': debug }"
+                  @click="debug = !debug" x-text="debug ? 'ON' : 'OFF'"></button>
+        </label>
+        <label class="ws-field">
+          <span class="ws-field-label">BOXES <output class="ws-val" x-text="boxes.length"></output></span>
+          <button type="button" class="ws-btn" @click="addBox()">+ ADD BOX</button>
+        </label>
+      </div>
+
+      <dl class="ws-readout">
+        <div><dt>STATES</dt><dd>stashed · 0.15  |  active · 1.0  |  expanded · 2.0</dd></div>
+        <div><dt>ON CANVAS</dt><dd x-text="boxes.filter(b => b.state !== 'stashed').length"></dd></div>
+        <div><dt>ON RAIL</dt><dd x-text="boxes.filter(b => b.state === 'stashed').length"></dd></div>
+      </dl>
+
+      <p class="ws-hint">
+        Canvas boxes are positioned <code>absolute</code> at free <code>(x,y)</code>.
+        Stashed boxes drop into the rail (flex column) at S=0.15 and greek.
+        Position is remembered per box across stashed → active.
+      </p>
+    </section>
+
+    <section class="ws-surface">
+      <!-- CANVAS: free-form absolute positioning for active/expanded boxes -->
+      <div class="ws-canvas">
+        <div class="ws-canvas-label">CANVAS — free (x, y)</div>
+        <div class="ws-canvas-field">
+          <template x-for="box in boxes.filter(b => b.state !== 'stashed')" :key="box.id">
+            <div class="ws-box ws-box--canvas"
+                 :class="{ 'is-expanded': box.state === 'expanded' }"
+                 :style="{ left: box.x + 'px', top: box.y + 'px' }">
+              <div class="ws-box-bar">
+                <span class="ws-box-label" x-text="box.label"></span>
+                <span class="ws-box-state" x-text="box.state + ' · S=' + scaleFor(box.state)"></span>
+                <button type="button" class="ws-cycle" @click="cycle(box)"
+                        x-text="cycleLabel(box.state)"></button>
+              </div>
+              <div class="ws-box-pos">
+                <label>X<input type="range" min="0" max="900" step="1" x-model.number="box.x" /></label>
+                <label>Y<input type="range" min="0" max="500" step="1" x-model.number="box.y" /></label>
+              </div>
+              <div class="monobox" :data-debug="debug || null"
+                   :style="{ '--cpl': box.cpl, '--rows': box.rows, '--scale': scaleFor(box.state) }">
+                <div class="monobox-content" x-text="box.content"></div>
+              </div>
+            </div>
+          </template>
+        </div>
+      </div>
+
+      <!-- RAIL: flex column of greeked S=0.15 icons -->
+      <div class="ws-rail">
+        <div class="ws-rail-label">RAIL · S=0.15</div>
+        <div class="ws-rail-column">
+          <template x-for="box in boxes.filter(b => b.state === 'stashed')" :key="box.id">
+            <div class="ws-rail-entry" role="button" tabindex="0"
+                 @click="cycle(box)" @keydown.enter.prevent="cycle(box)"
+                 :title="box.label + ' — unstash'">
+              <div class="monobox" :data-debug="debug || null"
+                   :style="{ '--cpl': box.cpl, '--rows': box.rows, '--scale': 0.15 }">
+                <div class="monobox-content" x-text="box.content"></div>
+              </div>
+              <span class="ws-rail-name" x-text="box.label"></span>
+            </div>
+          </template>
+          <p class="ws-rail-empty" x-show="boxes.filter(b => b.state === 'stashed').length === 0">
+            rail empty — stash a box
+          </p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="ws-footer">
+    <span class="ws-meta">Epic: td-bb916c · Task: td-6fd506</span>
+    <span class="ws-meta">Brief: briefs/2026-08-03-brief-spatial-canvas-arrangement.md</span>
+    <a href="/monobox/harness.html" class="ws-meta">MonoBox harness →</a>
+  </footer>
+
+  <!-- Page chrome only (experimental route). The MonoBox primitive lives in
+       src/css/layers/monobox.css, compiled into /css/app.css. The workspace
+       layer here owns state + (x,y); it does not touch box geometry. -->
+  <script>
+    document.addEventListener('alpine:init', () => {
+      Alpine.data('workspaceApp', () => ({
+        debug: false,
+        // Scale is an attribute of state, not a free field (founding decision #1).
+        // stashed=0.15 (greeked icon), active=1.0, expanded=2.0.
+        scaleFor(state) {
+          return { stashed: 0.15, active: 1.0, expanded: 2.0 }[state];
+        },
+        // Cycle: stashed → active → expanded → stashed.
+        // stashed→active restores remembered (x,y) (they persist in the datum).
+        // expanded→stashed is the "throw to rail" transition (animated in P2).
+        cycle(box) {
+          const order = ['stashed', 'active', 'expanded'];
+          const i = order.indexOf(box.state);
+          box.state = order[(i + 1) % order.length];
+        },
+        cycleLabel(state) {
+          return { stashed: 'UNSTASH → active', active: 'EXPAND → expanded', expanded: 'STASH → rail' }[state];
+        },
+        nextId: 5,
+        addBox() {
+          const id = this.nextId++;
+          this.boxes.push({
+            id: 'b' + id,
+            label: 'DOC-' + String(id).padStart(2, '0'),
+            cpl: 56, rows: 10,
+            state: 'active',
+            x: 60 + (this.boxes.length * 40) % 600,
+            y: 60 + (this.boxes.length * 30) % 300,
+            content: 'New document ' + id + '. MonoBox renders monospaced text inside a bounding box whose width and height are strict functions of the character scale. At S=0.15 the text Greeks into an icon-sized glyph block — the stashed end state. Position is free (x, y) on the canvas; the rail holds greeked icons.',
+          });
+        },
+        boxes: [
+          {
+            id: 'b1', label: 'DOC-01', cpl: 60, rows: 12,
+            state: 'active', x: 80, y: 70,
+            content: 'Document one. MonoBox renders monospaced text inside a bounding box whose width and height are strict functions of the character scale. Drag the CYCLE button through stashed, active, expanded. At S=0.15 the text Greeks into an icon-sized glyph block — the stashed end state. Width equals characters-per-line times one ch; height equals rows times line-height times the scaled font-size. No pixel widths are hardcoded anywhere in the geometry.',
+          },
+          {
+            id: 'b2', label: 'DOC-02', cpl: 48, rows: 8,
+            state: 'expanded', x: 420, y: 120,
+            content: 'Document two, expanded on the canvas at S=2.0. Same cpl and rows as when active — only the scale changes. Wrapping is identical; the footprint grows. Cycle to STASH to send it to the rail as a greeked icon.',
+          },
+          {
+            id: 'b3', label: 'DOC-03', cpl: 40, rows: 14,
+            state: 'stashed', x: 200, y: 260,
+            content: 'Document three is stashed on the rail at S=0.15. It greeks into a compact glyph block. Its canvas position (x, y) is remembered — UNSTASH returns it to where it was. Click the rail entry to cycle it back to active.',
+          },
+          {
+            id: 'b4', label: 'DOC-04', cpl: 64, rows: 6,
+            state: 'stashed', x: 520, y: 300,
+            content: 'Document four, also stashed. Different cpl and rows prove the rail icon size varies with geometry — each greeked icon preserves its own aspect ratio. The rail is a flex column; entries stack vertically.',
+          },
+        ],
+      }));
+    });
+  </script>
+
+  <style>
+    [x-cloak] { display: none !important; }
+
+    .ws-page {
+      font-family: var(--font-mono);
+      background-color: var(--bg-canvas);
+      color: var(--text-primary);
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .ws-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: var(--border-default);
+      padding: var(--spacing-2) var(--spacing-4);
+    }
+    .ws-header-right { display: flex; gap: var(--spacing-4); align-items: center; }
+    .ws-link {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-primary);
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-family: var(--font-mono);
+      text-decoration: none;
+    }
+    .ws-link:hover { background-color: var(--ansi-white); color: var(--ansi-black); }
+
+    .ws-main {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: var(--spacing-5);
+      padding: var(--spacing-5);
+      align-items: start;
+    }
+    @media (max-width: 880px) {
+      .ws-main { grid-template-columns: 1fr; }
+    }
+
+    /* --- controls --- */
+    .ws-title {
+      font-size: var(--font-size-3);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin: 0 0 var(--spacing-2) 0;
+    }
+    .ws-title-sub { color: var(--text-agent); font-size: var(--font-size-1); }
+    .ws-lede { font-size: var(--font-size-1); line-height: 1.4; margin: 0 0 var(--spacing-5) 0; }
+    .ws-lede strong { color: var(--text-highlight); }
+    .ws-lede code { color: var(--ansi-green); }
+
+    .ws-field-row { display: flex; gap: var(--spacing-4); flex-wrap: wrap; margin-bottom: var(--spacing-4); }
+    .ws-field { display: flex; flex-direction: column; gap: var(--spacing-1); }
+    .ws-field-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .ws-val { color: var(--ansi-cyan); font-size: var(--font-size-1); }
+    .ws-btn, .ws-toggle {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      background-color: var(--bg-panel);
+      color: var(--text-primary);
+      border: var(--border-default);
+      padding: var(--spacing-1) var(--spacing-3);
+      cursor: pointer;
+    }
+    .ws-btn:hover, .ws-toggle:hover { background-color: var(--ansi-white); color: var(--ansi-black); }
+    .ws-toggle.is-on { color: var(--ansi-black); background-color: var(--ansi-cyan); border-color: var(--ansi-cyan); }
+
+    .ws-readout { margin: var(--spacing-4) 0 0 0; display: grid; gap: var(--spacing-1); }
+    .ws-readout div {
+      display: flex;
+      justify-content: space-between;
+      border-bottom: var(--border-muted);
+      padding: var(--spacing-1) 0;
+      font-size: var(--font-size-1);
+    }
+    .ws-readout dt { text-transform: uppercase; letter-spacing: 0.05em; }
+    .ws-readout dd { margin: 0; color: var(--text-highlight); }
+    .ws-hint { font-size: 10px; line-height: 1.4; color: var(--ansi-white); margin-top: var(--spacing-4); opacity: 0.8; }
+    .ws-hint code { color: var(--ansi-green); }
+
+    /* ===== SCOPED RESET MEMBRANE (ADR-002) =====
+       The workspace is a spatial surface, not document flow. Nuke the inherited
+       layout assumptions that conflict (box-sizing border-box from preflight,
+       flex/grid defaults, margins, button UA sizing) and rebuild from clean.
+       CSS custom properties (theme tokens) are NOT part of `all` and survive —
+       so theme tokens flow in, layout assumptions don't. The reset is a
+       membrane, not a second design system. */
+    .ws-surface, .ws-surface * {
+      box-sizing: content-box;   /* matches MonoBox (ADR-001); undoes preflight border-box */
+      margin: 0;
+    }
+    .ws-surface {
+      /* re-establish only what the spatial surface needs */
+      font-family: var(--font-mono);
+      color: var(--text-primary);
+      display: grid;
+      grid-template-columns: 1fr 140px;
+      gap: var(--spacing-4);
+      min-height: 620px;
+    }
+    @media (max-width: 880px) {
+      .ws-surface { grid-template-columns: 1fr; }
+    }
+
+    .ws-canvas-label, .ws-rail-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--ansi-cyan);
+      margin-bottom: var(--spacing-2);
+    }
+
+    /* CANVAS: the sole positioning context. position:relative establishes the
+       coordinate origin canvas boxes are absolute against. overflow:hidden
+       clips the workspace viewport (boxes can be dragged off-screen in P2). */
+    .ws-canvas-field {
+      position: relative;
+      background-color: var(--bg-panel);
+      border: var(--border-default);
+      height: 600px;
+      overflow: hidden;
+    }
+
+    /* Canvas boxes: absolute, free (x,y). Plain block layout (NOT flex) — the
+       bar, pos controls, and monobox stack as normal blocks. This removes the
+       flex-column shrink-to-fit width ambiguity that produced non-closing
+       coordinate math (ADR-002 context). The monobox sets its own geometry
+       from --cpl/--rows/--scale; the workspace sets position only. */
+    .ws-box--canvas {
+      position: absolute;
+      max-width: 900px;
+    }
+    .ws-box--canvas.is-expanded { z-index: 2; }
+
+    .ws-box-bar {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-2);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      background-color: var(--bg-canvas);
+      border: var(--border-muted);
+      padding: 2px var(--spacing-2);
+    }
+    .ws-box-label { color: var(--text-highlight); }
+    .ws-box-state { color: var(--text-agent); }
+    .ws-cycle {
+      margin-left: auto;
+      font-family: var(--font-mono);
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      background: none;
+      border: var(--border-muted);
+      color: var(--text-primary);
+      padding: 1px var(--spacing-2);
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .ws-cycle:hover { background-color: var(--ansi-cyan); color: var(--ansi-black); }
+
+    .ws-box-pos { display: flex; gap: var(--spacing-3); font-size: 9px; margin: var(--spacing-1) 0; }
+    .ws-box-pos label { display: flex; align-items: center; gap: var(--spacing-1); color: var(--ansi-white); opacity: 0.8; }
+    .ws-box-pos input[type="range"] { width: 90px; accent-color: var(--ansi-cyan); cursor: pointer; }
+
+    /* RAIL: flex column of greeked S=0.15 icons. flex:none on the monobox
+       keeps its explicit calc() height from being shrunk by the flex parent. */
+    .ws-rail { display: flex; flex-direction: column; }
+    .ws-rail-column {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-3);
+      background-color: var(--bg-panel);
+      border: var(--border-default);
+      padding: var(--spacing-3);
+      overflow-y: auto;
+    }
+    .ws-rail-entry {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--spacing-1);
+      background: none;
+      border: var(--border-muted);
+      padding: var(--spacing-2);
+      cursor: pointer;
+      font-family: var(--font-mono);
+    }
+    .ws-rail-entry .monobox { flex: none; }
+    .ws-rail-entry:hover { background-color: var(--ansi-cyan); color: var(--ansi-black); }
+    .ws-rail-name {
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-primary);
+    }
+    .ws-rail-entry:hover .ws-rail-name { color: var(--ansi-black); }
+    .ws-rail-empty { font-size: 10px; color: var(--ansi-white); opacity: 0.5; margin: 0; }
+
+    .ws-footer {
+      border-top: var(--border-default);
+      padding: var(--spacing-3) var(--spacing-4);
+      display: flex;
+      gap: var(--spacing-5);
+      flex-wrap: wrap;
+    }
+    .ws-meta { font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ansi-white); opacity: 0.7; text-decoration: none; }
+  </style>
+
+</body>
+</html>

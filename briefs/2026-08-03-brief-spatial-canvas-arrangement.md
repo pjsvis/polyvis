@@ -3,6 +3,7 @@
 **Created:** 2026-08-03
 **TD:** td-bb916c (epic) · P1 td-6fd506 · P2 td-abce57 · P3 td-d231e7
 **Status:** pending
+**Updated:** 2026-08-04 — added founding decision #3 (scoped reset, ADR-002).
 
 ## What
 
@@ -33,6 +34,22 @@ brackets; confirm or override.
    free `(x, y)`; the rail is a flex column of stashed boxes at S=0.15. "Throw
    to the side" = transition `active → stashed`, which moves the box to the
    rail. Reuses the verified greeked state as the stash appearance.
+3. **CSS inheritance: global cascade vs scoped reset.**
+   [DECISION: scoped reset on the workspace container (ADR-002).] The spatial
+   canvas has different layout *semantics* than the document-flow app the global
+   CSS stack (Tailwind preflight `border-box`, basecoat, layers) was built for.
+   The Phase-1 prototype hit three inherited-rule friction points in rapid
+   succession (button UA sizing, flex-shrink collapsing the monobox's explicit
+   height, and non-closing coordinate math — `offsetLeft=80` + offsetParent at
+   360 with no transform anywhere, yet `rect.left = -115`). Per-element patching
+   is the spiral. The workspace surface declares a layout-membrane boundary:
+   nuke the conflicting inherited assumptions (`box-sizing`, flex/grid
+   defaults, margins, button UA sizing), then re-establish only what the
+   spatial surface needs. `all: initial` is too blunt — but CSS custom
+   properties (`--font-mono`, `--bg-canvas`, `--monobox-*`) are not part of
+   `all` and survive, so **theme tokens flow in, layout assumptions don't.**
+   The reset is a membrane, not a second design system. See
+   `decisions/002-workspace-scoped-reset.md`.
 
 ## Proposed states (hypothesis — verify via prototype, then formalise)
 
